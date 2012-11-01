@@ -1,19 +1,21 @@
 Classes and objects
 ===================
 
-We so far created functions manipulating variables (zval), some of which may be
-of array type thus hashtables. We have enough knowledge to go for objects and
-classes by now.
+In recent years PHP has been turning more and more from a procedural language to an object-oriented one. Even though
+the fundamentals are still of procedural nature (in particular large parts of the standard library) most library code
+nowadays is developed in terms of classes and objects.
+
+This chapter covers the rather complex internals of PHP's object orientation system. It is split into several larger
+sections,
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
-   classes_objects/structures.rst
-   classes_objects/class_registration.rst
+   classes_objects/simple_classes.rst
+
    classes_objects/constants.rst
-   classes_objects/properties.rst
    classes_objects/zend_object_store.rst
    classes_objects/handlers.rst
    classes_objects/property_access.rst
