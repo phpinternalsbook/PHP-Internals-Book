@@ -14,9 +14,9 @@ Contents:
    :maxdepth: 2
 
    classes_objects/simple_classes.rst
+   classes_objects/custom_object_storage.rst
 
    classes_objects/constants.rst
-   classes_objects/zend_object_store.rst
    classes_objects/handlers.rst
    classes_objects/property_access.rst
    classes_objects/array_access.rst
