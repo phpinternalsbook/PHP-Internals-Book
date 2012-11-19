@@ -15,6 +15,7 @@ Contents:
 
    classes_objects/simple_classes.rst
    classes_objects/custom_object_storage.rst
+   classes_objects/implementing_typed_arrays.rst
 
    classes_objects/constants.rst
    classes_objects/handlers.rst
