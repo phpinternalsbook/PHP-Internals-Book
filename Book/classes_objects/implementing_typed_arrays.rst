@@ -20,7 +20,9 @@ of signed 32-bit integers you create a ``Int32Array`` view. To view it as an arr
 can use a ``UInt8Array``. It is possible to have several views on the same data, so data can be interpreted both as an
 int32 and a uint8.
 
-A small usage example::
+A small usage example :
+
+.. code-block:: php
 
     <?php
 
@@ -53,7 +55,9 @@ The ``ArrayBuffer``
 -------------------
 
 The ``ArrayBuffer`` is a very simple object, that only needs to allocate and store a buffer and its length. Thus the
-internal structure could look like this::
+internal structure could look like this :
+
+.. code-block:: c
 
     typedef struct _buffer_object {
         zend_object std;
@@ -66,7 +70,9 @@ internal structure could look like this::
     zend_class_entry *array_buffer_ce;
     zend_object_handlers array_buffer_handlers;
 
-The create and free handlers are similarly simple and look nearly the same as the ones in the previous section::
+The create and free handlers are similarly simple and look nearly the same as the ones in the previous section :
+
+.. code-block:: c
 
     static void array_buffer_free_object_storage(buffer_object *intern TSRMLS_DC)
     {
@@ -100,7 +106,9 @@ The create and free handlers are similarly simple and look nearly the same as th
     }
 
 The ``create_object`` handler does not yet allocate the buffer, this is done in the constructor (because it depends on
-the buffer length, which is a ctor parameter)::
+the buffer length, which is a ctor parameter) :
+
+.. code-block:: c
 
     PHP_METHOD(ArrayBuffer, __construct)
     {
@@ -145,7 +153,9 @@ passed, into which the previous error mode is backed up. This structure is later
 ``zend_restore_error_handling`` to get the old mode back.
 
 Apart from the create handler you also have to handle cloning. For the ``ArrayBuffer`` this is as simple as just
-copying the allocated buffer::
+copying the allocated buffer :
+
+.. code-block:: c
 
     static zend_object_value array_buffer_clone(zval *object TSRMLS_DC)
     {
@@ -168,7 +178,9 @@ copying the allocated buffer::
         return new_object_val;
     }
 
-And finally getting everything together in ``MINIT``::
+And finally getting everything together in ``MINIT`` :
+
+.. code-block:: c
 
     ZEND_BEGIN_ARG_INFO_EX(arginfo_buffer_ctor, 0, 0, 1)
         ZEND_ARG_INFO(0, length)
@@ -198,7 +210,9 @@ The buffer views
 
 The buffer views will be a good bit more work. We'll implement 8 different view classes which all share one
 implementation, namely ``Int8Array``, ``UInt8Array``, ``Int16Array``, ``UInt16Array``, ``Int32Array``, ``UInt32Array``,
-``FloatArray`` and ``DoubleArray``. The class registration code looks as follows::
+``FloatArray`` and ``DoubleArray``. The class registration code looks as follows :
+
+.. code-block:: c
 
     zend_class_entry *int8_array_ce;
     zend_class_entry *uint8_array_ce;
@@ -247,8 +261,9 @@ with the same functions), registers the class, assigns the create handler (which
 implements the ``ArrayAccess`` interface. The macro uses the magic ``#`` and ``##`` operators, which were introduced in
 [Some Ref].
 
-The ``array_buffer_view_functions`` are declared as follows::
+The ``array_buffer_view_functions`` are declared as follows :
 
+.. code-block:: c
 
     ZEND_BEGIN_ARG_INFO_EX(arginfo_buffer_view_ctor, 0, 0, 1)
         ZEND_ARG_INFO(0, buffer)
@@ -276,7 +291,9 @@ The ``array_buffer_view_functions`` are declared as follows::
     };
 
 The new thing here is that instead of ``PHP_ME`` the macro ``PHP_ME_MAPPING`` is used. The difference is that
-``PHP_ME`` maps to a ``PHP_METHOD`` whereas ``PHP_ME_MAPPING`` maps to a ``PHP_FUNCTION``. An example::
+``PHP_ME`` maps to a ``PHP_METHOD`` whereas ``PHP_ME_MAPPING`` maps to a ``PHP_FUNCTION``. An example :
+
+.. code-block:: c
 
     PHP_ME(ArrayBufferView, offsetGet, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC)
     // maps to
@@ -303,7 +320,9 @@ Additional out implementation will store the offset and length of the view. Thos
 use the entire buffer. E.g. ``new Int32Array($buffer, 18, 24)`` should create a view that starts 18 bytes into the buffer
 and contains a total of 24 elements.
 
-This is how the resulting structure could look like::
+This is how the resulting structure could look like :
+
+.. code-block:: c
 
     typedef enum _buffer_view_type {
         buffer_view_int8,
@@ -339,7 +358,9 @@ This is how the resulting structure could look like::
     } buffer_view_object;
 
 The exact-width integer types used above (``int8_t``, ...) are part of the ``stdint.h`` header. Sadly this header isn't
-always available on Windows, so a replacement header (that PHP natively provides) has to be included in this case::
+always available on Windows, so a replacement header (that PHP natively provides) has to be included in this case :
+
+.. code-block:: c
 
     #if defined(PHP_WIN32)
     # include "win32/php_stdint.h"
@@ -347,7 +368,9 @@ always available on Windows, so a replacement header (that PHP natively provides
     # include <stdint.h>
     #endif
 
-The free and create handlers for the above data structure are rather straightforward again::
+The free and create handlers for the above data structure are rather straightforward again :
+
+.. code-block:: c
 
     static void array_buffer_view_free_object_storage(buffer_view_object *intern TSRMLS_DC)
     {
@@ -410,7 +433,9 @@ The free and create handlers for the above data structure are rather straightfor
 The ``create_object`` handler contains some extra code to first find the base class of the instantiated class and then
 figure out which buffer view type it corresponds to. It's necessary to go up the ``parent`` chain to make sure that
 everything will work fine if one of the classes is extended. The creation handler doesn't do particularly much, the main
-happens in the constructor::
+happens in the constructor :
+
+.. code-block:: c
 
     PHP_FUNCTION(array_buffer_view_ctor)
     {
@@ -466,7 +491,9 @@ happens in the constructor::
     }
 
 The code is mostly error checking, with a few assignments to the internal structure sprinkled in between. The code also
-uses the helper function ``buffer_view_get_bytes_per_element`` which does exactly what it says::
+uses the helper function ``buffer_view_get_bytes_per_element`` which does exactly what it says :
+
+.. code-block:: c
 
     size_t buffer_view_get_bytes_per_element(buffer_view_object *intern)
     {
@@ -491,7 +518,9 @@ uses the helper function ``buffer_view_get_bytes_per_element`` which does exactl
     }
 
 The only missing piece from the construction logic is the clone handler, which doesn't do much more than copying the
-internal members and adding a ref to the buffer zval::
+internal members and adding a ref to the buffer zval :
+
+.. code-block:: c
 
     static zend_object_value array_buffer_view_clone(zval *object TSRMLS_DC)
     {
@@ -524,7 +553,9 @@ internal members and adding a ref to the buffer zval::
 Now that all the formalisms are out of the way, we can start working on the actual functionality: Accessing values at
 certain offsets. For that you need two helper functions for getting and setting the offset depending on the type of the
 view. This basically just comes down to switching throw all the different types and using the respective member from
-the buffer union::
+the buffer union :
+
+.. code-block:: c
 
     zval *buffer_view_offset_get(buffer_view_object *intern, size_t offset)
     {
@@ -603,7 +634,9 @@ the buffer union::
     }
 
 Implementing the ``ArrayAccess`` interface is now only matter of doing a bit of bounds checking and dispatching to the
-above methods (as well as the usual method boilerplate). Here's how the ``offsetGet`` method could be implemented::
+above methods (as well as the usual method boilerplate). Here's how the ``offsetGet`` method could be implemented :
+
+.. code-block:: c
 
     PHP_FUNCTION(array_buffer_view_offset_get)
     {
