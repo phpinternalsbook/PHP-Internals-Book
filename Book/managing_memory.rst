@@ -10,6 +10,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+..
+
    managing_memory/zendmm_intro.rst
    managing_memory/zendmm_config.rst
    managing_memory/useful_functions.rst
