@@ -124,7 +124,7 @@ latter is used for properties declared in the class and the former for propertie
 
 The ``zend_objects_new`` function allocates the aforementioned standard object structure and initializes it. Afterwards
 it calls ``zend_objects_store_put`` to put the object data into the object store. The object store is nothing more than
-a dynamically resized array of ``zend_object_store_bucket``s:
+a dynamically resized array of ``zend_object_store_bucket``\ s:
 
 .. code-block:: c
 
