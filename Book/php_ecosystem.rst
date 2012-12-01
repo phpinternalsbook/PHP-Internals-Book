@@ -12,7 +12,6 @@ Contents:
    :maxdepth: 2
 
 ..
-
    php_ecosystem/packages_vs_source.rst
    php_ecosystem/compiling_php.rst
    php_ecosystem/extensions_list.rst

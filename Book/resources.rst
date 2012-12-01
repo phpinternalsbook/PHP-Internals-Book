@@ -12,7 +12,6 @@ Contents:
    :maxdepth: 2
 
 ..
-
    resources/definition.rst
    resources/zend_list.rst
    resources/basic_api.rst

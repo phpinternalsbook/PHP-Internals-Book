@@ -18,7 +18,6 @@ Contents:
    classes_objects/implementing_typed_arrays.rst
 
 ..
-
    classes_objects/constants.rst
    classes_objects/handlers.rst
    classes_objects/property_access.rst

@@ -12,7 +12,6 @@ Contents:
    :maxdepth: 2
 
 ..
-
    ini/getting_config.rst
    ini/read_and_display.rst
    ini/adding_params.rst

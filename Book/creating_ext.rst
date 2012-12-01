@@ -12,7 +12,6 @@ Contents:
    :maxdepth: 2
 
 ..
-
    creating_ext/zendext_vs_ext.rst
    creating_ext/load_mechanism.rst
    creating_ext/automatic_tools.rst

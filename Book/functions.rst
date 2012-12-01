@@ -12,7 +12,6 @@ Contents:
    :maxdepth: 2
 
 ..
-
    functions/structure.rst
    functions/arguments.rst
    functions/param_parsing.rst

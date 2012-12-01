@@ -13,7 +13,6 @@ Contents:
    :maxdepth: 2
 
 ..
-
    final/history.rst
    final/contributors.rst
    final/getting_help.rst
