@@ -80,6 +80,9 @@ exclude_patterns = ['_build']
 # output. They are ignored by default.
 #show_authors = False
 
+# Code included with :: will be C (and not Python)
+highlight_language = 'c'
+
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 

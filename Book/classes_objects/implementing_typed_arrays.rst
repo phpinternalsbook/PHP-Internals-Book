@@ -170,8 +170,13 @@ copying the allocated buffer:
             &old_object->std, Z_OBJ_HANDLE_P(object) TSRMLS_CC
         );
 
-        new_object->buffer = emalloc(old_object->length);
+        new_object->buffer = old_object->buffer;
         new_object->length = old_object->length;
+
+        if (old_object->buffer) {
+            new_object->buffer = emalloc(old_object->length);
+            memcpy(new_object->buffer, old_object->buffer, old_object->length);
+        }
 
         memcpy(new_object->buffer, old_object->buffer, old_object->length);
 
@@ -454,8 +459,6 @@ happens in the constructor:
         view_intern = zend_object_store_get_object(getThis() TSRMLS_CC);
         buffer_intern = zend_object_store_get_object(buffer_zval TSRMLS_CC);
 
-        view_intern->buffer_zval = buffer_zval;
-
         if (offset < 0) {
             zend_throw_exception(NULL, "Offset must be non-negative", 0 TSRMLS_CC);
             return;
@@ -464,13 +467,14 @@ happens in the constructor:
             zend_throw_exception(NULL, "Offset has to be smaller than the buffer length", 0 TSRMLS_CC);
             return;
         }
-
-        view_intern->offset = offset;
-
         if (length < 0) {
             zend_throw_exception(NULL, "Length must be positive or zero", 0 TSRMLS_CC);
             return;
         }
+
+        view_intern->offset = offset;
+        view_intern->buffer_zval = buffer_zval;
+        Z_ADDREF_P(buffer_zval);
 
         {
             size_t bytes_per_element = buffer_view_get_bytes_per_element(view_intern);
