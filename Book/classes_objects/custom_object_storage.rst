@@ -10,9 +10,7 @@ How are objects created?
 ------------------------
 
 As a first step lets look at how object are created in PHP. For this the ``object_and_properties_init`` macro or one of
-its simpler cousins is used:
-
-.. code-block:: c
+its simpler cousins is used::
 
     // Create an object of type SomeClass and give it the properties from properties_hashtable
     zval *obj;
@@ -33,9 +31,7 @@ its simpler cousins is used:
 
 In the last case, i.e. when you are creating an ``stdClass`` object you will probably want to add properties afterwards.
 This usually isn't done with the ``zend_update_property`` functions from the previous chapter, instead the
-``add_property`` macros are used:
-
-.. code-block:: c
+``add_property`` macros are used::
 
     add_property_long(obj, "id", id);
     add_property_string(obj, "name", name, 1); // 1 means the string should be copied
@@ -43,9 +39,7 @@ This usually isn't done with the ``zend_update_property`` functions from the pre
     // also _null(), _double(), _stringl(), _resource() and _zval()
 
 So what does actually happen when an object is created? To find out lets look at the ``_object_and_properties_init``
-function:
-
-.. code-block:: c
+function::
 
     ZEND_API int _object_and_properties_init(zval *arg, zend_class_entry *class_type, HashTable *properties ZEND_FILE_LINE_DC TSRMLS_DC) /* {{{ */
     {
@@ -82,9 +76,7 @@ After that comes the important part: The function checks whether the class has  
 has one it is called, if it hasn't the default ``zend_objects_new`` implementation is used (and additionally the
 properties are initialized).
 
-Here is what ``zend_objects_new`` then does:
-
-.. code-block:: c
+Here is what ``zend_objects_new`` then does::
 
     ZEND_API zend_object_value zend_objects_new(zend_object **object, zend_class_entry *class_type TSRMLS_DC)
     {
@@ -105,9 +97,7 @@ Here is what ``zend_objects_new`` then does:
     }
 
 The above code contains three interesting things. Firstly the ``zend_object`` structure, which is defined as
-follows:
-
-.. code-block:: c
+follows::
 
     typedef struct _zend_object {
         zend_class_entry *ce;
@@ -124,9 +114,7 @@ latter is used for properties declared in the class and the former for propertie
 
 The ``zend_objects_new`` function allocates the aforementioned standard object structure and initializes it. Afterwards
 it calls ``zend_objects_store_put`` to put the object data into the object store. The object store is nothing more than
-a dynamically resized array of ``zend_object_store_bucket``\ s:
-
-.. code-block:: c
+a dynamically resized array of ``zend_object_store_bucket``\ s::
 
     typedef struct _zend_object_store_bucket {
         zend_bool destructor_called;
@@ -165,9 +153,7 @@ initialize your object, which will contain the standard object as a substructure
 along with several handlers. And lastly you assign your object handlers structure.
 
 In order to do so you have to override the ``create_object`` class handler. Here is a dummy example of how this looks
-like (with inline explanations):
-
-.. code-block:: c
+like (with inline explanations)::
 
     zend_class_entry *test_ce;
 
@@ -278,9 +264,7 @@ behavior of calling ``__destruct`` (if it exists). Once again, even if you don't
 still specify this handler, otherwise inheriting classes won't be able to use it either.
 
 Now only the clone handler is left. Here the semantics should be straightforward, but the use is a bit more tricky.
-This is how such a clone handler might look like:
-
-.. code-block:: c
+This is how such a clone handler might look like::
 
     static void test_clone_object_storage_handler(test_object *object, test_object **object_clone TSRMLS_DC)
     {
@@ -296,9 +280,7 @@ This is how such a clone handler might look like:
         *object_clone_target = object_clone;
     }
 
-The clone handler is then passed as the last argument to ``zend_objects_store_put``:
-
-.. code-block:: c
+The clone handler is then passed as the last argument to ``zend_objects_store_put``::
 
     retval.handle = zend_objects_store_put(
         intern,
@@ -310,9 +292,7 @@ The clone handler is then passed as the last argument to ``zend_objects_store_pu
 
 But this is not yet enough to make the clone handler work: By default the object storage clone handler is simply
 ignored. To make it work you have to replace the default clone handler in the object handlers structure with
-``zend_objects_store_clone_obj``:
-
-.. code-block:: c
+``zend_objects_store_clone_obj``::
 
     memcpy(&test_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     test_object_handler.clone_obj = zend_objects_store_clone_obj;
@@ -321,9 +301,7 @@ But overwriting the standard clone handler (``zend_objects_clone_obj``) comes wi
 properties (as in real properties, not the ones in the custom object storage) won't be copied and also the ``__clone``
 method won't be called. That's why most internal classes instead directly specify their own object handler for cloning,
 rather than going the extra round through the object storage clone handler. This approach comes with a bit more
-boilerplate. For example, this is how the default clone handler looks like:
-
-.. code-block:: c
+boilerplate. For example, this is how the default clone handler looks like::
 
     ZEND_API zend_object_value zend_objects_clone_obj(zval *zobject TSRMLS_DC)
     {
@@ -348,9 +326,7 @@ then creates a new object with the same class entry (using ``zend_objects_new``)
 method if it exists.
 
 A custom object cloning handler looks similar, with the main difference being that instead of calling
-``zend_objects_new`` we'll rather call our ``create_object`` handler:
-
-.. code-block:: c
+``zend_objects_new`` we'll rather call our ``create_object`` handler::
 
     static zend_object_value test_clone_handler(zval *object TSRMLS_DC)
     {
@@ -394,9 +370,7 @@ The third getter function that was used is ``zend_objects_get_address()``, which
 function is pretty useless because C allows implicit casts from ``void*`` to other pointer types.
 
 The most important of these functions is ``zend_object_store_get_object()``. You will be using it a lot. Pretty much
-all methods will look similar to this:
-
-.. code-block:: c
+all methods will look similar to this::
 
     PHP_METHOD(Test, foo)
     {

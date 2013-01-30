@@ -5,9 +5,7 @@ Basic concepts
 --------------
 
 To store objects zvals use the ``IS_OBJECT`` type tag and the ``zend_object_value`` structure in the union, which is
-defined as follows:
-
-.. code-block:: c
+defined as follows::
 
     typedef struct _zend_object_value {
         zend_object_handle handle;
@@ -33,9 +31,7 @@ Class registration
 ------------------
 
 Just like functions classes are registered in the extension's ``MINIT`` handler. Here is a snippet for declaring an
-empty ``Test`` class:
-
-.. code-block:: c
+empty ``Test`` class::
 
     zend_class_entry *test_ce;
 
@@ -63,7 +59,9 @@ Then the main code follows: First a temporary class entry value ``tmp_ce`` is de
 function also returns the final class entry, so it can be stored in the global variable declared above.
 
 To test that the class was registered properly you can run ``php --rc Test``, which should give an output along the
-following lines::
+following lines:
+
+.. code-block:: none
 
     Class [ <internal:test> class Test ] {
       - Constants [0] {
@@ -83,9 +81,7 @@ As expected what you get is a totally empty class.
 Method definition and declaration
 ---------------------------------
 
-To bring it to life lets add a method:
-
-.. code-block:: c
+To bring it to life lets add a method::
 
     PHP_METHOD(Test, helloWorld) /* {{{ */
     {
@@ -112,22 +108,16 @@ flags.
 
 The flags parameter allows you to specify the usual PHP method modifiers using a combination of ``ZEND_ACC_PUBLIC``,
 ``ZEND_ACC_PROTECTED``, ``ZEND_ACC_PRIVATE``, ``ZEND_ACC_STATIC``, ``ZEND_ACC_FINAL`` and ``ZEND_ACC_ABSTRACT``. For
-example a protected final static method would be declared as follows:
-
-.. code-block:: c
+example a protected final static method would be declared as follows::
 
     PHP_ME(Test, protectedFinalStaticMethod, arginfo_xyz, ZEND_ACC_PROTECTED | ZEND_ACC_FINAL | ZEND_ACC_STATIC)
 
-Due to its special semantics the ``ZEND_ACC_ABSTRACT`` flag isn't used directly, rather via a special macro:
-
-.. code-block:: c
+Due to its special semantics the ``ZEND_ACC_ABSTRACT`` flag isn't used directly, rather via a special macro::
 
     PHP_ABSTRACT_ME(Test, abstractMethod, arginfo_abc)
 
 There are three additional flags for marking special methods, namely ``ZEND_ACC_CTOR``, ``ZEND_ACC_DTOR`` and
-``ZEND_ACC_CLONE``:
-
-.. code-block:: c
+``ZEND_ACC_CLONE``::
 
     PHP_ME(Test, __construct, arginfo_ctor,  ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(Test, __destruct,  arginfo_dtor,  ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
@@ -136,9 +126,7 @@ There are three additional flags for marking special methods, namely ``ZEND_ACC_
 The only real function of those flags is to make Reflection's ``isConstructor()`` and ``isDestructor()`` methods return
 true. The ``ZEND_ACC_CLONE`` flags is completely unused (so I wouldn't bother adding it.)
 
-But now, lets get back to writing methods. Here is another one:
-
-.. code-block:: c
+But now, lets get back to writing methods. Here is another one::
 
     PHP_METHOD(Test, getOwnObjectHandle) /* {{{ */
     {
@@ -177,9 +165,7 @@ associated objects are destroyed.)
 Reading, updating and declaring properties
 ------------------------------------------
 
-To do something more useful, lets create two methods for reading from and writing to a property:
-
-.. code-block:: c
+To do something more useful, lets create two methods for reading from and writing to a property::
 
     PHP_METHOD(Test, getFoo) /* {{{ */
     {
@@ -269,15 +255,11 @@ registered, just like you would write ``public $foo = DEFAULT_VALUE;`` in PHP.
 
 This is done using the ``zend_declare_property`` function family, which features the same variants as
 ``zend_update_property``. For example to declare a public ``foo`` property with a ``null`` default value we have to add
-the following line after the class registration in ``MINIT``:
-
-.. code-block:: c
+the following line after the class registration in ``MINIT``::
 
     zend_declare_property_null(test_ce, "foo", sizeof("foo") - 1, ZEND_ACC_PUBLIC TSRMLS_CC);
 
-To create a protected property defaulting to the string ``"bar"`` you instead write:
-
-.. code-block:: c
+To create a protected property defaulting to the string ``"bar"`` you instead write::
 
     zend_declare_property_string(test_ce, "foo", sizeof("foo") - 1, "bar", ZEND_ACC_PROTECTED TSRMLS_CC);
 
@@ -286,9 +268,7 @@ always good practice to properly declare properties. This way you have an explic
 and you also benefit from memory optimizations for declared properties.
 
 Static properties are also declared using the same family of functions by additionally specifying the
-``ZEND_ACC_STATIC`` flag. A public static ``$pi`` property:
-
-.. code-block:: c
+``ZEND_ACC_STATIC`` flag. A public static ``$pi`` property::
 
     zend_declare_property_double(test_ce, "pi", sizeof("pi") - 1, 3.141, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC TSRMLS_CC);
     /* All digits of pi I remember :( */
@@ -303,9 +283,7 @@ Inheritance and interfaces
 Just like their userland equivalents internal classes can also inherit from other classes and/or implement interfaces.
 
 A very simple (and quite common) example of inheritance in the PHP tree is creating some custom subtype of
-``Exception``:
-
-.. code-block:: c
+``Exception``::
 
     zend_class_entry *custom_exception_ce;
 
@@ -324,9 +302,7 @@ fetched using ``zend_exception_get_default(TSRMLS_C)``. Another detail worth poi
 function structure and instead just passed ``NULL`` as the last argument to ``INIT_CLASS_ENTRY``. This means that we
 don't want any additional methods, apart from those that are inherited from ``Exception``.
 
-If you want to extend a more specific SPL extension class like ``RuntimeException`` you can also do so:
-
-.. code-block:: c
+If you want to extend a more specific SPL extension class like ``RuntimeException`` you can also do so::
 
     #ifdef HAVE_SPL
     #include "ext/spl/spl_exceptions.h"
@@ -354,9 +330,7 @@ has to be included as well.
 
 The first parameter of ``zend_register_internal_class_ex`` which was set to ``NULL`` in the above cases is an
 alternative way to specify the parent class: If you don't have the class entry available you can specify the class
-name:
-
-.. code-block:: c
+name::
 
     custom_exception_ce = zend_register_internal_class_ex(&tmp_ce, spl_ce_RuntimeException, NULL TSRMLS_CC);
     // can also be written as
@@ -366,9 +340,7 @@ In practice you should prefer the first variant though. The second form is only 
 extension that forgot to export the class entry.
 
 Just like you can inherit from other classes you can also implement interfaces. For this the variadic
-``zend_class_implements`` functions is used:
-
-.. code-block:: c
+``zend_class_implements`` functions is used::
 
     #include "ext/spl/spl_iterators.h"
     #include "zend_interfaces.h"
@@ -396,9 +368,7 @@ Just like you can inherit from other classes you can also implement interfaces. 
     }
 
 As you can see ``zend_class_implements`` takes the class entry, TSRMLS_CC, the number of interfaces to implement and
-then the class entries of the interfaces. E.g. if you wanted to additionally implement ``Serializable``:
-
-.. code-block:: c
+then the class entries of the interfaces. E.g. if you wanted to additionally implement ``Serializable``::
 
     zend_class_implements(
         data_class_ce TSRMLS_CC, 4,
@@ -408,9 +378,7 @@ then the class entries of the interfaces. E.g. if you wanted to additionally imp
 You can obviously also create your own interfaces. Interfaces are registered in the same way as classes are, but using
 the ``zend_register_internal_interface`` function and declaring all methods as abstract. E.g. if you wanted to create a
 new ``ReversibleIterator`` interface that extends ``Iterator`` and additionally specifies a ``prev`` method, this is how
-you would do it:
-
-.. code-block:: c
+you would do it::
 
     #include "zend_interfaces.h"
 
