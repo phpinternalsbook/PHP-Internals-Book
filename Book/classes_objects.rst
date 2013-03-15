@@ -17,15 +17,10 @@ Contents:
    classes_objects/custom_object_storage.rst
    classes_objects/implementing_typed_arrays.rst
    classes_objects/object_handlers_part_1.rst
+   classes_objects/iterators.rst
 
 ..
    classes_objects/constants.rst
-   classes_objects/handlers.rst
    classes_objects/property_access.rst
-   classes_objects/array_access.rst
-   classes_objects/methods.rst
    classes_objects/casts.rst
-   classes_objects/count.rst
-   classes_objects/comparison.rst
-   classes_objects/magic.rst
    classes_objects/misc.rst
