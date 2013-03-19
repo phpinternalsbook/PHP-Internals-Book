@@ -18,6 +18,7 @@ Contents:
    classes_objects/implementing_typed_arrays.rst
    classes_objects/object_handlers_part_1.rst
    classes_objects/iterators.rst
+   classes_objects/serialization.rst
 
 ..
    classes_objects/constants.rst

@@ -31,8 +31,8 @@ iteration actions::
         /* fetch the item data for the current element */
         void (*get_current_data)(zend_object_iterator *iter, zval ***data TSRMLS_DC);
 
-        /* fetch the key for the current element (return HASH_KEY_IS_STRING or HASH_KEY_IS_LONG) (optional, may be NULL) */
-        int (*get_current_key)(zend_object_iterator *iter, char **str_key, uint *str_key_len, ulong *int_key TSRMLS_DC);
+        /* fetch the key for the current element (optional, may be NULL) */
+        void (*get_current_key)(zend_object_iterator *iter, zval *key TSRMLS_DC);
 
         /* step forwards to next element */
         void (*move_forward)(zend_object_iterator *iter TSRMLS_DC);
