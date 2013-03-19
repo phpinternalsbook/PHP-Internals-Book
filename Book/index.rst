@@ -1,5 +1,5 @@
-Welcome to PHPInternalsBook's documentation!
-============================================
+Table Of Contents
+=================
 
 .. toctree::
    :maxdepth: 2
@@ -20,7 +20,7 @@ Welcome to PHPInternalsBook's documentation!
    sapis.rst
    zend_engine.rst
    final.rst
-   
+
 Authors notes : howtos
 ----------------------
 
@@ -32,10 +32,10 @@ Authors notes : howtos
 
 .. toctree::
    :maxdepth: 2
-   
+
    authors_notes.rst
-   
-   
+
+
 Indices and tables
 ==================
 
