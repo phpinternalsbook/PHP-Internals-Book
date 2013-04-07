@@ -278,9 +278,9 @@ Comparison of view objects
 Right now view objects will always be considered equal if they are of the same type (and have no properties). That's
 not really what we want. Instead we should implement our own comparison behavior: Two buffer views should be considered
 equal if they use the same buffer, with the same offset, same length and same type. Furthermore their class entry should
-match (so inheriting classes aren't considered equal). Additionally the properties should equal, or to simplify our
+match (so inheriting classes aren't considered equal). Additionally the properties should be equal, or to simplify our
 implementation just shouldn't exist. In other words: Two buffer views are equal if their internal objects are the same
-(byte for byte). We can easily check this with ``memcmp``::
+byte for byte. We can easily check this with ``memcmp``::
 
     static int array_buffer_view_compare_objects(zval *obj1, zval *obj2 TSRMLS_DC)
     {
@@ -290,35 +290,47 @@ implementation just shouldn't exist. In other words: Two buffer views are equal 
         if (memcmp(intern1, intern2, sizeof(buffer_view_object)) == 0) {
             return 0; /* equal */
         } else {
-            return 1; /* there is no smaller/greater relationship, but we have to return
-                       * something, so use "greater" */
+            return 1; /* not orderable */
         }
     }
 
 As you can see the ``compare_objects`` handler takes two objects and returns how those two objects relate. The return
-value is one of -1 (smaller), 0 (equal) and 1 (greater). In our case the smaller/greater relationship doesn't really
-make sense, so we don't pay attention to it (and just return 1 if the objects differ, i.e. we consider the first passed
-object to be greater).
+value is one of -1 (smaller), 0 (equal) and 1 (greater).
+
+In our case the smaller/greater relationship doesn't really make sense, so we want ``$view1 < $view2`` and
+``$view1 > $view2`` to always be false. This can be done by returning 1 from the handler if the objects are not equal.
+You might wonder why this works, after all 1 means "greater" so one could expect ``$view1 > $view2`` to return true.
+The reason why this trick works is that PHP automatically translates ``$a > $b`` to ``$b < $a`` (and ``$a >= $b`` to
+``$b <= $a``). Thus always the "less than" relationship is used and as we're returning 1 (regardless of order) any
+comparison will be false.
 
 A similar comparison handler can be written for the ``ArrayBuffer`` class too.
 
-Casting and dumping
--------------------
+Debug information
+-----------------
 
-Next let's implement two more behaviors: If a view is cast to an array (e.g. ``(array) $int8view``) it should return
-an array with all the elements in the typed array. This kind of special casting behavior can be implemented using the
-``cast_object`` handler. Furthermore we want this same behavior to occur when the typed array is output with
-``var_dump``. To implement this the ``get_debug_info`` handler can be used.
+If you dumped a buffer view object with ``var_dump`` or ``print_r`` right now, you wouldn't get any useful information:
 
-But we don't need to implement this twice in two different handlers. Instead the ``get_properties`` handler can be used
-which combines both cases. This handler will be invoked both when the object is cast to an array and when it is
-dumped, as well as in some more situations. Here's how it could look like::
+.. code-block:: none
 
-    static HashTable *array_buffer_view_get_properties(zval *obj TSRMLS_DC)
+    object(Int8Array)#2 (0) {
+    }
+
+It would be much more helpful if instead the contents of the array were printed. Such a behavior can be easily
+implemented using the ``get_debug_info`` handler::
+
+    static HashTable *array_buffer_view_get_debug_info(zval *obj, int *is_temp TSRMLS_DC)
     {
         buffer_view_object *intern = zend_object_store_get_object(obj TSRMLS_CC);
-        HashTable *ht = zend_std_get_properties(obj TSRMLS_CC);
+        HashTable *props = Z_OBJPROP_P(obj);
+        HashTable *ht;
         int i;
+
+        ALLOC_HASHTABLE(ht);
+        ZEND_INIT_SYMTABLE_EX(ht, intern->length + zend_hash_num_elements(props), 0);
+        zend_hash_copy(ht, props, (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
+
+        *is_temp = 1;
 
         for (i = 0; i < intern->length; ++i) {
             zval *value = buffer_view_offset_get(intern, i);
@@ -328,9 +340,15 @@ dumped, as well as in some more situations. Here's how it could look like::
         return ht;
     }
 
-The code first calls ``zend_std_get_properties`` to get a hash with the properties of the object (should it have any)
-and then loops through the view and inserts all its elements in the hash. A small example of the kind of output this
-produces:
+The handler creates a hashtable using ``ZEND_INIT_SYMTABLE_EX`` to provide a size-hint, copies the properties (in case
+the user added custom properties) and then loops through the view and inserts all its elements into the hash.
+
+Into the additional ``is_temp`` parameter the value ``1`` is written, signifying that we are using a temporary
+hashtable that has to be freed later. Alternatively we could write ``0`` into the pointer, in which case we would have
+to store the hashtable somewhere else and manually free it (you'll find that many objects have some kind of
+``debug_info`` field in their internal structure that is used for this purpose.)
+
+A small example of the kind of output this produces:
 
 .. code-block:: php
 

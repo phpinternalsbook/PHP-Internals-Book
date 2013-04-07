@@ -268,4 +268,121 @@ ensure all the data is valid. You should also not forget that methods like ``uns
 special meaning can still called as normal methods. In order to prevent such calls the above call aborts if
 ``intern->buffer`` is already set.
 
-[To be continued]
+Now lets look at the second serialization mechanism, which will be used for the buffer views. In order to implement the
+``O`` serialization we'll need a custom ``get_properties`` handler (which returns the "properties" to serialize)
+and a ``__wakeup`` method (which restores the state from the serialized properties).
+
+The ``get_properties`` handler allows you to fetch the properties of an object as a hashtable. The engine does this in
+various places one of them being ``O`` serialization. Thus we can use this handler to return the views buffer object,
+offset and length as properties, which will then be serialized just like any other property::
+
+    static HashTable *array_buffer_view_get_properties(zval *obj TSRMLS_DC)
+    {
+        buffer_view_object *intern = zend_object_store_get_object(obj TSRMLS_CC);
+        HashTable *ht = zend_std_get_properties(obj TSRMLS_CC);
+        zval *zv;
+
+        if (!intern->buffer_zval) {
+            return ht;
+        }
+
+        Z_ADDREF_P(intern->buffer_zval);
+        zend_hash_update(ht, "buffer", sizeof("buffer"), &intern->buffer_zval, sizeof(zval *), NULL);
+
+        MAKE_STD_ZVAL(zv);
+        ZVAL_LONG(zv, intern->offset);
+        zend_hash_update(ht, "offset", sizeof("offset"), &zv, sizeof(zval *), NULL);
+
+        MAKE_STD_ZVAL(zv);
+        ZVAL_LONG(zv, intern->length);
+        zend_hash_update(ht, "length", sizeof("length"), &zv, sizeof(zval *), NULL);
+
+        return ht;
+    }
+
+Note that these magic properties will now also turn up in the debugging output, which in this case is probably a good
+idea. Also the properties will be accessible as "normal" properties, but only after this handler has been called. E.g.
+you would be able to access the ``$view->buffer`` property after serializing the object. We can't really do anything
+against this side-effect (other than using the other serialization method).
+
+In order to restore the state after unserialization we implement the ``__wakeup`` magic method. This method is called
+right after unserialization and allows you to read the object properties and reconstruct the internal state from them::
+
+    PHP_FUNCTION(array_buffer_view_wakeup)
+    {
+        buffer_view_object *intern;
+        HashTable *props;
+        zval **buffer_zv, **offset_zv, **length_zv;
+
+        if (zend_parse_parameters_none() == FAILURE) {
+            return;
+        }
+
+        intern = zend_object_store_get_object(getThis() TSRMLS_CC);
+
+        if (intern->buffer_zval) {
+            zend_throw_exception(
+                NULL, "Cannot call __wakeup() on an already constructed object", 0 TSRMLS_CC
+            );
+            return;
+        }
+
+        props = zend_std_get_properties(getThis() TSRMLS_CC);
+
+        if (zend_hash_find(props, "buffer", sizeof("buffer"), (void **) &buffer_zv) == SUCCESS
+         && zend_hash_find(props, "offset", sizeof("offset"), (void **) &offset_zv) == SUCCESS
+         && zend_hash_find(props, "length", sizeof("length"), (void **) &length_zv) == SUCCESS
+         && Z_TYPE_PP(buffer_zv) == IS_OBJECT
+         && Z_TYPE_PP(offset_zv) == IS_LONG && Z_LVAL_PP(offset_zv) >= 0
+         && Z_TYPE_PP(length_zv) == IS_LONG && Z_LVAL_PP(length_zv) > 0
+         && instanceof_function(Z_OBJCE_PP(buffer_zv), array_buffer_ce TSRMLS_CC)
+        ) {
+            buffer_object *buffer_intern = zend_object_store_get_object(*buffer_zv TSRMLS_CC);
+            size_t offset = Z_LVAL_PP(offset_zv), length = Z_LVAL_PP(length_zv);
+            size_t bytes_per_element = buffer_view_get_bytes_per_element(intern);
+            size_t max_length = (buffer_intern->length - offset) / bytes_per_element;
+
+            if (offset < buffer_intern->length && length <= max_length) {
+                Z_ADDREF_PP(buffer_zv);
+                intern->buffer_zval = *buffer_zv;
+
+                intern->offset = offset;
+                intern->length = length;
+
+                intern->buf.as_int8 = buffer_intern->buffer;
+                intern->buf.as_int8 += offset;
+
+                return;
+            }
+        }
+
+        zend_throw_exception(
+            NULL, "Invalid serialization data", 0 TSRMLS_CC
+        );
+    }
+
+The method is more or less pure error-checking boilerplate (as is usual when dealing with serialization). The only
+thing it really does is to fetch the three magic properties using ``zend_hash_find``, check their validity and then
+initialize the internal object from them.
+
+Denying serialization
+---------------------
+
+Sometimes objects can't be reasonably serialized. In this case you can deny serialization by assigning special
+serialization handlers::
+
+    ce->serialize = zend_class_serialize_deny;
+    ce->unserialize = zend_class_unserialize_deny;
+
+The ``serialize`` and ``unserialize`` class handlers are used to implement the ``Serializable`` interface, i.e. the
+``C`` serialization. As such assigning to them will deny serialization and ``C`` unserialization, but will still allow
+``O`` unserialization. To disallow that case too simply throw an error from ``__wakeup``::
+
+    PHP_METHOD(SomeClass, __wakeup)
+    {
+        if (zend_parse_parameters_none() == FAILURE) {
+            return;
+        }
+
+        zend_throw_exception(NULL, "Unserialization of SomeClass is not allowed", 0 TSRMLS_CC);
+    }
