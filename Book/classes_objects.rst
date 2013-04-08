@@ -19,6 +19,7 @@ Contents:
    classes_objects/object_handlers_part_1.rst
    classes_objects/iterators.rst
    classes_objects/serialization.rst
+   classes_objects/magic_interfaces_comparable.rst
 
 ..
    classes_objects/constants.rst

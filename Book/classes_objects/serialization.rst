@@ -386,3 +386,5 @@ The ``serialize`` and ``unserialize`` class handlers are used to implement the `
 
         zend_throw_exception(NULL, "Unserialization of SomeClass is not allowed", 0 TSRMLS_CC);
     }
+
+And with this we leave the array buffers behind and turn towards magic interfaces as the next topic.
