@@ -7,15 +7,14 @@ the beginning: Nearly all operations on objects in PHP go through object handler
 interface is implemented with an object or class handler internally. Furthermore there are quite a few handlers which
 are not exposed to userland PHP. For example internal classes can have custom comparison and cast behavior.
 
-As the number of different object handlers is rather large this section only covers a small part of them, leaving the
-rest for later sections. The usage is illustrated on the typed array implementation from the previous section.
+As the number of different object handlers is rather large we can only discuss examples (using the typed array
+implementation from the last section) for a few of them. For all the others only a short description is provided.
 
 An Overview
 -----------
 
-Before getting into the details of individual handlers I'd first like to give a short overview over all the handlers
-that are available as of this writing (26 in total). I'll list the name of the handler, its signature, as well as a
-small description of its use.
+As of this writing there are 26 object handlers, which are listed in the following with their signature and a small
+description.
 
 .. c:member::
     zval *read_property(zval *object, zval *member, int type, const struct _zend_literal *key TSRMLS_DC)
@@ -40,8 +39,9 @@ small description of its use.
     void set(zval **object, zval *value TSRMLS_DC)
     zval *get(zval *object TSRMLS_DC)
 
-    These handlers get/set the "object value". They can be used to override compound assignment operators (like ``+=``
-    or ``++``) and exist mainly for the purpose of proxy objects. In practice they are rarely used.
+    These handlers get/set the "object value". They can be used to override (to a certain degree) the compound
+    assignment operators (like ``+=`` or ``++``) and exist mainly for the purpose of proxy objects. In practice they are
+    rarely used.
 
 .. c:member::
     HashTable *get_properties(zval *object TSRMLS_DC)
@@ -134,6 +134,8 @@ order to avoid all the repeating cast code)::
         }
     }
 
+.. todo:: Better to copy + convert_to_long here
+
 Now writing the respective handlers is rather straightforward. For example, this is how the ``read_dimension`` handler
 looks like::
 
@@ -182,7 +184,7 @@ understand when "non-read" types like this can happen consider the following exa
 
 As you can see the other ``BP_VAR`` types occur with nested dimension access. In this case only the outermost access
 calls the actual handler for the operation, the inner dimension accesses go through the read handler with the respective
-type. So if the ``[]`` append operator is used in a nested was the ``read_dimension`` handler can be called with the
+type. So if the ``[]`` append operator is used in a nested access the ``read_dimension`` handler can be called with the
 offset being ``NULL``.
 
 The ``type`` parameter can be used to change the behavior depending on the context. For example ``isset`` is usually
@@ -316,8 +318,8 @@ If you dumped a buffer view object with ``var_dump`` or ``print_r`` right now, y
     object(Int8Array)#2 (0) {
     }
 
-It would be much more helpful if instead the contents of the array were printed. Such a behavior can be easily
-implemented using the ``get_debug_info`` handler::
+It would be much more helpful if instead the contents of the array were printed. Such a behavior can be implemented
+using the ``get_debug_info`` handler::
 
     static HashTable *array_buffer_view_get_debug_info(zval *obj, int *is_temp TSRMLS_DC)
     {
@@ -379,6 +381,3 @@ A small example of the kind of output this produces:
 One more handler that could be implemented for typed arrays is ``count_elements``, i.e. the internal equivalent of
 ``Countable::count()``. There is nothing special about that handler though, so I'm leaving this as an exercise for the
 reader (just don't forget the inheritance check!)
-
-This concludes our first dabbling with object handlers. In the next section we'll add support for iteration over typed
-arrays.

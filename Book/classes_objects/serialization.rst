@@ -32,7 +32,7 @@ For arrays a list of key-value pairs is contained in curly braces:
 .. code-block:: none
 
     [10, 11, 12]:     a:3:{i:0;i:10;i:1;i:11;i:2;i:12;}
-                       ^-- count([10, 11, 12])
+                        ^-- count([10, 11, 12])
 
                                                      v-- key   v-- value
     ["foo" => 4, "bar" => 2]:     a:2:{s:3:"foo";i:4;s:3:"bar";i:2;}
@@ -273,7 +273,7 @@ Now lets look at the second serialization mechanism, which will be used for the 
 and a ``__wakeup`` method (which restores the state from the serialized properties).
 
 The ``get_properties`` handler allows you to fetch the properties of an object as a hashtable. The engine does this in
-various places one of them being ``O`` serialization. Thus we can use this handler to return the views buffer object,
+various places, one of them being ``O`` serialization. Thus we can use this handler to return the view's buffer object,
 offset and length as properties, which will then be serialized just like any other property::
 
     static HashTable *array_buffer_view_get_properties(zval *obj TSRMLS_DC)
@@ -376,7 +376,7 @@ serialization handlers::
 
 The ``serialize`` and ``unserialize`` class handlers are used to implement the ``Serializable`` interface, i.e. the
 ``C`` serialization. As such assigning to them will deny serialization and ``C`` unserialization, but will still allow
-``O`` unserialization. To disallow that case too simply throw an error from ``__wakeup``::
+``O`` unserialization. To disallow that case too, simply throw an error from ``__wakeup``::
 
     PHP_METHOD(SomeClass, __wakeup)
     {

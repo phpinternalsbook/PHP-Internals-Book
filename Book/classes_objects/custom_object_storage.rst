@@ -38,7 +38,7 @@ This usually isn't done with the ``zend_update_property`` functions from the pre
     add_property_bool(obj, "isAdmin", is_admin);
     // also _null(), _double(), _stringl(), _resource() and _zval()
 
-So what does actually happen when an object is created? To find out lets look at the ``_object_and_properties_init``
+So what actually happens when an object is created? To find out lets look at the ``_object_and_properties_init``
 function::
 
     ZEND_API int _object_and_properties_init(zval *arg, zend_class_entry *class_type, HashTable *properties ZEND_FILE_LINE_DC TSRMLS_DC) /* {{{ */
@@ -240,8 +240,7 @@ classes.
 Object store handlers
 ---------------------
 
-As already mentioned above there are three object storage handlers: One for destruction, one for freeing and one for
-cloning.
+As already mentioned there are three object storage handlers: One for destruction, one for freeing and one for cloning.
 
 What is a bit confusing at first is that there is both a dtor handler and a free handler, which sounds like they do
 about the same thing. The reason is that PHP has a two-phase object destruction system, where first the destructor is
@@ -352,6 +351,9 @@ A custom object cloning handler looks similar, with the main difference being th
 
         return new_object_val;
     }
+
+    /* ... */
+    test_object_handler.clone_obj = test_clone_handler;
 
 Interacting with the object store
 ---------------------------------

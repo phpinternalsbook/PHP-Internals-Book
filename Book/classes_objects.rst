@@ -16,13 +16,12 @@ Contents:
    classes_objects/simple_classes.rst
    classes_objects/custom_object_storage.rst
    classes_objects/implementing_typed_arrays.rst
-   classes_objects/object_handlers_part_1.rst
+   classes_objects/object_handlers.rst
    classes_objects/iterators.rst
    classes_objects/serialization.rst
    classes_objects/magic_interfaces_comparable.rst
+   classes_objects/internal_structures_and_implementation.rst
 
 ..
-   classes_objects/constants.rst
-   classes_objects/property_access.rst
    classes_objects/casts.rst
    classes_objects/misc.rst

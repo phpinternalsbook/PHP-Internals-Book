@@ -4,7 +4,7 @@ Simple classes
 Basic concepts
 --------------
 
-To store objects zvals use the ``IS_OBJECT`` type tag and the ``zend_object_value`` structure in the union, which is
+Zvals store objects using the ``IS_OBJECT`` type tag and the ``zend_object_value`` structure in the union, which is
 defined as follows::
 
     typedef struct _zend_object_value {
@@ -93,7 +93,7 @@ To bring it to life lets add a method::
     }
     /* }}} */
 
-    ZEND_BEGIN_ARG_INFO(arginfo_void, 0)
+    ZEND_BEGIN_ARG_INFO_EX(arginfo_void, 0, 0, 0)
     ZEND_END_ARG_INFO()
 
     const zend_function_entry test_functions[] = {
@@ -147,7 +147,7 @@ But now, lets get back to writing methods. Here is another one::
     //...
 
 This method does nothing more than return the object's own object handle. To do this it first grabs the ``$this`` zval
-using ``getThis()`` and then returns the object handle provided by ``Z_OBJ_HANDLE_P``. Try it out:
+using the ``getThis()`` macro and then returns the object handle provided by ``Z_OBJ_HANDLE_P``. Try it out:
 
 .. code-block:: php
 
@@ -162,8 +162,8 @@ This will (probably) output the numbers 1 and 3, so you can see that the object 
 which is incremented with every new object. (This isn't exactly true because object handles can be reused again once the
 associated objects are destroyed.)
 
-Reading, updating and declaring properties
-------------------------------------------
+Properties and constants
+------------------------
 
 To do something more useful, lets create two methods for reading from and writing to a property::
 
@@ -199,7 +199,7 @@ To do something more useful, lets create two methods for reading from and writin
 
     // ...
 
-    ZEND_BEGIN_ARG_INFO(arginfo_void, 0)
+    ZEND_BEGIN_ARG_INFO_EX(arginfo_void, 0, 0, 0)
     ZEND_END_ARG_INFO()
 
     ZEND_BEGIN_ARG_INFO_EX(arginfo_set, 0, 0, 1)
@@ -263,7 +263,7 @@ To create a protected property defaulting to the string ``"bar"`` you instead wr
 
     zend_declare_property_string(test_ce, "foo", sizeof("foo") - 1, "bar", ZEND_ACC_PROTECTED TSRMLS_CC);
 
-If you want to use properties (and you will soon notice that this is only rarely necessary for internal classes) it is
+If you want to use properties (and you will soon find that this is only rarely necessary for internal classes) it is
 always good practice to properly declare properties. This way you have an explicit visibility level, a default value
 and you also benefit from memory optimizations for declared properties.
 
@@ -276,6 +276,11 @@ Static properties are also declared using the same family of functions by additi
 To read and update static properties there are the ``zend_read_static_property`` function and the
 ``zend_update_static_property`` function family. They have the same interface as the functions for normal properties,
 only difference being that no object is passed (only the scope).
+
+To declare constants the ``zend_declare_class_constant*`` family of functions is used. They have the same variations and
+signatures as ``zend_declare_property*``, only without the flags argument. To declare a constant ''Test::PI''::
+
+    zend_declare_class_constant_double(test_ce, "PI", sizeof("PI") - 1, 3.141 TSRMLS_CC);
 
 Inheritance and interfaces
 --------------------------
@@ -328,7 +333,7 @@ The above code conditionally either inherits from ``RuntimeException`` or - if S
 ``Exception``. The class entry for ``RuntimeException`` is externed in the header ``ext/spl/spl_exceptions.h``, so it
 has to be included as well.
 
-The first parameter of ``zend_register_internal_class_ex`` which was set to ``NULL`` in the above cases is an
+The last parameter of ``zend_register_internal_class_ex`` which was set to ``NULL`` in the above cases is an
 alternative way to specify the parent class: If you don't have the class entry available you can specify the class
 name::
 
@@ -383,9 +388,6 @@ you would do it::
     #include "zend_interfaces.h"
 
     zend_class_entry *reversible_iterator_ce;
-
-    ZEND_BEGIN_ARG_INFO(arginfo_void, 0)
-    ZEND_END_ARG_INFO()
 
     const zend_function_entry reversible_iterator_functions[] = {
         PHP_ABSTRACT_ME(ReversibleIterator, prev, arginfo_void)

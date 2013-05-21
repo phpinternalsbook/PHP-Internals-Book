@@ -8,7 +8,7 @@ how we can make use of them. Once again typed arrays will serve as the example.
 The ``get_iterator`` handler
 ----------------------------
 
-Internally iteration works very similar to the userland ``IteratorAggregate`` interface. The class handler has a
+Internally iteration works very similar to the userland ``IteratorAggregate`` interface. The class has a
 ``get_iterator`` handler that returns a ``zend_object_iterator*``, which looks as follows::
 
     struct _zend_object_iterator {

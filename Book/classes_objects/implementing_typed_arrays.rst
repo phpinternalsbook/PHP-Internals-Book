@@ -146,8 +146,8 @@ the default ``Exception`` class is used. As the last parameter a pointer to a ``
 passed, into which the previous error mode is backed up. This structure is later passed to
 ``zend_restore_error_handling`` to get the old mode back.
 
-Apart from the create handler you also have to handle cloning. For the ``ArrayBuffer`` this is as simple as just
-copying the allocated buffer::
+Apart from the create handler you also have to handle cloning. For the ``ArrayBuffer`` this is as simple as copying the
+allocated buffer::
 
     static zend_object_value array_buffer_clone(zval *object TSRMLS_DC)
     {
@@ -251,8 +251,11 @@ implementation, namely ``Int8Array``, ``UInt8Array``, ``Int16Array``, ``UInt16Ar
 
 To avoid typing out the same code again and a again a temporary macro is used. It initializes the class entry (always
 with the same functions), registers the class, assigns the create handler (which is also the same for all classes) and
-implements the ``ArrayAccess`` interface. The macro uses the magic ``#`` and ``##`` operators, which were introduced in
-[Some Ref].
+implements the ``ArrayAccess`` interface. The macro uses the ``#`` (stringification) and ``##`` (token concatenation)
+operators. [Note: Those will have to be explained somewhere. For now just Google them if you don't already know their
+meaning.]
+
+.. todo:: Add explanation of macro operators
 
 The ``array_buffer_view_functions`` are declared as follows::
 
@@ -281,7 +284,7 @@ The ``array_buffer_view_functions`` are declared as follows::
         PHP_FE_END
     };
 
-The new thing here is that instead of ``PHP_ME`` the macro ``PHP_ME_MAPPING`` is used. The difference is that
+One new thing here is that instead of ``PHP_ME`` the macro ``PHP_ME_MAPPING`` is used. The difference is that
 ``PHP_ME`` maps to a ``PHP_METHOD`` whereas ``PHP_ME_MAPPING`` maps to a ``PHP_FUNCTION``. An example::
 
     PHP_ME(ArrayBufferView, offsetGet, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC)
@@ -305,9 +308,9 @@ Firstly it needs a way to discriminate the different view classes, i.e. some kin
 store the zval of the buffer it operates on. And thirdly there has to be a member that can be used to access the buffer
 as different types.
 
-Additional out implementation will store the offset and length of the view. Those are used to create views that don't
-use the entire buffer. E.g. ``new Int32Array($buffer, 18, 24)`` should create a view that starts 18 bytes into the buffer
-and contains a total of 24 elements.
+Additionally our implementation will store the offset and length of the view. Those are used to create views that don't
+use the entire buffer. E.g. ``new Int32Array($buffer, 18, 24)`` should create a view that starts 18 bytes into the
+buffer and contains a total of 24 elements.
 
 This is how the resulting structure could look like::
 
@@ -416,7 +419,7 @@ The free and create handlers for the above data structure are rather straightfor
 The ``create_object`` handler contains some extra code to first find the base class of the instantiated class and then
 figure out which buffer view type it corresponds to. It's necessary to go up the ``parent`` chain to make sure that
 everything will work fine if one of the classes is extended. The creation handler doesn't do particularly much, the main
-happens in the constructor::
+work happens in the constructor::
 
     PHP_FUNCTION(array_buffer_view_ctor)
     {
@@ -495,8 +498,8 @@ uses the helper function ``buffer_view_get_bytes_per_element`` which does exactl
         }
     }
 
-The only missing piece from the construction logic is the clone handler, which doesn't do much more than copying the
-internal members and adding a ref to the buffer zval::
+The only missing piece from the construction logic is the clone handler, which copies all internal members and adds a
+ref to the buffer zval::
 
     static zend_object_value array_buffer_view_clone(zval *object TSRMLS_DC)
     {
@@ -527,8 +530,8 @@ internal members and adding a ref to the buffer zval::
     }
 
 Now that all the formalisms are out of the way, we can start working on the actual functionality: Accessing values at
-certain offsets. For that you need two helper functions for getting and setting the offset depending on the type of the
-view. This basically just comes down to switching throw all the different types and using the respective member from
+certain offsets. For that we need two helper functions for getting and setting the offset depending on the type of the
+view. This basically comes down to switching through all the different types and using the respective member from
 the buffer union::
 
     zval *buffer_view_offset_get(buffer_view_object *intern, size_t offset)
@@ -608,7 +611,7 @@ the buffer union::
     }
 
 Implementing the ``ArrayAccess`` interface is now only matter of doing a bit of bounds checking and dispatching to the
-above methods (as well as the usual method boilerplate). Here's how the ``offsetGet`` method could be implemented::
+above helpers (as well as the usual method boilerplate). Here's how the ``offsetGet`` method could be implemented::
 
     PHP_FUNCTION(array_buffer_view_offset_get)
     {

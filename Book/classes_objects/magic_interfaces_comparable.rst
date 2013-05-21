@@ -20,8 +20,8 @@ First, lets register this new interface in ``MINIT``::
     zend_class_entry *comparable_ce;
 
     ZEND_BEGIN_ARG_INFO_EX(arginfo_comparable, 0, 0, 2)
-        ZEND_ARG_INFO(0, left)
-        ZEND_ARG_INFO(0, right)
+        ZEND_ARG_INFO(0, obj1)
+        ZEND_ARG_INFO(0, obj2)
     ZEND_END_ARG_INFO()
 
     const zend_function_entry comparable_functions[] = {
@@ -85,12 +85,12 @@ In our ``create_object`` override we create the object as usual but assign our o
     comparable_handlers.compare_objects = comparable_compare_objects;
 
 Lastly we have to implement the custom comparison handler. It will call the ``compare`` method using the
-``zend_call_method_with_2_params`` macro, which is defined in ``zend_interfaces.h``. The only question that arises is
-which class this method should be called on (the two objects that are compared could have different classes after all).
+``zend_call_method_with_2_params`` macro, which is defined in ``zend_interfaces.h``. One question that arises is which
+class the method should be called on. For this implementation we'll simply use the first passed object, though this is
+just an arbitrary choice. In practice this means that for ``$left < $right`` the class of ``$left`` will be used, but
+for ``$left > $right`` the class of ``$right`` is used (because PHP transforms the ``>`` to a ``<`` operation).
 
-For this implementation we'll use the more "specific" class, i.e. the one that is further down in the inheritance chain.
-If both objects are not part of the same inheritance chain we fall back to the default comparison handler. Furthermore
-we allow the ``compare`` function to return NULL, in which we also fall back to the default comparison::
+::
 
     #include "zend_interfaces.h"
 
@@ -99,11 +99,7 @@ we allow the ``compare`` function to return NULL, in which we also fall back to 
         zval *retval = NULL;
         int result;
 
-        if (instanceof_function(Z_OBJCE_P(obj1), Z_OBJCE_P(obj2) TSRMLS_CC)) {
-            zend_call_method_with_2_params(NULL, Z_OBJCE_P(obj1), NULL, "compare", &retval, obj1, obj2);
-        } else if (instanceof_function(Z_OBJCE_P(obj2), Z_OBJCE_P(obj1) TSRMLS_CC)) {
-            zend_call_method_with_2_params(NULL, Z_OBJCE_P(obj2), NULL, "compare", &retval, obj1, obj2);
-        }
+        zend_call_method_with_2_params(NULL, Z_OBJCE_P(obj1), NULL, "compare", &retval, obj1, obj2);
 
         if (!retval || Z_TYPE_P(retval) == IS_NULL) {
             if (retval) {
