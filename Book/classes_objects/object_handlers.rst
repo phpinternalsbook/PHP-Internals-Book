@@ -1,5 +1,5 @@
-Object handlers: Part 1
-=======================
+Object handlers
+===============
 
 In the previous sections you already had some contact with object handlers. In particular you should know how to create
 the structure used to specify the handlers and how to implement cloning behavior using ``clone_obj``. But this is just

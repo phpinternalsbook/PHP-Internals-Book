@@ -2,8 +2,8 @@ Internal structures and implementation
 ======================================
 
 In this (last) section on object orientation in PHP we'll have a look at some of the internal structures that were
-previously only mentioned in passing. In particular we'll more thoroughly discuss class entries, the object store and
-the default object structure.
+previously only mentioned in passing. In particular we'll more thoroughly the default object structure and the object
+store.
 
 Object properties
 -----------------
@@ -57,7 +57,7 @@ contain pointers to them. Note though that if both are used the properties table
 ``zval*`` values.
 
 Sometimes PHP needs the properties as a hashtable even if they are all declared, e.g. when the ``get_properties``
-handler is used. In this case PHP also switches to using ``properties`` or rather the hybrid approach described above.
+handler is used. In this case PHP also switches to using ``properties`` (or rather the hybrid approach described above).
 This is done using the ``rebuild_object_properties`` function::
 
     ZEND_API HashTable *zend_std_get_properties(zval *object TSRMLS_DC)
@@ -153,8 +153,8 @@ you try to directly access the ``zobj->properties`` hash. In this cases you can 
 Property recursion guards
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The last member in ``zend_object`` which we didn't yet look at is the ``HashTable *guards`` fields. To find out what it
-is used for, consider what happens in the following code using magic ``__set`` properties:
+The last member in ``zend_object`` is the ``HashTable *guards`` field. To find out what it is used for, consider what
+happens in the following code using magic ``__set`` properties:
 
 .. code-block:: php
 
@@ -191,70 +191,132 @@ table, which maps property names to ``zend_guard`` structures::
 Object store
 ------------
 
-.. todo:: stopped here
+We already made a lot of use of the object store, so lets have a closer look at it now::
 
-..
-    struct _zend_class_entry {
-        char type;
-        const char *name;
-        zend_uint name_length;
-        struct _zend_class_entry *parent;
-        int refcount;
-        zend_uint ce_flags;
+    typedef struct _zend_objects_store {
+        zend_object_store_bucket *object_buckets;
+        zend_uint top;
+        zend_uint size;
+        int free_list_head;
+    } zend_objects_store;
 
-        HashTable function_table;
-        HashTable properties_info;
-        zval **default_properties_table;
-        zval **default_static_members_table;
-        zval **static_members_table;
-        HashTable constants_table;
-        int default_properties_count;
-        int default_static_members_count;
+The object store is basically a dynamically resized array of ``object_buckets``. ``size`` specifies the size of the
+allocation, whereas ``top`` is the next object handle to be used. Handles are counted starting from 1, to ensure that
+all handles are "truthy". Thus if ``top == 1`` the next object will get ``handle = 1``, but will be put at position
+``object_buckets[0]``.
 
-        union _zend_function *constructor;
-        union _zend_function *destructor;
-        union _zend_function *clone;
-        union _zend_function *__get;
-        union _zend_function *__set;
-        union _zend_function *__unset;
-        union _zend_function *__isset;
-        union _zend_function *__call;
-        union _zend_function *__callstatic;
-        union _zend_function *__tostring;
-        union _zend_function *serialize_func;
-        union _zend_function *unserialize_func;
+The ``free_list_head`` is the head of a linked list of unused buckets. Whenever an object is destroyed it leaves behind
+an unused bucket, which is then put in this list. If a new object is created and such a bucket exists (i.e.
+``free_list_head`` is not ``-1``), then this bucket is used instead of the ``top`` one.
 
-        zend_class_iterator_funcs iterator_funcs;
+To see how this linked list is maintained have a look at the ``zend_object_store_bucket`` structure::
 
-        /* handlers */
-        zend_object_value (*create_object)(zend_class_entry *class_type TSRMLS_DC);
-        zend_object_iterator *(*get_iterator)(zend_class_entry *ce, zval *object, int by_ref TSRMLS_DC);
-        int (*interface_gets_implemented)(zend_class_entry *iface, zend_class_entry *class_type TSRMLS_DC); /* a class implements this interface */
-        union _zend_function *(*get_static_method)(zend_class_entry *ce, char* method, int method_len TSRMLS_DC);
-
-        /* serializer callbacks */
-        int (*serialize)(zval *object, unsigned char **buffer, zend_uint *buf_len, zend_serialize_data *data TSRMLS_DC);
-        int (*unserialize)(zval **object, zend_class_entry *ce, const unsigned char *buf, zend_uint buf_len, zend_unserialize_data *data TSRMLS_DC);
-
-        zend_class_entry **interfaces;
-        zend_uint num_interfaces;
-
-        zend_class_entry **traits;
-        zend_uint num_traits;
-        zend_trait_alias **trait_aliases;
-        zend_trait_precedence **trait_precedences;
-
-        union {
+    typedef struct _zend_object_store_bucket {
+        zend_bool destructor_called;
+        zend_bool valid;
+        zend_uchar apply_count;
+        union _store_bucket {
+            struct _store_object {
+                void *object;
+                zend_objects_store_dtor_t dtor;
+                zend_objects_free_object_storage_t free_storage;
+                zend_objects_store_clone_t clone;
+                const zend_object_handlers *handlers;
+                zend_uint refcount;
+                gc_root_buffer *buffered;
+            } obj;
             struct {
-                const char *filename;
-                zend_uint line_start;
-                zend_uint line_end;
-                const char *doc_comment;
-                zend_uint doc_comment_len;
-            } user;
-            struct {
-                const struct _zend_function_entry *builtin_functions;
-                struct _zend_module_entry *module;
-            } internal;
-        } info;
-    };
+                int next;
+            } free_list;
+        } bucket;
+    } zend_object_store_bucket;
+
+If the bucket is in use (i.e. stores an object), then the ``valid`` member will be 1. In this case the
+``struct _store_object`` part of the union will be used. If the bucket is not used, then ``valid`` will be 0 and PHP
+will make use of ``free_list.next``.
+
+This reclaiming of unused object handles can be shown with a small script:
+
+.. code-block:: php
+
+    <?php
+    var_dump($a = new stdClass); // object(stdClass)#1 (0) {}
+    var_dump($b = new stdClass); // object(stdClass)#2 (0) {}
+    var_dump($c = new stdClass); // object(stdClass)#3 (0) {}
+
+    unset($b); // free handle 2
+    unset($a); // free handle 1
+
+    var_dump($e = new stdClass); // object(stdClass)#1 (0) {}
+    var_dump($f = new stdClass); // object(stdClass)#2 (0) {}
+
+As you can see the handles of ``$b`` and ``$a`` are reused in reverse order of destruction.
+
+Apart from ``valid`` the bucket structure also contains a ``destructor_called`` flag. This flag is needed for PHP's
+two-phase object destruction process: As already outlined previously PHP has distinct dtor (can run userland code, isn't
+always run) and free (must not run userland code, is always executed) phases. After the dtor handler has been called,
+the ``destructor_called`` flag is set to 1, so that the dtor is not run again when the object is freed.
+
+The ``apply_count`` member serves the same role as the ``nApplyCount`` member of ``HashTable``: It protects against
+infinite recursion. It is used via the macros ``Z_OBJ_UNPROTECT_RECURSION(zval_ptr)`` (leave recursion) and
+``Z_OBJ_PROTECT_RECURSION(zval_ptr)`` (enter recursion). The latter will throw an error if the nesting level for an
+object is 3 or larger. Currently this protection mechanism is only used in the object comparison handler.
+
+The ``handlers`` member in the ``_store_object`` struct is also required for destruction. The reason for this is that
+the ``dtor`` handler only gets passed the stored object and its handle::
+
+    typedef void (*zend_objects_store_dtor_t)(void *object, zend_object_handle handle TSRMLS_DC);
+
+But in order to call ``__destruct`` PHP needs a zval. Thus it creates a temporary zval using the passed object handle
+and the object handlers stored in ``bucket.obj.handlers``. The issue is that this member can only be set if the object
+is destructed through ``zval_ptr_dtor`` or some other method where the zval (and as such the object handlers) is known.
+
+If on the other hand the object is destroyed during shutdown (using ``zend_objects_store_call_destructors``) the zval
+is *not* known. In this case ``bucket.obj.handlers`` will be ``NULL`` and PHP falls back to the default object handlers.
+Thus it can sometimes happen that overloaded object behavior is not available in ``__destruct``. An example:
+
+.. code-block:: php
+
+    class DLL extends SplDoublyLinkedList {
+        public function __destruct() {
+            var_dump($this);
+        }
+    }
+
+    $dll = new DLL;
+    $dll->push(1);
+    $dll->push(2);
+    $dll->push(3);
+
+    var_dump($dll);
+
+    set_error_handler(function() use ($dll) {});
+
+This code snippet adds a ``__destruct`` method to ``SplDoublyLinkedList`` and then forces the destructor to be called
+during shutdown by binding it to the error handler (the error handler is one of the last things that is freed during
+shutdown.) This will produce the following output:
+
+.. code-block:: none
+
+    object(DLL)#1 (2) {
+      ["flags":"SplDoublyLinkedList":private]=>
+      int(0)
+      ["dllist":"SplDoublyLinkedList":private]=>
+      array(3) {
+        [0]=>
+        int(1)
+        [1]=>
+        int(2)
+        [2]=>
+        int(3)
+      }
+    }
+    object(DLL)#1 (0) {
+    }
+
+For the ``var_dump`` outside the destructor ``get_debug_info`` is invoked and you get meaningful debugging output.
+Inside the destructor PHP uses the default object handlers and as such you don't get anything apart from the class
+name. The same also applies to other handlers, e.g. things like cloning, comparison, etc will not work properly.
+
+This concludes the chapter on object orientation. You should now have a good understanding of how the object orientation
+system in PHP works and how extensions can make use of it.
