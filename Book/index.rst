@@ -1,9 +1,7 @@
 Table Of Contents
 =================
 
-.. toctree::
-   :maxdepth: 2
-
+..
    prerequisites.rst
    php_first_look.rst
    php_ecosystem.rst
@@ -12,7 +10,13 @@ Table Of Contents
    creating_ext.rst
    functions.rst
    hashtables.rst
+
+.. toctree::
+   :maxdepth: 2
+
    classes_objects.rst
+
+..
    resources.rst
    streams.rst
    constants.rst
@@ -21,25 +25,9 @@ Table Of Contents
    zend_engine.rst
    final.rst
 
-Authors notes : howtos
-----------------------
-
-.. note::
-   RST manual is located here :
-
-   * http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html
-   * http://sphinx.pocoo.org/markup/index.html
-
-.. toctree::
-   :maxdepth: 2
-
-   authors_notes.rst
-
-
-Indices and tables
-==================
+Index and search
+================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
