@@ -1,6 +1,9 @@
 Table Of Contents
 =================
 
+..  
+    introduction.rst
+
 ..
     prerequisites.rst
     php_first_look.rst
@@ -13,6 +16,7 @@ Table Of Contents
 .. toctree::
     :maxdepth: 2
 
+    introduction.rst
     hashtables.rst
     classes_objects.rst
 
