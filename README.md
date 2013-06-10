@@ -10,6 +10,16 @@ The book is written using ReStructured Text and generated using Sphinx.
  * RST quickref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
  * Sphinx manual: http://sphinx.pocoo.org/markup/index.html
 
+Coding style
+------------
+
+The following "coding style" applies to the written text, not to the included code.
+
+ * The maximum line-width for text is 120 characters. C code may overflow this limit in some cases (because PHP code has
+   no strict line limits). We should try though to not make code lines overly long.
+ * Lines should not have trailing whitespace.
+ * Punctuation like `?`, `!` or `:` should directly follow after the word (e.g. `foo:` rather than `foo :`).
+
 Domains
 -------
 
