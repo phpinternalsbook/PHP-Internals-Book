@@ -9,10 +9,10 @@ it into your extension or more globally in the engine itself.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   ini/getting_config.rst
-   ini/read_and_display.rst
-   ini/adding_params.rst
-   ini/ini_parser.rst
+    ini/getting_config.rst
+    ini/read_and_display.rst
+    ini/adding_params.rst
+    ini/ini_parser.rst

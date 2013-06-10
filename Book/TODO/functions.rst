@@ -9,11 +9,11 @@ how to make them return values.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   functions/structure.rst
-   functions/arguments.rst
-   functions/param_parsing.rst
-   functions/return_values.rst
-   functions/error_handling.rst
+    functions/structure.rst
+    functions/arguments.rst
+    functions/param_parsing.rst
+    functions/return_values.rst
+    functions/error_handling.rst

@@ -6,11 +6,11 @@ Let’s now open the source code and oversee it. We’ll here give you hints abo
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   php_first_look/intro_php.rst
-   php_first_look/components.rst
-   php_first_look/extensions.rst
-   php_first_look/vm.rst
-   php_first_look/lang_comparison.rst
+    php_first_look/intro_php.rst
+    php_first_look/components.rst
+    php_first_look/extensions.rst
+    php_first_look/vm.rst
+    php_first_look/lang_comparison.rst

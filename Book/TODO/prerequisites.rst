@@ -7,9 +7,9 @@ Unix/Linux. You then must have ideas of what we’ll be talking about, thus this
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   prerequisites/intro_os.rst
-   prerequisites/intro_c.rst
-   prerequisites/intro_code_compiling.rst
-   prerequisites/intro_debug_profile.rst
+    prerequisites/intro_os.rst
+    prerequisites/intro_c.rst
+    prerequisites/intro_code_compiling.rst
+    prerequisites/intro_debug_profile.rst

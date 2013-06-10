@@ -10,12 +10,12 @@ response to your request.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   zend_engine/lexer.rst
-   zend_engine/parser.rst
-   zend_engine/compiler.rst
-   zend_engine/vm.rst
-   zend_engine/vm_details.rst
-   zend_engine/function_calls.rst
+    zend_engine/lexer.rst
+    zend_engine/parser.rst
+    zend_engine/compiler.rst
+    zend_engine/vm.rst
+    zend_engine/vm_details.rst
+    zend_engine/function_calls.rst

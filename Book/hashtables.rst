@@ -9,12 +9,12 @@ program safely with PHP Internals.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
-   
-   hashtables/basic_structure.rst
+    :maxdepth: 2
+
+    hashtables/basic_structure.rst
 
 ..
-   hashtables/basic_usage.rst
-   hashtables/api.rst
-   hashtables/iteration.rst
-   hashtables/use_cases.rst
+    hashtables/basic_usage.rst
+    hashtables/api.rst
+    hashtables/iteration.rst
+    hashtables/use_cases.rst

@@ -9,10 +9,10 @@ type has been designed internally and how to deal with it.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   resources/definition.rst
-   resources/zend_list.rst
-   resources/basic_api.rst
-   resources/persistence.rst
+    resources/definition.rst
+    resources/zend_list.rst
+    resources/basic_api.rst
+    resources/persistence.rst

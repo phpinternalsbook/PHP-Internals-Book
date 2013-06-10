@@ -9,14 +9,14 @@ special type management in order to play with PHP internals
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   zvals/structure.rst
-   zvals/mem_management.rst
-   zvals/main_macros.rst
-   zvals/alloc_and_init.rst
-   zvals/types.rst
-   zvals/refcount_destruct.rst
-   zvals/copy_separation.rst
-   zvals/casts.rst
+    zvals/structure.rst
+    zvals/mem_management.rst
+    zvals/main_macros.rst
+    zvals/alloc_and_init.rst
+    zvals/types.rst
+    zvals/refcount_destruct.rst
+    zvals/copy_separation.rst
+    zvals/casts.rst

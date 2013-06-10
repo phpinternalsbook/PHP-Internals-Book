@@ -9,12 +9,12 @@ an internal point of view.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   creating_ext/zendext_vs_ext.rst
-   creating_ext/load_mechanism.rst
-   creating_ext/automatic_tools.rst
-   creating_ext/building_activating.rst
-   creating_ext/lifecycle.rst
-   creating_ext/my_first_ext.rst
+    creating_ext/zendext_vs_ext.rst
+    creating_ext/load_mechanism.rst
+    creating_ext/automatic_tools.rst
+    creating_ext/building_activating.rst
+    creating_ext/lifecycle.rst
+    creating_ext/my_first_ext.rst

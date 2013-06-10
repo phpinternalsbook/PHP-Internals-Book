@@ -9,9 +9,9 @@ used in PHP
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   constants/structure.rst
-   constants/main_api.rst
-   constants/compile_time_substitution.rst
+    constants/structure.rst
+    constants/main_api.rst
+    constants/compile_time_substitution.rst

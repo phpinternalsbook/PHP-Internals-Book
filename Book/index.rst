@@ -11,10 +11,10 @@ Table Of Contents
     functions.rst
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   classes_objects.rst
-   hashtables.rst
+    hashtables.rst
+    classes_objects.rst
 
 ..
     resources.rst

@@ -10,12 +10,12 @@ need it.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   sapis/entry_point.rst
-   sapis/list.rst
-   sapis/structures.rst
-   sapis/api.rst
-   sapis/output_buffering.rst
-   sapis/creation.rst
+    sapis/entry_point.rst
+    sapis/list.rst
+    sapis/structures.rst
+    sapis/api.rst
+    sapis/output_buffering.rst
+    sapis/creation.rst

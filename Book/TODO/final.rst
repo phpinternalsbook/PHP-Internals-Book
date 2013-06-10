@@ -10,10 +10,10 @@ this awesome project grow and master the Web.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
 ..
-   final/history.rst
-   final/contributors.rst
-   final/getting_help.rst
-   final/contributing.rst
+    final/history.rst
+    final/contributors.rst
+    final/getting_help.rst
+    final/contributing.rst
