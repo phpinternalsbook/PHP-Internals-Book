@@ -25,10 +25,10 @@ keys map to the same position, they collide. A good hash function minimizes coll
 should be found to deal with such a case.
 
 Several solutions exists, one would be to use a double hash, another would be to use a doubly linked list to store item
-at a same position in the hashtable. This latest solution is what is used in PHP : every time several input keys lead to
+at a same position in the hashtable. This latest solution is what is used in PHP: every time several input keys lead to
 the same hash key, items are linked list behind the hash key. One should as well remember that the hashing function can
 be CPU intensive. It wouldn't be a too big problem if you don't have to call it too often, but that's not the case in
-PHP : we call the hash function very often, so it has both to produce good hashes, and to produce them very quickly. In
+PHP: we call the hash function very often, so it has both to produce good hashes, and to produce them very quickly. In
 fact, the algorithm chosen by PHP is faster than safe, thought it still provides good distribution of keys, its own
 performances are crucial for PHP and its engine.
 
@@ -49,7 +49,7 @@ You can grab their API in ``zend_hash.c`` and ``zend_hash.h`` files. The basic s
 	    Bucket **arBuckets;         /* Items array */
 	    dtor_func_t pDestructor;    /* destruction function */
 	    zend_bool persistent;       /* Persistent allocation or not */
-	    unsigned char nApplyCount;  /* Used to track recursivity */
+	    unsigned char nApplyCount;  /* Used to track recursion */
 	    zend_bool bApplyProtection;
     #if ZEND_DEBUG
 	    int inconsistent;
@@ -85,23 +85,23 @@ its size is rounded up to the next power of two of the true HashTable size. So f
 say 12 elements, the underlining HashTable structure will be sized of 16, the arBuckets will be able to be indexed from
 0 to 15. It surely can be resized, a PHP array is not fixed sized you know, in fact, every time you reach the HashTable
 size limit, it's gonna be doubled. But keep in mind that resizing the table (growing it) has a cost as the hashed keys
-depend on the table size (used as mask), so everytime a resize occurs, every key is re-computed and passed throught the
+depend on the table size (used as mask), so every time a resize occurs, every key is re-computed and passed through the
 mask. You shouldn't worry about performance as masking is really fast on modern CPUs.
 
 When deleting an item from the hashtable, a destruction function may be called on it, mainly to tidy-up allocated
 memory. It then really makes sense to store into the hashtable the same C type as only one global destruction function
-is attached to the table. Remember as well that the ``arBucket`` array will never shrink down : you can not reduce a PHP
+is attached to the table. Remember as well that the ``arBucket`` array will never shrink down: you can not reduce a PHP
 array, you only can grow it.
 
 When you want to insert an element into the table, you call for its API passing it your data and eventually the key
- where you want to store it, the API will then take care of creating a ``Bucket`` object and store your data into it
- using a **void \*** pointer. If the data you pass to it is itself a pointer (and it will be in nearly every cases),
- then the HashTable API will just get the address of your pointer and copy it into a ``Bucket``, then attaches the
- ``Bucket`` to the ``arBuckets`` array using the key you eventually provided together with your data to compute a C key
- using the hash function and a mask.
+where you want to store it, the API will then take care of creating a ``Bucket`` object and store your data into it
+using a ``void *`` pointer. If the data you pass to it is itself a pointer (and it will be in nearly every cases),
+then the HashTable API will just get the address of your pointer and copy it into a ``Bucket``, then attaches the
+``Bucket`` to the ``arBuckets`` array using the key you eventually provided together with your data to compute a C key
+using the hash function and a mask.
 
 If the key you provide is of integer type, then it will just be masked and used as the ``arBucket`` key. If you provide
-a key of type **char \***, then it will get into the hash function, will be masked, and then the resulting integer will
+a key of type ``char *``, then it will get into the hash function, will be masked, and then the resulting integer will
 be used as the ``arBucket`` key. You will find more information about all this stuff in the last chapter where we show
 edge cases.
 
@@ -109,13 +109,13 @@ HashTables API
 ==============
 
 Here we will describe common use-cases regarding Hashtables API. If you want to have a deeper look at it, you should
-then grab the sources which for hashtables implementation are not sparsed everywhere : just get zend_hash files from the
+then grab the sources which for hashtables implementation are not sparsed everywhere: just get zend_hash files from the
 *Zend/* directory, and you are done.
 
 Creating and destroying a hashtable
 -----------------------------------
 
-Guess what ? Yep, we provide an API for allocating and freeing a hashtable. Better to use it::
+Guess what? Yep, we provide an API for allocating and freeing a hashtable. Better to use it::
 
     HashTable *myht;
 
@@ -123,9 +123,9 @@ Guess what ? Yep, we provide an API for allocating and freeing a hashtable. Bett
 
     zend_hash_init(myht, 10, NULL, NULL, (zend_bool)0);
 
-So we allocate a hashtable for 10 items, the function will then round this up to the next power of 2 : 16 in our case.
-Both NULLs here are for a custom hashing function, we usually dont need and will use the default Zend one which is just
-right, and for the destructor function, for this example we dont use any. The last parameter tells the allocator weither
+So we allocate a hashtable for 10 items, the function will then round this up to the next power of 2: 16 in our case.
+Both NULLs here are for a custom hashing function, we usually don't need and will use the default Zend one which is just
+right, and for the destructor function, for this example we don't use any. The last parameter tells the allocator whether
 we want or not a persistent allocation for this hashtable. Persistent allocations last after the request cycle and are
 not freed by PHP before it shuts down. Most of the time, you'll need a request-life-allocated array.
 
@@ -134,12 +134,12 @@ Let's free this hashtable now::
     zend_hash_destroy(myht);
     FREE_HASHTABLE(myht);
 
-``zend_hash_destroy()`` will take care of the housework for you, basicaly : iterate over the table, call the registered
+``zend_hash_destroy()`` will take care of the housework for you, basicaly: iterate over the table, call the registered
 destructor on all of them, then destroy the ``Bucket``. You are now about to free the HashTable, which
 ``FREE_HASHTABLE()`` takes care of.
 
-As often the hashtable will carry **zval \***, you should use ``zval_ptr_dtor()`` as a destructor function. The
-signature of ``zval_ptr_dtor()`` is not compatible with what is expected by ``zend_hash_init()``, so weither you cast it
+As often the hashtable will carry ``zval *``, you should use ``zval_ptr_dtor()`` as a destructor function. The
+signature of ``zval_ptr_dtor()`` is not compatible with what is expected by ``zend_hash_init()``, so whether you cast it
 yourself, or use a special macro that takes care of that for you::
 
     HashTable *myht;
@@ -149,7 +149,7 @@ yourself, or use a special macro that takes care of that for you::
 ``ZVAL_PTR_DTOR`` is a macro that just wraps ``zval_ptr_dtor()`` using correct casts so that your compiler wont shout
 about incompatible types. Remember that ``zval_ptr_dtor()`` decrements the zval* refcount by one, and if it reaches
 zero, frees it , so using it as a destructor in your hashtable is very nice as now the hashtables handles the cleaning
-automatically about **zval \***.
+automatically about ``zval *``.
 
 Just to let you know, should you clean a hashtable, aka empty all its items but leave itself alive,
 ``zend_hash_clean()`` will do the job. You will end up with a cleaned hashtable, just like if you just allocated it.
@@ -157,13 +157,13 @@ Just to let you know, should you clean a hashtable, aka empty all its items but 
 Playing with items, inserting and removing
 ------------------------------------------
 
-Ok, now let's basically play with a hashtable. There are 3 things to remember every time you come to play with hashtables :
- * Weither the key is an integer or a string, the API call will always differ from both cases
- * Weither you already got a zval* to insert into the table, or you just would like the table to create it and insert it
+Ok, now let's basically play with a hashtable. There are 3 things to remember every time you come to play with hashtables:
+ * Whether the key is an integer or a string, the API call will always differ from both cases
+ * Whether you already got a zval* to insert into the table, or you just would like the table to create it and insert it
    for you
- * If you want to use a string key, weither or not you already computed its hash using the hash function
+ * If you want to use a string key, whether or not you already computed its hash using the hash function
 
-So, remember this and we are done ::
+So, remember this and we are done::
 
     HashTable *ht1 = NULL;
     ALLOC_HASHTABLE(ht1); /* allocate the table */
@@ -193,12 +193,12 @@ So, remember this and we are done ::
     }
 
 .. warning:: Be careful of the return type, it's not as you would expect 0/1, so, never write something like:
-    ``if(zend_hash_add(/*...*/)) {`` but write : ``if(zend_hash_add(/*...*/) == FAILURE) {``. Always check against
+    ``if(zend_hash_add(/*...*/)) {`` but write: ``if(zend_hash_add(/*...*/) == FAILURE) {``. Always check against
     SUCCESS or FAILURE macros     when you use zend_hash API.
 
-.. note:: You don't pass the **zval \*** to the hashtable, but its address, becoming a **zval \*\***.
-   *HashTables always play one level of indirection above what you pass them*, so if you pass it, say, an **int \*\***,
-   it will play with an **int \*\*\***. We usualy use **zval \***, so it plays with **zval \***.
+.. note:: You don't pass the ``zval *`` to the hashtable, but its address, becoming a ``zval **``.
+   *HashTables always play one level of indirection above what you pass them*, so if you pass it, say, an ``int **``,
+   it will play with an ``int ***``. We usually use ``zval *``, so it plays with ``zval *``.
 
 As you can see, it's a little bit weird to insert zvals into a hashtable. Fortunately, there exists another API witch
 goal is to create and allocate the zval for us, just pass its value and you are done. What is special about this API,
@@ -220,21 +220,21 @@ example then become something like that::
 
     /* There does not exist something like add_next_index_bool() */
 
-.. note:: Like we said, the API is different weither the key you provide is an integer (**ulong**), or a string
-   (**char \***) or if you dont provide key at all and let the implementation choose the next one for you. Mainly
+.. note:: Like we said, the API is different weither the key you provide is an integer (``ulong``), or a string
+   (``char *``) or if you dont provide key at all and let the implementation choose the next one for you. Mainly
    "*assoc*" means string keys, and "*index*" means integer keys.
 
-So, depending on the case, you'll choose to use directly the zend_hash API, or go with the zval "*add_*" API.
+So, depending on the case, you'll choose to use directly the zend_hash API, or go with the zval ``add_`` API.
 
 .. note:: Remember there is no problem having told the zend_hash API we would store 3 elements (using initialisation
-   function) into it : it will round up our 3 to 4, and, if we would come to add more elements, it automatically
+   function) into it: it will round up our 3 to 4, and, if we would come to add more elements, it automatically
    internally resizes itself, we have nothing to do with that when using the API.
 
 Retrieving, deleting and checking for items
 -------------------------------------------
 
-Now we can prepare a hashtable, and feed it with data, mainly zvals. What about looking for our data now ? Or checking
-weither they exist or not into the table ? Let's go::
+Now we can prepare a hashtable, and feed it with data, mainly zvals. What about looking for our data now? Or checking
+whether they exist or not into the table? Let's go::
 
     HashTable *ht1 = NULL; ALLOC_HASHTABLE(ht1);
 
@@ -256,20 +256,22 @@ weither they exist or not into the table ? Let's go::
     }
 
 Same thing as if you look for a value at an integer index, or a string index, you won't use the same API call. Also,
- remember we added a **zval \*\*** into the hashtable (the address of a **zval \***), so, you have to provide the 'find'
- function with a **zval \*\***, and as it will have to write to it, you effectively end up passing a **zval \*\*\*** to
- 'find', as beeing the address of your **zval \*\*** storage.
+remember we added a ``zval **`` into the hashtable (the address of a ``zval *``), so, you have to provide the 'find'
+function with a ``zval **``, and as it will have to write to it, you effectively end up passing a ``zval ***`` to
+'find', as being the address of your ``zval **`` storage.
 
-Should you just want to check for existence ?::
+Should you just want to check for existence?
+
+::
 
     if (zend_hash_index_exists(ht1, 12)) {
-        /* Yes ! */
+        /* Yes! */
     }
 
 And if you deal with string type keys, the API becomes::
 
     if (zend_hash_exists(ht1, "fookey", sizeof("fookey"))) { /* Returns 1 or 0, no check against macro needed */
-        /* Yes ! */
+        /* Yes! */
     }
 
     zval **found = NULL;
@@ -277,10 +279,10 @@ And if you deal with string type keys, the API becomes::
         zend_hash_del(ht1, "fookey", sizeof("fookey")); /* Removing the item from the table */
     }
 
-One last thing : if you need to get the current data pointed by the iterator, the API allows you to do so, like this::
+One last thing: if you need to get the current data pointed by the iterator, the API allows you to do so, like this::
 
     if (zend_hash_get_current_data(ht1, (void **)&found) == SUCCESS)  {
-        /* Yes ! */
+        /* Yes! */
     }
 
 For the key, you first have to determine if it's a string or an int, then just use the correct argument, like this::
@@ -295,10 +297,10 @@ For the key, you first have to determine if it's a string or an int, then just u
             zend_error(E_NOTICE, "There is no current element in this array");
         break;
         case HASH_KEY_IS_INT:
-            php_printf("Key was found!, it is an integer : %ld", num_key);
+            php_printf("Key was found!, it is an integer: %ld", num_key);
         break;
         case HASH_KEY_IS_STRING:
-            php_printf("Key was found!, it is a string : '%s'", str_key);
+            php_printf("Key was found!, it is a string: '%s'", str_key);
         break;
         EMPTY_SWITCH_DEFAULT_CASE()
     }
@@ -307,7 +309,7 @@ For the key, you first have to determine if it's a string or an int, then just u
 String keys and hashing algorithm
 ---------------------------------
 
-You know when you use a string key. You know what happens to it when it dives into the zend_hash API call you perform :
+You know when you use a string key. You know what happens to it when it dives into the zend_hash API call you perform:
 it gets hashed by a hashing algorithm. This is a basic concept of hashtables we talked about in introduction chapter.
 Let's see what the default hashing algo looks like::
 
@@ -340,8 +342,8 @@ Let's see what the default hashing algo looks like::
 	    return hash;
     }
 
-We won't explain it, simply recall what we said in intro : it leads to collisions, in some cases, but it is fast. Faster
-enought for common use cases but there is a case where using it would be a pure waste : calling it with several times
+We won't explain it, simply recall what we said in intro: it leads to collisions, in some cases, but it is fast. Faster
+enough for common use cases but there is a case where using it would be a pure waste: calling it with several times
 the same argument. And this can happen quiet often, imagine you have a string key "mykey", if you happen to call any
 zend_hash API with this key, all of them will call for the hash function, and it obviously will always lead to the same
 hash result. This is a waste.
@@ -365,7 +367,7 @@ Let's show this particular API you could need in your future developments::
     }
 
     if (zend_hash_quick_exists(ht1, "foobar", sizeof("foobar"), my_hash)) {
-        php_printf("Just checked, our value is in ! \n");
+        php_printf("Just checked, our value is in! \n");
     }
 
     zend_hash_quick_del(ht1, "foobar", sizeof("foobar"), my_hash); /* Delete the value */
@@ -374,11 +376,11 @@ Let's show this particular API you could need in your future developments::
         php_printf("Obviously, the value is not here any more\n");
     }
 
-Wondering why, while passing the precomputed hash, we still need to pass the key string at every API call ? Well it's
-easy : because of collisions. There is no fact as "one string key = exactly one computed hash". Collisions can happen,
+Wondering why, while passing the precomputed hash, we still need to pass the key string at every API call? Well it's
+easy: because of collisions. There is no fact as "one string key = exactly one computed hash". Collisions can happen,
 so the API will obviously use the precomputed hash we provided it, but it will always check for string equality as well
-(**strcmp**), because it never can be sure that at this hash index, there is only our data with our string key. But, we
-solved our problem here : we only triggered the hash algorithm once for all, and not for every API call we just
+(``strcmp``), because it never can be sure that at this hash index, there is only our data with our string key. But, we
+solved our problem here: we only triggered the hash algorithm once for all, and not for every API call we just
 triggered.
 
 Iterating over the table
@@ -389,13 +391,13 @@ this, and it also provides ways to apply a callback to elements into hashtables.
 first, let's concentrate on how to manually iterate over table items.
 
 Basically, the iteration is just about remembering what the current position is, and this piece of information is stored
-in the ``pInternalPointer`` field of the hashtable. However, it's *not recommanded* to play with this internal position,
+in the ``pInternalPointer`` field of the hashtable. However, it's *not recommended* to play with this internal position,
 because the table you are iterating over may be shared somewhere else, and modifying its internal pointer could lead to
 bugs elsewhere, where other functions wouldn't expect it to change. This is why the API allows you (and that's what
 we'll always use) to iterate over a hashtable using an external position pointer, welcome the ``HashPosition`` type.
 
 ``HashPosition`` is just a typedef to Bucket \*, so it represents the current item, and passing a pointer to this
-``HashPosition`` to every iteration-related functions will make them move it : you will iterate without changing the
+``HashPosition`` to every iteration-related functions will make them move it: you will iterate without changing the
 internal HashTable position which is correct.
 
 Let's show an example using all we've learned since the beginning of the chapter::
@@ -440,7 +442,7 @@ Let's show an example using all we've learned since the beginning of the chapter
     }
     zval_ptr_dtor(&array);
 
-    /* Displays :
+    /* Displays:
     At key 'bool', we have '1'
     At key 1, we have '1.1'
     At key 2, we have 'hello world'
@@ -462,16 +464,16 @@ Mapping functions
 HashAlgorithm and colliding the table
 =====================================
 
-Let's recall how all this works : When inserting a data, the (usually) provided key may be of two types : int or string.
+Let's recall how all this works: When inserting a data, the (usually) provided key may be of two types: int or string.
 If the key is a string, it then passes through the hash algorithm, which is *DJBX33A* in PHP, and an integer comes out
 from this function. If the key were an integer, it is just used as-is. In both cases, we end up having a hash key with
-an integer of type **unsigned long** (ulong), with no limit in its bounds. So we would need to allocate an array
-(``arBuckets``) that should be referenced from 0 to **sizeof(ulong)**, something like 18446744073709551615 on 64bits
+an integer of type ``unsigned long`` (ulong), with no limit in its bounds. So we would need to allocate an array
+(``arBuckets``) that should be referenced from 0 to ``sizeof(ulong)``, something like 18446744073709551615 on 64bits
 platform, which is clearly impossible. The problem is that the actual hash key we computed is just too big and has no
 bounds on the unsigned long range, it then cannot be used as-is as a C array index because the array would have been too
 huge to fit in memory. What is then done as a second step, is that the hash key gets narrow-bounded, using a mask. The
 mask cuts of the most significant bits in the integer, and dramatically lowers its space, making it suitable to be
-passed as an index for a preallocated C array, ``arBuckets``. The mask is calculated as beeing the size of the HashTable
+passed as an index for a preallocated C array, ``arBuckets``. The mask is calculated as being the size of the HashTable
 minus one. Here is the code for string typed keys::
 
     ht->nTableMask = ht->nTableSize - 1;
@@ -484,7 +486,7 @@ minus one. Here is the code for string typed keys::
     p = ht->arBuckets[nIndex]; /* Use the nIndex to get back p (Bucket*) from the bucket array arBuckets */
     /* Use p here */
 
-We said that if the provided key is of type integer (**ulong**) and not string (**char \***), we just dont need to run
+We said that if the provided key is of type integer (``ulong``) and not string (``char *``), we just don't need to run
 the hash function. Code then becomes::
 
     ht->nTableMask = ht->nTableSize - 1;
@@ -499,7 +501,7 @@ the hash function. Code then becomes::
 
 What this means is that if you build a special PHP array, with only integer keys, that when used with the mask give
 always the same index, then you will overcollide the array, and end-up having a possibly too huge linked list.
-Traversing a linkedlist is O(n), so the more the linkedlist grow, the slower it becomes to traverse it. Knowing that the
+Traversing a linked list is O(n), so the more the linked list grows, the slower it becomes to traverse it. Knowing that the
 API has to traverse the lists at every lookup or insertion (which triggers a lookup) in the table, it is then easy to
 DOS this part of PHP.
 
@@ -523,7 +525,7 @@ To show this, let's build a use case and explain it:
 
 Running this code, you should obtain something like 32769 insertions in 9.84 seconds, which is just a very huge amount
 of time. Let's now explain what happens at a lower level. We know that using a key as an integer, no hashing function
-comes to play, so the code beeing run to compute the C array key (``nIndex``) mainly looks like::
+comes to play, so the code being run to compute the C array key (``nIndex``) mainly looks like::
 
     nIndex = h & ht->nTableMask; /* masking */
     p = ht->arBuckets[nIndex];
@@ -547,17 +549,17 @@ loop, it jumps from bit to bit, and the mask is just irrelevant:
     ...
                  = 0 !
 
-We end up inserting every item (we insert 32769 total items) at the same ``arBuckets`` index : 0. Every item is then
+We end up inserting every item (we insert 32769 total items) at the same ``arBuckets`` index: 0. Every item is then
 added to the linked list sitting at index 0 of ``arBuckets``, and traversing a fast growing linked list takes so much
 time. Be convinced by breaking this actual collision-proof code, just use a size of 32767 for example, instead of the
 special 32768. You will get something like 32768 inserts in 0.01 seconds, which is about 1000 times faster.
 
-When the hash algorithm + the hash mask works normally, meaning we are not cheating them volontary like we did, it
-distributes pretty well bukets into the ``arBuckets`` :
+When the hash algorithm + the hash mask works normally, meaning we are not cheating them voluntary like we did, it
+distributes pretty well buckets into the ``arBuckets``:
 
 .. image:: ./images/hash_distribution_ok.png
 
-When it's not the case, you end with something like this, which we could call the 'worst scenario' :
+When it's not the case, you end with something like this, which we could call the 'worst scenario':
 
 .. image:: ./images/hash_distribution_ko.png
 
