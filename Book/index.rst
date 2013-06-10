@@ -1,7 +1,7 @@
 Table Of Contents
 =================
 
-..  
+..
     introduction.rst
 
 ..
@@ -17,10 +17,10 @@ Table Of Contents
     :maxdepth: 2
 
     introduction.rst
-    hashtables.rst
     classes_objects.rst
 
 ..
+    hashtables.rst
     resources.rst
     streams.rst
     constants.rst
