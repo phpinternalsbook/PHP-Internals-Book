@@ -10,6 +10,14 @@ The book is written using ReStructured Text and generated using Sphinx.
  * RST quickref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
  * Sphinx manual: http://sphinx.pocoo.org/markup/index.html
 
+Coding style
+------------
+
+The following "coding style" applies to the written text, not to the included code.
+
+ * The maximum line-width for text is 120 characters
+ * Lines should not have trailing whitespace
+
 Domains
 -------
 
