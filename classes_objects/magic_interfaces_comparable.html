@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Magic interfaces - Comparable &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="up" title="Classes and objects" href="../classes_objects.html" />
+    <link rel="next" title="Internal structures and implementation" href="internal_structures_and_implementation.html" />
+    <link rel="prev" title="Serialization" href="serialization.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Magic interfaces - Comparable</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="serialization.html">Serialization</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="internal_structures_and_implementation.html">Internal structures and implementation</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="magic-interfaces-comparable">
+<h1>Magic interfaces - Comparable<a class="headerlink" href="#magic-interfaces-comparable" title="Permalink to this headline">¶</a></h1>
+<p>Internal interfaces in PHP are very similar to their userland equivalents. The only notable difference is that internal
+interfaces have the additional possibility of specifying a handler that is executed when the interface is implemented.
+This feature can be used for various purposes like enforcing additional constraints or replacing handlers. We&#8217;ll make
+use of it to implement a &#8220;magic&#8221; <tt class="docutils literal"><span class="pre">Comparable</span></tt> interface, which exposes the internal <tt class="docutils literal"><span class="pre">compare_objects</span></tt> handler to
+userland.</p>
+<p>The interface itself will look as follows:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">interface Comparable {</span>
+<span class="x">    static function compare($left, $right);</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>First, lets register this new interface in <tt class="docutils literal"><span class="pre">MINIT</span></tt>:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">comparable_ce</span><span class="p">;</span>
+
+<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_comparable</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">obj1</span><span class="p">)</span>
+    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">obj2</span><span class="p">)</span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+
+<span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">comparable_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ZEND_FENTRY</span><span class="p">(</span><span class="n">compare</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">arginfo_comparable</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="o">|</span><span class="n">ZEND_ACC_ABSTRACT</span><span class="o">|</span><span class="n">ZEND_ACC_STATIC</span><span class="p">)</span>
+    <span class="n">PHP_FE_END</span>
+<span class="p">};</span>
+
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">comparable</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_class_entry</span> <span class="n">tmp_ce</span><span class="p">;</span>
+    <span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="s">&quot;Comparable&quot;</span><span class="p">,</span> <span class="n">comparable_functions</span><span class="p">);</span>
+    <span class="n">comparable_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_interface</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that in this case we can&#8217;t use <tt class="docutils literal"><span class="pre">PHP_ABSTRACT_ME</span></tt>, because it does not support static abstract methods. Instead
+we have to use the low-level <tt class="docutils literal"><span class="pre">ZEND_FENTRY</span></tt> macro.</p>
+<p>Next we implement the <tt class="docutils literal"><span class="pre">interface_gets_implemented</span></tt> handler:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">int</span> <span class="nf">implement_comparable</span><span class="p">(</span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">interface</span><span class="p">,</span> <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">create_object</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">zend_error</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span> <span class="s">&quot;Comparable interface can only be used on userland classes&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">ce</span><span class="o">-&gt;</span><span class="n">create_object</span> <span class="o">=</span> <span class="n">comparable_create_object_override</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// in MINIT</span>
+<span class="n">comparable_ce</span><span class="o">-&gt;</span><span class="n">interface_gets_implemented</span> <span class="o">=</span> <span class="n">implement_comparable</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>When the interface is implemented the <tt class="docutils literal"><span class="pre">implement_comparable</span></tt> function will be called. In this function we override the
+classes <tt class="docutils literal"><span class="pre">create_object</span></tt> handler. To simplify things we only allow the interface to be used when <tt class="docutils literal"><span class="pre">create_object</span></tt>
+was <tt class="docutils literal"><span class="pre">NULL</span></tt> previously (i.e. it is a &#8220;normal&#8221; userland class). We could obviously also make this work with arbitrary
+classes by backing up the old <tt class="docutils literal"><span class="pre">create_object</span></tt> handler somewhere.</p>
+<p>In our <tt class="docutils literal"><span class="pre">create_object</span></tt> override we create the object as usual but assign our own handlers structure with a custom
+<tt class="docutils literal"><span class="pre">compare_objects</span></tt> handler:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="n">zend_object_handlers</span> <span class="n">comparable_handlers</span><span class="p">;</span>
+
+<span class="k">static</span> <span class="n">zend_object_value</span> <span class="nf">comparable_create_object_override</span><span class="p">(</span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_object</span> <span class="o">*</span><span class="n">object</span><span class="p">;</span>
+    <span class="n">zend_object_value</span> <span class="n">retval</span><span class="p">;</span>
+
+    <span class="n">retval</span> <span class="o">=</span> <span class="n">zend_objects_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object</span><span class="p">,</span> <span class="n">ce</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+    <span class="n">object_properties_init</span><span class="p">(</span><span class="n">object</span><span class="p">,</span> <span class="n">ce</span><span class="p">);</span>
+
+    <span class="n">retval</span><span class="p">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">comparable_handlers</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// In MINIT</span>
+<span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">comparable_handlers</span><span class="p">,</span> <span class="n">zend_get_std_object_handlers</span><span class="p">(),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
+<span class="n">comparable_handlers</span><span class="p">.</span><span class="n">compare_objects</span> <span class="o">=</span> <span class="n">comparable_compare_objects</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Lastly we have to implement the custom comparison handler. It will call the <tt class="docutils literal"><span class="pre">compare</span></tt> method using the
+<tt class="docutils literal"><span class="pre">zend_call_method_with_2_params</span></tt> macro, which is defined in <tt class="docutils literal"><span class="pre">zend_interfaces.h</span></tt>. One question that arises is which
+class the method should be called on. For this implementation we&#8217;ll simply use the first passed object, though this is
+just an arbitrary choice. In practice this means that for <tt class="docutils literal"><span class="pre">$left</span> <span class="pre">&lt;</span> <span class="pre">$right</span></tt> the class of <tt class="docutils literal"><span class="pre">$left</span></tt> will be used, but
+for <tt class="docutils literal"><span class="pre">$left</span> <span class="pre">&gt;</span> <span class="pre">$right</span></tt> the class of <tt class="docutils literal"><span class="pre">$right</span></tt> is used (because PHP transforms the <tt class="docutils literal"><span class="pre">&gt;</span></tt> to a <tt class="docutils literal"><span class="pre">&lt;</span></tt> operation).</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &quot;zend_interfaces.h&quot;</span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="nf">comparable_compare_objects</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">obj2</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zval</span> <span class="o">*</span><span class="n">retval</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">result</span><span class="p">;</span>
+
+    <span class="n">zend_call_method_with_2_params</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">Z_OBJCE_P</span><span class="p">(</span><span class="n">obj1</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;compare&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">retval</span><span class="p">,</span> <span class="n">obj1</span><span class="p">,</span> <span class="n">obj2</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">retval</span> <span class="o">||</span> <span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">retval</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">retval</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">retval</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">zend_get_std_object_handlers</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">compare_objects</span><span class="p">(</span><span class="n">obj1</span><span class="p">,</span> <span class="n">obj2</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">convert_to_long_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">retval</span><span class="p">);</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">ZEND_NORMALIZE_BOOL</span><span class="p">(</span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">retval</span><span class="p">));</span>
+    <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">retval</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">ZEND_NORMALIZE_BOOL</span></tt> macro used above normalizes the returned integer to <tt class="docutils literal"><span class="pre">-1</span></tt>, <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">1</span></tt>.</p>
+<p>And that&#8217;s all it takes. Now we can try out the new interface (sorry if the example doesn&#8217;t make particularly much
+sense):</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">class Point implements Comparable {</span>
+<span class="x">    protected $x, $y, $z;</span>
+
+<span class="x">    public function __construct($x, $y, $z) {</span>
+<span class="x">        $this-&gt;x = $x; $this-&gt;y = $y; $this-&gt;z = $z;</span>
+<span class="x">    }</span>
+
+<span class="x">    /* We assume a point is smaller/greater if all its components are smaller/greater */</span>
+<span class="x">    public static function compare($p1, $p2) {</span>
+<span class="x">        if ($p1-&gt;x == $p2-&gt;x &amp;&amp; $p1-&gt;y == $p2-&gt;y &amp;&amp; $p1-&gt;z == $p2-&gt;z) {</span>
+<span class="x">            return 0;</span>
+<span class="x">        }</span>
+
+<span class="x">        if ($p1-&gt;x &lt; $p2-&gt;x &amp;&amp; $p1-&gt;y &lt; $p2-&gt;y &amp;&amp; $p1-&gt;z &lt; $p2-&gt;z) {</span>
+<span class="x">            return -1;</span>
+<span class="x">        }</span>
+
+<span class="x">        if ($p1-&gt;x &gt; $p2-&gt;x &amp;&amp; $p1-&gt;y &gt; $p2-&gt;y &amp;&amp; $p1-&gt;z &gt; $p2-&gt;z) {</span>
+<span class="x">            return 1;</span>
+<span class="x">        }</span>
+
+<span class="x">        // not comparable</span>
+<span class="x">        return 1;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+
+<span class="x">$p1 = new Point(1, 1, 1);</span>
+<span class="x">$p2 = new Point(2, 2, 2);</span>
+<span class="x">$p3 = new Point(1, 0, 2);</span>
+
+<span class="x">var_dump($p1 &lt; $p2, $p1 &gt; $p2, $p1 == $p2); // true, false, false</span>
+
+<span class="x">var_dump($p1 == $p1); // true</span>
+
+<span class="x">var_dump($p1 &lt; $p3, $p1 &gt; $p3, $p1 == $p3); // false, false, false</span>
+</pre></div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="serialization.html">Serialization</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="internal_structures_and_implementation.html">Internal structures and implementation</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, Julien Pauli - Anthony Ferrara - Nikita Popov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

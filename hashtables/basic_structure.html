@@ -1,0 +1,528 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Basic structure &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="up" title="HashTables" href="../hashtables.html" />
+    <link rel="next" title="Classes and objects" href="../classes_objects.html" />
+    <link rel="prev" title="HashTables" href="../hashtables.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Basic structure</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="../hashtables.html">HashTables</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../classes_objects.html">Classes and objects</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="basic-structure">
+<h1>Basic structure<a class="headerlink" href="#basic-structure" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="basic-concepts">
+<h2>Basic concepts<a class="headerlink" href="#basic-concepts" title="Permalink to this headline">¶</a></h2>
+<p>HashTables are at first a noticeable C structure designed to solve some data access problems. Basically, it&#8217;s a C pattern, like linked lists are, or trees : they solve a common problem providing a structure and an API. In C, you know that arrays are just a maner of seeing and accessing adjacent regions of memory. So, C arrays are clearly fixed sized, and typed. Very different from PHP arrays.
+How to implement PHP arrays in C ? Hashtables are a solution.</p>
+<p>But Hashtables are not just the internal design of PHP arrays, they are actually heavilly used everywhere in PHP source code, as this C structure is so usefull in everyday C coding.
+The basics of HashTable is to store a value of any type, into a structure, with the ability to look it up later in a reasonable amount of time, whatever the total number of elements. The idea is to establish a mapping between the set of all possible keys and positions in the array using a hash function. A hash function accepts a key and returns its hash value. Keys vary in type, but hash codings are always integers.</p>
+<p>Since both computing a hash value and indexing into an array can be performed in constant time, the beauty of hashing is that we can use it to perform constant-time searches. When a hash function can guarantee that no two keys will generate the same hash coding, the resulting hash table is directly addressed. This is ideal, but rarely possible in practice as this would just lead to a too big C array. Typically, the number of entries in a hash table is small relative to the universe of possible keys. Consequently, most hash functions map some keys to the same position in the table. When two keys map to the same position, they collide. A good hash function minimizes collisions, but when they happen, a solution should be found to deal with such a case.</p>
+<p>Several solutions exists, one would be to use a double hash, another would be to use a doubly linked list to store item at a same position in the hashtable. This latest solution is what is used in PHP : every time several input keys lead to the same hash key, items are linked list behind the hash key.
+One should as well remember that the hashing function can be CPU intensive. It wouldn&#8217;t be a too big problem if you don&#8217;t have to call it too often, but that&#8217;s not the case in PHP : we call the hash function very often, so it has both to produce good hashes, and to produce them very quickly.
+In fact, the algorithm chosen by PHP is faster than safe, thought it still provides good distribution of keys, its own performances are crucial for PHP and its engine.</p>
+</div>
+<div class="section" id="hashtables-in-php">
+<h2>HashTables in PHP<a class="headerlink" href="#hashtables-in-php" title="Permalink to this headline">¶</a></h2>
+<p>PHP HashTables are one implementation of the global concept. They&#8217;ve been designed to fit PHP needs.
+You can grab their API in <tt class="docutils literal"><span class="pre">zend_hash.c</span></tt> and <tt class="docutils literal"><span class="pre">zend_hash.h</span></tt> files. The basic structure is represented as follows:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_hashtable</span> <span class="p">{</span>
+        <span class="n">uint</span> <span class="n">nTableSize</span><span class="p">;</span>            <span class="cm">/* Table size */</span>
+        <span class="n">uint</span> <span class="n">nTableMask</span><span class="p">;</span>            <span class="cm">/* Hash function mask */</span>
+        <span class="n">uint</span> <span class="n">nNumOfElements</span><span class="p">;</span>        <span class="cm">/* Number of items in the table */</span>
+        <span class="n">ulong</span> <span class="n">nNextFreeElement</span><span class="p">;</span>     <span class="cm">/* next item hash */</span>
+        <span class="n">Bucket</span> <span class="o">*</span><span class="n">pInternalPointer</span><span class="p">;</span>   <span class="cm">/* Pointer to current item */</span>
+        <span class="n">Bucket</span> <span class="o">*</span><span class="n">pListHead</span><span class="p">;</span>          <span class="cm">/* Pointer to head item */</span>
+        <span class="n">Bucket</span> <span class="o">*</span><span class="n">pListTail</span><span class="p">;</span>          <span class="cm">/* Pointer to tail item */</span>
+        <span class="n">Bucket</span> <span class="o">**</span><span class="n">arBuckets</span><span class="p">;</span>         <span class="cm">/* Items array */</span>
+        <span class="kt">dtor_func_t</span> <span class="n">pDestructor</span><span class="p">;</span>    <span class="cm">/* destruction function */</span>
+        <span class="n">zend_bool</span> <span class="n">persistent</span><span class="p">;</span>       <span class="cm">/* Persistent allocation or not */</span>
+        <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">nApplyCount</span><span class="p">;</span>  <span class="cm">/* Used to track recursivity */</span>
+        <span class="n">zend_bool</span> <span class="n">bApplyProtection</span><span class="p">;</span>
+<span class="cp">#if ZEND_DEBUG</span>
+        <span class="kt">int</span> <span class="n">inconsistent</span><span class="p">;</span>
+<span class="cp">#endif</span>
+<span class="p">}</span> <span class="n">HashTable</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Each item stored into the hashtable is represented as follows:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">bucket</span> <span class="p">{</span>
+        <span class="n">ulong</span> <span class="n">h</span><span class="p">;</span>                        <span class="cm">/* Hashed key */</span>
+        <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">;</span>                <span class="cm">/* Key size (only in case of string keys, 0 for integer type keys */</span>
+        <span class="kt">void</span> <span class="o">*</span><span class="n">pData</span><span class="p">;</span>                    <span class="cm">/* Pointer to the real data */</span>
+        <span class="kt">void</span> <span class="o">*</span><span class="n">pDataPtr</span><span class="p">;</span>                 <span class="cm">/* Real data */</span>
+        <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pListNext</span><span class="p">;</span>       <span class="cm">/* Next item (bucket) in the table */</span>
+        <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pListLast</span><span class="p">;</span>       <span class="cm">/* Previous item (bucket) in the table */</span>
+        <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pNext</span><span class="p">;</span>           <span class="cm">/* Next item (bucket) in the linked list */</span>
+        <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pLast</span><span class="p">;</span>           <span class="cm">/* Previous item in the linked list */</span>
+        <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">;</span>                    <span class="cm">/* Key (if string key is used) */</span>
+<span class="p">}</span> <span class="n">Bucket</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">struct</span> <span class="pre">bucket</span></tt>s are stored into the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> C array from the <tt class="docutils literal"><span class="pre">HashTable</span></tt> structure, and they are indexed using the hashed key. As soon as the hash algorithm collides, two or more buckets would be stored at the same index, thus overwriting themselves. This is fixed in PHP implementation of Hashtables by making a bucket doubly linked list.</p>
+<img alt="../_images/php_hashtables_main.png" src="../_images/php_hashtables_main.png" />
+<div class="section" id="quick-tips-on-understanding">
+<h3>Quick tips on understanding<a class="headerlink" href="#quick-tips-on-understanding" title="Permalink to this headline">¶</a></h3>
+<p>At the time you insert its very first item, the HashTable will allocate memory for all future buckets, so that it doesn&#8217;t have to keep reallocating the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> buffer at every insertion.
+The <tt class="docutils literal"><span class="pre">arBuckets</span></tt> array is fixed sized, its size is rounded up to the next power of two of the true HashTable size. So for example, if you fill a PHP array with say 12 elements, the underlining HashTable structure will be sized of 16, the arBuckets will be able to be indexed from 0 to 15. It surely can be resized, a PHP array is not fixed sized you know, in fact, every time you reach the HashTable size limit, it&#8217;s gonna be doubled. But keep in mind that resizing the table (growing it) has a cost as the hashed keys depend on the table size (used as mask), so everytime a resize occurs, every key is re-computed and passed throught the mask. You shouldn&#8217;t worry about performance as masking is really fast on modern CPUs.</p>
+<p>When deleting an item from the hashtable, a destruction function may be called on it, mainly to tidy-up allocated memory. It then really makes sense to store into the hashtable the same C type as only one global destruction function is attached to the table. Remember as well that the <tt class="docutils literal"><span class="pre">arBucket</span></tt> array will never shrink down : you can not reduce a PHP array, you only can grow it.</p>
+<p>When you want to insert an element into the table, you call for its API passing it your data and eventually the key where you want to store it, the API will then take care of creating a <tt class="docutils literal"><span class="pre">Bucket</span></tt> object and store your data into it using a <strong>void *</strong> pointer. If the data you pass to it is itself a pointer (and it will be in nearly every cases), then the HashTable API will just get the address of your pointer and copy it into a <tt class="docutils literal"><span class="pre">Bucket</span></tt>, then attaches the <tt class="docutils literal"><span class="pre">Bucket</span></tt> to the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> array using the key you eventually provided together with your data to compute a C key using the hash function and a mask.</p>
+<p>If the key you provide is of integer type, then it will just be masked and used as the <tt class="docutils literal"><span class="pre">arBucket</span></tt> key. If you provide a key of type <strong>char *</strong>, then it will get into the hash function, will be masked, and then the resulting integer will be used as the <tt class="docutils literal"><span class="pre">arBucket</span></tt> key. You will find more information about all this stuff in the last chapter where we show edge cases.</p>
+</div>
+</div>
+</div>
+<div class="section" id="hashtables-api">
+<h1>HashTables API<a class="headerlink" href="#hashtables-api" title="Permalink to this headline">¶</a></h1>
+<p>Here we will describe common use-cases regarding Hashtables API. If you want to have a deeper look at it, you should then grab the sources which for hashtables implementation are not sparsed everywhere : just get zend_hash files from the <em>Zend/</em> directory, and you are done.</p>
+<div class="section" id="creating-and-destroying-a-hashtable">
+<h2>Creating and destroying a hashtable<a class="headerlink" href="#creating-and-destroying-a-hashtable" title="Permalink to this headline">¶</a></h2>
+<p>Guess what ? Yep, we provide an API for allocating and freeing a hashtable. Better to use it:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
+
+<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+
+<span class="n">zend_hash_init</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="p">(</span><span class="n">zend_bool</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>So we allocate a hashtable for 10 items, the function will then round this up to the next power of 2 : 16 in our case.
+Both NULLs here are for a custom hashing function, we usually dont need and will use the default Zend one which is just right, and for the destructor function, for this example we dont use any.
+The last parameter tells the allocator weither we want or not a persistent allocation for this hashtable. Persistent allocations last after the request cycle and are not freed by PHP before it shuts down. Most of the time, you&#8217;ll need a request-life-allocated array.</p>
+<p>Let&#8217;s free this hashtable now:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zend_hash_destroy</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+<span class="n">FREE_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">zend_hash_destroy()</span></tt> will take care of the housework for you, basicaly : iterate over the table, call the registered destructor on all of them, then destroy the <tt class="docutils literal"><span class="pre">Bucket</span></tt>. You are now about to free the HashTable, which <tt class="docutils literal"><span class="pre">FREE_HASHTABLE()</span></tt> takes care of.</p>
+<p>As often the hashtable will carry <strong>zval *</strong>, you should use <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> as a destructor function. The signature of <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> is not compatible with what is expected by <tt class="docutils literal"><span class="pre">zend_hash_init()</span></tt>, so weither you cast it yourself, or use a special macro that takes care of that for you:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
+<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+<span class="n">zend_hash_init</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">ZVAL_PTR_DTOR</span><span class="p">,</span> <span class="p">(</span><span class="n">zend_bool</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">ZVAL_PTR_DTOR</span></tt> is a macro that just wraps <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> using correct casts so that your compiler wont shout about incompatible types.
+Remember that <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> decrements the zval* refcount by one, and if it reaches zero, frees it , so using it as a destructor in your hashtable is very nice as now the hashtables handles the cleaning automatically about <strong>zval *</strong>.</p>
+<p>Just to let you know, should you clean a hashtable, aka empty all its items but leave itself alive, <tt class="docutils literal"><span class="pre">zend_hash_clean()</span></tt> will do the job. You will end up with a cleaned hashtable, just like if you just allocated it.</p>
+</div>
+<div class="section" id="playing-with-items-inserting-and-removing">
+<h2>Playing with items, inserting and removing<a class="headerlink" href="#playing-with-items-inserting-and-removing" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Ok, now let&#8217;s basically play with a hashtable. There are 3 things to remember every time you come to play with hashtables :</dt>
+<dd><ul class="first last simple">
+<li>Weither the key is an integer or a string, the API call will always differ from both cases</li>
+<li>Weither you already got a zval* to insert into the table, or you just would like the table to create it and insert it for you</li>
+<li>If you want to use a string key, weither or not you already computed its hash using the hash function</li>
+</ul>
+</dd>
+</dl>
+<p>So, remember this and we are done</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht1</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">ht1</span><span class="p">);</span> <span class="cm">/* allocate the table */</span>
+
+<span class="n">zend_hash_init</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">ZVAL_PTR_DTOR</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> <span class="cm">/* Prepare it to accept 3 elements, which you&#39;ll free using ZVAL_PTR_DTOR callback */</span>
+
+<span class="n">zval</span> <span class="o">*</span><span class="n">myval1</span><span class="p">,</span> <span class="o">*</span><span class="n">myval2</span><span class="p">,</span> <span class="o">*</span><span class="n">myval3</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">myval1</span><span class="p">);</span><span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">myval2</span><span class="p">);</span><span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">myval3</span><span class="p">);</span> <span class="cm">/* allocate 3 zvals */</span>
+
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">myval1</span><span class="p">,</span> <span class="s">&quot;hello world&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span> <span class="cm">/* a string */</span>
+<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">myval2</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span> <span class="cm">/* a long */</span>
+<span class="n">ZVAL_TRUE</span><span class="p">(</span><span class="n">myval3</span><span class="p">);</span> <span class="cm">/* a boolean */</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">myval2</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* PHP: $array[12] = 42 */</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Added zval myval2 to ht1 at index 12</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_add</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="s">&quot;str&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;str&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">myval1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* PHP: $array[&#39;str&#39;] = &#39;hello world&#39; */</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Added zval myval1 to ht1 at index &#39;str&#39; </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">ulong</span> <span class="n">key</span><span class="p">;</span>
+<span class="cm">/* Next numeric key, Should obviously be 13 here */</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">zend_hash_next_free_element</span><span class="p">(</span><span class="n">ht1</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_next_index_insert</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">myval3</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* PHP: $array[] = true */</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Added zval myval3 to ht1 at index %ld </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Be careful of the return type, it&#8217;s not as you would expect 0/1, so, never write something like:
+<tt class="docutils literal"><span class="pre">if(zend_hash_add(/*...*/))</span> <span class="pre">{</span></tt> but write : <tt class="docutils literal"><span class="pre">if(zend_hash_add(/*...*/)</span> <span class="pre">==</span> <span class="pre">FAILURE)</span> <span class="pre">{</span></tt>. Always check against SUCCESS or FAILURE macros
+when you use zend_hash API.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You don&#8217;t pass the <strong>zval *</strong> to the hashtable, but its address, becoming a <strong>zval **</strong>. <em>HashTables always play one level of indirection above what you pass them</em>, so if you pass it, say, an <strong>int **</strong>, it will play with an <strong>int ***</strong>. We usualy use <strong>zval *</strong>, so it plays with <strong>zval *</strong>.</p>
+</div>
+<p>As you can see, it&#8217;s a little bit weird to insert zvals into a hashtable. Fortunately, there exists another API witch goal is to create and allocate the zval for us, just pass its value and you are done. What is special about this API, is that it doesn&#8217;t play directly with a hashtable itself, but expect you to embed the Hashtable into a zval as well. The API is so fully zval-turned, but under the hood it uses zend_hash API.
+Playing with the zval special API, our above example then become something like that:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">ht1</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="n">ALLOC_INIT_ZVAL</span><span class="p">(</span><span class="n">ht1</span><span class="p">);</span>
+<span class="n">array_init</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">add_index_long</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Added zval of type long (42) to ht1 at index 12</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">add_assoc_string</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="s">&quot;str&quot;</span><span class="p">,</span> <span class="s">&quot;hello world&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Added zval of type string (&#39;hello world&#39;) to ht1 at index &#39;str&#39; </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/* There does not exist something like add_next_index_bool() */</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Like we said, the API is different weither the key you provide is an integer (<strong>ulong</strong>), or a string (<strong>char *</strong>) or if you dont provide key at all and let the implementation choose the next one for you. Mainly &#8220;<em>assoc</em>&#8221; means string keys, and &#8220;<em>index</em>&#8221; means integer keys.</p>
+</div>
+<p>So, depending on the case, you&#8217;ll choose to use directly the zend_hash API, or go with the zval &#8220;<em>add_</em>&#8221; API.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Remember there is no problem having told the zend_hash API we would store 3 elements (using initialisation function) into it : it will round up our 3 to 4, and, if we would come to add more elements, it automatically internally resizes itself, we have nothing to do with that when using the API.</p>
+</div>
+</div>
+<div class="section" id="retrieving-deleting-and-checking-for-items">
+<h2>Retrieving, deleting and checking for items<a class="headerlink" href="#retrieving-deleting-and-checking-for-items" title="Permalink to this headline">¶</a></h2>
+<p>Now we can prepare a hashtable, and feed it with data, mainly zvals. What about looking for our data now ? Or checking weither they exist or not into the table ? Let&#8217;s go:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht1</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">ht1</span><span class="p">);</span>
+
+<span class="n">zend_hash_init</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">ZVAL_PTR_DTOR</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="o">*</span><span class="n">myval</span><span class="p">;</span> <span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">myval</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">myval</span><span class="p">,</span> <span class="s">&quot;hello world&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span> <span class="cm">/* a string */</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">myval</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* add the value to index 12 */</span>
+    <span class="n">zend_error</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span> <span class="s">&quot;Could not add value to the hashtable&quot;</span><span class="p">);</span>
+    <span class="n">zend_bailout</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="n">zval</span> <span class="o">**</span><span class="n">found</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">found</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Hey, seems like there is something at numeric key 12, stored it into &#39;found&#39; &quot;</span><span class="p">);</span>
+    <span class="n">zend_hash_index_del</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">12</span><span class="p">);</span> <span class="cm">/* Delete the item */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Same thing as if you look for a value at an integer index, or a string index, you won&#8217;t use the same API call. Also, remember we added a <strong>zval **</strong> into the hashtable (the address of a <strong>zval *</strong>), so, you have to provide the &#8216;find&#8217; function with a <strong>zval **</strong>, and as it will have to write to it, you effectively end up passing a <strong>zval ***</strong> to &#8216;find&#8217;, as beeing the address of your <strong>zval **</strong> storage.</p>
+<p>Should you just want to check for existence ?:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_exists</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span> <span class="p">{</span>
+    <span class="cm">/* Yes ! */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>And if you deal with string type keys, the API becomes:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_exists</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="s">&quot;fookey&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;fookey&quot;</span><span class="p">)))</span> <span class="p">{</span> <span class="cm">/* Returns 1 or 0, no check against macro needed */</span>
+    <span class="cm">/* Yes ! */</span>
+<span class="p">}</span>
+
+<span class="n">zval</span> <span class="o">**</span><span class="n">found</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="s">&quot;fookey&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;fookey&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">found</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* Just to show the call */</span>
+    <span class="n">zend_hash_del</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="s">&quot;fookey&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;fookey&quot;</span><span class="p">));</span> <span class="cm">/* Removing the item from the table */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>One last thing : if you need to get the current data pointed by the iterator, the API allows you to do so, like this:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_get_current_data</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">found</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span>  <span class="p">{</span>
+    <span class="cm">/* Yes ! */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For the key, you first have to determine if it&#8217;s a string or an int, then just use the correct argument, like this:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="n">keytype</span><span class="p">,</span> <span class="n">num_key</span><span class="p">;</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">str_key</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+<span class="n">keytype</span> <span class="o">=</span> <span class="n">zend_hash_get_current_key</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">str_key</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">num_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+<span class="k">switch</span> <span class="p">(</span><span class="n">keytype</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">HASH_KEY_NON_EXISTANT</span>:
+        <span class="n">zend_error</span><span class="p">(</span><span class="n">E_NOTICE</span><span class="p">,</span> <span class="s">&quot;There is no current element in this array&quot;</span><span class="p">);</span>
+    <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">HASH_KEY_IS_INT</span>:
+        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Key was found!, it is an integer : %ld&quot;</span><span class="p">,</span> <span class="n">num_key</span><span class="p">);</span>
+    <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">HASH_KEY_IS_STRING</span>:
+        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Key was found!, it is a string : &#39;%s&#39;&quot;</span><span class="p">,</span> <span class="n">str_key</span><span class="p">);</span>
+    <span class="k">break</span><span class="p">;</span>
+    <span class="n">EMPTY_SWITCH_DEFAULT_CASE</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="cm">/* Just to let you know, we could have called zend_hash_get_current_key_type(ht1, &amp;keytype); as well */</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="string-keys-and-hashing-algorithm">
+<h2>String keys and hashing algorithm<a class="headerlink" href="#string-keys-and-hashing-algorithm" title="Permalink to this headline">¶</a></h2>
+<p>You know when you use a string key. You know what happens to it when it dives into the zend_hash API call you perform : it gets hashed by a hashing algorithm. This is a basic concept of hashtables we talked about in introduction chapter.
+Let&#8217;s see what the default hashing algo looks like:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kr">inline</span> <span class="n">ulong</span> <span class="nf">zend_inline_hash_func</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="k">register</span> <span class="n">ulong</span> <span class="n">hash</span> <span class="o">=</span> <span class="mi">5381</span><span class="p">;</span>
+
+        <span class="cm">/* variant with the hash unrolled eight times */</span>
+        <span class="k">for</span> <span class="p">(;</span> <span class="n">nKeyLength</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">;</span> <span class="n">nKeyLength</span> <span class="o">-=</span> <span class="mi">8</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span>
+                <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span>
+                <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span>
+                <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span>
+                <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span>
+                <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span>
+                <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span>
+                <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">switch</span> <span class="p">(</span><span class="n">nKeyLength</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">case</span> <span class="mi">7</span>: <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span> <span class="cm">/* fallthrough... */</span>
+                <span class="k">case</span> <span class="mi">6</span>: <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span> <span class="cm">/* fallthrough... */</span>
+                <span class="k">case</span> <span class="mi">5</span>: <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span> <span class="cm">/* fallthrough... */</span>
+                <span class="k">case</span> <span class="mi">4</span>: <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span> <span class="cm">/* fallthrough... */</span>
+                <span class="k">case</span> <span class="mi">3</span>: <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span> <span class="cm">/* fallthrough... */</span>
+                <span class="k">case</span> <span class="mi">2</span>: <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span> <span class="cm">/* fallthrough... */</span>
+                <span class="k">case</span> <span class="mi">1</span>: <span class="n">hash</span> <span class="o">=</span> <span class="p">((</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">hash</span><span class="p">)</span> <span class="o">+</span> <span class="o">*</span><span class="n">arKey</span><span class="o">++</span><span class="p">;</span> <span class="k">break</span><span class="p">;</span>
+                <span class="k">case</span> <span class="mi">0</span>: <span class="k">break</span><span class="p">;</span>
+<span class="n">EMPTY_SWITCH_DEFAULT_CASE</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">hash</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We won&#8217;t explain it, simply recall what we said in intro : it leads to collisions, in some cases, but it is fast. Faster enought for common use cases but there is a case where using it would be a pure waste : calling it with several times the same argument.
+And this can happen quiet often, imagine you have a string key &#8220;mykey&#8221;, if you happen to call any zend_hash API with this key, all of them will call for the hash function, and it obviously will always lead to the same hash result. This is a waste.</p>
+<p>That&#8217;s why the zend_hash API is nice about this as it can allow you to call for the hashing function, save the hash somewhere, and everywhere in the future you could be tempted to use your string key &#8220;mykey&#8221;, you know would be able to reuse the hash you computed.
+Save CPU cycles, the idea is as easy as just not asking the CPU for doing several task the exact same job.</p>
+<p>Let&#8217;s show this particular API you could need in your future developments:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ulong</span> <span class="n">my_hash</span> <span class="o">=</span> <span class="n">zend_get_hash_value</span><span class="p">(</span><span class="s">&quot;foobar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foobar&quot;</span><span class="p">));</span>
+
+<span class="n">HashTable</span> <span class="o">*</span><span class="n">ht1</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">ht1</span><span class="p">);</span> <span class="n">zend_hash_init</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">ZVAL_PTR_DTOR</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="o">*</span><span class="n">myval1</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">myval1</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">myval1</span><span class="p">,</span> <span class="s">&quot;hello world&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_quick_add</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="s">&quot;foobar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foobar&quot;</span><span class="p">),</span> <span class="n">my_hash</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">myval1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Added zval myval1 to ht1 at index &#39;str&#39; </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_quick_exists</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="s">&quot;foobar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foobar&quot;</span><span class="p">),</span> <span class="n">my_hash</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Just checked, our value is in ! </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">zend_hash_quick_del</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="s">&quot;foobar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foobar&quot;</span><span class="p">),</span> <span class="n">my_hash</span><span class="p">);</span> <span class="cm">/* Delete the value */</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_quick_exists</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="s">&quot;foobar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foobar&quot;</span><span class="p">),</span> <span class="n">my_hash</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Obviously, the value is not here any more</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Wondering why, while passing the precomputed hash, we still need to pass the key string at every API call ?
+Well it&#8217;s easy : because of collisions. There is no fact as &#8220;one string key = exactly one computed hash&#8221;. Collisions can happen, so the API will obviously use the precomputed hash we provided it, but it will always check for string equality as well (<strong>strcmp</strong>), because it never can be sure that at this hash index, there is only our data with our string key.
+But, we solved our problem here : we only triggered the hash algorithm once for all, and not for every API call we just triggered.</p>
+</div>
+<div class="section" id="iterating-over-the-table">
+<h2>Iterating over the table<a class="headerlink" href="#iterating-over-the-table" title="Permalink to this headline">¶</a></h2>
+<p>One more need you could meet about hashtables is to iterate over them. The zend_hash API provides all you need about this, and it also provides ways to apply a callback to elements into hashtables. This is part of the next chapter, first, let&#8217;s concentrate on how to manually iterate over table items.</p>
+<p>Basically, the iteration is just about remembering what the current position is, and this piece of information is stored in the <tt class="docutils literal"><span class="pre">pInternalPointer</span></tt> field of the hashtable. However, it&#8217;s <em>not recommanded</em> to play with this internal position, because the table you are iterating over may be shared somewhere else, and modifying its internal pointer could lead to bugs elsewhere, where other functions wouldn&#8217;t expect it to change.
+This is why the API allows you (and that&#8217;s what we&#8217;ll always use) to iterate over a hashtable using an external position pointer, welcome the <tt class="docutils literal"><span class="pre">HashPosition</span></tt> type.</p>
+<p><tt class="docutils literal"><span class="pre">HashPosition</span></tt> is just a typedef to Bucket *, so it represents the current item, and passing a pointer to this <tt class="docutils literal"><span class="pre">HashPosition</span></tt> to every iteration-related functions will make them move it : you will iterate without changing the internal HashTable position which is correct.</p>
+<p>Let&#8217;s show an example using all we&#8217;ve learned since the beginning of the chapter:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span> <span class="n">zend_hash_init</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">ZVAL_PTR_DTOR</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">array</span><span class="p">);</span>
+<span class="n">array</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="n">IS_ARRAY</span><span class="p">;</span>
+<span class="n">array</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">ht</span> <span class="o">=</span> <span class="n">myht</span><span class="p">;</span>
+
+<span class="n">add_assoc_bool</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="s">&quot;bool&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">add_index_double</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">);</span>
+<span class="n">add_next_index_string</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="s">&quot;hello world&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">add_assoc_long</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="s">&quot;the answer&quot;</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+
+<span class="n">HashPosition</span> <span class="n">mypos</span><span class="p">;</span>
+<span class="n">zval</span> <span class="o">**</span><span class="n">data</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="n">ulong</span> <span class="n">longkey</span><span class="p">;</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">strkey</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="n">zend_hash_internal_pointer_reset_ex</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mypos</span><span class="p">);</span> <span class="cm">/* Pass mypos */</span>
+
+<span class="k">while</span><span class="p">(</span><span class="n">zend_hash_has_more_elements_ex</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mypos</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">zend_hash_get_current_data_ex</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">data</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mypos</span><span class="p">);</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;At key &quot;</span><span class="p">);</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">zend_hash_get_current_key_type_ex</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mypos</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">HASH_KEY_IS_LONG</span>:
+            <span class="n">zend_hash_get_current_key_ex</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">strkey</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">longkey</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mypos</span><span class="p">);</span>
+            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld&quot;</span><span class="p">,</span> <span class="n">longkey</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">HASH_KEY_IS_STRING</span>:
+            <span class="n">zend_hash_get_current_key_ex</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">strkey</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">longkey</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mypos</span><span class="p">);</span>
+            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;&#39;%s&#39;&quot;</span><span class="p">,</span> <span class="n">strkey</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">zval</span> <span class="o">*</span><span class="n">datacopy</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">copy_and_convert_to_string</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">datacopy</span><span class="p">);</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;, we have &#39;%s&#39; </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">datacopy</span><span class="p">));</span>
+    <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">datacopy</span><span class="p">);</span>
+
+    <span class="n">zend_hash_move_forward_ex</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mypos</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array</span><span class="p">);</span>
+
+<span class="cm">/* Displays :</span>
+<span class="cm">At key &#39;bool&#39;, we have &#39;1&#39;</span>
+<span class="cm">At key 1, we have &#39;1.1&#39;</span>
+<span class="cm">At key 2, we have &#39;hello world&#39;</span>
+<span class="cm">At key &#39;the answer&#39;, we have &#39;42&#39;</span>
+<span class="cm">*/</span>
+</pre></div>
+</div>
+<p>Notice how we used the &#8216;_ex&#8217; alternative of functions we met before. All functions that deals with &#8220;_current_&#8221; values or keys should <em>not</em> use the internal iterator pointer anymore like before, but the one we provide ourselves, called here <tt class="docutils literal"><span class="pre">mypos</span></tt>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Remember to never modify a hashtable internal pointer. In a real life coding, things are shared, and the hashtable you&#8217;ll be using will come from someone, to you, and be passed to someone else. Obviously one could expect the hashtable to now contain more or less items when passing into your hands, noone would expect its internal iteration pointer to have changed. Always use HashPosition, at least until you really know what you are doing.</p>
+</div>
+</div>
+<div class="section" id="mapping-functions">
+<h2>Mapping functions<a class="headerlink" href="#mapping-functions" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+<div class="section" id="hashalgorithm-and-colliding-the-table">
+<h1>HashAlgorithm and colliding the table<a class="headerlink" href="#hashalgorithm-and-colliding-the-table" title="Permalink to this headline">¶</a></h1>
+<p>Let&#8217;s recall how all this works :
+When inserting a data, the (usually) provided key may be of two types : int or string.
+If the key is a string, it then passes through the hash algorithm, which is <em>DJBX33A</em> in PHP, and an integer comes out from this function. If the key were an integer, it is just used as-is.
+In both cases, we end up having a hash key with an integer of type <strong>unsigned long</strong> (ulong), with no limit in its bounds. So we would need to allocate an array (<tt class="docutils literal"><span class="pre">arBuckets</span></tt>) that should be referenced from 0 to <strong>sizeof(ulong)</strong>, something like 18446744073709551615 on 64bits platform, which is clearly impossible.
+The problem is that the actual hash key we computed is just too big and has no bounds on the unsigned long range, it then cannot be used as-is as a C array index because the array would have been too huge to fit in memory.
+What is then done as a second step, is that the hash key gets narrow-bounded, using a mask. The mask cuts of the most significant bits in the integer, and dramatically lowers its space, making it suitable to be passed as an index for a preallocated C array, <tt class="docutils literal"><span class="pre">arBuckets</span></tt>.
+The mask is calculated as beeing the size of the HashTable minus one.
+Here is the code for string typed keys:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ht</span><span class="o">-&gt;</span><span class="n">nTableMask</span> <span class="o">=</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">nTableSize</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+
+<span class="n">h</span> <span class="o">=</span> <span class="n">zend_inline_hash_func</span><span class="p">(</span><span class="n">arKey</span><span class="p">,</span> <span class="n">nKeyLength</span><span class="p">);</span> <span class="cm">/* Hash the arKey (char*) to get the hash key h (ulong) */</span>
+
+<span class="n">nIndex</span> <span class="o">=</span> <span class="n">h</span> <span class="o">&amp;</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">nTableMask</span><span class="p">;</span> <span class="cm">/* Narrow h by masking its highest bits, obtain nIndex, an ulong from 0 to TableSize */</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">arBuckets</span><span class="p">[</span><span class="n">nIndex</span><span class="p">];</span> <span class="cm">/* Use the nIndex to get back p (Bucket*) from the bucket array arBuckets */</span>
+<span class="cm">/* Use p here */</span>
+</pre></div>
+</div>
+<p>We said that if the provided key is of type integer (<strong>ulong</strong>) and not string (<strong>char *</strong>), we just dont need to run the hash function. Code then becomes:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ht</span><span class="o">-&gt;</span><span class="n">nTableMask</span> <span class="o">=</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">nTableSize</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+
+<span class="n">h</span> <span class="o">=</span> <span class="n">provided_key</span> <span class="cm">/* of type ulong */</span>
+
+<span class="n">nIndex</span> <span class="o">=</span> <span class="n">h</span> <span class="o">&amp;</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">nTableMask</span><span class="p">;</span> <span class="cm">/* Narrow h by masking its highest bits, obtain nIndex, a ulong from 0 to TableSize */</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">arBuckets</span><span class="p">[</span><span class="n">nIndex</span><span class="p">];</span> <span class="cm">/* Use the nIndex to get back p (Bucket*) from the bucket array arBuckets */</span>
+<span class="cm">/* Use p here */</span>
+</pre></div>
+</div>
+<p>What this means is that if you build a special PHP array, with only integer keys, that when used with the mask give always the same index, then you will overcollide the array, and end-up having a possibly too huge linked list.
+Traversing a linkedlist is O(n), so the more the linkedlist grow, the slower it becomes to traverse it.
+Knowing that the API has to traverse the lists at every lookup or insertion (which triggers a lookup) in the table, it is then easy to DOS this part of PHP.</p>
+<p>To show this, let&#8217;s build a use case and explain it:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
+<span class="cm">/* 2^15, for example, any power of 2 works */</span>
+<span class="nv">$size</span> <span class="o">=</span> <span class="mi">32768</span><span class="p">;</span>
+<span class="nv">$startTime</span> <span class="o">=</span> <span class="nb">microtime</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="nv">$array</span>     <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+<span class="nv">$maxInsert</span> <span class="o">=</span> <span class="nv">$size</span> <span class="o">*</span> <span class="nv">$size</span><span class="p">;</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="nv">$key</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nv">$key</span> <span class="o">&lt;=</span> <span class="nv">$maxInsert</span><span class="p">;</span> <span class="nv">$key</span> <span class="o">+=</span> <span class="nv">$size</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$array</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nb">printf</span><span class="p">(</span><span class="s2">&quot;%d inserts in %.2f seconds&quot;</span><span class="p">,</span> <span class="nv">$key</span><span class="o">/</span><span class="nv">$size</span><span class="p">,</span> <span class="nb">microtime</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="nv">$startTime</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Running this code, you should obtain something like 32769 insertions in 9.84 seconds, which is just a very huge amount of time. Let&#8217;s now explain what happens at a lower level.
+We know that using a key as an integer, no hashing function comes to play, so the code beeing run to compute the C array key (<tt class="docutils literal"><span class="pre">nIndex</span></tt>) mainly looks like:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">nIndex</span> <span class="o">=</span> <span class="n">h</span> <span class="o">&amp;</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">nTableMask</span><span class="p">;</span> <span class="cm">/* masking */</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">ht</span><span class="o">-&gt;</span><span class="n">arBuckets</span><span class="p">[</span><span class="n">nIndex</span><span class="p">];</span>
+</pre></div>
+</div>
+<p>We know that <tt class="docutils literal"><span class="pre">nTableMask</span></tt> is table size minus one. As the key is added 32768 (2 powered by 15) at each step of the for loop, it jumps from bit to bit, and the mask is just irrelevant:</p>
+<div class="highlight-none"><div class="highlight"><pre>for ($key = 0; $key &lt;= $maxInsert; $key += $taille) {
+    $array[$key] = 0;
+}
+
+mask:   0000.0111.1111.1111.1111
+                 &amp;
+32768   0000.1000.0000.0000.0000
+65536   0001.0000.0000.0000.0000
+98304   0001.1000.0000.0000.0000
+131072  0010.0000.0000.0000.0000
+163840  0010.1000.0000.0000.0000
+...
+             = 0 !
+</pre></div>
+</div>
+<p>We end up inserting every item (we insert 32769 total items) at the same <tt class="docutils literal"><span class="pre">arBuckets</span></tt> index : 0. Every item is then added to the linked list sitting at index 0 of <tt class="docutils literal"><span class="pre">arBuckets</span></tt>, and traversing a fast growing linked list takes so much time.
+Be convinced by breaking this actual collision-proof code, just use a size of 32767 for example, instead of the special 32768. You will get something like 32768 inserts in 0.01 seconds, which is about 1000 times faster.</p>
+<p>When the hash algorithm + the hash mask works normally, meaning we are not cheating them volontary like we did, it distributes pretty well bukets into the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> :</p>
+<img alt="../_images/hash_distribution_ok.png" src="../_images/hash_distribution_ok.png" />
+<p>When it&#8217;s not the case, you end with something like this, which we could call the &#8216;worst scenario&#8217; :</p>
+<img alt="../_images/hash_distribution_ko.png" src="../_images/hash_distribution_ko.png" />
+</div>
+<div class="section" id="use-cases">
+<h1>Use cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h1>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="../hashtables.html">HashTables</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../classes_objects.html">Classes and objects</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, Julien Pauli - Anthony Ferrara - Nikita Popov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

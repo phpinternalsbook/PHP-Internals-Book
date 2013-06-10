@@ -1,0 +1,168 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction to the C language &mdash; PHPInternalsBook 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PHPInternalsBook 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Prerequisites" href="../prerequisites.html" />
+    <link rel="next" title="Introduction to code compiling and linking" href="intro_code_compiling.html" />
+    <link rel="prev" title="Introduction to OSes and Unix processes" href="intro_os.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="intro_code_compiling.html" title="Introduction to code compiling and linking"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro_os.html" title="Introduction to OSes and Unix processes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PHPInternalsBook 1.0 documentation</a> &raquo;</li>
+          <li><a href="../prerequisites.html" accesskey="U">Prerequisites</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction-to-the-c-language">
+<h1>Introduction to the C language<a class="headerlink" href="#introduction-to-the-c-language" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="c-as-a-second-level-language">
+<h2>C as a second level language<a class="headerlink" href="#c-as-a-second-level-language" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="quick-thoughts-about-assembly">
+<h2>Quick thoughts about assembly<a class="headerlink" href="#quick-thoughts-about-assembly" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="c-types-c-rules-just-a-matter-of-bytes-in-memory">
+<h2>C types, C rules : just a matter of bytes in memory<a class="headerlink" href="#c-types-c-rules-just-a-matter-of-bytes-in-memory" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="c-types-and-size">
+<h3>C types and size<a class="headerlink" href="#c-types-and-size" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="pointers">
+<h3>Pointers<a class="headerlink" href="#pointers" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="memory-areas-process-heap-and-stack-memory-leaks">
+<h3>Memory areas : process heap and stack, memory leaks<a class="headerlink" href="#memory-areas-process-heap-and-stack-memory-leaks" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="allocation-types-auto-static-global-extern">
+<h3>Allocation types : auto, static, global, extern<a class="headerlink" href="#allocation-types-auto-static-global-extern" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="structs-and-enums">
+<h3>structs and enums<a class="headerlink" href="#structs-and-enums" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="posix">
+<h2>POSIX<a class="headerlink" href="#posix" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="preprocessor-and-macros-management">
+<h2>Preprocessor and macros management<a class="headerlink" href="#preprocessor-and-macros-management" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="header-files">
+<h2>Header files<a class="headerlink" href="#header-files" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction to the C language</a><ul>
+<li><a class="reference internal" href="#c-as-a-second-level-language">C as a second level language</a></li>
+<li><a class="reference internal" href="#quick-thoughts-about-assembly">Quick thoughts about assembly</a></li>
+<li><a class="reference internal" href="#c-types-c-rules-just-a-matter-of-bytes-in-memory">C types, C rules : just a matter of bytes in memory</a><ul>
+<li><a class="reference internal" href="#c-types-and-size">C types and size</a></li>
+<li><a class="reference internal" href="#pointers">Pointers</a></li>
+<li><a class="reference internal" href="#memory-areas-process-heap-and-stack-memory-leaks">Memory areas : process heap and stack, memory leaks</a></li>
+<li><a class="reference internal" href="#allocation-types-auto-static-global-extern">Allocation types : auto, static, global, extern</a></li>
+<li><a class="reference internal" href="#structs-and-enums">structs and enums</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#posix">POSIX</a></li>
+<li><a class="reference internal" href="#preprocessor-and-macros-management">Preprocessor and macros management</a></li>
+<li><a class="reference internal" href="#header-files">Header files</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro_os.html"
+                        title="previous chapter">Introduction to OSes and Unix processes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="intro_code_compiling.html"
+                        title="next chapter">Introduction to code compiling and linking</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/prerequisites/intro_c.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="intro_code_compiling.html" title="Introduction to code compiling and linking"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro_os.html" title="Introduction to OSes and Unix processes"
+             >previous</a> |</li>
+        <li><a href="../index.html">PHPInternalsBook 1.0 documentation</a> &raquo;</li>
+          <li><a href="../prerequisites.html" >Prerequisites</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Julien Pauli - Anthony Ferrara - Nikita Popov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

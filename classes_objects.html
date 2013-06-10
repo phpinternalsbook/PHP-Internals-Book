@@ -1,0 +1,132 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Classes and objects &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="PHP Internals Book" href="index.html" />
+    <link rel="next" title="Simple classes" href="classes_objects/simple_classes.html" />
+    <link rel="prev" title="Basic structure" href="hashtables/basic_structure.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Classes and objects</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="hashtables/basic_structure.html">Basic structure</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="classes_objects/simple_classes.html">Simple classes</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="classes-and-objects">
+<h1>Classes and objects<a class="headerlink" href="#classes-and-objects" title="Permalink to this headline">¶</a></h1>
+<p>In recent years PHP has been turning more and more from a procedural language to an object-oriented one. Even though
+the fundamentals are still of procedural nature (in particular large parts of the standard library) most library code
+nowadays is developed in terms of classes and objects. This chapter covers the rather complex internals of PHP&#8217;s object
+orientation system.</p>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classes_objects/simple_classes.html">Simple classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/simple_classes.html#basic-concepts">Basic concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/simple_classes.html#class-registration">Class registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/simple_classes.html#method-definition-and-declaration">Method definition and declaration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/simple_classes.html#properties-and-constants">Properties and constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/simple_classes.html#inheritance-and-interfaces">Inheritance and interfaces</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classes_objects/custom_object_storage.html">Custom object storage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/custom_object_storage.html#how-are-objects-created">How are objects created?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/custom_object_storage.html#overriding-create-object">Overriding create_object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/custom_object_storage.html#object-store-handlers">Object store handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/custom_object_storage.html#interacting-with-the-object-store">Interacting with the object store</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classes_objects/implementing_typed_arrays.html">Implementing typed arrays</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/implementing_typed_arrays.html#array-buffers-and-views">Array buffers and views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/implementing_typed_arrays.html#the-arraybuffer">The <tt class="docutils literal"><span class="pre">ArrayBuffer</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/implementing_typed_arrays.html#the-buffer-views">The buffer views</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classes_objects/object_handlers.html">Object handlers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/object_handlers.html#an-overview">An Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/object_handlers.html#implementing-array-access-using-object-handlers">Implementing array access using object handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/object_handlers.html#honoring-inheritance">Honoring inheritance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/object_handlers.html#comparison-of-view-objects">Comparison of view objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/object_handlers.html#debug-information">Debug information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classes_objects/iterators.html">Iterators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/iterators.html#the-get-iterator-handler">The <tt class="docutils literal"><span class="pre">get_iterator</span></tt> handler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/iterators.html#iterator-functions">Iterator functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/iterators.html#honoring-inheritance">Honoring inheritance</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classes_objects/serialization.html">Serialization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/serialization.html#php-s-serialization-format">PHP&#8217;s serialization format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/serialization.html#serializing-internal-objects">Serializing internal objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/serialization.html#denying-serialization">Denying serialization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classes_objects/magic_interfaces_comparable.html">Magic interfaces - Comparable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classes_objects/internal_structures_and_implementation.html">Internal structures and implementation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/internal_structures_and_implementation.html#object-properties">Object properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/internal_structures_and_implementation.html#object-store">Object store</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="hashtables/basic_structure.html">Basic structure</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="classes_objects/simple_classes.html">Simple classes</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, Julien Pauli - Anthony Ferrara - Nikita Popov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,154 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction to code compiling and linking &mdash; PHPInternalsBook 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PHPInternalsBook 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Prerequisites" href="../prerequisites.html" />
+    <link rel="next" title="Introduction to debugging and profiling" href="intro_debug_profile.html" />
+    <link rel="prev" title="Introduction to the C language" href="intro_c.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="intro_debug_profile.html" title="Introduction to debugging and profiling"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro_c.html" title="Introduction to the C language"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PHPInternalsBook 1.0 documentation</a> &raquo;</li>
+          <li><a href="../prerequisites.html" accesskey="U">Prerequisites</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction-to-code-compiling-and-linking">
+<h1>Introduction to code compiling and linking<a class="headerlink" href="#introduction-to-code-compiling-and-linking" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="compilers-and-linkers">
+<h2>Compilers and linkers<a class="headerlink" href="#compilers-and-linkers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="gcc">
+<h3>GCC<a class="headerlink" href="#gcc" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="ld">
+<h3>ld<a class="headerlink" href="#ld" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="build-tools">
+<h2>Build tools<a class="headerlink" href="#build-tools" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="autotools">
+<h3>Autotools<a class="headerlink" href="#autotools" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="libtool">
+<h3>libtool<a class="headerlink" href="#libtool" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="pointers">
+<h3>Pointers<a class="headerlink" href="#pointers" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction to code compiling and linking</a><ul>
+<li><a class="reference internal" href="#compilers-and-linkers">Compilers and linkers</a><ul>
+<li><a class="reference internal" href="#gcc">GCC</a></li>
+<li><a class="reference internal" href="#ld">ld</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#build-tools">Build tools</a><ul>
+<li><a class="reference internal" href="#autotools">Autotools</a></li>
+<li><a class="reference internal" href="#libtool">libtool</a></li>
+<li><a class="reference internal" href="#pointers">Pointers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro_c.html"
+                        title="previous chapter">Introduction to the C language</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="intro_debug_profile.html"
+                        title="next chapter">Introduction to debugging and profiling</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/prerequisites/intro_code_compiling.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="intro_debug_profile.html" title="Introduction to debugging and profiling"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro_c.html" title="Introduction to the C language"
+             >previous</a> |</li>
+        <li><a href="../index.html">PHPInternalsBook 1.0 documentation</a> &raquo;</li>
+          <li><a href="../prerequisites.html" >Prerequisites</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Julien Pauli - Anthony Ferrara - Nikita Popov.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
