@@ -12,9 +12,8 @@ Contents:
     :maxdepth: 2
 
     hashtables/basic_structure.rst
+    hashtables/api.rst
 
 ..
-    hashtables/basic_usage.rst
-    hashtables/api.rst
     hashtables/iteration.rst
     hashtables/use_cases.rst

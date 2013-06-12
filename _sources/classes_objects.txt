@@ -19,3 +19,7 @@ Contents:
     classes_objects/serialization.rst
     classes_objects/magic_interfaces_comparable.rst
     classes_objects/internal_structures_and_implementation.rst
+
+.. todo::
+    * fix that long conversion function
+    * __construct is not always called

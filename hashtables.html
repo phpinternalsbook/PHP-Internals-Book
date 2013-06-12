@@ -29,7 +29,7 @@
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="PHP Internals Book" href="index.html" />
     <link rel="next" title="Basic structure" href="hashtables/basic_structure.html" />
-    <link rel="prev" title="Introduction" href="introduction.html" /> 
+    <link rel="prev" title="Internal structures and implementation" href="classes_objects/internal_structures_and_implementation.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
@@ -39,7 +39,7 @@
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="introduction.html">Introduction</a>
+        «&#160;&#160;<a href="classes_objects/internal_structures_and_implementation.html">Internal structures and implementation</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -61,20 +61,20 @@ program safely with PHP Internals.</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="hashtables/basic_structure.html">Basic structure</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#basic-concepts">Basic concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#hashtables-in-php">HashTables in PHP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#the-hashtable-and-bucket-structures">The HashTable and Bucket structures</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hashtables/basic_structure.html#hashtables-api">HashTables API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#creating-and-destroying-a-hashtable">Creating and destroying a hashtable</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#playing-with-items-inserting-and-removing">Playing with items, inserting and removing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#retrieving-deleting-and-checking-for-items">Retrieving, deleting and checking for items</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#string-keys-and-hashing-algorithm">String keys and hashing algorithm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#iterating-over-the-table">Iterating over the table</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#mapping-functions">Mapping functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hashtables/api.html">HashTables API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#creating-and-destroying-a-hashtable">Creating and destroying a hashtable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#playing-with-items-inserting-and-removing">Playing with items, inserting and removing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#retrieving-deleting-and-checking-for-items">Retrieving, deleting and checking for items</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#string-keys-and-hashing-algorithm">String keys and hashing algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#iterating-over-the-table">Iterating over the table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#mapping-functions">Mapping functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hashtables/basic_structure.html#hashalgorithm-and-colliding-the-table">HashAlgorithm and colliding the table</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hashtables/basic_structure.html#use-cases">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hashtables/api.html#hashalgorithm-and-colliding-the-table">HashAlgorithm and colliding the table</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hashtables/api.html#use-cases">Use cases</a></li>
 </ul>
 </div>
 </div>
@@ -84,7 +84,7 @@ program safely with PHP Internals.</p>
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="introduction.html">Introduction</a>
+        «&#160;&#160;<a href="classes_objects/internal_structures_and_implementation.html">Internal structures and implementation</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;

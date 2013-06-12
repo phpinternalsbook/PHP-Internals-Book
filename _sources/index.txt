@@ -19,8 +19,12 @@ Table Of Contents
     introduction.rst
     classes_objects.rst
 
-..
+.. toctree::
+    :hidden:
+
     hashtables.rst
+
+..
     resources.rst
     streams.rst
     constants.rst
