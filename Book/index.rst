@@ -12,9 +12,10 @@ Table Of Contents
     :hidden:
 
     hashtables.rst
-
-..  prerequisites.rst
+    prerequisites.rst
     php_first_look.rst
+
+..  
     managing_memory.rst
     zvals.rst
     creating_ext.rst
