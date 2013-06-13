@@ -8,7 +8,6 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-..
     php_first_look/intro_php.rst
     php_first_look/components.rst
     php_first_look/extensions.rst
