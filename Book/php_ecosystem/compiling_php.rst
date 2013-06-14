@@ -360,14 +360,109 @@ Those extensions are the minimum required ones, we talk about them deeper in the
 
 .. warning::
 
-    A "tiny" PHP, compiled with just *--disable* switch, is often useless : no XML support at all, not even sessions. This is just a version you could use if you dont want the compilation to last too much (as it is very little, very few files get compiled, thus a minimal compilation time) or if you just need very basic PHP features (strings, array, functions and that's nearly all) with little memory footprint.
+    A "tiny" PHP, compiled with just *--disable-all* switch, is often useless : no XML support at all, not even sessions. This is just a version you could use if you dont want the compilation to last too much (as it is very little, very few files get compiled, thus a minimal compilation time) or if you just need very basic PHP features (strings, array, functions and that's nearly all) with little memory footprint.
 
+You have lots of switches to activate extensions mainly. We won't talk about all of them, but *--with-libedit* or *--with-libreadline* let you build a PHP with a nice interactive mode looking like a REPL (Read Eval Print Loop). You launch it using *-a* switch on the PHP binary, like this:
+
+.. code-block:: none
+
+    >/path/to/php/bin/php -a
+    Interactive shell
+
+    php > $a = "foo";
+    php > var_dump($a);
+    string(3) "foo"
+    php > $b = 3; $c = 8;
+    php > echo $b+$c;
+    11
+    php > 
+
+Finally we have to talk about this crucial switch you use whenever you develop in PHP source code or you write an extension : the *--enable-debug* switch. It tells the building suite to make a debug version of PHP. If you read the source, it's all about ``#ifdef ZEND_DEBUG`` macros.
+You recognize a PHP with debug switch in several ways :
+
+    * Just ask for php -v output, it will clearly show "DEBUG"
+    * Invoke *php-config --configure-options* and grep "debug"
+
+What should be known about debug mode is that the extensions must be built with debug mode as well to work. It even happens that the default extensions directory name is built with the debug flag into it :
+
+    * For a PHP compiled with debug flag : *lib/php/extensions/debug-non-zts-20100525*
+    * For a PHP compiled without debug flag : *lib/php/extensions/no-debug-non-zts-20100525*
+    
+.. warning::
+
+    You cannot not run extensions compiled for a no-debug PHP on a PHP compiled with debug flag, and vice-versa. Even if this is the exact same version of PHP : you have to recompile the extensions in debug mode.
+    
+Also, never run a debug build of PHP in production mode.
+
+.. warning::
+
+    Never run a debug build of PHP in production.
+    
+Seriously, the debug flag slows down PHP execution in so many ways. That's normal, debug adds many more checks everywhere in the C code, structures are usually heavier thus leading to a bigger memory footprint as well.
+Also, enabling debug automatically turns off every compiler optimisation passes, which for GCC means invoking it with the *-O0* flag.
 
 make options
 ************
 
+If you know make, then it's OK. If not, we recommand you to use the *-j* flag which basically tells make to run compilation in parallel, distributing compilation tasks on several CPUs / Cores. Use it with the number of Cores you have on your machine.
+
+.. code-block:: none
+
+    > grep "cpu cores" /proc/cpuinfo
+    cpu cores     4
+    path/to/phpsrc > make -j4
+
+If you happen to compile PHP with lots of extensions activated, the time taken to compile can grow up to several minutes on modern hardware, thus the *-j make* flag is very usefull.
+
 Providing additionnal C compiler options
 ****************************************
 
+*Make* also let you pass options to the compiler it'll use, by providing the CFLAGS variable.
+With PHP, you cant pass them directly to *make* as libtool is used and just ignores them. Better pass them to your configure script.
+
+Should you want to experiment performance flags of GCC, you could use, for example :
+
+.. code-block:: none
+
+    src/> CFLAGS="-O4 -march=native" ./configure && make
+    
+Those two GCC flags will tell it to compile the files with the maximum optimization level, and to produce machine code for the actual CPU (native architecture), which, depending on your hardware, can give a performance boost to the resulting PHP.
+
+.. warning ::
+
+    Master your compiler and your architecture if you come to play with GCC optimization level and flags. If you dont, you can end up with a PHP randomly crashing. We dont really support high level of optimization in PHP source code, we support the default -O2 level. But if know what you talk about, go for it.
+    
+.. note::
+
+    Perhaps reading http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html may help here. You'll find lots of information about GCC flags.
+
 Compilation usual problems
 --------------------------
+
+As you may know, *make* makes a cache of all the objects it builds, so that its next invocations will be much faster. If you change just one C source file and run *make* again, it should guess this and only compile the dedicated object, then tries to link again and end out with the final build.
+But, sometimes, this just does not work well. If you experience strange errors in *make* output, and have invoked *make* several times before, think about running *make clean*, which will delete all the compiled objects so that the next *make* call starts the compilation back from the beginning on a clean basis.
+
+Also, if you play with *configure* options and change them before invoking *make*, better as well to run* make clean* before *make*.
+
+There also exists a *make* target called *"distclean"*, which is a normal clean, but it also rolls back all the stuff brought by the *./configure* command invocation (it deletes configure caches, as well as the *Makefile* and other temporary files).
+In short, remember *make distclean* as beeing a total cleanup of anything created or modified by previous *configure* or *make* calls.
+
+If you use PHP sources from git, or if you modify m4 files (we talk about such files in the extensions dedicated chapter), then you always have to rebuild the configure script.
+If you dont, you'll meet errors at compilation, for sure, because you invoke *configure* so that it will prepare files based on an old API you modified. *configure* has no way to guess new C files to prepare for compilation or new checks to perform : you must rebuild the configure script.
+This is done by deleting the configure script and running the buildconf script, usually with the "force" switch :
+
+.. code-block:: none
+
+    > rm configure
+    > ./buildconf --force
+    Forcing buildconf
+    Removing configure caches
+    buildconf: checking installation...
+    buildconf: autoconf version 2.69 (ok)
+    rebuilding aclocal.m4
+    rebuilding configure
+    rebuilding main/php_config.h.in
+    
+.. warning::
+
+    Think about deleting the configure script before invoking the buildconf script.
