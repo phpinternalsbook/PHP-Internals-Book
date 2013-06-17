@@ -1,3 +1,5 @@
+.. _compiling_php:
+
 Compiling PHP from sources
 ==========================
 
