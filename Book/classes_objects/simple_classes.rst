@@ -106,6 +106,13 @@ As you can see a method declaration looks very similar to a function declaration
 instead of ``PHP_FE``. It again takes the class name, the method name, the arginfo struct and additionally a set of
 flags.
 
+.. note::
+
+    ``PHP_ME`` stands for "PHP Method Entry" and ``PHP_FE`` for "PHP Function Entry". They allow you to create functions
+    or methods with no name collisions because they take care of creating the full C function name.
+    When you have to provide the class name regarding methods, the parameter is just used to create the final C function
+    name.
+
 The flags parameter allows you to specify the usual PHP method modifiers using a combination of ``ZEND_ACC_PUBLIC``,
 ``ZEND_ACC_PROTECTED``, ``ZEND_ACC_PRIVATE``, ``ZEND_ACC_STATIC``, ``ZEND_ACC_FINAL`` and ``ZEND_ACC_ABSTRACT``. For
 example a protected final static method would be declared as follows::
@@ -211,13 +218,13 @@ To do something more useful, lets create two methods for reading from and writin
         PHP_ME(Test, setFoo, arginfo_set, ZEND_ACC_PUBLIC)
     // ...
 
-The two new functions in the above code are ``zend_read_property`` and ``zend_update_property``. Both functions take
+The two new functions in the above code are ``zend_read_property()`` and ``zend_update_property()``. Both functions take
 the scope as first parameter, the object as second and the property name and length after that. The "scope" here is
 a class entry and is necessary for visibility handling. If ``foo`` is a public property the used scope doesn't matter
 (it could just as well be ``NULL``), but if it were a private property we could only access it with the class entry of
 the class it belongs to.
 
-``zend_update_property`` additionally takes the new value for the property as last parameter. ``zend_read_property``
+``zend_update_property()`` additionally takes the new value for the property as last parameter. ``zend_read_property()``
 on the other hand takes an additional boolean ``silent`` parameter. It specifies whether PHP should suppress the
 "Undefined property xyz" notice. In our case we don't know whether the property exists beforehand, so we pass ``1``
 (meaning: no notice).
@@ -239,7 +246,7 @@ We can try the new functionality out:
     var_dump($t->foo);      // "def"
     var_dump($t->getFoo()); // "def"
 
-``zend_update_property`` also comes in several variants that allow setting specific values more easily (i.e. without
+``zend_update_property()`` also comes in several variants that allow setting specific values more easily (i.e. without
 manually creating a zval):
 
  * ``zend_update_property_null(... TSRMLS_DC)``
@@ -253,8 +260,8 @@ In the above example we had to use the ``silent=1`` parameter, because we didn't
 property would exist when we read it. A better way to solve this is to properly declare the property when the class is
 registered, just like you would write ``public $foo = DEFAULT_VALUE;`` in PHP.
 
-This is done using the ``zend_declare_property`` function family, which features the same variants as
-``zend_update_property``. For example to declare a public ``foo`` property with a ``null`` default value we have to add
+This is done using the ``zend_declare_property()`` function family, which features the same variants as
+``zend_update_property()``. For example to declare a public ``foo`` property with a ``null`` default value we have to add
 the following line after the class registration in ``MINIT``::
 
     zend_declare_property_null(test_ce, "foo", sizeof("foo") - 1, ZEND_ACC_PUBLIC TSRMLS_CC);
@@ -273,12 +280,12 @@ Static properties are also declared using the same family of functions by additi
     zend_declare_property_double(test_ce, "pi", sizeof("pi") - 1, 3.141, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC TSRMLS_CC);
     /* All digits of pi I remember :( */
 
-To read and update static properties there are the ``zend_read_static_property`` function and the
-``zend_update_static_property`` function family. They have the same interface as the functions for normal properties,
+To read and update static properties there are the ``zend_read_static_property()`` function and the
+``zend_update_static_property()`` function family. They have the same interface as the functions for normal properties,
 only difference being that no object is passed (only the scope).
 
-To declare constants the ``zend_declare_class_constant*`` family of functions is used. They have the same variations and
-signatures as ``zend_declare_property*``, only without the flags argument. To declare a constant ''Test::PI''::
+To declare constants the ``zend_declare_class_constant_*()`` family of functions is used. They have the same variations and
+signatures as ``zend_declare_property_*()``, only without the flags argument. To declare a constant ''Test::PI''::
 
     zend_declare_class_constant_double(test_ce, "PI", sizeof("PI") - 1, 3.141 TSRMLS_CC);
 
@@ -333,7 +340,7 @@ The above code conditionally either inherits from ``RuntimeException`` or - if S
 ``Exception``. The class entry for ``RuntimeException`` is externed in the header ``ext/spl/spl_exceptions.h``, so it
 has to be included as well.
 
-The last parameter of ``zend_register_internal_class_ex`` which was set to ``NULL`` in the above cases is an
+The last parameter of ``zend_register_internal_class_ex()`` which was set to ``NULL`` in the above cases, is an
 alternative way to specify the parent class: If you don't have the class entry available you can specify the class
 name::
 
@@ -345,7 +352,7 @@ In practice you should prefer the first variant though. The second form is only 
 extension that forgot to export the class entry.
 
 Just like you can inherit from other classes you can also implement interfaces. For this the variadic
-``zend_class_implements`` functions is used::
+``zend_class_implements()`` functions is used::
 
     #include "ext/spl/spl_iterators.h"
     #include "zend_interfaces.h"
@@ -372,7 +379,7 @@ Just like you can inherit from other classes you can also implement interfaces. 
         return SUCCESS;
     }
 
-As you can see ``zend_class_implements`` takes the class entry, TSRMLS_CC, the number of interfaces to implement and
+As you can see ``zend_class_implements()`` takes the class entry, TSRMLS_CC, the number of interfaces to implement and
 then the class entries of the interfaces. E.g. if you wanted to additionally implement ``Serializable``::
 
     zend_class_implements(
@@ -381,7 +388,7 @@ then the class entries of the interfaces. E.g. if you wanted to additionally imp
     );
 
 You can obviously also create your own interfaces. Interfaces are registered in the same way as classes are, but using
-the ``zend_register_internal_interface`` function and declaring all methods as abstract. E.g. if you wanted to create a
+the ``zend_register_internal_interface()`` function and declaring all methods as abstract. E.g. if you wanted to create a
 new ``ReversibleIterator`` interface that extends ``Iterator`` and additionally specifies a ``prev`` method, this is how
 you would do it::
 
@@ -400,7 +407,7 @@ you would do it::
         INIT_CLASS_ENTRY(tmp_ce, "ReversibleIterator", reversible_iterator_functions);
         reversible_iterator_ce = zend_register_internal_interface(&tmp_ce TSRMLS_CC);
 
-        // ReversibleIterator extends Iterator (for interface inheritance zend_class_implements is used)
+        // ReversibleIterator extends Iterator (for interface inheritance zend_class_implements() is used)
         zend_class_implements(reversible_iterator_ce TSRMLS_CC, 1, zend_ce_iterator);
 
         return SUCCESS;
