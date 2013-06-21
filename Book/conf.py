@@ -172,6 +172,17 @@ htmlhelp_basename = 'PHPInternalsBookdoc'
 
 # -- Options for LaTeX output --------------------------------------------------
 
+# Use smaller font for code listings in PDF, so that there is about 100 chars per line
+from sphinx.highlighting import PygmentsBridge
+from pygments.formatters.latex import LatexFormatter
+
+class CustomLatexFormatter(LatexFormatter):
+    def __init__(self, **options):
+        super(CustomLatexFormatter, self).__init__(**options)
+        self.verboptions = r"formatcom=\footnotesize"
+
+PygmentsBridge.latex_formatter = CustomLatexFormatter
+
 latex_elements = {
 # The paper size ('letterpaper' or 'a4paper').
 #'papersize': 'letterpaper',

@@ -1,4 +1,4 @@
-HashTables
+Hashtables
 ==========
 
 We already met the zend_hash API, here is a dedicated chapter that’ll teach you
@@ -12,8 +12,6 @@ Contents:
     :maxdepth: 2
 
     hashtables/basic_structure.rst
-    hashtables/api.rst
-
-..
-    hashtables/iteration.rst
-    hashtables/use_cases.rst
+    hashtables/hashtable_api.rst
+    hashtables/array_api.rst
+    hashtables/hash_algorithm.rst

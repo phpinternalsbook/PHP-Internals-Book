@@ -95,8 +95,8 @@ Lets have a look at the main ``HashTable`` struct now::
 	    Bucket *pListTail;
 	    Bucket **arBuckets;
 	    dtor_func_t pDestructor;
-	    zend_bool persistent;       /* Persistent allocation or not */
-	    unsigned char nApplyCount;  /* Used to track recursion */
+	    zend_bool persistent;
+	    unsigned char nApplyCount;
 	    zend_bool bApplyProtection;
     #if ZEND_DEBUG
 	    int inconsistent;
