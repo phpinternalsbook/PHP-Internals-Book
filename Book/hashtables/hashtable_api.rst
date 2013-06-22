@@ -1,5 +1,5 @@
-HashTables API
-==============
+Hashtable API
+=============
 
 There are two sets of APIs working with hashtables: The first is the lower-level ``zend_hash`` API, which will be
 discussed in this section. The second one is the array API, which provides some higher-level functions for common
@@ -126,14 +126,28 @@ To see when such a failure can occur, consider this example::
 
     zend_hash_index_update(myht, LONG_MAX, &zv, sizeof(zval *), NULL);
 
+    php_printf("Next \"free\" key: %ld\n", zend_hash_next_free_element(myht));
     if (zend_hash_next_index_insert(myht, &zv, sizeof(zval *), NULL) == FAILURE) {
-        php_printf("next_index_insert failed!\n");
+        php_printf("next_index_insert failed\n");
     }
+    php_printf("Number of elements in hashtable: %ld\n", zend_hash_num_elements(myht));
 
-Here a value is inserted at key ``LONG_MAX``. In this case the next integer key would be ``LONG_MAX + 1``, which
-overflows to ``LONG_MIN``. As this overflow behavior is undesirable PHP checks for this special case and leaves
-``nNextFreeElement`` at ``LONG_MAX``. When ``zend_hash_next_index_insert()`` is run it will try to insert the value at
-key ``LONG_MAX``, but this key is already taken, thus the function fails.
+The code will print the following:
+
+.. code-block:: none
+
+    Next "free" key: 2147483647 [or 9223372036854775807 on 64 bit]
+    next_index_insert failed
+    Number of elements in hashtable: 1
+
+What happened here? First a value is inserted at key ``LONG_MAX``. In this case the next integer key would be
+``LONG_MAX + 1``, which overflows to ``LONG_MIN``. As this overflow behavior is undesirable PHP checks for this special
+case and leaves ``nNextFreeElement`` at ``LONG_MAX``. When ``zend_hash_next_index_insert()`` is run it will try to
+insert the value at key ``LONG_MAX``, but this key is already taken, thus the function fails.
+
+The last code also introduced two functions, one returning the next free integer key (which, as you just saw, does not
+actually have to be free) and the other returning the number of elements in the hashtable. Especially the
+``zend_hash_num_elements()`` function is used fairly often.
 
 With the above knowledge the three remaining functions from the integer key API should be fairly straightforward:
 ``zend_hash_index_find()`` gets the value of an index, ``zend_hash_index_exists()`` checks if an index exists without
@@ -555,17 +569,171 @@ of writing the key into a zval::
     ...
     Also might want to add a practical example here. E.g. implement something simple like array_search.
 
+Copying and merging
+-------------------
+
+Another very common operation is copying a hashtable: Often you will not have to do this yourself, but PHP has to copy
+hashtables whenever a copy-on-write of an array occurs. Copies are performed using the ``zend_hash_copy()`` function::
+
+    HashTable *ht_source = get_ht_from_somewhere();
+    HashTable *ht_target;
+
+    ALLOC_HASHTABLE(ht_target);
+    zend_hash_init(ht_target, zend_hash_num_elements(ht_source), NULL, ZVAL_PTR_DTOR, 0);
+    zend_hash_copy(ht_target, ht_source, (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
+
+The fourth argument of ``zend_hash_copy()`` is no longer in use, so it should always be ``NULL``. The third argument
+is a *copy constructor* function that is invoked for every copied element. For zvals this function will be
+``zval_add_ref``, which simply adds an additional ref to all elements.
+
+``zend_hash_copy()`` also works if the target hashtable already has elements. If the key for an element in ``ht_source``
+already exists in ``ht_target`` then it will be overwritten. To control this behavior the ``zend_hash_merge()``
+function can be used: It has the same signature as ``zend_hash_copy()``, but has an additional argument that specifies
+whether or not such overwrites should happen.
+
+``zend_hash_merge(..., 0)`` will thus only copy the elements that do not yet exist in the target hashtable.
+``zend_hash_merge(..., 1)`` on the other hand will behave in nearly the same way as a ``zend_hash_copy()`` call. The
+only difference is that ``merge`` sets the internal array pointer to the first element (``pListHead``), whereas ``copy``
+sets it to the same element where it was in the source hashtable.
+
+To get a more fine-grained control of the merging behavior the ``zend_hash_merge_ex`` function can be used, which
+decides which of the elements should be copied using a merge checker function::
+
+    typedef zend_bool (*merge_checker_func_t)(
+        HashTable *target_ht, void *source_data, zend_hash_key *hash_key, void *pParam
+    );
+
+The checker function takes the target hashtable, the source data, its hash key and an additional argument (similar to
+``zend_hash_apply_with_argument()``). As an example lets implement a function that takes two arrays, merges them and
+in case of a key collision uses the greater value::
+
+    static int merge_greater(
+        HashTable *target_ht, zval **source_zv, zend_hash_key *hash_key, void *dummy
+    ) {
+        zval **target_zv;
+        zval compare_result;
+
+        if (zend_hash_quick_find(
+                target_ht, hash_key->arKey, hash_key->nKeyLength, hash_key->h, (void **) &target_zv
+            ) == FAILURE
+        ) {
+            /* Key does not exist in target hashtable, so copy in any case */
+            return 1;
+        }
+
+        /* Copy only if the source zval is greater (compare == 1) than the target zval */
+        compare_function(&compare_result, *source_zv, *target_zv);
+        return Z_LVAL(compare_result) == 1;
+    }
+
+    PHP_FUNCTION(array_merge_greater) {
+        zval *array1, *array2;
+
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "aa", &array1, &array2) == FAILURE) {
+            return;
+        }
+
+        /* Copy array1 into return_value */
+        RETVAL_ZVAL(array1, 1, 0);
+
+        zend_hash_merge_ex(
+            Z_ARRVAL_P(return_value), Z_ARRVAL_P(array2), (copy_ctor_func_t) zval_add_ref,
+            sizeof(zval *), (merge_checker_func_t) merge_greater, NULL
+        );
+    }
+
+In the main function the ``array1`` is first copied into the return value and then merged with ``array2``. The checker
+function ``merge_greater()`` is then called for all elements from the second array. It first tries to retrieve an
+element with the same key from the first array. If no such element exists then the element from the second array is
+always copied. If the element does exist, then the copy only happens if the value from the second array is greater than
+the one from the first array.
+
+Lets try out the new function:
+
+.. code-block:: none
+
+    var_dump(array_merge_greater(
+        [3 => 0, "bar" => -5],
+        ["bar" => 5, "foo" => -10, 3 => -42]
+    ));
+    // output:
+    array(3) {
+      [3]=>
+      int(0)
+      ["bar"]=>
+      int(5)
+      ["foo"]=>
+      int(-10)
+    }
+
+Comparison, sorting and extrema
+-------------------------------
+
+The last three functions of the hashtable API all involve the comparison of hashtable elements in one way or another.
+Such comparison are defined by a *comparison function*::
+
+    typedef int (*compare_func_t)(const void *left, const void *right TSRMLS_DC);
+
+This function takes two hashtable elements and returns how they relate to each other: A negative return implies that
+``left < right``, a positive return means ``left > right`` and a zero return signifies that the values are equal.
+
+The first function we'll look at is ``zend_hash_compare()``, which compares two hashtables::
+
+    int zend_hash_compare(HashTable *ht1, HashTable *ht2, compare_func_t compar, zend_bool ordered TSRMLS_DC);
+
+The return has the same meaning as ``compare_func_t``. The function first compares the length of the arrays. If they
+differ, then the array with the larger length is considered greater. What happens when the length is the same depends on
+the ``ordered`` parameter:
+
+For ``ordered=0`` (not taking order into account) the function will walk through the buckets of the first hashtable and
+always look up if the second hashtable has an element with the same key. If it doesn't, then the first hashtable is
+considered greater. If it does, then the ``compar`` function is invoked on the values.
+
+For ``ordered=1`` (taking order into account) both hashtables will be walked simultaneously. For each element first the
+key is compared and if it matches the value is compared using ``compar``.
+
+This is continued until either one of the comparisons returns a non-zero value (in which case the result of the
+comparison will also be the result of ``zend_hash_compare()``) or until no more elements are available. In the latter
+case the hashtables are considered equal.
+
+Both comparison modes can be directly related to the behavior of PHP's two equality operators::
+
+    /* $ar1 == $ar2 compares the elements with == and does not take order into account: */
+    zend_hash_compare(ht1, ht2, (compare_func_t) hash_zval_compare_function, 0 TSRMLS_CC);
+
+    /* $ar1 === $ar2 compares the elements with === and takes order into account: */
+    zend_hash_compare(ht1, ht2, (compare_func_t) hash_zval_identical_function, 1 TSRMLS_CC);
+
+The next function to consider is ``zend_hash_sort()``, which is used for sorting a hashtable::
+
+    int zend_hash_sort(HashTable *ht, sort_func_t sort_func, compare_func_t compar, int renumber TSRMLS_DC);
+
+This function only does some pre- and postprocessing of the hashtable and delegates the actual sorting process to the
+``sort_func``::
+
+    typedef void (*sort_func_t)(
+        void *buckets, size_t num_of_buckets, register size_t size_of_bucket, compare_func_t compare_func TSRMLS_DC
+    );
+
+This function will receive an array of buckets, their number and their size (always ``sizeof(Bucket *)``), as well as
+the comparison function. Here "array of buckets" refers to a normal C array and not to a hashtable. The sorting
+function will move around the buckets in this array and in doing so specify their new order.
+
+After the sorting function is finished ``zend_hash_sort()`` will reconstruct a hashtable from the C array. If
+``renumber=0`` the values will keep their respective keys and only change order. With ``renumber=1`` the array will be
+renumbered, so that the resulting hashtable will have increasing integer keys.
+
+Unless you want to implement your own algorithm the sorting function will always be ``zend_qsort``, which is PHP's
+predefined quicksort implementation.
+
+The last of the comparison-related function is used for finding the smallest or largest element in a hashtable::
+
+    int zend_hash_minmax(const HashTable *ht, compare_func_t compar, int flag, void **pData TSRMLS_DC);
+
+For ``flag=0`` the minimum value is written into ``pData``, for ``flag=1`` the maximum value. If the hashtable is empty
+the function will return ``FAILURE`` (as min/max are not well-defined for an empty array).
+
 .. todo::
     (zend_hash_reverse_apply)
-    zend_hash_next_free_element
-    zend_hash_copy
-    zend_hash_merge
-    zend_hash_merge_ex
-    zend_hash_sort
-    zend_hash_compare
-    zend_hash_minmax
-    zend_hash_num_elements
     zend_hash_rehash
     (zend_hash_func)
-    ...
-    zend_hash_num_elements should be mentioned somewhere at the very start.
