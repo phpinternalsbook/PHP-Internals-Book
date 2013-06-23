@@ -732,8 +732,3 @@ The last of the comparison-related function is used for finding the smallest or 
 
 For ``flag=0`` the minimum value is written into ``pData``, for ``flag=1`` the maximum value. If the hashtable is empty
 the function will return ``FAILURE`` (as min/max are not well-defined for an empty array).
-
-.. todo::
-    (zend_hash_reverse_apply)
-    zend_hash_rehash
-    (zend_hash_func)

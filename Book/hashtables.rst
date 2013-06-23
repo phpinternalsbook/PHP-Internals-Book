@@ -1,10 +1,9 @@
 Hashtables
 ==========
 
-We already met the zend_hash API, here is a dedicated chapter that’ll teach you
-how Hashtables have been implemented in PHP, and where they are used. You’ll
-discover that HashTables are a major structure you have to master if you want to
-program safely with PHP Internals.
+Hashtables are one of the most structures used by PHP. They form the basis for arrays, object properties, symbol tables
+and have countless other applications throughout the engine. This chapter will introduce how hashtables work and cover
+the related APIs in detail.
 
 Contents:
 
