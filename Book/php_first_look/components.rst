@@ -1,2 +1,0 @@
-Decomposing PHP components
-==========================

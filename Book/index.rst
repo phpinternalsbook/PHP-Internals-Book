@@ -8,14 +8,10 @@ Table Of Contents
     hashtables.rst
     classes_objects.rst
 
-.. toctree::
-    :hidden:
-
+..
     prerequisites.rst
     php_ecosystem.rst
     php_first_look.rst
-
-..
     managing_memory.rst
     zvals.rst
     creating_ext.rst
