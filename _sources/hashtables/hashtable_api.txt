@@ -13,7 +13,7 @@ Hashtables are allocated using ``ALLOC_HASHTABLE()`` and initialized with ``zend
     HashTable *myht;
 
     /* Same as myht = emalloc(sizeof(HashTable)); */
-    ALLOC_HASHTABLE(ht);
+    ALLOC_HASHTABLE(myht);
 
     zend_hash_init(myht, 1000000, NULL, NULL, 0);
 

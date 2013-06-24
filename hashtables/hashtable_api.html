@@ -62,7 +62,7 @@ operations and is covered in the next section.</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
 
 <span class="cm">/* Same as myht = emalloc(sizeof(HashTable)); */</span>
-<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">ht</span><span class="p">);</span>
+<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
 
 <span class="n">zend_hash_init</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 </pre></div>
