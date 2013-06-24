@@ -136,8 +136,8 @@ internal structure could look like this:</p>
     <span class="n">object_properties_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span> <span class="n">class_type</span><span class="p">);</span>
 
     <span class="n">retval</span><span class="p">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">zend_objects_store_put</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span>
-        <span class="p">(</span><span class="kt">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
-        <span class="p">(</span><span class="kt">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">array_buffer_free_object_storage</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">array_buffer_free_object_storage</span><span class="p">,</span>
         <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
     <span class="p">);</span>
     <span class="n">retval</span><span class="p">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">array_buffer_handlers</span><span class="p">;</span>
@@ -441,8 +441,8 @@ always available on Windows, so a replacement header (that PHP natively provides
     <span class="p">}</span>
 
     <span class="n">retval</span><span class="p">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">zend_objects_store_put</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span>
-        <span class="p">(</span><span class="kt">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
-        <span class="p">(</span><span class="kt">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">array_buffer_view_free_object_storage</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">array_buffer_view_free_object_storage</span><span class="p">,</span>
         <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
     <span class="p">);</span>
     <span class="n">retval</span><span class="p">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">;</span>

@@ -8,7 +8,7 @@ Table Of Contents
     hashtables.rst
     classes_objects.rst
 
-.. toctree::
+..
     :hidden:
 
     prerequisites.rst

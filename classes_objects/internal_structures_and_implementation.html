@@ -248,9 +248,9 @@ an unused bucket, which is then put in this list. If a new object is created and
     <span class="k">union</span> <span class="n">_store_bucket</span> <span class="p">{</span>
         <span class="k">struct</span> <span class="n">_store_object</span> <span class="p">{</span>
             <span class="kt">void</span> <span class="o">*</span><span class="n">object</span><span class="p">;</span>
-            <span class="kt">zend_objects_store_dtor_t</span> <span class="n">dtor</span><span class="p">;</span>
-            <span class="kt">zend_objects_free_object_storage_t</span> <span class="n">free_storage</span><span class="p">;</span>
-            <span class="kt">zend_objects_store_clone_t</span> <span class="n">clone</span><span class="p">;</span>
+            <span class="n">zend_objects_store_dtor_t</span> <span class="n">dtor</span><span class="p">;</span>
+            <span class="n">zend_objects_free_object_storage_t</span> <span class="n">free_storage</span><span class="p">;</span>
+            <span class="n">zend_objects_store_clone_t</span> <span class="n">clone</span><span class="p">;</span>
             <span class="k">const</span> <span class="n">zend_object_handlers</span> <span class="o">*</span><span class="n">handlers</span><span class="p">;</span>
             <span class="n">zend_uint</span> <span class="n">refcount</span><span class="p">;</span>
             <span class="n">gc_root_buffer</span> <span class="o">*</span><span class="n">buffered</span><span class="p">;</span>
@@ -289,7 +289,7 @@ infinite recursion. It is used via the macros <tt class="docutils literal"><span
 object is 3 or larger. Currently this protection mechanism is only used in the object comparison handler.</p>
 <p>The <tt class="docutils literal"><span class="pre">handlers</span></tt> member in the <tt class="docutils literal"><span class="pre">_store_object</span></tt> struct is also required for destruction. The reason for this is that
 the <tt class="docutils literal"><span class="pre">dtor</span></tt> handler only gets passed the stored object and its handle:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="kt">zend_objects_store_dtor_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zend_object_handle</span> <span class="n">handle</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zend_object_handle</span> <span class="n">handle</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>But in order to call <tt class="docutils literal"><span class="pre">__destruct</span></tt> PHP needs a zval. Thus it creates a temporary zval using the passed object handle
