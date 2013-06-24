@@ -1,0 +1,476 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Building PHP Extensions &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="up" title="PHP ecosystem : Preparing PHP source code" href="../php_ecosystem.html" />
+    <link rel="next" title="Classes and objects" href="../classes_objects.html" />
+    <link rel="prev" title="Compiling PHP from sources" href="compiling_php.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Building PHP Extensions</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="compiling_php.html">Compiling PHP from sources</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../classes_objects.html">Classes and objects</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="building-php-extensions">
+<h1>Building PHP Extensions<a class="headerlink" href="#building-php-extensions" title="Permalink to this headline">¶</a></h1>
+<p>In this chapter, we won&#8217;t talk about how to write a PHP extension. For that, you should read the {link}dedicated chapter{link}.
+Here, we&#8217;ll talk about what the structure of an extension looks like, and how to build extensions, both statically and using shared objects.
+After reading this chapter, you&#8217;ll know everything needed about compiling, installing and testing extensions.</p>
+<div class="section" id="extensions-structure">
+<h2>Extensions structure<a class="headerlink" href="#extensions-structure" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Each extension come with some minimal structure for it to be compiled and linked against php sources :</dt>
+<dd><ul class="first last simple">
+<li>At least one C file, code to be compiled</li>
+<li>At least one header C file (.h)</li>
+<li>At least one m4 file, called <tt class="docutils literal"><span class="pre">config.m4</span></tt>, to give the steps <em>configure</em> script should follow to make compilation possible.</li>
+</ul>
+</dd>
+</dl>
+<p>In fact, extensions are a little bit more complex than that, but rarely crazy complex.</p>
+</div>
+<div class="section" id="php-extensions-and-pecl">
+<h2>PHP extensions and PECL<a class="headerlink" href="#php-extensions-and-pecl" title="Permalink to this headline">¶</a></h2>
+<p>If you look at the PHP source tree, you notice an <em>ext/</em> directory. This directory contains all the default extensions PHP&#8217;s been packaged with. This does not mean those will be compiled, this depends on the <em>configure</em> script options you provide.
+Running <tt class="docutils literal"><span class="pre">./configure</span> <span class="pre">--help</span></tt> shows your choices :</p>
+<div class="highlight-none"><div class="highlight"><pre>phpsrc/ &gt; ./configure --help | less
+{truncated}
+--enable-ftp
+--with-gd=DIR
+--disable-hash
+--without-pdo-sqlite=DIR
+...
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>Here is a global explaination :</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">--enable-foo</span></tt> means that the <tt class="docutils literal"><span class="pre">foo</span></tt> extension won&#8217;t be compiled by default, you have to provide the switch so that it gets compiled when you run <em>make</em></li>
+<li><tt class="docutils literal"><span class="pre">--disable-foo</span></tt> or <tt class="docutils literal"><span class="pre">--without-foo</span></tt> mean that the <tt class="docutils literal"><span class="pre">foo</span></tt> extension will be compiled by default, you have to provide the switch so that it will be excluded from compilation when you run <em>make</em></li>
+<li><tt class="docutils literal"><span class="pre">--with-foo=DIR</span></tt> means that the <tt class="docutils literal"><span class="pre">foo</span></tt> extension won&#8217;t be compiled by default, you have to provide the switch so that it gets compiled when you run <em>make</em>. Additionnaly, the foo extension depends on system libraries. Those will be looked for in the default tree, except if you provide a specialized directory to look for them using the <em>DIR</em> parameter.</li>
+</ul>
+</dd>
+</dl>
+<p>Wheither the extension is enabled (so you see a <em>&#8211;disable</em> switch for it in <em>configure</em> help output) or disabled (so you see a <em>&#8211;enable</em> switch for it in <em>configure</em> help output) by default is a choice made by the PHP team when it releases a new version of PHP. Thus, from version to version, extensions may move from <em>&#8211;enable</em> to <em>&#8211;disable</em> switch by default.</p>
+<div class="section" id="more-extensions-with-pecl">
+<h3>More extensions with PECL<a class="headerlink" href="#more-extensions-with-pecl" title="Permalink to this headline">¶</a></h3>
+<p>It can happen that an extension is not bundled in the PHP source tree by default. Chances are it still exists on the PECL website. <a class="reference external" href="http://pecl.php.net">http://pecl.php.net</a> is a website storing tons of extensions about PHP. On this site, you can look for extensions, see their releases and their version types (betas, alphas or stables) and obviously you can download their sources. Take care to get enough informations about the extension you are willing to download, it may be not maintained any more.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If an extension were bundled with a PHP version <em>n</em>, and is not with the version <em>n+1</em> anymore, this means that the PHP contributors decided to &#8220;move it to PECL&#8221;. The extension is then still downloadable from the PECL website.
+Remember that extensions located on the PECL website are <strong>not supported</strong> by the PHP team, they are by their respective authors. That&#8217;s why sometimes extensions move from PECL to the distribution and vice-versa during PHP&#8217;s life.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There exists other source hosts for PHP extensions. GitHub is another great one, for example.</p>
+</div>
+</div>
+</div>
+<div class="section" id="compiling-an-extension">
+<h2>Compiling an extension<a class="headerlink" href="#compiling-an-extension" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="directly-together-with-php">
+<h3>Directly together with PHP<a class="headerlink" href="#directly-together-with-php" title="Permalink to this headline">¶</a></h3>
+<p>This happens when you run the <em>configure</em> script into the PHP source tree. Simply activate the switch, and the extensions will be built :</p>
+<div class="highlight-none"><div class="highlight"><pre>phpsrc/ &gt; ./configure --disable-pdo --enable-soap
+</pre></div>
+</div>
+<p>In the above example, we indicate we&#8217;d like a PHP to be built with all the default extensions minus the PDO one, and with the addition of the SOAP one. By default, the added extensions will be statically built, this means their code will be merged into the code of the final PHP binary, thus, you won&#8217;t be able to disable them anymore using a .so file. This is known as &#8220;static compilation&#8221; (thought the exact term for that is &#8220;static linkage&#8221;).</p>
+<p>If you want to use shared library, which will build a .so file for your extension, you have to indicate it to the configure script, like this:</p>
+<div class="highlight-none"><div class="highlight"><pre>phpsrc/ &gt; ./configure --disable-pdo --enable-soap=shared
+</pre></div>
+</div>
+<p>Providing the <tt class="docutils literal"><span class="pre">=shared</span></tt> to the <tt class="docutils literal"><span class="pre">--enable</span></tt> (or <tt class="docutils literal"><span class="pre">--with</span></tt>) switch tells the build system to compile the extension as a separated .so file.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Compiling statically merges the extension code into the resulting binaries. This means that the startup phase of PHP will be faster, because the dynamic loader doesn&#8217;t have to find, load and relocate all the .so. However, you won&#8217;t be able to change the code of the extensions anymore, without recompiling the whole PHP binary (which with the help of <em>make</em> cache system may not take so many time). Also, as the extension code is merged into the binary, its memory footprint will be bigger, as it obviously embeds more code to run.
+It is usually better to build shared libraries as you can then choose weither or not you want to include them at runtime, and it eases the process of updating an extension code. However, if you are sure you&#8217;ll use the extension, and won&#8217;t change it in the future, then you should go for static linking.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Not all extensions can be buit statically or as shared objects. You usually can choose between two, but some extensions are protected and can only be built weither statically or as shared objects.</p>
+</div>
+<div class="section" id="adding-pecl-extension-to-the-php-tree">
+<h4>Adding PECL extension to the PHP tree<a class="headerlink" href="#adding-pecl-extension-to-the-php-tree" title="Permalink to this headline">¶</a></h4>
+<p>Here we&#8217;ll demonstrate how to download a PHP extension, from PECL website for example, merge it to our PHP source tree and compile it together with PHP itself. We&#8217;ll take the APC extension as an example.
+The steps are :</p>
+<blockquote>
+<div><ul class="simple">
+<li>Download and extract the extension sources into a subdir of <em>phpsrc/ext</em></li>
+<li>Delete the PHP <em>configure</em> script</li>
+<li>Rebuild the PHP <em>configure</em> script so that it notices the new extension you just added</li>
+<li>Activate the extension using the new generated <em>configure</em> script</li>
+<li><em>make</em> and <em>make install</em>, you are done</li>
+</ul>
+</div></blockquote>
+<p>This gives something like :</p>
+<div class="highlight-none"><div class="highlight"><pre>/tmp&gt; wget http://pecl.php.net/get/APC-3.1.13.tgz
+/tmp&gt; tar xzf APC-3.1.13.tgz
+/tmp&gt; mkdir phpsrc/php-5.4.15/ext/apc &amp;&amp; cp APC-3.1.13/* phpsrc/php-5.4.15/ext/apc
+/tmp&gt; cd phpsrc/php-5.4.15
+/tmp/phpsrc/php-5.4.15&gt; rm configure &amp;&amp; ./buildconf --force
+Forcing buildconf
+Removing configure caches
+buildconf: checking installation...
+buildconf: autoconf version 2.69 (ok)
+rebuilding aclocal.m4
+rebuilding configure
+rebuilding main/php_config.h.in
+/tmp/phpsrc/php-5.4.15&gt; ./configure --enable-apc &amp;&amp; make &amp;&amp; make install
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Obviously, from the above example, we could have built the extension as shared, using <tt class="docutils literal"><span class="pre">./configure</span> <span class="pre">--enable-apc=shared</span></tt></p>
+</div>
+</div>
+</div>
+<div class="section" id="appart-from-php">
+<h3>Appart from PHP<a class="headerlink" href="#appart-from-php" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>If you want to compile an extension after having compiled and installed PHP itself, this fortunately is also possible. Obviously you&#8217;ll end up with a .so file, no static compilation here. The process can be splitted into 3 steps :</dt>
+<dd><ul class="first last simple">
+<li>prepare the extension by importing the compilation environnement into it</li>
+<li>configure the extension, basically launch the <em>configure</em> script</li>
+<li><em>make</em> and <em>make install</em> it</li>
+</ul>
+</dd>
+</dl>
+<p>Recall the <em>phpize</em> tool we talked about in the <a class="reference internal" href="compiling_php.html#compiling-php"><em>Compiling PHP from sources</em></a> chapter ? The goal of this tool is to import the PHP compilation tools when it is run into an extension base directory. Basically : it checks your extension m4 file, and creates a configure script you&#8217;ll use. Here is an example :</p>
+<div class="highlight-none"><div class="highlight"><pre>&gt; wget http://pecl.php.net/get/APC-3.1.13.tgz
+&gt; tar xzf APC-3.1.13.tgz &amp;&amp; cd APC-3.1.13
+APC-3.1.13&gt; /home/myuser/myphp/bin/phpize
+Configuring for:
+PHP Api Version:         20090626
+Zend Module Api No:      20090626
+Zend Extension Api No:   220090626
+APC-3.1.13&gt;
+</pre></div>
+</div>
+<p>Your extension is ready, you can now run the <em>configure</em> script into it. Don&#8217;t forget to provide it with the <em>php-config</em> path :</p>
+<div class="highlight-none"><div class="highlight"><pre>APC-3.1.13&gt; ./configure --with-php-config=/home/myuser/myphp/bin/php-config
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Perhaps there exist other options ? Watch for the <em>configure &#8211;help</em> output, but in any way, <strong>never forget</strong> to provide the <em>php-config</em> script path, it is necessary for your extension to know about the PHP it&#8217;s gonna be compiled for.</p>
+</div>
+</div>
+</div>
+<div class="section" id="zend-extensions-against-php-extensions">
+<h2>Zend Extensions against PHP extensions<a class="headerlink" href="#zend-extensions-against-php-extensions" title="Permalink to this headline">¶</a></h2>
+<p>As you may know, PHP actually supports two different kinds of extensions. They are internally called <em>&#8220;Zend Module&#8221;</em> and <em>&#8220;Zend Extension&#8221;</em>. This is a little bit confusing. We prefer talking about, respectively from the previous names, &#8220;PHP extensions&#8221; and &#8220;Zend extensions&#8221;.
+Beside the fact that Zend extensions can hook at different level into the engine than PHP extensions can, there also exists differences when it comes to recognize them and load them but the preparation/compilation steps are exactly the sames.</p>
+<div class="section" id="php-extensions">
+<h3>PHP extensions<a class="headerlink" href="#php-extensions" title="Permalink to this headline">¶</a></h3>
+<p>PHP extensions are loaded with the <tt class="docutils literal"><span class="pre">extension=</span></tt> hint from the configuration. What you indicate behind that is just the name of the .so file, like this :</p>
+<div class="highlight-ini"><div class="highlight"><pre><span class="na">extension</span> <span class="o">=</span> <span class="s">memcached.so</span>
+</pre></div>
+</div>
+<p>From the above example, the loading system will then look for a file named <em>memcached.so</em> in the extension directory. This directory has a default place you can change using the <tt class="docutils literal"><span class="pre">extension_dir</span></tt> key into the configuration file.</p>
+<div class="highlight-ini"><div class="highlight"><pre><span class="na">extension_dir</span> <span class="o">=</span> <span class="s">/tmp/mydir</span>
+<span class="na">extension</span> <span class="o">=</span> <span class="s">memcached.so</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The default extension directory can be obtained by running <tt class="docutils literal"><span class="pre">php-config</span> <span class="pre">--extension-dir</span></tt> command. This information <strong>does not change</strong> if you provide an <tt class="docutils literal"><span class="pre">extension_dir</span></tt> in the configuration. To get the actual location of extensions, you should start by greping the <tt class="docutils literal"><span class="pre">extension_dir</span></tt> configuration directive, from the <em>php.ini</em> parsed, and if not known, rely on the default directory.</p>
+</div>
+</div>
+<div class="section" id="zend-extensions">
+<h3>Zend extensions<a class="headerlink" href="#zend-extensions" title="Permalink to this headline">¶</a></h3>
+<p>Zend extensions loading differ from PHP extensions. First, they use a different configuration key : <tt class="docutils literal"><span class="pre">zend_extension=</span></tt>.
+Second thing : you have to provide the full path to the <em>.so</em> object. It then looks like this :</p>
+<div class="highlight-ini"><div class="highlight"><pre><span class="na">zend_extension</span> <span class="o">=</span> <span class="s">/tmp/mydir/php/zendextensions/myextension.so</span>
+</pre></div>
+</div>
+<p>Zend extensions don&#8217;t care about the <tt class="docutils literal"><span class="pre">extension_dir</span></tt> directive or any default directory. This has changed in PHP 5.5.
+Starting from PHP 5.5, Zend extensions loading mechanism is the same as for PHP extensions : they are beeing looked for based on the <tt class="docutils literal"><span class="pre">extension_dir</span></tt> information from configuration.</p>
+<p>There still exists differences : the <tt class="docutils literal"><span class="pre">php</span> <span class="pre">--re</span></tt> command is for PHP extensions. Use <tt class="docutils literal"><span class="pre">php</span> <span class="pre">--rz</span></tt> for the equivalent for Zend extensions.
+Also, should you use the <tt class="docutils literal"><span class="pre">dl()</span></tt> function of PHP (which tends to disappear, and is only available if the configuration enables it, as well as only with some SAPIs), it can only load PHP extensions. It is not possible to load Zend extensions at runtime in a PHP script using PHP&#8217;s <tt class="docutils literal"><span class="pre">dl()</span></tt></p>
+</div>
+</div>
+<div class="section" id="extensions-tips-and-tricks">
+<h2>Extensions tips and tricks<a class="headerlink" href="#extensions-tips-and-tricks" title="Permalink to this headline">¶</a></h2>
+<p>Here we provide you with tips you should know about extensions</p>
+<div class="section" id="checking-and-testing-extensions">
+<h3>Checking and testing extensions<a class="headerlink" href="#checking-and-testing-extensions" title="Permalink to this headline">¶</a></h3>
+<p>Remember that the PHP CLI &#8216;s got switches about extensions. Say you just compiled the memcached extension as a shared object.
+At first, what you can do is to check it is correctly loaded in PHP, like this :</p>
+<div class="highlight-none"><div class="highlight"><pre>&gt; php -dextension=memcached.so -m | grep memcached
+memcached
+</pre></div>
+</div>
+<p>Ok, it gets loaded with no problem, and PHP tells us it knows about the extension.
+There exists several other interesting switches. For example, if you want to confirm about what configuration settings are provided by the memcached extension, you should run :</p>
+<div class="highlight-none"><div class="highlight"><pre>&gt; php -dextension=memcached.so --ri memcached
+memcached
+
+memcached support =&gt; enabled
+Version =&gt; 2.1.0
+libmemcached version =&gt; 1.0.8
+SASL support =&gt; no
+Session support =&gt; yes
+igbinary support =&gt; no
+json support =&gt; no
+
+Directive =&gt; Local Value =&gt; Master Value
+memcached.sess_locking =&gt; 1 =&gt; 1
+memcached.sess_consistent_hash =&gt; 0 =&gt; 0
+...
+</pre></div>
+</div>
+<p>And finally, if you want to know what the memcached extension, when loaded, adds to PHP, you run :</p>
+<div class="highlight-none"><div class="highlight"><pre>&gt; php -dextension=memcached.so --re memcached
+Extension [ &lt;persistent&gt; extension #29 memcached version 2.1.0 ] {
+
+  - Dependencies {
+    Dependency [ session (Required) ]
+    Dependency [ spl (Required) ]
+  }
+
+  - INI {
+    Entry [ memcached.sess_locking &lt;ALL&gt; ]
+      Current = &#39;1&#39;
+    }
+    ...
+    Entry [ memcached.compression_type &lt;ALL&gt; ]
+      Current = &#39;fastlz&#39;
+    }
+
+  - Classes [2] {
+    Class [ &lt;internal:memcached&gt; class Memcached ] {
+
+      - Constants [87] {
+        Constant [ integer OPT_COMPRESSION ] { -1001 }
+        Constant [ integer OPT_COMPRESSION_TYPE ] { -1004 }
+...
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <tt class="docutils literal"><span class="pre">--re</span></tt> and <tt class="docutils literal"><span class="pre">--ri</span></tt> switches invoke Reflection without the need for you to write code. They respectively stand for <em>&#8220;Reflection Informations&#8221;</em> and <em>&#8220;Reflection Extension&#8221;</em>. Remember to use <tt class="docutils literal"><span class="pre">--rz</span></tt> switch for Zend extensions.</p>
+</div>
+<p>Furthermore, you can run the extension&#8217;s test suite. It is as easy as invoking <tt class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></tt> in the extension directory, after having compiled it.</p>
+</div>
+<div class="section" id="extensions-api-compatibility">
+<h3>Extensions API compatibility<a class="headerlink" href="#extensions-api-compatibility" title="Permalink to this headline">¶</a></h3>
+<p>Extensions are very sensitive to 5 major factors. If they dont fit, the extension wont load into PHP and will be useless :</p>
+<blockquote>
+<div><ul class="simple">
+<li>PHP Api Version</li>
+<li>Zend Module Api No</li>
+<li>Zend Extension Api No</li>
+<li>Debug mode</li>
+<li>Thread safety</li>
+</ul>
+</div></blockquote>
+<p>The <em>phpize</em> tool recall you some of those informations.
+So if you have built a PHP with debug mode, and try to make it load and use an extension which&#8217;s been built without debug mode, it simply wont work. Same for the other checks.</p>
+<p><em>PHP Api Version</em> is the number of the version of the internal API. <em>Zend Module Api No</em> and <em>Zend Extension Api No</em> are respectively about PHP extensions and Zend extensions API.</p>
+<p>Those numbers are later passed as C macros to the extension beeing built, so that it can itself checks against those parameters and take different code paths based on C preprocessor <tt class="docutils literal"><span class="pre">#ifdef</span></tt>s
+As those numbers are passed to the extension code as macros, they are written in the extension structure, so that anytime you try to load this extension in a PHP binary, they will be checked against the PHP binary&#8217;s own numbers.
+If they mismatch, then the extension will not load, and an error message will be displayed.</p>
+<p>If we look at the extension C structure, it looks like this:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zend_module_entry</span> <span class="n">foo_module_entry</span> <span class="o">=</span> <span class="p">{</span>
+<span class="cp">#if ZEND_MODULE_API_NO &gt;= 20010901</span>
+        <span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span>
+<span class="cp">#endif</span>
+        <span class="s">&quot;foo&quot;</span><span class="p">,</span>
+        <span class="n">foo_functions</span><span class="p">,</span>
+        <span class="n">PHP_MINIT</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span>
+        <span class="n">PHP_MSHUTDOWN</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span>
+        <span class="nb">NULL</span><span class="p">,</span>
+        <span class="nb">NULL</span><span class="p">,</span>
+        <span class="n">PHP_MINFO</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span>
+<span class="cp">#if ZEND_MODULE_API_NO &gt;= 20010901</span>
+        <span class="n">PHP_FOO_VERSION</span><span class="p">,</span>
+<span class="cp">#endif</span>
+        <span class="n">STANDARD_MODULE_PROPERTIES</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>What is interesting for us so far, is the <tt class="docutils literal"><span class="pre">STANDARD_MODULE_HEADER</span></tt> macro. If we expand it, we can see:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#define STANDARD_MODULE_HEADER_EX sizeof(zend_module_entry), ZEND_MODULE_API_NO, ZEND_DEBUG, USING_ZTS</span>
+<span class="cp">#define STANDARD_MODULE_HEADER STANDARD_MODULE_HEADER_EX, NULL, NULL</span>
+</pre></div>
+</div>
+<p>Notice how <tt class="docutils literal"><span class="pre">ZEND_MODULE_API_NO</span></tt>, <tt class="docutils literal"><span class="pre">ZEND_DEBUG</span></tt>, <tt class="docutils literal"><span class="pre">USING_ZTS</span></tt> are used.</p>
+<p>And now, let&#8217;s foresee the C code part into PHP which actually loads extensions (truncated):</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">PHPAPI</span> <span class="kt">int</span> <span class="nf">php_load_extension</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">,</span> <span class="kt">int</span> <span class="n">start_now</span> <span class="n">TSRMLS_DC</span><span class="p">)</span> <span class="cm">/* {{{ */</span>
+<span class="p">{</span>
+        <span class="kt">void</span> <span class="o">*</span><span class="n">handle</span><span class="p">;</span>
+        <span class="kt">char</span> <span class="o">*</span><span class="n">libpath</span><span class="p">;</span>
+        <span class="n">zend_module_entry</span> <span class="o">*</span><span class="n">module_entry</span><span class="p">;</span>
+        <span class="n">zend_module_entry</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">get_module</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+        <span class="kt">int</span> <span class="n">error_type</span><span class="p">;</span>
+        <span class="kt">char</span> <span class="o">*</span><span class="n">extension_dir</span><span class="p">;</span>
+
+    <span class="p">(...)</span>
+
+        <span class="cm">/* load dynamic symbol */</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">DL_LOAD</span><span class="p">(</span><span class="n">libpath</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">handle</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#if PHP_WIN32</span>
+                <span class="kt">char</span> <span class="o">*</span><span class="n">err</span> <span class="o">=</span> <span class="n">GET_DL_ERROR</span><span class="p">();</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">*</span><span class="n">err</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">))</span> <span class="p">{</span>
+                        <span class="n">php_error_docref</span><span class="p">(</span><span class="nb">NULL</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="s">&quot;Unable to load dynamic library &#39;%s&#39; - %s&quot;</span><span class="p">,</span> <span class="n">libpath</span><span class="p">,</span> <span class="n">err</span><span class="p">);</span>
+                        <span class="n">LocalFree</span><span class="p">(</span><span class="n">err</span><span class="p">);</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="n">php_error_docref</span><span class="p">(</span><span class="nb">NULL</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="s">&quot;Unable to load dynamic library &#39;%s&#39; - %s&quot;</span><span class="p">,</span> <span class="n">libpath</span><span class="p">,</span> <span class="s">&quot;Unknown reason&quot;</span><span class="p">);</span>
+                <span class="p">}</span>
+<span class="cp">#else</span>
+                <span class="n">php_error_docref</span><span class="p">(</span><span class="nb">NULL</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="s">&quot;Unable to load dynamic library &#39;%s&#39; - %s&quot;</span><span class="p">,</span> <span class="n">libpath</span><span class="p">,</span> <span class="n">GET_DL_ERROR</span><span class="p">());</span>
+                <span class="n">GET_DL_ERROR</span><span class="p">();</span> <span class="cm">/* free the buffer storing the error */</span>
+<span class="cp">#endif</span>
+                <span class="n">efree</span><span class="p">(</span><span class="n">libpath</span><span class="p">);</span>
+                <span class="k">return</span> <span class="n">FAILURE</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">efree</span><span class="p">(</span><span class="n">libpath</span><span class="p">);</span>
+
+        <span class="n">get_module</span> <span class="o">=</span> <span class="p">(</span><span class="n">zend_module_entry</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">void</span><span class="p">))</span> <span class="n">DL_FETCH_SYMBOL</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&quot;get_module&quot;</span><span class="p">);</span>
+
+    <span class="p">(...)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">get_module</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">DL_UNLOAD</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+                <span class="n">php_error_docref</span><span class="p">(</span><span class="nb">NULL</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="s">&quot;Invalid library (maybe not a PHP library) &#39;%s&#39;&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">);</span>
+                <span class="k">return</span> <span class="n">FAILURE</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">module_entry</span> <span class="o">=</span> <span class="n">get_module</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">module_entry</span><span class="o">-&gt;</span><span class="n">zend_api</span> <span class="o">!=</span> <span class="n">ZEND_MODULE_API_NO</span><span class="p">)</span> <span class="p">{</span>
+                <span class="p">(...)</span>
+                <span class="n">name</span>                <span class="o">=</span> <span class="n">module_entry</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">;</span>
+                <span class="n">zend_api</span>    <span class="o">=</span> <span class="n">module_entry</span><span class="o">-&gt;</span><span class="n">zend_api</span><span class="p">;</span>
+
+                <span class="n">php_error_docref</span><span class="p">(</span><span class="nb">NULL</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span>
+                                <span class="s">&quot;%s: Unable to initialize module</span><span class="se">\n</span><span class="s">&quot;</span>
+                                <span class="s">&quot;Module compiled with module API=%d</span><span class="se">\n</span><span class="s">&quot;</span>
+                                <span class="s">&quot;PHP    compiled with module API=%d</span><span class="se">\n</span><span class="s">&quot;</span>
+                                <span class="s">&quot;These options need to match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+                                <span class="n">name</span><span class="p">,</span> <span class="n">zend_api</span><span class="p">,</span> <span class="n">ZEND_MODULE_API_NO</span><span class="p">);</span>
+                <span class="n">DL_UNLOAD</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+                <span class="k">return</span> <span class="n">FAILURE</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="n">module_entry</span><span class="o">-&gt;</span><span class="n">build_id</span><span class="p">,</span> <span class="n">ZEND_MODULE_BUILD_ID</span><span class="p">))</span> <span class="p">{</span>
+                <span class="n">php_error_docref</span><span class="p">(</span><span class="nb">NULL</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span>
+                                <span class="s">&quot;%s: Unable to initialize module</span><span class="se">\n</span><span class="s">&quot;</span>
+                                <span class="s">&quot;Module compiled with build ID=%s</span><span class="se">\n</span><span class="s">&quot;</span>
+                                <span class="s">&quot;PHP    compiled with build ID=%s</span><span class="se">\n</span><span class="s">&quot;</span>
+                                <span class="s">&quot;These options need to match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+                                <span class="n">module_entry</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">,</span> <span class="n">module_entry</span><span class="o">-&gt;</span><span class="n">build_id</span><span class="p">,</span> <span class="n">ZEND_MODULE_BUILD_ID</span><span class="p">);</span>
+                <span class="n">DL_UNLOAD</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+                <span class="k">return</span> <span class="n">FAILURE</span><span class="p">;</span>
+    <span class="p">(...)</span>
+</pre></div>
+</div>
+<p>If you look at the default directory for PHP extensions, it should look like <tt class="docutils literal"><span class="pre">no-debug-non-zts-20090626</span></tt>. As you&#8217;d have guessed, this directory is made of distinct parts joined together : debug mode, followed by thread safety information, followed by the Zend Module Api No.
+So by default, PHP tries to help you navigating with extensions.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Usually, when you become an internal developper or an extension developper, you will usually have to play with the debug parameter, and if you have to deal with the Windows platform, threads will show up as well. You can end with compiling the same extension several times against several cases of those parameters.</p>
+</div>
+<p>Remember that every new major/minor version of PHP change parameters such as the PHP Api Version, that&#8217;s why you need to recompile extensions against a newer PHP version.</p>
+<div class="highlight-none"><div class="highlight"><pre>&gt; /path/to/php54/bin/phpize -v
+Configuring for:
+PHP Api Version:         20100412
+Zend Module Api No:      20100525
+Zend Extension Api No:   220100525
+
+&gt; /path/to/php55/bin/phpize -v
+Configuring for:
+PHP Api Version:         20121113
+Zend Module Api No:      20121212
+Zend Extension Api No:   220121212
+
+&gt; /path/to/php53/bin/phpize -v
+Configuring for:
+PHP Api Version:         20090626
+Zend Module Api No:      20090626
+Zend Extension Api No:   220090626
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><em>Zend Module Api No</em> is itself built with a date using the <em>year.month.day</em> format. This is the date of the day the API changed and was tagged.
+<em>Zend Extension Api No</em> is the Zend version followed by <em>Zend Module Api No</em>.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="compiling_php.html">Compiling PHP from sources</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../classes_objects.html">Classes and objects</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        Send feedback to <a href="mailto:feedback@phpinternalsbook.com">feedback@phpinternalsbook.com</a>
+    </div>
+    
+    <div class="footer">
+        &copy; Copyright 2013, Julien Pauli - Anthony Ferrara - Nikita Popov.
+    </div>
+    <div class="footer feedback">
+        All Rights Reserved
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

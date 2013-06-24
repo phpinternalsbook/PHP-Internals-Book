@@ -28,9 +28,9 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="PHP Internals Book" href="../index.html" />
-    <link rel="up" title="HashTables" href="../hashtables.html" />
-    <link rel="next" title="HashTables API" href="api.html" />
-    <link rel="prev" title="HashTables" href="../hashtables.html" /> 
+    <link rel="up" title="Hashtables" href="../hashtables.html" />
+    <link rel="next" title="HashTables API" href="hashtable_api.html" />
+    <link rel="prev" title="Hashtables" href="../hashtables.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../index.html">
@@ -40,11 +40,11 @@
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="../hashtables.html">HashTables</a>
+        «&#160;&#160;<a href="../hashtables.html">Hashtables</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="api.html">HashTables API</a>&#160;&#160;»
+        <a href="hashtable_api.html">HashTables API</a>&#160;&#160;»
         </p>
 
       </div>
@@ -126,8 +126,8 @@ allocation it is put into the <tt class="docutils literal"><span class="pre">pDa
         <span class="n">Bucket</span> <span class="o">*</span><span class="n">pListTail</span><span class="p">;</span>
         <span class="n">Bucket</span> <span class="o">**</span><span class="n">arBuckets</span><span class="p">;</span>
         <span class="n">dtor_func_t</span> <span class="n">pDestructor</span><span class="p">;</span>
-        <span class="n">zend_bool</span> <span class="n">persistent</span><span class="p">;</span>       <span class="cm">/* Persistent allocation or not */</span>
-        <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">nApplyCount</span><span class="p">;</span>  <span class="cm">/* Used to track recursion */</span>
+        <span class="n">zend_bool</span> <span class="n">persistent</span><span class="p">;</span>
+        <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">nApplyCount</span><span class="p">;</span>
         <span class="n">zend_bool</span> <span class="n">bApplyProtection</span><span class="p">;</span>
 <span class="cp">#if ZEND_DEBUG</span>
         <span class="kt">int</span> <span class="n">inconsistent</span><span class="p">;</span>
@@ -179,11 +179,11 @@ is in the process of being destroyed.</p>
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="../hashtables.html">HashTables</a>
+        «&#160;&#160;<a href="../hashtables.html">Hashtables</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="api.html">HashTables API</a>&#160;&#160;»
+        <a href="hashtable_api.html">HashTables API</a>&#160;&#160;»
         </p>
 
       </div>

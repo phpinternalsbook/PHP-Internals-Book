@@ -147,6 +147,13 @@ following lines:</p>
 <tt class="docutils literal"><span class="pre">PHP_METHOD</span></tt> and pass it both the class and method name. In the <tt class="docutils literal"><span class="pre">zend_function_entry</span></tt> array <tt class="docutils literal"><span class="pre">PHP_ME</span></tt> is used
 instead of <tt class="docutils literal"><span class="pre">PHP_FE</span></tt>. It again takes the class name, the method name, the arginfo struct and additionally a set of
 flags.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><tt class="docutils literal"><span class="pre">PHP_ME</span></tt> stands for &#8220;PHP Method Entry&#8221; and <tt class="docutils literal"><span class="pre">PHP_FE</span></tt> for &#8220;PHP Function Entry&#8221;. They allow you to create functions
+or methods with no name collisions because they take care of creating the full C function name.
+When you have to provide the class name regarding methods, the parameter is just used to create the final C function
+name.</p>
+</div>
 <p>The flags parameter allows you to specify the usual PHP method modifiers using a combination of <tt class="docutils literal"><span class="pre">ZEND_ACC_PUBLIC</span></tt>,
 <tt class="docutils literal"><span class="pre">ZEND_ACC_PROTECTED</span></tt>, <tt class="docutils literal"><span class="pre">ZEND_ACC_PRIVATE</span></tt>, <tt class="docutils literal"><span class="pre">ZEND_ACC_STATIC</span></tt>, <tt class="docutils literal"><span class="pre">ZEND_ACC_FINAL</span></tt> and <tt class="docutils literal"><span class="pre">ZEND_ACC_ABSTRACT</span></tt>. For
 example a protected final static method would be declared as follows:</p>
@@ -248,12 +255,12 @@ associated objects are destroyed.)</p>
 <span class="c1">// ...</span>
 </pre></div>
 </div>
-<p>The two new functions in the above code are <tt class="docutils literal"><span class="pre">zend_read_property</span></tt> and <tt class="docutils literal"><span class="pre">zend_update_property</span></tt>. Both functions take
+<p>The two new functions in the above code are <tt class="docutils literal"><span class="pre">zend_read_property()</span></tt> and <tt class="docutils literal"><span class="pre">zend_update_property()</span></tt>. Both functions take
 the scope as first parameter, the object as second and the property name and length after that. The &#8220;scope&#8221; here is
 a class entry and is necessary for visibility handling. If <tt class="docutils literal"><span class="pre">foo</span></tt> is a public property the used scope doesn&#8217;t matter
 (it could just as well be <tt class="docutils literal"><span class="pre">NULL</span></tt>), but if it were a private property we could only access it with the class entry of
 the class it belongs to.</p>
-<p><tt class="docutils literal"><span class="pre">zend_update_property</span></tt> additionally takes the new value for the property as last parameter. <tt class="docutils literal"><span class="pre">zend_read_property</span></tt>
+<p><tt class="docutils literal"><span class="pre">zend_update_property()</span></tt> additionally takes the new value for the property as last parameter. <tt class="docutils literal"><span class="pre">zend_read_property()</span></tt>
 on the other hand takes an additional boolean <tt class="docutils literal"><span class="pre">silent</span></tt> parameter. It specifies whether PHP should suppress the
 &#8220;Undefined property xyz&#8221; notice. In our case we don&#8217;t know whether the property exists beforehand, so we pass <tt class="docutils literal"><span class="pre">1</span></tt>
 (meaning: no notice).</p>
@@ -272,7 +279,7 @@ on the other hand takes an additional boolean <tt class="docutils literal"><span
 <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$t</span><span class="o">-&gt;</span><span class="na">getFoo</span><span class="p">());</span> <span class="c1">// &quot;def&quot;</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">zend_update_property</span></tt> also comes in several variants that allow setting specific values more easily (i.e. without
+<p><tt class="docutils literal"><span class="pre">zend_update_property()</span></tt> also comes in several variants that allow setting specific values more easily (i.e. without
 manually creating a zval):</p>
 <blockquote>
 <div><ul class="simple">
@@ -287,8 +294,8 @@ manually creating a zval):</p>
 <p>In the above example we had to use the <tt class="docutils literal"><span class="pre">silent=1</span></tt> parameter, because we didn&#8217;t have the guarantee that the <tt class="docutils literal"><span class="pre">foo</span></tt>
 property would exist when we read it. A better way to solve this is to properly declare the property when the class is
 registered, just like you would write <tt class="docutils literal"><span class="pre">public</span> <span class="pre">$foo</span> <span class="pre">=</span> <span class="pre">DEFAULT_VALUE;</span></tt> in PHP.</p>
-<p>This is done using the <tt class="docutils literal"><span class="pre">zend_declare_property</span></tt> function family, which features the same variants as
-<tt class="docutils literal"><span class="pre">zend_update_property</span></tt>. For example to declare a public <tt class="docutils literal"><span class="pre">foo</span></tt> property with a <tt class="docutils literal"><span class="pre">null</span></tt> default value we have to add
+<p>This is done using the <tt class="docutils literal"><span class="pre">zend_declare_property()</span></tt> function family, which features the same variants as
+<tt class="docutils literal"><span class="pre">zend_update_property()</span></tt>. For example to declare a public <tt class="docutils literal"><span class="pre">foo</span></tt> property with a <tt class="docutils literal"><span class="pre">null</span></tt> default value we have to add
 the following line after the class registration in <tt class="docutils literal"><span class="pre">MINIT</span></tt>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_declare_property_null</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
 </pre></div>
@@ -306,11 +313,11 @@ and you also benefit from memory optimizations for declared properties.</p>
 <span class="cm">/* All digits of pi I remember :( */</span>
 </pre></div>
 </div>
-<p>To read and update static properties there are the <tt class="docutils literal"><span class="pre">zend_read_static_property</span></tt> function and the
-<tt class="docutils literal"><span class="pre">zend_update_static_property</span></tt> function family. They have the same interface as the functions for normal properties,
+<p>To read and update static properties there are the <tt class="docutils literal"><span class="pre">zend_read_static_property()</span></tt> function and the
+<tt class="docutils literal"><span class="pre">zend_update_static_property()</span></tt> function family. They have the same interface as the functions for normal properties,
 only difference being that no object is passed (only the scope).</p>
-<p>To declare constants the <tt class="docutils literal"><span class="pre">zend_declare_class_constant*</span></tt> family of functions is used. They have the same variations and
-signatures as <tt class="docutils literal"><span class="pre">zend_declare_property*</span></tt>, only without the flags argument. To declare a constant &#8216;&#8217;Test::PI&#8217;&#8216;:</p>
+<p>To declare constants the <tt class="docutils literal"><span class="pre">zend_declare_class_constant_*()</span></tt> family of functions is used. They have the same variations and
+signatures as <tt class="docutils literal"><span class="pre">zend_declare_property_*()</span></tt>, only without the flags argument. To declare a constant &#8216;&#8217;Test::PI&#8217;&#8216;:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_declare_class_constant_double</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span> <span class="s">&quot;PI&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;PI&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">3.141</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -362,7 +369,7 @@ don&#8217;t want any additional methods, apart from those that are inherited fro
 <p>The above code conditionally either inherits from <tt class="docutils literal"><span class="pre">RuntimeException</span></tt> or - if SPL is not compiled in - from just
 <tt class="docutils literal"><span class="pre">Exception</span></tt>. The class entry for <tt class="docutils literal"><span class="pre">RuntimeException</span></tt> is externed in the header <tt class="docutils literal"><span class="pre">ext/spl/spl_exceptions.h</span></tt>, so it
 has to be included as well.</p>
-<p>The last parameter of <tt class="docutils literal"><span class="pre">zend_register_internal_class_ex</span></tt> which was set to <tt class="docutils literal"><span class="pre">NULL</span></tt> in the above cases is an
+<p>The last parameter of <tt class="docutils literal"><span class="pre">zend_register_internal_class_ex()</span></tt> which was set to <tt class="docutils literal"><span class="pre">NULL</span></tt> in the above cases, is an
 alternative way to specify the parent class: If you don&#8217;t have the class entry available you can specify the class
 name:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">custom_exception_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_class_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="n">spl_ce_RuntimeException</span><span class="p">,</span> <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
@@ -373,7 +380,7 @@ name:</p>
 <p>In practice you should prefer the first variant though. The second form is only useful if you have some misbehaved
 extension that forgot to export the class entry.</p>
 <p>Just like you can inherit from other classes you can also implement interfaces. For this the variadic
-<tt class="docutils literal"><span class="pre">zend_class_implements</span></tt> functions is used:</p>
+<tt class="docutils literal"><span class="pre">zend_class_implements()</span></tt> functions is used:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &quot;ext/spl/spl_iterators.h&quot;</span>
 <span class="cp">#include &quot;zend_interfaces.h&quot;</span>
 
@@ -400,7 +407,7 @@ extension that forgot to export the class entry.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>As you can see <tt class="docutils literal"><span class="pre">zend_class_implements</span></tt> takes the class entry, TSRMLS_CC, the number of interfaces to implement and
+<p>As you can see <tt class="docutils literal"><span class="pre">zend_class_implements()</span></tt> takes the class entry, TSRMLS_CC, the number of interfaces to implement and
 then the class entries of the interfaces. E.g. if you wanted to additionally implement <tt class="docutils literal"><span class="pre">Serializable</span></tt>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_class_implements</span><span class="p">(</span>
     <span class="n">data_class_ce</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
@@ -409,7 +416,7 @@ then the class entries of the interfaces. E.g. if you wanted to additionally imp
 </pre></div>
 </div>
 <p>You can obviously also create your own interfaces. Interfaces are registered in the same way as classes are, but using
-the <tt class="docutils literal"><span class="pre">zend_register_internal_interface</span></tt> function and declaring all methods as abstract. E.g. if you wanted to create a
+the <tt class="docutils literal"><span class="pre">zend_register_internal_interface()</span></tt> function and declaring all methods as abstract. E.g. if you wanted to create a
 new <tt class="docutils literal"><span class="pre">ReversibleIterator</span></tt> interface that extends <tt class="docutils literal"><span class="pre">Iterator</span></tt> and additionally specifies a <tt class="docutils literal"><span class="pre">prev</span></tt> method, this is how
 you would do it:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &quot;zend_interfaces.h&quot;</span>
@@ -427,7 +434,7 @@ you would do it:</p>
     <span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="s">&quot;ReversibleIterator&quot;</span><span class="p">,</span> <span class="n">reversible_iterator_functions</span><span class="p">);</span>
     <span class="n">reversible_iterator_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_interface</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
 
-    <span class="c1">// ReversibleIterator extends Iterator (for interface inheritance zend_class_implements is used)</span>
+    <span class="c1">// ReversibleIterator extends Iterator (for interface inheritance zend_class_implements() is used)</span>
     <span class="n">zend_class_implements</span><span class="p">(</span><span class="n">reversible_iterator_ce</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">zend_ce_iterator</span><span class="p">);</span>
 
     <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>

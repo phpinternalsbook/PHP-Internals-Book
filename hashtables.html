@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HashTables &mdash; PHP Internals Book</title>
+    <title>Hashtables &mdash; PHP Internals Book</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -34,7 +34,7 @@
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
           <span>PHP Internals Book</span></a></h1>
-        <h2 class="heading"><span>HashTables</span></h2>
+        <h2 class="heading"><span>Hashtables</span></h2>
       </div>
       <div class="topnav">
       
@@ -51,11 +51,10 @@
         
         
   <div class="section" id="hashtables">
-<h1>HashTables<a class="headerlink" href="#hashtables" title="Permalink to this headline">¶</a></h1>
-<p>We already met the zend_hash API, here is a dedicated chapter that’ll teach you
-how Hashtables have been implemented in PHP, and where they are used. You’ll
-discover that HashTables are a major structure you have to master if you want to
-program safely with PHP Internals.</p>
+<h1>Hashtables<a class="headerlink" href="#hashtables" title="Permalink to this headline">¶</a></h1>
+<p>Hashtables are one of the most structures used by PHP. They form the basis for arrays, object properties, symbol tables
+and have countless other applications throughout the engine. This chapter will introduce how hashtables work and cover
+the related APIs in detail.</p>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -64,17 +63,27 @@ program safely with PHP Internals.</p>
 <li class="toctree-l2"><a class="reference internal" href="hashtables/basic_structure.html#the-hashtable-and-bucket-structures">The HashTable and Bucket structures</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hashtables/api.html">HashTables API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#creating-and-destroying-a-hashtable">Creating and destroying a hashtable</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#playing-with-items-inserting-and-removing">Playing with items, inserting and removing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#retrieving-deleting-and-checking-for-items">Retrieving, deleting and checking for items</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#string-keys-and-hashing-algorithm">String keys and hashing algorithm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#iterating-over-the-table">Iterating over the table</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hashtables/api.html#mapping-functions">Mapping functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hashtables/hashtable_api.html">Hashtable API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hashtable_api.html#creating-and-destroying-hashtables">Creating and destroying hashtables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hashtable_api.html#integer-keys">Integer keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hashtable_api.html#string-keys">String keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hashtable_api.html#apply-functions">Apply functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hashtable_api.html#iteration">Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hashtable_api.html#copying-and-merging">Copying and merging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hashtable_api.html#comparison-sorting-and-extrema">Comparison, sorting and extrema</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hashtables/api.html#hashalgorithm-and-colliding-the-table">HashAlgorithm and colliding the table</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hashtables/api.html#use-cases">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hashtables/array_api.html">Symtable and array API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/array_api.html#symtables">Symtables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/array_api.html#array-api">Array API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hashtables/hash_algorithm.html">Hash algorithm and collisions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hash_algorithm.html#analyzing-collisions">Analyzing collisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hash_algorithm.html#index-collisions">Index collisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashtables/hash_algorithm.html#hash-collisions">Hash collisions</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>

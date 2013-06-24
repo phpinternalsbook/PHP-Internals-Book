@@ -1,0 +1,108 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Packages versus sources &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="up" title="PHP ecosystem : Preparing PHP source code" href="../php_ecosystem.html" />
+    <link rel="next" title="Compiling PHP from sources" href="compiling_php.html" />
+    <link rel="prev" title="PHP ecosystem : Preparing PHP source code" href="../php_ecosystem.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Packages versus sources</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="../php_ecosystem.html">PHP ecosystem : Preparing PHP source code</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="compiling_php.html">Compiling PHP from sources</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="packages-versus-sources">
+<h1>Packages versus sources<a class="headerlink" href="#packages-versus-sources" title="Permalink to this headline">¶</a></h1>
+<p>This short chapter is aimed for remembering you about a crucial thing : PHP as we describe during this whole book, is what you grab from <a class="reference external" href="http://www.php.net">http://www.php.net</a>.
+We guess you should be used to your OS, Unix based we hope. So you may know about your package distribution system.
+For example, on Debian based OSes, the <em>apt</em> tool is used to grab packages from package repositories. You then could use such a command to easilly install PHP on your system :</p>
+<div class="highlight-none"><div class="highlight"><pre>#&gt; apt-get install php
+</pre></div>
+</div>
+<p>Then what your system will do is grab some PHP binaries from the repository you setup for the <em>apt</em> tool, and install it in a default tree, such as <em>/usr/bin</em>, <em>/etc</em>, <em>/usr/lib</em>,  etc...</p>
+<p>What we would like to advise you here, is that what is installed using this method <em>may not be</em> the same product as what could come from <a class="reference external" href="http://www.php.net">http://www.php.net</a>. What comes from a package repository is a product that your package repository manager did put in, not what the crew from php.net provided.
+In most time, you&#8217;ll end up with the exact same product, and the PHP crew works together with some people responsible of packaging PHP for some OSes, Fedora is a good example of that. But be warned if you use a repository to get PHP installed on your system.</p>
+<p>For example, in Debian back from the 6.0 version and earlier, what was stored in the default apt repository coming with this system was not the exact same PHP, compared to what you can grab from <a class="reference external" href="http://www.php.net">http://www.php.net</a>.
+In fact, the guys who turned PHP from sources to packages, <em>patched the version</em>, adding some stuff such as &#8220;suhosin&#8221;, which is a known patch providing more security to the PHP default source (from what suhosin author says). But it is known and it&#8217;s been proven with time that this patch also introduces some slow down in PHP engine and in its memory manager, as well as some code that happened to be incompatible with some extensions, in some cases, such as OPCode cache extensions.</p>
+<p>And this becomes even more complex if you run a company supported OS, such as Red Hat for example. In this case, what you grab from the package manager is also not the same product as comes from <a class="reference external" href="http://www.php.net">http://www.php.net</a>. Red Hat company could have pacthed PHP, in their manner, so that they better master what they distribute and can provide some support to their customers related to the software they host in their package repo.</p>
+<p>In any way, the PHP team does not support such software from distributions. The only version of PHP that the PHP crew supports is the one coming from <a class="reference external" href="http://www.php.net">http://www.php.net</a>.
+We sometimes get asked about &#8220;PHP from Debian&#8221;, or &#8220;PHP from Suse&#8221;, or &#8220;PHP from whatever you want&#8221;. We don&#8217;t master what the guys behind those versions do to the real sources we provide from <a class="reference external" href="http://www.php.net">http://www.php.net</a>.</p>
+<p>This chapter was short, but now you know what we talk about in this book, and what the PHP team supports : the &#8220;PHP&#8221; software, coming from any mirror behind php.net domain.</p>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="../php_ecosystem.html">PHP ecosystem : Preparing PHP source code</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="compiling_php.html">Compiling PHP from sources</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        Send feedback to <a href="mailto:feedback@phpinternalsbook.com">feedback@phpinternalsbook.com</a>
+    </div>
+    
+    <div class="footer">
+        &copy; Copyright 2013, Julien Pauli - Anthony Ferrara - Nikita Popov.
+    </div>
+    <div class="footer feedback">
+        All Rights Reserved
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

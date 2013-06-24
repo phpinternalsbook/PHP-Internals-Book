@@ -8,10 +8,11 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PHP ecosystem : Preparing PHP source code &mdash; PHPInternalsBook 1.0 documentation</title>
+    <title>PHP ecosystem : Preparing PHP source code &mdash; PHP Internals Book</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -25,32 +26,30 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PHPInternalsBook 1.0 documentation" href="index.html" />
-    <link rel="next" title="First step into code : Managing memory" href="managing_memory.html" />
-    <link rel="prev" title="A first look at PHP source" href="php_first_look.html" /> 
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="PHP Internals Book" href="index.html" />
+    <link rel="next" title="Packages versus sources" href="php_ecosystem/packages_vs_source.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="managing_memory.html" title="First step into code : Managing memory"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="php_first_look.html" title="A first look at PHP source"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PHPInternalsBook 1.0 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>PHP ecosystem : Preparing PHP source code</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="introduction.html">Introduction</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="php_ecosystem/packages_vs_source.html">Packages versus sources</a>&#160;&#160;»
+        </p>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
+      </div>
+      <div class="content">
+        
+        
   <div class="section" id="php-ecosystem-preparing-php-source-code">
 <h1>PHP ecosystem : Preparing PHP source code<a class="headerlink" href="#php-ecosystem-preparing-php-source-code" title="Permalink to this headline">¶</a></h1>
 <p>Now that we know main tools to develop and build a C project, let’s meet some
@@ -59,63 +58,62 @@ general-purpose tools we introduced you, but you have to know them as you’ll
 have to deal with them when building PHP.</p>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
-<ul class="simple">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="php_ecosystem/packages_vs_source.html">Packages versus sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="php_ecosystem/compiling_php.html">Compiling PHP from sources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/compiling_php.html#recall-on-compilation">Recall on compilation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/compiling_php.html#getting-sources-and-dependencies-ready">Getting sources and dependencies ready</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/compiling_php.html#let-s-make-and-install-it">Let&#8217;s make and install it !</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/compiling_php.html#php-tools-provided-with-installation">PHP tools provided with installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/compiling_php.html#customizing-php-compilation">Customizing PHP compilation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/compiling_php.html#compilation-usual-problems">Compilation usual problems</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="php_ecosystem/extensions_pecl.html">Building PHP Extensions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/extensions_pecl.html#extensions-structure">Extensions structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/extensions_pecl.html#php-extensions-and-pecl">PHP extensions and PECL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/extensions_pecl.html#compiling-an-extension">Compiling an extension</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/extensions_pecl.html#zend-extensions-against-php-extensions">Zend Extensions against PHP extensions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php_ecosystem/extensions_pecl.html#extensions-tips-and-tricks">Extensions tips and tricks</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 
 
-          </div>
-        </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="php_first_look.html"
-                        title="previous chapter">A first look at PHP source</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="managing_memory.html"
-                        title="next chapter">First step into code : Managing memory</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/php_ecosystem.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="introduction.html">Introduction</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="php_ecosystem/packages_vs_source.html">Packages versus sources</a>&#160;&#160;»
+        </p>
+
       </div>
-      <div class="clearer"></div>
+
+    <div class="footer feedback">
+        Send feedback to <a href="mailto:feedback@phpinternalsbook.com">feedback@phpinternalsbook.com</a>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="managing_memory.html" title="First step into code : Managing memory"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="php_first_look.html" title="A first look at PHP source"
-             >previous</a> |</li>
-        <li><a href="index.html">PHPInternalsBook 1.0 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
+    
     <div class="footer">
-        &copy; Copyright 2012, Julien Pauli - Anthony Ferrara - Nikita Popov.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+        &copy; Copyright 2013, Julien Pauli - Anthony Ferrara - Nikita Popov.
     </div>
+    <div class="footer feedback">
+        All Rights Reserved
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
   </body>
 </html>

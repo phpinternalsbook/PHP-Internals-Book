@@ -29,6 +29,7 @@
     <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="PHP Internals Book" href="../index.html" />
     <link rel="up" title="HashTables" href="../hashtables.html" />
+    <link rel="next" title="Prerequisites" href="../prerequisites.html" />
     <link rel="prev" title="Basic structure" href="basic_structure.html" /> 
   </head>
   <body>
@@ -42,6 +43,8 @@
         «&#160;&#160;<a href="basic_structure.html">Basic structure</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../prerequisites.html">Prerequisites</a>&#160;&#160;»
         </p>
 
       </div>
@@ -50,46 +53,339 @@
         
   <div class="section" id="hashtables-api">
 <h1>HashTables API<a class="headerlink" href="#hashtables-api" title="Permalink to this headline">¶</a></h1>
-<p>Here we will describe common use-cases regarding Hashtables API. If you want to have a deeper look at it, you should
-then grab the sources which for hashtables implementation are not sparsed everywhere: just get zend_hash files from the
-<em>Zend/</em> directory, and you are done.</p>
-<div class="section" id="creating-and-destroying-a-hashtable">
-<h2>Creating and destroying a hashtable<a class="headerlink" href="#creating-and-destroying-a-hashtable" title="Permalink to this headline">¶</a></h2>
-<p>Guess what? Yep, we provide an API for allocating and freeing a hashtable. Better to use it:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
+<p>There are two sets of APIs working with hashtables: The first is the lower-level <tt class="docutils literal"><span class="pre">zend_hash</span></tt> API, which will be
+discussed in this section. The second one is the array API, which provides some higher-level functions for common
+operations and is covered in the next section.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">Done</span>
+<span class="o">----</span>
+<span class="n">zend_hash_init</span>
+<span class="n">zend_hash_init_ex</span>
+<span class="n">zend_hash_destroy</span>
+<span class="n">zend_hash_graceful_destroy</span>
+<span class="n">zend_hash_graceful_reverse_destroy</span>
+<span class="n">zend_hash_clean</span>
+<span class="n">zend_hash_index_update</span>
+<span class="n">zend_hash_next_index_insert</span>
+<span class="n">zend_hash_index_exists</span>
+<span class="n">zend_hash_index_find</span>
+<span class="n">zend_hash_index_del</span>
+<span class="n">zend_hash_update</span>
+<span class="n">zend_hash_exists</span>
+<span class="n">zend_hash_find</span>
+<span class="n">zend_hash_del</span>
+<span class="n">zend_hash_add</span>
+<span class="n">zend_hash_quick_update</span>
+<span class="n">zend_hash_quick_exists</span>
+<span class="n">zend_hash_quick_find</span>
+<span class="n">zend_hash_quick_del</span>
+<span class="n">zend_hash_quick_add</span>
 
-<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
-
-<span class="n">zend_hash_init</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="p">(</span><span class="n">zend_bool</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">Todo</span>
+<span class="o">----</span>
+<span class="n">zend_hash_apply</span>
+<span class="n">zend_hash_apply_with_argument</span>
+<span class="n">zend_hash_apply_with_arguments</span>
+<span class="p">(</span><span class="n">zend_hash_reverse_apply</span><span class="p">)</span>
+<span class="n">zend_hash_next_free_element</span>
+<span class="n">Iteration</span> <span class="n">API</span>
+<span class="n">zend_hash_copy</span>
+<span class="n">zend_hash_merge</span>
+<span class="n">zend_hash_merge_ex</span>
+<span class="n">zend_hash_sort</span>
+<span class="n">zend_hash_compare</span>
+<span class="n">zend_hash_minmax</span>
+<span class="n">zend_hash_num_elements</span>
+<span class="n">zend_hash_rehash</span>
+<span class="p">(</span><span class="n">zend_hash_func</span><span class="p">)</span>
+<span class="n">Symtable</span> <span class="n">API</span>
 </pre></div>
 </div>
-<p>So we allocate a hashtable for 10 items, the function will then round this up to the next power of 2: 16 in our case.
-Both NULLs here are for a custom hashing function, we usually don&#8217;t need and will use the default Zend one which is just
-right, and for the destructor function, for this example we don&#8217;t use any. The last parameter tells the allocator whether
-we want or not a persistent allocation for this hashtable. Persistent allocations last after the request cycle and are
-not freed by PHP before it shuts down. Most of the time, you&#8217;ll need a request-life-allocated array.</p>
-<p>Let&#8217;s free this hashtable now:</p>
+<div class="section" id="creating-and-destroying-hashtables">
+<h2>Creating and destroying hashtables<a class="headerlink" href="#creating-and-destroying-hashtables" title="Permalink to this headline">¶</a></h2>
+<p>Hashtables are allocated using <tt class="docutils literal"><span class="pre">ALLOC_HASHTABLE</span></tt> and initialized with <tt class="docutils literal"><span class="pre">zend_hash_init</span></tt>:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
+
+<span class="cm">/* Same as myht = emalloc(sizeof(HashTable)); */</span>
+<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">ht</span><span class="p">);</span>
+
+<span class="n">zend_hash_init</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The second argument to <tt class="docutils literal"><span class="pre">zend_hash_init</span></tt> is a size hint, which specifies how many elements we expect the hashtable to
+have. When <tt class="docutils literal"><span class="pre">1000000</span></tt> is passed PHP will allocate space for <tt class="docutils literal"><span class="pre">2^20</span> <span class="pre">=</span> <span class="pre">1048576</span></tt> elements on the first insert. Without
+the size hint PHP would first allocate space for 8 elements and then perform multiple resizes once more elements are
+inserted (first to 16, then 32, then 64 etc). Every resize requires the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> to be reallocated and a &#8220;rehash&#8221;
+to occur (which recomputes the collision lists).</p>
+<p>Specifying a size hint avoids those unnecessary resize operations and as such improves performance. This only makes
+sense for large hashtables though, for small tables passing 0 should be sufficient. In particular note that 8 is the
+minimum table size, so it doesn&#8217;t make a difference if you pass 0 or 2 or 7.</p>
+<p>The third argument of <tt class="docutils literal"><span class="pre">zend_hash_init</span></tt> should always be <tt class="docutils literal"><span class="pre">NULL</span></tt>: It was previously used to specify a custom hash
+function, but this feature is no longer available. The fourth argument is the destructor function for the stored values
+and has the following signature:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">dtor_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">pDest</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Most of the time this destructor function will be <tt class="docutils literal"><span class="pre">ZVAL_PTR_DTOR</span></tt> (for storing <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt> values). This is just the
+usual <tt class="docutils literal"><span class="pre">zval_ptr_dtor</span></tt> function but with a signature that is compatible to <tt class="docutils literal"><span class="pre">dtor_func_t</span></tt>.</p>
+<p>The last argument of <tt class="docutils literal"><span class="pre">zend_hash_init</span></tt> specifies whether persistent allocation should be used. If you want the
+hashtable to live on after the end of the request this argument should be 1. There is a variation of the initialization
+function called <tt class="docutils literal"><span class="pre">zend_hash_init_ex</span></tt>, which accepts an additional boolean <tt class="docutils literal"><span class="pre">bApplyProtection</span></tt> argument. By setting it
+to 0 you can disable recursion protection (which is otherwise enabled by default). This function is used rather rarely,
+usually for internal structures of the engine (like the function or class table).</p>
+<p>A hashtable can be destroyed using <tt class="docutils literal"><span class="pre">zend_hash_destroy</span></tt> and freed using <tt class="docutils literal"><span class="pre">FREE_HASHTABLE</span></tt>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_hash_destroy</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+
+<span class="cm">/* Same as efree(myht); */</span>
 <span class="n">FREE_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">zend_hash_destroy()</span></tt> will take care of the housework for you, basicaly: iterate over the table, call the registered
-destructor on all of them, then destroy the <tt class="docutils literal"><span class="pre">Bucket</span></tt>. You are now about to free the HashTable, which
-<tt class="docutils literal"><span class="pre">FREE_HASHTABLE()</span></tt> takes care of.</p>
-<p>As often the hashtable will carry <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt>, you should use <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> as a destructor function. The
-signature of <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> is not compatible with what is expected by <tt class="docutils literal"><span class="pre">zend_hash_init()</span></tt>, so whether you cast it
-yourself, or use a special macro that takes care of that for you:</p>
+<p>The <tt class="docutils literal"><span class="pre">zend_hash_destroy</span></tt> function will invoke the destructor function on all buckets and free them. While this function
+runs the hashtable is in an inconsistent state and can not be used. This is usually okay, but in some rare cases
+(especially if the destructor function can call userland code) it may be necessary that the hashtable stays usable
+during the destruction process. In this case the <tt class="docutils literal"><span class="pre">zend_hash_graceful_destroy</span></tt> and
+<tt class="docutils literal"><span class="pre">zend_hash_graceful_reverse_destroy</span></tt> functions can be used. The former function will destroy the buckets in order of
+insertion, the latter in reverse order.</p>
+<p>If you want to remove all elements from a hashtable, but not actually destroy it, you can use the <tt class="docutils literal"><span class="pre">zend_hash_clean</span></tt>
+function.</p>
+</div>
+<div class="section" id="integer-keys">
+<h2>Integer keys<a class="headerlink" href="#integer-keys" title="Permalink to this headline">¶</a></h2>
+<p>Before looking at the functions used to insert, retrieve and delete integer keys in a hashtable, lets first clarify
+what kind of arguments they expect:</p>
+<p>Remember that the <tt class="docutils literal"><span class="pre">pData</span></tt> member of a bucket stores <em>a pointer</em> to the actual data. E.g. if you store <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt>
+values in a hashtable, then <tt class="docutils literal"><span class="pre">pData</span></tt> will be a <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">**</span></tt>. That&#8217;s why insertions into a hashtable will require you to
+pass a <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">**</span></tt> even though you specified <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt> as the data type.</p>
+<p>When you retrieve values from a hashtable you&#8217;ll pass a destination pointer <tt class="docutils literal"><span class="pre">pDest</span></tt> into which <tt class="docutils literal"><span class="pre">pData</span></tt> will be
+written. In order to write into the pointer using <tt class="docutils literal"><span class="pre">*pDest</span> <span class="pre">=</span> <span class="pre">pData</span></tt> yet another level of indirection is needed. So if
+<tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt> is your datatype you&#8217;ll have to pass a <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">***</span></tt> to the retrieval function.</p>
+<p>As an example of how this looks like, lets consider the <tt class="docutils literal"><span class="pre">zend_hash_index_update</span></tt> function, which allows you to insert
+and update integer keys:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
+<span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">;</span>
+
 <span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
-<span class="n">zend_hash_init</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">ZVAL_PTR_DTOR</span><span class="p">,</span> <span class="p">(</span><span class="n">zend_bool</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">zend_hash_init</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">ZVAL_PTR_DTOR</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="cm">/* In PHP: $array[42] = &quot;foo&quot; */</span>
+<span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+
+<span class="n">zend_hash_destroy</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+<span class="n">FREE_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">ZVAL_PTR_DTOR</span></tt> is a macro that just wraps <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> using correct casts so that your compiler wont shout
-about incompatible types. Remember that <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> decrements the zval* refcount by one, and if it reaches
-zero, frees it , so using it as a destructor in your hashtable is very nice as now the hashtables handles the cleaning
-automatically about <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt>.</p>
-<p>Just to let you know, should you clean a hashtable, aka empty all its items but leave itself alive,
-<tt class="docutils literal"><span class="pre">zend_hash_clean()</span></tt> will do the job. You will end up with a cleaned hashtable, just like if you just allocated it.</p>
+<p>The above example inserts a <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt> containing <tt class="docutils literal"><span class="pre">&quot;foo&quot;</span></tt> at key <tt class="docutils literal"><span class="pre">42</span></tt>. The fourth argument specifies the used data
+type: <tt class="docutils literal"><span class="pre">sizeof(zval</span> <span class="pre">*)</span></tt>. As such the third argument, which is the inserted value, must be of type <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">**</span></tt>.</p>
+<p>The last argument can be used to both insert the value and retrieve it again in the same go:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span>
+
+<span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Why would you want to do this? After all, you already know the value you inserted, so why would you want to fetch it
+again? Remember that hashtables always work on a <em>copy</em> of the passed value. So, while the <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt> stored in the
+hashtable will be the same one as <tt class="docutils literal"><span class="pre">zv</span></tt>, it will be stored at a different address. In order to do a by-reference
+modification of the hashtable value you need the address of this new location, which is exactly what is written into
+<tt class="docutils literal"><span class="pre">zv_dest</span></tt>.</p>
+<p>When storing <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt> values the last argument of the update function is rarely necessary. On the other hand, when
+non-pointer data types are used, you&#8217;ll quite commonly see a pattern where first a temporary structure is created, which
+is then inserted into the hashtable and the value in the destination pointer is used for all further work (as changing
+the temporary structure would have no effect on the value in the hashtable).</p>
+<p>Often you don&#8217;t want to insert a value at a particular key, but append it at the end of the hashtable. This can be
+accomplished using the <tt class="docutils literal"><span class="pre">zend_hash_next_index_insert</span></tt> function:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_next_index_insert</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The function inserts <tt class="docutils literal"><span class="pre">zv</span></tt> at the next available integer key. So if the largest used integer key was <tt class="docutils literal"><span class="pre">42</span></tt> the new
+value will be inserted at key <tt class="docutils literal"><span class="pre">43</span></tt>. Note that unlike <tt class="docutils literal"><span class="pre">zend_hash_index_update</span></tt> this function can <em>fail</em> and you need
+to check the return value against <tt class="docutils literal"><span class="pre">SUCCESS</span></tt>/<tt class="docutils literal"><span class="pre">FAILURE</span></tt>.</p>
+<p>To see when such a failure can occur, consider this example:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="n">LONG_MAX</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_next_index_insert</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;next_index_insert failed!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Here a value is inserted at key <tt class="docutils literal"><span class="pre">LONG_MAX</span></tt>. In this case the next integer key would be <tt class="docutils literal"><span class="pre">LONG_MAX</span> <span class="pre">+</span> <span class="pre">1</span></tt>, which
+overflows to <tt class="docutils literal"><span class="pre">LONG_MIN</span></tt>. As this overflow behavior is undesirable PHP checks for this special case and leaves
+<tt class="docutils literal"><span class="pre">nNextFreeElement</span></tt> at <tt class="docutils literal"><span class="pre">LONG_MAX</span></tt>.</p>
+<p>When <tt class="docutils literal"><span class="pre">zend_hash_next_index_insert</span></tt> is run it will try to insert the value at key <tt class="docutils literal"><span class="pre">LONG_MAX</span></tt>, but this key is already
+taken, thus the function fails.</p>
+<p>With the above knowledge the three remaining functions from the integer key API should be fairly straightforward:
+<tt class="docutils literal"><span class="pre">zend_hash_index_find</span></tt> gets the value of an index, <tt class="docutils literal"><span class="pre">zend_hash_index_exists</span></tt> checks if an index exists without
+fetching the value and <tt class="docutils literal"><span class="pre">zend_hash_index_del</span></tt> removes an entry. Here&#8217;s an example for the three functions:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_exists</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Index 42 exists</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Index 42 doesn&#39;t exist</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Fetched value of index 42 into zv_dest</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Couldn&#39;t fetch value of index 42 as it doesn&#39;t exist :(</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_del</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Removed value at index 42</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Couldn&#39;t remove value at index 42 as it doesn&#39;t exist :(</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">zend_hash_index_exists</span></tt> return 1 is the index exists, 0 otherwise. The <tt class="docutils literal"><span class="pre">find</span></tt> and <tt class="docutils literal"><span class="pre">del</span></tt> functions return
+<tt class="docutils literal"><span class="pre">SUCCESS</span></tt> if the value existed and <tt class="docutils literal"><span class="pre">FAILURE</span></tt> otherwise.</p>
+</div>
+<div class="section" id="string-keys">
+<h2>String keys<a class="headerlink" href="#string-keys" title="Permalink to this headline">¶</a></h2>
+<p>String keys are handled very similarly to integer keys. The main difference is that the word <tt class="docutils literal"><span class="pre">index</span></tt> is removed from
+all function names. Of course these functions take a string and its length as parameters rather than an index.</p>
+<p>The only caveat is what &#8220;string length&#8221; means in this context: In the hashtable API the string length
+<strong>includes the terminating NUL byte</strong>. In this regard the <tt class="docutils literal"><span class="pre">zend_hash</span></tt> API differs from nearly all other Zend APIs
+which do not include the NUL byte in the string length.</p>
+<p>What does this mean practically? When passing a literal string, the string length will be <tt class="docutils literal"><span class="pre">sizeof(&quot;foo&quot;)</span></tt> rather than
+<tt class="docutils literal"><span class="pre">sizeof(&quot;foo&quot;)-1</span></tt>. When passing a string from a zval, the string length will be <tt class="docutils literal"><span class="pre">Z_STRVAL_P(zv)+1</span></tt> rather than
+<tt class="docutils literal"><span class="pre">Z_STRVAL_P(zv)</span></tt>.</p>
+<p>Apart from this the functions are used in exactly the same way as the index functions:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
+<span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">;</span>
+<span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span>
+
+<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+<span class="n">zend_hash_init</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">ZVAL_PTR_DTOR</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span> <span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="cm">/* In PHP: $array[&quot;foo&quot;] = &quot;bar&quot; */</span>
+<span class="n">zend_hash_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_exists</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)))</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Key </span><span class="se">\&quot;</span><span class="s">foo</span><span class="se">\&quot;</span><span class="s"> exists</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Fetched value at key </span><span class="se">\&quot;</span><span class="s">foo</span><span class="se">\&quot;</span><span class="s"> into zv_dest</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_del</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">))</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Removed value at key </span><span class="se">\&quot;</span><span class="s">foo</span><span class="se">\&quot;\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">zend_hash_exists</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)))</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Key </span><span class="se">\&quot;</span><span class="s">foo</span><span class="se">\&quot;</span><span class="s"> no longer exists</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;As key </span><span class="se">\&quot;</span><span class="s">foo</span><span class="se">\&quot;</span><span class="s"> no longer exists, zend_hash_find returns FAILURE</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">zend_hash_destroy</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+<span class="n">FREE_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The above snippet will print:</p>
+<div class="highlight-none"><div class="highlight"><pre>Key &quot;foo&quot; exists
+Fetched value at key &quot;foo&quot; into zv_dest
+Removed value at key &quot;foo&quot;
+Key &quot;foo&quot; no longer exists
+As key &quot;foo&quot; no longer exists, zend_hash_find returns FAILURE
+</pre></div>
+</div>
+<p>Apart from <tt class="docutils literal"><span class="pre">zend_hash_update</span></tt> another function is offered for inserting string keys: <tt class="docutils literal"><span class="pre">zend_hash_add</span></tt>. The difference
+between the two functions is the behavior when the key already exists. <tt class="docutils literal"><span class="pre">zend_hash_update</span></tt> will overwrite the value,
+whereas <tt class="docutils literal"><span class="pre">zend_hash_add</span></tt> will return <tt class="docutils literal"><span class="pre">FAILURE</span></tt> instead.</p>
+<p>This is how <tt class="docutils literal"><span class="pre">zend_hash_update</span></tt> behaves when you try to overwrite a key:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv1</span><span class="p">,</span> <span class="o">*</span><span class="n">zv2</span><span class="p">;</span>
+<span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span>
+
+<span class="cm">/* ... zval init */</span>
+
+<span class="n">zend_hash_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">zv1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="n">zend_hash_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">zv2</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">zv_dest</span> <span class="o">==</span> <span class="n">zv1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Key </span><span class="se">\&quot;</span><span class="s">foo</span><span class="se">\&quot;</span><span class="s"> contains zv1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">zv_dest</span> <span class="o">==</span> <span class="n">zv2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Key </span><span class="se">\&quot;</span><span class="s">foo</span><span class="se">\&quot;</span><span class="s"> contains zv2</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The above code will print <tt class="docutils literal"><span class="pre">Key</span> <span class="pre">&quot;foo&quot;</span> <span class="pre">contains</span> <span class="pre">zv2</span></tt>, i.e. the value has been overwritten. Now compare with
+<tt class="docutils literal"><span class="pre">zend_hash_add</span></tt>:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv1</span><span class="p">,</span> <span class="o">*</span><span class="n">zv2</span><span class="p">;</span>
+<span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span>
+
+<span class="cm">/* ... zval init */</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_add</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">zv1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv1</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;zend_hash_add returned SUCCESS as key </span><span class="se">\&quot;</span><span class="s">bar</span><span class="se">\&quot;</span><span class="s"> was unused</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_add</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">zv2</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv2</span><span class="p">);</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;zend_hash_add returned FAILURE as key </span><span class="se">\&quot;</span><span class="s">bar</span><span class="se">\&quot;</span><span class="s"> is already taken</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">zv_dest</span> <span class="o">==</span> <span class="n">zv1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Key </span><span class="se">\&quot;</span><span class="s">bar</span><span class="se">\&quot;</span><span class="s"> contains zv1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">zv_dest</span> <span class="o">==</span> <span class="n">zv2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Key </span><span class="se">\&quot;</span><span class="s">bar</span><span class="se">\&quot;</span><span class="s"> contains zv2</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The code results in the following output:</p>
+<div class="highlight-none"><div class="highlight"><pre>zend_hash_add returned SUCCESS as key &quot;bar&quot; was unused
+zend_hash_add returned FAILURE as key &quot;bar&quot; is already taken
+Key &quot;bar&quot; contains zv1
+</pre></div>
+</div>
+<p>Here the second call to <tt class="docutils literal"><span class="pre">zend_hash_add</span></tt> returns <tt class="docutils literal"><span class="pre">FAILURE</span></tt> and the value stays at <tt class="docutils literal"><span class="pre">zv1</span></tt>.</p>
+<p>Note that while there is a <tt class="docutils literal"><span class="pre">zend_hash_add</span></tt> function for string keys there is no equivalent for integer indices. If
+you need this kind of behavior you have to either do an <tt class="docutils literal"><span class="pre">exists</span></tt> call first or make use of a lower-level API:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">_zend_hash_index_update_or_next_insert</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">HASH_ADD</span> <span class="n">ZEND_FILE_LINE_CC</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For all of the above functions there exists a second <tt class="docutils literal"><span class="pre">quick</span></tt> variant that accepts a precomputed hash value. This
+allows you to compute the hash of a string once and then use it across multiple calls. This improves performance as the
+hash value does not have to be recomputed every time. The hash value is always passed after the string length:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ulong</span> <span class="n">h</span><span class="p">;</span> <span class="cm">/* hash value */</span>
+
+<span class="cm">/* ... zval init */</span>
+
+<span class="n">h</span> <span class="o">=</span> <span class="n">zend_get_hash_value</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">));</span>
+
+<span class="n">zend_hash_quick_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="n">h</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_quick_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="n">h</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Fetched value at key </span><span class="se">\&quot;</span><span class="s">foo</span><span class="se">\&quot;</span><span class="s"> into zv_dest</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_quick_del</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="n">h</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Removed value at key </span><span class="se">\&quot;</span><span class="s">foo</span><span class="se">\&quot;\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Using the <tt class="docutils literal"><span class="pre">quick</span></tt> API only makes sense if you are accessing the key a lot (e.g. in a loop). There is no need to make
+use of it just because you are accessing the key two or three times. The <tt class="docutils literal"><span class="pre">quick</span></tt> functions are mostly used in the
+engine where precomputed hash values are available through various caches and optimizations.</p>
+<blockquote>
+<div></div></blockquote>
 </div>
 <div class="section" id="playing-with-items-inserting-and-removing">
 <h2>Playing with items, inserting and removing<a class="headerlink" href="#playing-with-items-inserting-and-removing" title="Permalink to this headline">¶</a></h2>
@@ -506,6 +802,8 @@ distributes pretty well buckets into the <tt class="docutils literal"><span clas
         «&#160;&#160;<a href="basic_structure.html">Basic structure</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../prerequisites.html">Prerequisites</a>&#160;&#160;»
         </p>
 
       </div>
