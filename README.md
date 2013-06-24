@@ -1,6 +1,13 @@
 PHP-Internals-Book
 ==================
 
+NOTE
+----
+
+From now on, all new content that is being written should be written in a separate branch. Then once content is ready for publishing, we can merge it down to the master branch (and then push it live).
+
+But works-in-progress should not go in the main branch...
+
 Document format: RST
 --------------------
 
