@@ -1,9 +1,9 @@
 Hashtables
 ==========
 
-Hashtables are one of the most structures used by PHP. They form the basis for arrays, object properties, symbol tables
-and have countless other applications throughout the engine. This chapter will introduce how hashtables work and cover
-the related APIs in detail.
+Hashtables are one of the most important structures used by PHP. They form the basis for arrays, object properties,
+symbol tables and have countless other applications throughout the engine. This chapter will introduce how hashtables
+work and cover the related APIs in detail.
 
 Contents:
 
