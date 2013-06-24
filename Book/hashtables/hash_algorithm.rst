@@ -1,9 +1,168 @@
 Hash algorithm and collisions
 =============================
 
-...
+In this final section on hashtables, we'll have a closer look at worst-case collision scenarios and some properties of
+the hashing function that PHP employs. While this knowledge is not necessary for the usage of the hashtable APIs it
+should give you a better understanding of the hashtable structure and its limitations.
 
-::
+Analyzing collisions
+--------------------
+
+In order to simplify collision analysis, lets first write a helper function ``array_collision_info()`` which will
+take an array and tell us which keys collide into which index. In order to do so we'll go through the ``arBuckets`` and
+for every index create an array that contains some information about all buckets at that index::
+
+    PHP_FUNCTION(array_collision_info) {
+        HashTable *hash;
+        zend_uint i;
+
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_DC, "h", &hash) == FAILURE) {
+            return;
+        }
+
+        array_init(return_value);
+
+        /* Empty hashtables may not yet be initialized */
+        if (hash->nNumOfElements == 0) {
+            return;
+        }
+
+        for (i = 0; i < hash->nTableSize; ++i) {
+            /* Create array of elements at this nIndex */
+            zval *elements;
+            Bucket *bucket;
+
+            MAKE_STD_ZVAL(elements);
+            array_init(elements);
+            add_next_index_zval(return_value, elements);
+
+            bucket = hash->arBuckets[i];
+            while (bucket != NULL) {
+                zval *element;
+
+                MAKE_STD_ZVAL(element);
+                array_init(element);
+                add_next_index_zval(elements, element);
+
+                add_assoc_long(element, "hash", bucket->h);
+
+                if (bucket->nKeyLength == 0) {
+                    add_assoc_long(element, "key", bucket->h);
+                } else {
+                    add_assoc_stringl(element, "key", (char *) bucket->arKey, bucket->nKeyLength - 1, 1);
+                }
+
+                {
+                    zval **data = (zval **) bucket->pData;
+                    Z_ADDREF_PP(data);
+                    add_assoc_zval(element, "value", *data);
+                }
+
+                bucket = bucket->pNext;
+            }
+        }
+    }
+
+The code is also a nice usage example for the ``add_`` functions from the previous section. Lets try the function out::
+
+    var_dump(array_collision_info([2 => 0, 5 => 1, 10 => 2]));
+
+    // Output (reformatted a bit):
+
+    array(8) {
+      [0] => array(0) {}
+      [1] => array(0) {}
+      [2] => array(2) {
+        [0] => array(3) {
+          ["hash"]  => int(10)
+          ["key"]   => int(10)
+          ["value"] => int(2)
+        }
+        [1] => array(3) {
+          ["hash"]  => int(2)
+          ["key"]   => int(2)
+          ["value"] => int(0)
+        }
+      }
+      [3] => array(0) {}
+      [4] => array(0) {}
+      [5] => array(1) {
+        [0] => array(3) {
+          ["hash"]  => int(5)
+          ["key"]   => int(5)
+          ["value"] => int(1)
+        }
+      }
+      [6] => array(0) {}
+      [7] => array(0) {}
+    }
+
+There are several things you can see from this output (most of which you should already be aware of):
+
+* The outer array has 8 elements, even though only 3 were inserted. This is because 8 is the default initial table
+  size.
+* For integers the hash and the key are always the same.
+* Even though the hashes are all different, we still have a collision at ``nIndex == 2`` because 2 % 8 is 2, but
+  10 % 8 is also 2.
+* The linked collision resolution lists contain the elements in reverse order of insertion. (This is the easiest way
+  to implement it.)
+
+Index collisions
+----------------
+
+The goal now is to create a worst-case collision scenario where *all* hash keys collide. There are two ways to
+accomplish this and we'll start with the easier one: Rather than creating collisions in the hash function, we'll
+create the collisions in the index (which is the hash modulo the table size).
+
+For integer keys this is particularly easy, because no real hashing operation is applied to them. The index will simply
+be ``key % nTableSize``. Finding collisions for this expression is trivial, e.g. any key that is a multiple of the
+table size will collide. If the table size if 8, then the indices will be 0 % 8 = 0, 8 % 8 = 0, 16 % 8 = 0, 24 % 8 = 0,
+etc.
+
+Here is a PHP script demonstrating this scenario:
+
+.. code-block:: php
+
+    <?php
+
+    $size = pow(2, 16); // any power of 2 will do
+
+    $startTime = microtime(true);
+
+    // Insert keys [0, $size, 2 * $size, 3 * $size, ..., ($size - 1) * $size]
+
+    $array = array();
+    for ($key = 0, $maxKey = ($size - 1) * $size; $key <= $maxKey; $key += $size) {
+        $array[$key] = 0;
+    }
+
+    $endTime = microtime(true);
+
+    printf("Inserted %d elements in %.2f seconds\n", $size, $endTime - $startTime);
+    printf("There are %d collisions at index 0\n", count(array_collision_info($array)[0]));
+
+This is the output I get (the results will be different for your machine, but should have the same order of magnitude):
+
+.. code-block:: none
+
+    Inserted 65536 elements in 34.05 seconds
+    There are 65536 collisions at index 0
+
+Of course thirty seconds to insert a handful of elements is *very* slow. What happened? As we have constructed a
+scenario where all hash keys collide the performance of inserts degenerates from O(1) to O(n): On every insert PHP has
+to walk the collision list for the index in order to check whether an element with the same key already exists. Usually
+this is not a problem as the collision list contains only one or two buckets. In the degenerate case on the other hand
+*all* elements will be in that list.
+
+As such PHP has to perform n inserts with O(n) time, which gives a total execution time of O(n^2). Thus instead of doing
+2^16 operations about 2^32 will have to be done.
+
+Hash collisions
+---------------
+
+Now that we successfully created a worst-case scenario using index collisions, lets do the same using actual hash
+collisions. As this is not possible using integer keys, we'll have to take a look at PHP's string hashing function,
+which is defined as follows::
 
     static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
     {
@@ -29,108 +188,145 @@ Hash algorithm and collisions
 		    case 2: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
 		    case 1: hash = ((hash << 5) + hash) + *arKey++; break;
 		    case 0: break;
-    EMPTY_SWITCH_DEFAULT_CASE()
+            EMPTY_SWITCH_DEFAULT_CASE()
 	    }
 	    return hash;
     }
 
-...
+After removing the manual loop-unrolling the function will look like this::
 
-Let's recall how all this works: When inserting a data, the (usually) provided key may be of two types: int or string.
-If the key is a string, it then passes through the hash algorithm, which is *DJBX33A* in PHP, and an integer comes out
-from this function. If the key were an integer, it is just used as-is. In both cases, we end up having a hash key with
-an integer of type ``unsigned long`` (ulong), with no limit in its bounds. So we would need to allocate an array
-(``arBuckets``) that should be referenced from 0 to ``sizeof(ulong)``, something like 18446744073709551615 on 64bits
-platform, which is clearly impossible. The problem is that the actual hash key we computed is just too big and has no
-bounds on the unsigned long range, it then cannot be used as-is as a C array index because the array would have been too
-huge to fit in memory. What is then done as a second step, is that the hash key gets narrow-bounded, using a mask. The
-mask cuts of the most significant bits in the integer, and dramatically lowers its space, making it suitable to be
-passed as an index for a preallocated C array, ``arBuckets``. The mask is calculated as being the size of the HashTable
-minus one. Here is the code for string typed keys::
+    static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
+    {
+	    register ulong hash = 5381;
 
-    ht->nTableMask = ht->nTableSize - 1;
-    void *p;
+	    for (uint i = 0; i < nKeyLength; ++i) {
+	        hash = ((hash << 5) + hash) + arKey[i];
+	    }
 
-    h = zend_inline_hash_func(arKey, nKeyLength); /* Hash the arKey (char*) to get the hash key h (ulong) */
+	    return hash;
+    }
 
-    nIndex = h & ht->nTableMask; /* Narrow h by masking its highest bits, obtain nIndex, an ulong from 0 to TableSize */
+The ``hash << 5 + hash`` expression is the same as ``hash * 32 + hash`` or just ``hash * 33``. Using this we can further
+simplify the function::
 
-    p = ht->arBuckets[nIndex]; /* Use the nIndex to get back p (Bucket*) from the bucket array arBuckets */
-    /* Use p here */
+    static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
+    {
+	    register ulong hash = 5381;
 
-We said that if the provided key is of type integer (``ulong``) and not string (``char *``), we just don't need to run
-the hash function. Code then becomes::
+	    for (uint i = 0; i < nKeyLength; ++i) {
+	        hash = hash * 33 + arKey[i];
+	    }
 
-    ht->nTableMask = ht->nTableSize - 1;
-    void *p;
+	    return hash;
+    }
 
-    h = provided_key /* of type ulong */
+This hash function is called *DJBX33A*, which stands for "Daniel J. Bernstein, Times 33 with Addition". It is one of the
+simplest (and as such also one of the fastest) string hashing functions there is.
 
-    nIndex = h & ht->nTableMask; /* Narrow h by masking its highest bits, obtain nIndex, a ulong from 0 to TableSize */
+Thanks to the simplicity of the hash function finding collisions is not hard. We'll start with two-character collisions,
+i.e. we are looking for two strings ``ab`` and ``cd``, which have the same hash:
 
-    p = ht->arBuckets[nIndex]; /* Use the nIndex to get back p (Bucket*) from the bucket array arBuckets */
-    /* Use p here */
+.. code-block:: none
 
-What this means is that if you build a special PHP array, with only integer keys, that when used with the mask give
-always the same index, then you will overcollide the array, and end-up having a possibly too huge linked list.
-Traversing a linked list is O(n), so the more the linked list grows, the slower it becomes to traverse it. Knowing that the
-API has to traverse the lists at every lookup or insertion (which triggers a lookup) in the table, it is then easy to
-DOS this part of PHP.
+        hash(ab) = hash(cd)
+    <=> (5381 * 33 + a) * 33 + b = (5381 * 33 + c) * 33 + d
+    <=> a * 33 + b = c * 33 + d
+    <=> c = a + n
+        d = b - 33 * n
+        where n is an integer
 
-To show this, let's build a use case and explain it:
+This tells us that we can get a collision by taking a two-char string, incrementing the first char by one and
+decrementing the second char by 33. Using this technique we can create groups of 8 strings which all collide. Here is
+an example of such a collision group:
 
 .. code-block:: php
 
     <?php
-    /* 2^15, for example, any power of 2 works */
-    $size = 32768;
-    $startTime = microtime(1);
+    $array = [
+        "E" . chr(122)  => 0,
+        "F" . chr(89)   => 1,
+        "G" . chr(56)   => 2,
+        "H" . chr(23)   => 3,
+        "I" . chr(-10)  => 4,
+        "J" . chr(-43)  => 5,
+        "K" . chr(-76)  => 6,
+        "L" . chr(-109) => 7,
+    ];
 
-    $array     = array();
-    $maxInsert = $size * $size;
+    var_dump(array_collision_info($array));
 
-    for ($key = 0; $key <= $maxInsert; $key += $size) {
-        $array[$key] = 0;
+The output shows that indeed all the keys collide with hash ``193456164``::
+
+    array(8) {
+      [0] => array(0) {}
+      [1] => array(0) {}
+      [2] => array(0) {}
+      [3] => array(0) {}
+      [4] => array(8) {
+        [0] => array(3) {
+          ["hash"]  => int(193456164)
+          ["key"]   => string(2) "L\x93"
+          ["value"] => int(7)
+        }
+        [1] => array(3) {
+          ["hash"]  => int(193456164)
+          ["key"]   => string(2) "K´"
+          ["value"] => int(6)
+        }
+        [2] => array(3) {
+          ["hash"]  => int(193456164)
+          ["key"]   => string(2) "JÕ"
+          ["value"] => int(5)
+        }
+        [3] => array(3) {
+          ["hash"]  => int(193456164)
+          ["key"]   => string(2) "Iö"
+          ["value"] => int(4)
+        }
+        [4] => array(3) {
+          ["hash"]  => int(193456164)
+          ["key"]   => string(2) "H\x17"
+          ["value"] => int(3)
+        }
+        [5] => array(3) {
+          ["hash"]  => int(193456164)
+          ["key"]   => string(2) "G8"
+          ["value"] => int(2)
+        }
+        [6] => array(3) {
+          ["hash"]  => int(193456164)
+          ["key"]   => string(2) "FY"
+          ["value"] => int(1)
+        }
+        [7] => array(3) {
+          ["hash"]  => int(193456164)
+          ["key"]   => string(2) "Ez"
+          ["value"] => int(0)
+        }
+      }
+      [5] => array(0) {}
+      [6] => array(0) {}
+      [7] => array(0) {}
     }
 
-    printf("%d inserts in %.2f seconds", $key/$size, microtime(1)-$startTime);
-
-Running this code, you should obtain something like 32769 insertions in 9.84 seconds, which is just a very huge amount
-of time. Let's now explain what happens at a lower level. We know that using a key as an integer, no hashing function
-comes to play, so the code being run to compute the C array key (``nIndex``) mainly looks like::
-
-    nIndex = h & ht->nTableMask; /* masking */
-    p = ht->arBuckets[nIndex];
-
-We know that ``nTableMask`` is table size minus one. As the key is added 32768 (2 powered by 15) at each step of the for
-loop, it jumps from bit to bit, and the mask is just irrelevant:
+Once we got one collision group, constructing more collisions is even easier. To do so we make use of the following
+property of DJBX33A: If two equal-length strings ``$str1`` and ``$str2`` collide, then ``$prefix.$str1.$postfix`` and
+``$prefix.$str2.$postfix`` will collide as well. It's easy to prove that this is indeed true:
 
 .. code-block:: none
 
-    for ($key = 0; $key <= $maxInsert; $key += $taille) {
-        $array[$key] = 0;
-    }
+      hash(prefix . str1 . postfix)
+    = hash(prefix) * 33^a + hash(str1) * 33^b + hash(postfix)
+    = hash(prefix) * 33^a + hash(str2) * 33^b + hash(postfix)
+    = hash(prefix . str2 . postfix)
 
-    mask:   0000.0111.1111.1111.1111
-                     &
-    32768   0000.1000.0000.0000.0000
-    65536   0001.0000.0000.0000.0000
-    98304   0001.1000.0000.0000.0000
-    131072  0010.0000.0000.0000.0000
-    163840  0010.1000.0000.0000.0000
-    ...
-                 = 0 !
+      where a = strlen(str1 . postfix) and b = strlen(postfix)
 
-We end up inserting every item (we insert 32769 total items) at the same ``arBuckets`` index: 0. Every item is then
-added to the linked list sitting at index 0 of ``arBuckets``, and traversing a fast growing linked list takes so much
-time. Be convinced by breaking this actual collision-proof code, just use a size of 32767 for example, instead of the
-special 32768. You will get something like 32768 inserts in 0.01 seconds, which is about 1000 times faster.
+Thus, if ``Ez`` and ``FY`` collide, so will ``abcEzefg`` and ``abcFYefg``. This is also the reason why we could ignore
+the trailing NUL-byte that is also part of the hash in the previous considerations: It would result in a different hash,
+but the collisions would still be present.
 
-When the hash algorithm + the hash mask works normally, meaning we are not cheating them voluntary like we did, it
-distributes pretty well buckets into the ``arBuckets``:
-
-.. image:: ./images/hash_distribution_ok.png
-
-When it's not the case, you end with something like this, which we could call the 'worst scenario':
-
-.. image:: ./images/hash_distribution_ko.png
+Using this property large sets of collisions can be created by taking a known set of collisions and concatenating them
+in every possible way. E.g. if we know that ``Ez`` and ``FY`` collide, then we also know that all of ``EzEzEz``,
+``EzEzFY``, ``EzFYEz``, ``EzFYFY``, ``FYEzEz``, ``FYEzFY``, ``FYFYEz`` and ``FYFYFY`` will collide. With this method we
+can create arbitrarily large sets of collisions.
