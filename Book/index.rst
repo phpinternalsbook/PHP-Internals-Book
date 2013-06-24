@@ -5,17 +5,17 @@ Table Of Contents
     :maxdepth: 2
 
     introduction.rst
-    php_ecosystem.rst
+    hashtables.rst
     classes_objects.rst
 
 .. toctree::
     :hidden:
 
-    hashtables.rst
     prerequisites.rst
+    php_ecosystem.rst
     php_first_look.rst
 
-..  
+..
     managing_memory.rst
     zvals.rst
     creating_ext.rst
