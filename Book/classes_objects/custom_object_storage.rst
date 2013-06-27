@@ -41,14 +41,17 @@ This usually isn't done with the ``zend_update_property`` functions from the pre
 So what actually happens when an object is created? To find out lets look at the ``_object_and_properties_init``
 function::
 
-    ZEND_API int _object_and_properties_init(zval *arg, zend_class_entry *class_type, HashTable *properties ZEND_FILE_LINE_DC TSRMLS_DC) /* {{{ */
-    {
+    ZEND_API int _object_and_properties_init(
+        zval *arg, zend_class_entry *class_type, HashTable *properties ZEND_FILE_LINE_DC TSRMLS_DC
+    ) {
         zend_object *object;
 
-        if (class_type->ce_flags & (ZEND_ACC_INTERFACE|ZEND_ACC_IMPLICIT_ABSTRACT_CLASS|ZEND_ACC_EXPLICIT_ABSTRACT_CLASS)) {
-            char *what =   (class_type->ce_flags & ZEND_ACC_INTERFACE)                ? "interface"
-                         :((class_type->ce_flags & ZEND_ACC_TRAIT) == ZEND_ACC_TRAIT) ? "trait"
-                         :                                                              "abstract class";
+        if (class_type->ce_flags
+            & (ZEND_ACC_INTERFACE|ZEND_ACC_IMPLICIT_ABSTRACT_CLASS|ZEND_ACC_EXPLICIT_ABSTRACT_CLASS)
+        ) {
+            char *what = (class_type->ce_flags & ZEND_ACC_INTERFACE)                 ? "interface"
+                       : ((class_type->ce_flags & ZEND_ACC_TRAIT) == ZEND_ACC_TRAIT) ? "trait"
+                       : "abstract class";
             zend_error(E_ERROR, "Cannot instantiate %s %s", what, class_type->name);
         }
 
@@ -68,7 +71,6 @@ function::
         }
         return SUCCESS;
     }
-    /* }}} */
 
 The function basically does three things: First it verifies that the class can actually be instantiated, then it
 resolves the class constants (this is done only on the first instantiation and the details of it aren't important here).
@@ -78,8 +80,9 @@ properties are initialized).
 
 Here is what ``zend_objects_new`` then does::
 
-    ZEND_API zend_object_value zend_objects_new(zend_object **object, zend_class_entry *class_type TSRMLS_DC)
-    {
+    ZEND_API zend_object_value zend_objects_new(
+        zend_object **object, zend_class_entry *class_type TSRMLS_DC
+    ) {
         zend_object_value retval;
 
         *object = emalloc(sizeof(zend_object));
@@ -157,81 +160,83 @@ like (with inline explanations)::
 
     zend_class_entry *test_ce;
 
-    /* We need a (true global) variable to store the object handlers that will be used for our objects. The object
-     * handlers are initialized in MINIT. */
+    /* We need a (true global) variable to store the object handlers that will be used for our
+     * objects. The object handlers are initialized in MINIT. */
     static zend_object_handlers test_object_handlers;
 
-    /* Our custom object structure. It has to contain a `zend_object` value (not a pointer!) as first member, followed
-     * by whatever additional properties one may want. */
+    /* Our custom object structure. It has to contain a `zend_object` value (not a pointer!) as first
+     * member, followed by whatever additional properties one may want. */
     typedef struct _test_object {
-    	zend_object std;
-    	long additional_property;
+        zend_object std;
+        long additional_property;
     } test_object;
 
-    /* This is the handler that will be called when the object is freed. This handler has to destruct the std object
-     * (this will free the properties hashtable etc) and also free the object structure itself. (And if there are any
-     * other resources that were allocated, those obviously have to be freed here, too.) */
+    /* This is the handler that will be called when the object is freed. This handler has to destruct
+     * the std object (this will free the properties hashtable etc) and also free the object structure
+     * itself. (And if there are any other resources that were allocated, those obviously have to be
+     * freed here, too.) */
     static void test_free_object_storage_handler(test_object *intern TSRMLS_DC)
     {
-    	zend_object_std_dtor(&intern->std TSRMLS_CC);
-    	efree(intern);
+        zend_object_std_dtor(&intern->std TSRMLS_CC);
+        efree(intern);
     }
 
-    /* This is the handler used for creating objects. It takes the class entry (it will also be used for classes that
-     * extend this one, that's why the class entry has to be passed in) and returns an object value (which is a handle
-     * to the object store and a pointer to the object handlers structure). */
+    /* This is the handler used for creating objects. It takes the class entry (it will also be used
+     * for classes that extend this one, that's why the class entry has to be passed in) and returns
+     * an object value (which is a handle to the object store and a pointer to the object handlers
+     * structure). */
     zend_object_value test_create_object_handler(zend_class_entry *class_type TSRMLS_DC)
     {
-    	zend_object_value retval;
+        zend_object_value retval;
 
-        /* Allocate and zero-out the internal object structure. By convention the variable holding the internal
-         * structure is usually called `intern`. */
-    	test_object *intern = emalloc(sizeof(test_object));
-    	memset(intern, 0, sizeof(test_object));
+        /* Allocate and zero-out the internal object structure. By convention the variable holding
+         * the internal structure is usually called `intern`. */
+        test_object *intern = emalloc(sizeof(test_object));
+        memset(intern, 0, sizeof(test_object));
 
         /* The underlying std zend_object has to be initialized.  */
-    	zend_object_std_init(&intern->std, class_type TSRMLS_CC);
+        zend_object_std_init(&intern->std, class_type TSRMLS_CC);
 
-    	/* Even if you don't use properties yourself you should still call object_properties_init(), because extending
-    	 * classes may use properties. (Generally a lot of the stuff you will do is for the sake of not breaking
-    	 * extending classes). */
-    	object_properties_init(&intern->std, class_type);
+        /* Even if you don't use properties yourself you should still call object_properties_init(),
+         * because extending classes may use properties. (Generally a lot of the stuff you will do is
+         * for the sake of not breaking extending classes). */
+        object_properties_init(&intern->std, class_type);
 
-        /* Put the `intern`al object into the object store, with the default dtor handler and our custom free handler.
-         * The last NULL parameter is the clone handler, which is left empty for now. */
-    	retval.handle = zend_objects_store_put(
-    		intern,
-    		(zend_objects_store_dtor_t) zend_objects_destroy_object,
-    		(zend_objects_free_object_storage_t) test_free_object_storage_handler,
-    		NULL TSRMLS_CC
-    	);
+        /* Put the internal object into the object store, with the default dtor handler and our custom
+         * free handler. The last NULL parameter is the clone handler, which is left empty for now. */
+        retval.handle = zend_objects_store_put(
+            intern,
+            (zend_objects_store_dtor_t) zend_objects_destroy_object,
+            (zend_objects_free_object_storage_t) test_free_object_storage_handler,
+            NULL TSRMLS_CC
+        );
 
-    	/* Assign the customized object handlers */
-    	retval.handlers = &test_object_handlers;
+        /* Assign the customized object handlers */
+        retval.handlers = &test_object_handlers;
 
-    	return retval;
+        return retval;
     }
 
     /* No methods for now */
     const zend_function_entry test_functions[] = {
-    	PHP_FE_END
+        PHP_FE_END
     };
 
     PHP_MINIT_FUNCTION(test2)
     {
         /* The usual class registration... */
-    	zend_class_entry tmp_ce;
-    	INIT_CLASS_ENTRY(tmp_ce, "Test", test_functions);
-    	test_ce = zend_register_internal_class(&tmp_ce TSRMLS_CC);
+        zend_class_entry tmp_ce;
+        INIT_CLASS_ENTRY(tmp_ce, "Test", test_functions);
+        test_ce = zend_register_internal_class(&tmp_ce TSRMLS_CC);
 
         /* Assign the object creation handler in the class entry */
-    	test_ce->create_object = test_create_object_handler;
+        test_ce->create_object = test_create_object_handler;
 
-        /* Initialize the custom object handlers to the default object handlers. Afterwards you normally override
-         * individual handlers, but for now lets leave them at the defaults. */
-    	memcpy(&test_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+        /* Initialize the custom object handlers to the default object handlers. Afterwards you
+         * normally override individual handlers, but for now lets leave them at the defaults. */
+        memcpy(&test_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 
-    	return SUCCESS;
+        return SUCCESS;
     }
 
 The above code isn't particularly useful yet, but it demonstrates the basic structure of pretty much all internal PHP
@@ -265,8 +270,9 @@ still specify this handler, otherwise inheriting classes won't be able to use it
 Now only the clone handler is left. Here the semantics should be straightforward, but the use is a bit more tricky.
 This is how such a clone handler might look like::
 
-    static void test_clone_object_storage_handler(test_object *object, test_object **object_clone TSRMLS_DC)
-    {
+    static void test_clone_object_storage_handler(
+        test_object *object, test_object **object_clone TSRMLS_DC
+    ) {
         /* Create a new object */
         test_object *object_clone = emalloc(sizeof(test_object));
         zend_object_std_init(&object_clone->std, object->std.ce TSRMLS_CC);
@@ -332,13 +338,15 @@ A custom object cloning handler looks similar, with the main difference being th
         /* Get the internal structure of the old object */
         test_object *old_object = zend_object_store_get_object(object TSRMLS_CC);
 
-        /* Create a new object with the same class entry. This will only give us back the zend_object_value, but
-         * not the actual internal structure of the new object. */
+        /* Create a new object with the same class entry. This will only give us back the
+         * zend_object_value, but not the actual internal structure of the new object. */
         zend_object_value new_object_val = test_create_object_handler(Z_OBJCE_P(object) TSRMLS_CC);
 
-        /* To get the internal structure we need to fetch it from the object store using the handle we got from
-         * the create_object handler. */
-        test_object *new_object = zend_object_store_get_object_by_handle(new_object_val.handle TSRMLS_CC);
+        /* To get the internal structure we need to fetch it from the object store using the
+         * handle we got from the create_object handler. */
+        test_object *new_object = zend_object_store_get_object_by_handle(
+            new_object_val.handle TSRMLS_CC
+        );
 
         /* Clone properties and call __clone */
         zend_objects_clone_members(
