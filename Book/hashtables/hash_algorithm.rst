@@ -49,7 +49,9 @@ for every index create an array that contains some information about all buckets
                 if (bucket->nKeyLength == 0) {
                     add_assoc_long(element, "key", bucket->h);
                 } else {
-                    add_assoc_stringl(element, "key", (char *) bucket->arKey, bucket->nKeyLength - 1, 1);
+                    add_assoc_stringl(
+                        element, "key", (char *) bucket->arKey, bucket->nKeyLength - 1, 1
+                    );
                 }
 
                 {

@@ -18,8 +18,9 @@ This is why there is an additional *symtable* (symbol table) API, which is a thi
 functions which converts integral string keys to actual integer keys. For example, this is how the
 ``zend_symtable_find()`` function is defined::
 
-    static inline int zend_symtable_find(HashTable *ht, const char *arKey, uint nKeyLength, void **pData)
-    {
+    static inline int zend_symtable_find(
+        HashTable *ht, const char *arKey, uint nKeyLength, void **pData
+    ) {
         ZEND_HANDLE_NUMERIC(arKey, nKeyLength, zend_hash_index_find(ht, idx, pData));
         return zend_hash_find(ht, arKey, nKeyLength, pData);
     }

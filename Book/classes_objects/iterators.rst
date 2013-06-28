@@ -80,8 +80,9 @@ Now we can implement the ``get_iterator`` handler. This handler receives the cla
 iteration is done by reference and returns a ``zend_object_iterator*``. All we have to do is allocate the iterator and
 set the respective members::
 
-    zend_object_iterator *buffer_view_get_iterator(zend_class_entry *ce, zval *object, int by_ref TSRMLS_DC)
-    {
+    zend_object_iterator *buffer_view_get_iterator(
+        zend_class_entry *ce, zval *object, int by_ref TSRMLS_DC
+    ) {
         buffer_view_iterator *iter;
 
         if (by_ref) {
@@ -140,8 +141,9 @@ Now lets actually implement the ``buffer_view_iterator_funcs`` that we specified
         return iter->offset < iter->view->length ? SUCCESS : FAILURE;
     }
 
-    static void buffer_view_iterator_get_current_data(zend_object_iterator *intern, zval ***data TSRMLS_DC)
-    {
+    static void buffer_view_iterator_get_current_data(
+        zend_object_iterator *intern, zval ***data TSRMLS_DC
+    ) {
         buffer_view_iterator *iter = (buffer_view_iterator *) intern;
 
         if (iter->current) {
@@ -157,14 +159,16 @@ Now lets actually implement the ``buffer_view_iterator_funcs`` that we specified
     }
 
     #if ZEND_MODULE_API_NO >= 20121212
-    static void buffer_view_iterator_get_current_key(zend_object_iterator *intern, zval *key TSRMLS_DC)
-    {
+    static void buffer_view_iterator_get_current_key(
+        zend_object_iterator *intern, zval *key TSRMLS_DC
+    ) {
         buffer_view_iterator *iter = (buffer_view_iterator *) intern;
         ZVAL_LONG(key, iter->offset);
     }
     #else
-    static int buffer_view_iterator_get_current_key(zend_object_iterator *intern, char **str_key, uint *str_key_len, ulong *int_key TSRMLS_DC)
-    {
+    static int buffer_view_iterator_get_current_key(
+        zend_object_iterator *intern, char **str_key, uint *str_key_len, ulong *int_key TSRMLS_DC
+    ) {
         buffer_view_iterator *iter = (buffer_view_iterator *) intern;
 
         *int_key = (ulong) iter->offset;

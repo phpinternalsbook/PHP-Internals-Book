@@ -11,6 +11,7 @@ The interface itself will look as follows:
 
 .. code-block:: php
 
+    <?php
     interface Comparable {
         static function compare($left, $right);
     }
@@ -25,7 +26,9 @@ First, lets register this new interface in ``MINIT``::
     ZEND_END_ARG_INFO()
 
     const zend_function_entry comparable_functions[] = {
-        ZEND_FENTRY(compare, NULL, arginfo_comparable, ZEND_ACC_PUBLIC|ZEND_ACC_ABSTRACT|ZEND_ACC_STATIC)
+        ZEND_FENTRY(
+            compare, NULL, arginfo_comparable, ZEND_ACC_PUBLIC|ZEND_ACC_ABSTRACT|ZEND_ACC_STATIC
+        )
         PHP_FE_END
     };
 
