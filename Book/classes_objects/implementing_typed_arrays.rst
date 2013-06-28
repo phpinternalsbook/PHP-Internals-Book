@@ -182,7 +182,7 @@ And finally getting everything together in ``MINIT``::
     ZEND_END_ARG_INFO()
 
     const zend_function_entry array_buffer_functions[] = {
-        PHP_ME(ArrayBuffer, __construct, arginfo_buffer_ctor, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+        PHP_ME(ArrayBuffer, __construct, arginfo_buffer_ctor, ZEND_ACC_PUBLIC)
         PHP_FE_END
     };
 
@@ -273,7 +273,7 @@ The ``array_buffer_view_functions`` are declared as follows::
     ZEND_END_ARG_INFO()
 
     const zend_function_entry array_buffer_view_functions[] = {
-        PHP_ME_MAPPING(__construct, array_buffer_view_ctor, arginfo_buffer_view_ctor, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+        PHP_ME_MAPPING(__construct, array_buffer_view_ctor, arginfo_buffer_view_ctor, ZEND_ACC_PUBLIC)
 
         /* ArrayAccess */
         PHP_ME_MAPPING(offsetGet, array_buffer_view_offset_get, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC)

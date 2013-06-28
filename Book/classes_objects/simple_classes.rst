@@ -106,36 +106,30 @@ As you can see a method declaration looks very similar to a function declaration
 instead of ``PHP_FE``. It again takes the class name, the method name, the arginfo struct and additionally a set of
 flags.
 
-.. note::
-
-    ``PHP_ME`` stands for "PHP Method Entry" and ``PHP_FE`` for "PHP Function Entry". They allow you to create functions
-    or methods with no name collisions because they take care of creating the full C function name.
-    When you have to provide the class name regarding methods, the parameter is just used to create the final C function
-    name.
-
 The flags parameter allows you to specify the usual PHP method modifiers using a combination of ``ZEND_ACC_PUBLIC``,
 ``ZEND_ACC_PROTECTED``, ``ZEND_ACC_PRIVATE``, ``ZEND_ACC_STATIC``, ``ZEND_ACC_FINAL`` and ``ZEND_ACC_ABSTRACT``. For
 example a protected final static method would be declared as follows::
 
-    PHP_ME(Test, protectedFinalStaticMethod, arginfo_xyz, ZEND_ACC_PROTECTED | ZEND_ACC_FINAL | ZEND_ACC_STATIC)
+    PHP_ME(
+        Test, protectedFinalStaticMethod, arginfo_xyz,
+        ZEND_ACC_PROTECTED | ZEND_ACC_FINAL | ZEND_ACC_STATIC
+    )
 
-Due to its special semantics the ``ZEND_ACC_ABSTRACT`` flag isn't used directly, rather via a special macro::
+As abstract methods do not have an associated implementation the ``ZEND_ACC_ABSTRACT`` flag is not used directly.
+Instead a special macro is provided::
 
     PHP_ABSTRACT_ME(Test, abstractMethod, arginfo_abc)
 
-There are three additional flags for marking special methods, namely ``ZEND_ACC_CTOR``, ``ZEND_ACC_DTOR`` and
-``ZEND_ACC_CLONE``::
+Analogous to what happens for ``PHP_FUNCTION`` the ``PHP_METHOD`` macro expands into a function declaration with a
+special name, which you may encounter when looking at backtraces within method calls::
 
-    PHP_ME(Test, __construct, arginfo_ctor,  ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-    PHP_ME(Test, __destruct,  arginfo_dtor,  ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
-    PHP_ME(Test, __clone,     arginfo_clone, ZEND_ACC_PUBLIC | ZEND_ACC_CLONE)
-
-The only real function of those flags is to make Reflection's ``isConstructor()`` and ``isDestructor()`` methods return
-true. The ``ZEND_ACC_CLONE`` flags is completely unused (so I wouldn't bother adding it.)
+    PHP_METHOD(ClassName, methodName) { }
+    /* expands to */
+    void zim_ClassName_methodName(INTERNAL_FUNCTION_PARAMETERS) { }
 
 But now, lets get back to writing methods. Here is another one::
 
-    PHP_METHOD(Test, getOwnObjectHandle) /* {{{ */
+    PHP_METHOD(Test, getOwnObjectHandle)
     {
         zval *obj;
 
@@ -147,7 +141,6 @@ But now, lets get back to writing methods. Here is another one::
 
         RETURN_LONG(Z_OBJ_HANDLE_P(obj));
     }
-    /* }}} */
 
     //...
         PHP_ME(Test, getOwnObjectHandle, arginfo_void, ZEND_ACC_PUBLIC)
@@ -174,7 +167,7 @@ Properties and constants
 
 To do something more useful, lets create two methods for reading from and writing to a property::
 
-    PHP_METHOD(Test, getFoo) /* {{{ */
+    PHP_METHOD(Test, getFoo)
     {
         zval *obj, *foo_value;
 
@@ -188,9 +181,8 @@ To do something more useful, lets create two methods for reading from and writin
 
         RETURN_ZVAL(foo_value, 1, 0);
     }
-    /* }}} */
 
-    PHP_METHOD(Test, setFoo) /* {{{ */
+    PHP_METHOD(Test, setFoo)
     {
         zval *obj, *new_foo_value;
 
@@ -202,7 +194,6 @@ To do something more useful, lets create two methods for reading from and writin
 
         zend_update_property(test_ce, obj, "foo", sizeof("foo") - 1, new_foo_value TSRMLS_CC);
     }
-    /* }}} */
 
     // ...
 
@@ -268,7 +259,9 @@ the following line after the class registration in ``MINIT``::
 
 To create a protected property defaulting to the string ``"bar"`` you instead write::
 
-    zend_declare_property_string(test_ce, "foo", sizeof("foo") - 1, "bar", ZEND_ACC_PROTECTED TSRMLS_CC);
+    zend_declare_property_string(
+        test_ce, "foo", sizeof("foo") - 1, "bar", ZEND_ACC_PROTECTED TSRMLS_CC
+    );
 
 If you want to use properties (and you will soon find that this is only rarely necessary for internal classes) it is
 always good practice to properly declare properties. This way you have an explicit visibility level, a default value
@@ -277,7 +270,9 @@ and you also benefit from memory optimizations for declared properties.
 Static properties are also declared using the same family of functions by additionally specifying the
 ``ZEND_ACC_STATIC`` flag. A public static ``$pi`` property::
 
-    zend_declare_property_double(test_ce, "pi", sizeof("pi") - 1, 3.141, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC TSRMLS_CC);
+    zend_declare_property_double(
+        test_ce, "pi", sizeof("pi") - 1, 3.141, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC TSRMLS_CC
+    );
     /* All digits of pi I remember :( */
 
 To read and update static properties there are the ``zend_read_static_property()`` function and the
@@ -303,13 +298,15 @@ A very simple (and quite common) example of inheritance in the PHP tree is creat
     {
         zend_class_entry tmp_ce;
         INIT_CLASS_ENTRY(tmp_ce, "CustomException", NULL);
-        custom_exception_ce = zend_register_internal_class_ex(&tmp_ce, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC);
+        custom_exception_ce = zend_register_internal_class_ex(
+            &tmp_ce, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC
+        );
 
         return SUCCESS;
     }
 
-The new thing here is the use of ``zend_register_internal_class_ex`` (with the ``_ex``), which does the same thing as
-``zend_register_internal_class``, but additionally allows you to specify the parent class entry. Here the parent CE is
+The new thing here is the use of ``zend_register_internal_class_ex()`` (with the ``_ex``), which does the same thing as
+``zend_register_internal_class()``, but additionally allows you to specify the parent class entry. Here the parent CE is
 fetched using ``zend_exception_get_default(TSRMLS_C)``. Another detail worth pointing out is that we did not define a
 function structure and instead just passed ``NULL`` as the last argument to ``INIT_CLASS_ENTRY``. This means that we
 don't want any additional methods, apart from those that are inherited from ``Exception``.
@@ -328,9 +325,13 @@ If you want to extend a more specific SPL extension class like ``RuntimeExceptio
         INIT_CLASS_ENTRY(tmp_ce, "CustomException", NULL);
 
     #ifdef HAVE_SPL
-        custom_exception_ce = zend_register_internal_class_ex(&tmp_ce, spl_ce_RuntimeException, NULL TSRMLS_CC);
+        custom_exception_ce = zend_register_internal_class_ex(
+            &tmp_ce, spl_ce_RuntimeException, NULL TSRMLS_CC
+        );
     #else
-        custom_exception_ce = zend_register_internal_class_ex(&tmp_ce, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC);
+        custom_exception_ce = zend_register_internal_class_ex(
+            &tmp_ce, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC
+        );
     #endif
 
         return SUCCESS;
@@ -344,9 +345,13 @@ The last parameter of ``zend_register_internal_class_ex()`` which was set to ``N
 alternative way to specify the parent class: If you don't have the class entry available you can specify the class
 name::
 
-    custom_exception_ce = zend_register_internal_class_ex(&tmp_ce, spl_ce_RuntimeException, NULL TSRMLS_CC);
-    // can also be written as
-    custom_exception_ce = zend_register_internal_class_ex(&tmp_ce, NULL, "RuntimeException" TSRMLS_CC);
+    custom_exception_ce = zend_register_internal_class_ex(
+        &tmp_ce, spl_ce_RuntimeException, NULL TSRMLS_CC
+    );
+    /* can also be written as */
+    custom_exception_ce = zend_register_internal_class_ex(
+        &tmp_ce, NULL, "RuntimeException" TSRMLS_CC
+    );
 
 In practice you should prefer the first variant though. The second form is only useful if you have some misbehaved
 extension that forgot to export the class entry.
@@ -373,8 +378,10 @@ Just like you can inherit from other classes you can also implement interfaces. 
         INIT_CLASS_ENTRY(tmp_ce, "DataClass", data_class_functions);
         data_class_ce = zend_register_internal_class(&tmp_ce TSRMLS_CC);
 
-        // DataClass implements Countable, ArrayAccess, IteratorAggregate
-        zend_class_implements(data_class_ce TSRMLS_CC, 3, spl_ce_Countable, zend_ce_arrayaccess, zend_ce_aggregate);
+        /* DataClass implements Countable, ArrayAccess, IteratorAggregate */
+        zend_class_implements(
+            data_class_ce TSRMLS_CC, 3, spl_ce_Countable, zend_ce_arrayaccess, zend_ce_aggregate
+        );
 
         return SUCCESS;
     }
@@ -407,7 +414,8 @@ you would do it::
         INIT_CLASS_ENTRY(tmp_ce, "ReversibleIterator", reversible_iterator_functions);
         reversible_iterator_ce = zend_register_internal_interface(&tmp_ce TSRMLS_CC);
 
-        // ReversibleIterator extends Iterator (for interface inheritance zend_class_implements() is used)
+        /* ReversibleIterator extends Iterator. For interface inheritance the zend_class_implements()
+         * function is used. */
         zend_class_implements(reversible_iterator_ce TSRMLS_CC, 1, zend_ce_iterator);
 
         return SUCCESS;
