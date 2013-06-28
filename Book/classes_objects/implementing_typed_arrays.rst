@@ -115,6 +115,7 @@ the buffer length, which is a ctor parameter)::
             zend_restore_error_handling(&error_handling TSRMLS_CC);
             return;
         }
+        zend_restore_error_handling(&error_handling TSRMLS_CC);
 
         if (length <= 0) {
             zend_throw_exception(NULL, "Buffer length must be positive", 0 TSRMLS_CC);
@@ -276,10 +277,18 @@ The ``array_buffer_view_functions`` are declared as follows::
         PHP_ME_MAPPING(__construct, array_buffer_view_ctor, arginfo_buffer_view_ctor, ZEND_ACC_PUBLIC)
 
         /* ArrayAccess */
-        PHP_ME_MAPPING(offsetGet, array_buffer_view_offset_get, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC)
-        PHP_ME_MAPPING(offsetSet, array_buffer_view_offset_set, arginfo_buffer_view_offset_set, ZEND_ACC_PUBLIC)
-        PHP_ME_MAPPING(offsetExists, array_buffer_view_offset_exists, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC)
-        PHP_ME_MAPPING(offsetUnset, array_buffer_view_offset_unset, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC)
+        PHP_ME_MAPPING(
+            offsetGet, array_buffer_view_offset_get, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC
+        )
+        PHP_ME_MAPPING(
+            offsetSet, array_buffer_view_offset_set, arginfo_buffer_view_offset_set, ZEND_ACC_PUBLIC
+        )
+        PHP_ME_MAPPING(
+            offsetExists, array_buffer_view_offset_exists, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC
+        )
+        PHP_ME_MAPPING(
+            offsetUnset, array_buffer_view_offset_unset, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC
+        )
 
         PHP_FE_END
     };
@@ -288,11 +297,13 @@ One new thing here is that instead of ``PHP_ME`` the macro ``PHP_ME_MAPPING`` is
 ``PHP_ME`` maps to a ``PHP_METHOD`` whereas ``PHP_ME_MAPPING`` maps to a ``PHP_FUNCTION``. An example::
 
     PHP_ME(ArrayBufferView, offsetGet, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC)
-    // maps to
+    /* maps to */
     PHP_METHOD(ArrayBufferView, offsetGet) { ... }
 
-    PHP_ME_MAPPING(offsetGet, array_buffer_view_offset_get, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC)
-    // maps to
+    PHP_ME_MAPPING(
+        offsetGet, array_buffer_view_offset_get, arginfo_buffer_view_offset, ZEND_ACC_PUBLIC
+    )
+    /* maps to */
     PHP_FUNCTION(array_buffer_view_offset_get) { ... }
 
 What you have to realize here is that ``PHP_FUNCTION`` and ``PHP_METHOD`` really have nothing to do with PHP functions
@@ -430,10 +441,14 @@ work happens in the constructor::
         zend_error_handling error_handling;
 
         zend_replace_error_handling(EH_THROW, NULL, &error_handling TSRMLS_CC);
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O|ll", &buffer_zval, array_buffer_ce, &offset, &length) == FAILURE) {
+        if (zend_parse_parameters(
+                ZEND_NUM_ARGS() TSRMLS_CC, "O|ll", &buffer_zval, array_buffer_ce, &offset, &length
+            ) == FAILURE
+        ) {
             zend_restore_error_handling(&error_handling TSRMLS_CC);
             return;
         }
+        zend_restore_error_handling(&error_handling TSRMLS_CC);
 
         view_intern = zend_object_store_get_object(getThis() TSRMLS_CC);
         buffer_intern = zend_object_store_get_object(buffer_zval TSRMLS_CC);
