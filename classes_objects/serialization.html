@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
@@ -288,7 +289,7 @@ handling. PHP has a long history of serialization related crashes (and security 
 ensure all the data is valid. You should also not forget that methods like <tt class="docutils literal"><span class="pre">unserialize</span></tt> even though they have a
 special meaning can still called as normal methods. In order to prevent such calls the above call aborts if
 <tt class="docutils literal"><span class="pre">intern-&gt;buffer</span></tt> is already set.</p>
-<p>Now lets look at the second serialization mechanism, which will be used for the buffer views. In order to implement the
+<p>Now let&#8217;s look at the second serialization mechanism, which will be used for the buffer views. In order to implement the
 <tt class="docutils literal"><span class="pre">O</span></tt> serialization we&#8217;ll need a custom <tt class="docutils literal"><span class="pre">get_properties</span></tt> handler (which returns the &#8220;properties&#8221; to serialize)
 and a <tt class="docutils literal"><span class="pre">__wakeup</span></tt> method (which restores the state from the serialized properties).</p>
 <p>The <tt class="docutils literal"><span class="pre">get_properties</span></tt> handler allows you to fetch the properties of an object as a hashtable. The engine does this in

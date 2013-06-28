@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
@@ -66,8 +67,9 @@ key <tt class="docutils literal"><span class="pre">42</span></tt> and <tt class=
 <p>This is why there is an additional <em>symtable</em> (symbol table) API, which is a thin wrapper around around some hashtable
 functions which converts integral string keys to actual integer keys. For example, this is how the
 <tt class="docutils literal"><span class="pre">zend_symtable_find()</span></tt> function is defined:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_find</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span><span class="n">pData</span><span class="p">)</span>
-<span class="p">{</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_find</span><span class="p">(</span>
+    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span><span class="n">pData</span>
+<span class="p">)</span> <span class="p">{</span>
     <span class="n">ZEND_HANDLE_NUMERIC</span><span class="p">(</span><span class="n">arKey</span><span class="p">,</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">pData</span><span class="p">));</span>
     <span class="k">return</span> <span class="n">zend_hash_find</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">arKey</span><span class="p">,</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="n">pData</span><span class="p">);</span>
 <span class="p">}</span>
@@ -99,7 +101,7 @@ as their hashtable counterparts, but including string to integer normalization:<
 </div>
 <p>As you can see these macros are just <tt class="docutils literal"><span class="pre">zend_hash_init()</span></tt> calls using <tt class="docutils literal"><span class="pre">ZVAL_PTR_DTOR</span></tt> as the destructor. As such
 these macros are not directly related to the string to integer casting behavior described above.</p>
-<p>Lets give this new set of functions a try:</p>
+<p>Let&#8217;s give this new set of functions a try:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
 <span class="n">zval</span> <span class="o">*</span><span class="n">zv1</span><span class="p">,</span> <span class="o">*</span><span class="n">zv2</span><span class="p">;</span>
 <span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span>
@@ -200,7 +202,7 @@ them are listed in the following table:</p>
 </tr>
 </tbody>
 </table>
-<p>As an example for the usage of these functions, lets just create a dummy array with elements of various types:</p>
+<p>As an example for the usage of these functions, let&#8217;s just create a dummy array with elements of various types:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">make_array</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">;</span>
 

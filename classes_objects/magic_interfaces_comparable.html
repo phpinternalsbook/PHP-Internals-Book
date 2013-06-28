@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
@@ -59,12 +60,13 @@ This feature can be used for various purposes like enforcing additional constrai
 use of it to implement a &#8220;magic&#8221; <tt class="docutils literal"><span class="pre">Comparable</span></tt> interface, which exposes the internal <tt class="docutils literal"><span class="pre">compare_objects</span></tt> handler to
 userland.</p>
 <p>The interface itself will look as follows:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="x">interface Comparable {</span>
-<span class="x">    static function compare($left, $right);</span>
-<span class="x">}</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
+<span class="k">interface</span> <span class="nx">Comparable</span> <span class="p">{</span>
+    <span class="k">static</span> <span class="k">function</span> <span class="nf">compare</span><span class="p">(</span><span class="nv">$left</span><span class="p">,</span> <span class="nv">$right</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
-<p>First, lets register this new interface in <tt class="docutils literal"><span class="pre">MINIT</span></tt>:</p>
+<p>First, let&#8217;s register this new interface in <tt class="docutils literal"><span class="pre">MINIT</span></tt>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">comparable_ce</span><span class="p">;</span>
 
 <span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_comparable</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
@@ -73,7 +75,9 @@ userland.</p>
 <span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
 
 <span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">comparable_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">ZEND_FENTRY</span><span class="p">(</span><span class="n">compare</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">arginfo_comparable</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="o">|</span><span class="n">ZEND_ACC_ABSTRACT</span><span class="o">|</span><span class="n">ZEND_ACC_STATIC</span><span class="p">)</span>
+    <span class="n">ZEND_FENTRY</span><span class="p">(</span>
+        <span class="n">compare</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">arginfo_comparable</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="o">|</span><span class="n">ZEND_ACC_ABSTRACT</span><span class="o">|</span><span class="n">ZEND_ACC_STATIC</span>
+    <span class="p">)</span>
     <span class="n">PHP_FE_END</span>
 <span class="p">};</span>
 

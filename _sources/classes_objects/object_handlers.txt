@@ -122,19 +122,15 @@ order to avoid all the repeating cast code)::
 
     static long get_long_from_zval(zval *zv)
     {
-        if (Z_TYPE_P(zv)) {
+        if (Z_TYPE_P(zv) == IS_LONG) {
             return Z_LVAL_P(zv);
         } else {
-            long lval;
-            Z_ADDREF_P(zv);
-            convert_to_long_ex(&zv);
-            lval = Z_LVAL_P(zv);
-            zval_ptr_dtor(&zv);
-            return lval;
+            zval tmp = *zv;
+            zval_copy_ctor(&tmp);
+            convert_to_long(&tmp);
+            return Z_LVAL(tmp);
         }
     }
-
-.. todo:: Better to copy + convert_to_long here
 
 Now writing the respective handlers is rather straightforward. For example, this is how the ``read_dimension`` handler
 looks like::
@@ -176,7 +172,8 @@ understand when "non-read" types like this can happen consider the following exa
 
     <?php
 
-    $foo[0][1];        // [0] is a read_dimension(..., BP_VAR_R),     [1] is a read_dimension(..., BP_VAR_R)
+    $foo[0][1];        // [0] is a read_dimension(..., BP_VAR_R),
+                       // [1] is a read_dimension(..., BP_VAR_R)
     $foo[0][1] = $bar; // [0] is a read_dimension(..., BP_VAR_W),     [1] is a write_dimension
     $foo[][1] = $bar;  // []  is a read_dimension(..., BP_VAR_W),     [1] is a write_dimension
     isset($foo[0][1]); // [0] is a read_dimension(..., BP_VAR_IS),    [1] is a has_dimension
@@ -200,8 +197,9 @@ such behaviors.
 
 The remaining handlers are similar to ``read_dimension`` (but less tricky)::
 
-    static void array_buffer_view_write_dimension(zval *object, zval *zv_offset, zval *value TSRMLS_DC)
-    {
+    static void array_buffer_view_write_dimension(
+        zval *object, zval *zv_offset, zval *value TSRMLS_DC
+    ) {
         buffer_view_object *intern = zend_object_store_get_object(object TSRMLS_CC);
         long offset;
 
@@ -219,8 +217,9 @@ The remaining handlers are similar to ``read_dimension`` (but less tricky)::
         buffer_view_offset_set(intern, offset, value);
     }
 
-    static int array_buffer_view_has_dimension(zval *object, zval *zv_offset, int check_empty TSRMLS_DC)
-    {
+    static int array_buffer_view_has_dimension(
+        zval *object, zval *zv_offset, int check_empty TSRMLS_DC
+    ) {
         buffer_view_object *intern = zend_object_store_get_object(object TSRMLS_CC);
         long offset = get_long_from_zval(zv_offset);
 
@@ -251,7 +250,7 @@ call. For ``isset`` the mere existence is checked, for ``empty`` the truthyness.
 Lastly the new handlers need to be assigned in ``MINIT``::
 
     memcpy(&array_buffer_view_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    array_buffer_view_handlers.clone_obj       = array_buffer_view_clone; /* from previous section already */
+    array_buffer_view_handlers.clone_obj       = array_buffer_view_clone; /* from previous section */
     array_buffer_view_handlers.read_dimension  = array_buffer_view_read_dimension;
     array_buffer_view_handlers.write_dimension = array_buffer_view_write_dimension;
     array_buffer_view_handlers.has_dimension   = array_buffer_view_has_dimension;

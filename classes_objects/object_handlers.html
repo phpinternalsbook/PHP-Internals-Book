@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
@@ -196,15 +197,13 @@ the offset has to be an integer, so let&#8217;s first introduce a helper functio
 order to avoid all the repeating cast code):</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">long</span> <span class="nf">get_long_from_zval</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">)</span>
 <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_LONG</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="kt">long</span> <span class="n">lval</span><span class="p">;</span>
-        <span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-        <span class="n">convert_to_long_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv</span><span class="p">);</span>
-        <span class="n">lval</span> <span class="o">=</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-        <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv</span><span class="p">);</span>
-        <span class="k">return</span> <span class="n">lval</span><span class="p">;</span>
+        <span class="n">zval</span> <span class="n">tmp</span> <span class="o">=</span> <span class="o">*</span><span class="n">zv</span><span class="p">;</span>
+        <span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span>
+        <span class="n">convert_to_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">Z_LVAL</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -245,7 +244,8 @@ will be <tt class="docutils literal"><span class="pre">BP_VAR_R</span></tt>, but
 understand when &#8220;non-read&#8221; types like this can happen consider the following examples:</p>
 <div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
 
-<span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>        <span class="c1">// [0] is a read_dimension(..., BP_VAR_R),     [1] is a read_dimension(..., BP_VAR_R)</span>
+<span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>        <span class="c1">// [0] is a read_dimension(..., BP_VAR_R),</span>
+                   <span class="c1">// [1] is a read_dimension(..., BP_VAR_R)</span>
 <span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$bar</span><span class="p">;</span> <span class="c1">// [0] is a read_dimension(..., BP_VAR_W),     [1] is a write_dimension</span>
 <span class="nv">$foo</span><span class="p">[][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$bar</span><span class="p">;</span>  <span class="c1">// []  is a read_dimension(..., BP_VAR_W),     [1] is a write_dimension</span>
 <span class="nb">isset</span><span class="p">(</span><span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]);</span> <span class="c1">// [0] is a read_dimension(..., BP_VAR_IS),    [1] is a has_dimension</span>
@@ -267,8 +267,9 @@ expected not to throw any warnings, errors or exceptions. We could honor this by
 <p>But as in our particular case nested dimension access doesn&#8217;t really make sense we don&#8217;t need to worry much about any
 such behaviors.</p>
 <p>The remaining handlers are similar to <tt class="docutils literal"><span class="pre">read_dimension</span></tt> (but less tricky):</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span> <span class="nf">array_buffer_view_write_dimension</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">value</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span> <span class="nf">array_buffer_view_write_dimension</span><span class="p">(</span>
+    <span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">value</span> <span class="n">TSRMLS_DC</span>
+<span class="p">)</span> <span class="p">{</span>
     <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
     <span class="kt">long</span> <span class="n">offset</span><span class="p">;</span>
 
@@ -286,8 +287,9 @@ such behaviors.</p>
     <span class="n">buffer_view_offset_set</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
 <span class="p">}</span>
 
-<span class="k">static</span> <span class="kt">int</span> <span class="nf">array_buffer_view_has_dimension</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="kt">int</span> <span class="n">check_empty</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
+<span class="k">static</span> <span class="kt">int</span> <span class="nf">array_buffer_view_has_dimension</span><span class="p">(</span>
+    <span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="kt">int</span> <span class="n">check_empty</span> <span class="n">TSRMLS_DC</span>
+<span class="p">)</span> <span class="p">{</span>
     <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
     <span class="kt">long</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">get_long_from_zval</span><span class="p">(</span><span class="n">zv_offset</span><span class="p">);</span>
 
@@ -317,7 +319,7 @@ such behaviors.</p>
 call. For <tt class="docutils literal"><span class="pre">isset</span></tt> the mere existence is checked, for <tt class="docutils literal"><span class="pre">empty</span></tt> the truthyness.</p>
 <p>Lastly the new handlers need to be assigned in <tt class="docutils literal"><span class="pre">MINIT</span></tt>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">,</span> <span class="n">zend_get_std_object_handlers</span><span class="p">(),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
-<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">clone_obj</span>       <span class="o">=</span> <span class="n">array_buffer_view_clone</span><span class="p">;</span> <span class="cm">/* from previous section already */</span>
+<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">clone_obj</span>       <span class="o">=</span> <span class="n">array_buffer_view_clone</span><span class="p">;</span> <span class="cm">/* from previous section */</span>
 <span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">read_dimension</span>  <span class="o">=</span> <span class="n">array_buffer_view_read_dimension</span><span class="p">;</span>
 <span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">write_dimension</span> <span class="o">=</span> <span class="n">array_buffer_view_write_dimension</span><span class="p">;</span>
 <span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">has_dimension</span>   <span class="o">=</span> <span class="n">array_buffer_view_has_dimension</span><span class="p">;</span>

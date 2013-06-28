@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
@@ -58,7 +59,7 @@ the hashing function that PHP employs. While this knowledge is not necessary for
 should give you a better understanding of the hashtable structure and its limitations.</p>
 <div class="section" id="analyzing-collisions">
 <h2>Analyzing collisions<a class="headerlink" href="#analyzing-collisions" title="Permalink to this headline">¶</a></h2>
-<p>In order to simplify collision analysis, lets first write a helper function <tt class="docutils literal"><span class="pre">array_collision_info()</span></tt> which will
+<p>In order to simplify collision analysis, let&#8217;s first write a helper function <tt class="docutils literal"><span class="pre">array_collision_info()</span></tt> which will
 take an array and tell us which keys collide into which index. In order to do so we&#8217;ll go through the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> and
 for every index create an array that contains some information about all buckets at that index:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_collision_info</span><span class="p">)</span> <span class="p">{</span>
@@ -98,7 +99,9 @@ for every index create an array that contains some information about all buckets
             <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span><span class="o">-&gt;</span><span class="n">nKeyLength</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
                 <span class="n">add_assoc_long</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s">&quot;key&quot;</span><span class="p">,</span> <span class="n">bucket</span><span class="o">-&gt;</span><span class="n">h</span><span class="p">);</span>
             <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-                <span class="n">add_assoc_stringl</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s">&quot;key&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="n">bucket</span><span class="o">-&gt;</span><span class="n">arKey</span><span class="p">,</span> <span class="n">bucket</span><span class="o">-&gt;</span><span class="n">nKeyLength</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+                <span class="n">add_assoc_stringl</span><span class="p">(</span>
+                    <span class="n">element</span><span class="p">,</span> <span class="s">&quot;key&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="n">bucket</span><span class="o">-&gt;</span><span class="n">arKey</span><span class="p">,</span> <span class="n">bucket</span><span class="o">-&gt;</span><span class="n">nKeyLength</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
+                <span class="p">);</span>
             <span class="p">}</span>
 
             <span class="p">{</span>
@@ -113,7 +116,7 @@ for every index create an array that contains some information about all buckets
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The code is also a nice usage example for the <tt class="docutils literal"><span class="pre">add_</span></tt> functions from the previous section. Lets try the function out:</p>
+<p>The code is also a nice usage example for the <tt class="docutils literal"><span class="pre">add_</span></tt> functions from the previous section. Let&#8217;s try the function out:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">var_dump</span><span class="p">(</span><span class="n">array_collision_info</span><span class="p">([</span><span class="mi">2</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">]));</span>
 
 <span class="c1">// Output (reformatted a bit):</span>
@@ -202,7 +205,7 @@ this is not a problem as the collision list contains only one or two buckets. In
 </div>
 <div class="section" id="hash-collisions">
 <h2>Hash collisions<a class="headerlink" href="#hash-collisions" title="Permalink to this headline">¶</a></h2>
-<p>Now that we successfully created a worst-case scenario using index collisions, lets do the same using actual hash
+<p>Now that we successfully created a worst-case scenario using index collisions, let&#8217;s do the same using actual hash
 collisions. As this is not possible using integer keys, we&#8217;ll have to take a look at PHP&#8217;s string hashing function,
 which is defined as follows:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kr">inline</span> <span class="n">ulong</span> <span class="nf">zend_inline_hash_func</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">)</span>

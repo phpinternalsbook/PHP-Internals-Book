@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
@@ -60,7 +61,7 @@ the following we&#8217;ll take a look at some of its parts in more detail.</p>
 <div class="section" id="property-storage">
 <h3>Property storage<a class="headerlink" href="#property-storage" title="Permalink to this headline">¶</a></h3>
 <p>In PHP object properties can be declared, but don&#8217;t have to. How can one efficiently handle such a situation? To find
-out lets recall the standard <tt class="docutils literal"><span class="pre">zend_object</span></tt> structure:</p>
+out let&#8217;s recall the standard <tt class="docutils literal"><span class="pre">zend_object</span></tt> structure:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_object</span> <span class="p">{</span>
     <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">;</span>
     <span class="n">HashTable</span> <span class="o">*</span><span class="n">properties</span><span class="p">;</span>
@@ -224,7 +225,7 @@ table, which maps property names to <tt class="docutils literal"><span class="pr
 </div>
 <div class="section" id="object-store">
 <h2>Object store<a class="headerlink" href="#object-store" title="Permalink to this headline">¶</a></h2>
-<p>We already made a lot of use of the object store, so lets have a closer look at it now:</p>
+<p>We already made a lot of use of the object store, so let&#8217;s have a closer look at it now:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_objects_store</span> <span class="p">{</span>
     <span class="n">zend_object_store_bucket</span> <span class="o">*</span><span class="n">object_buckets</span><span class="p">;</span>
     <span class="n">zend_uint</span> <span class="n">top</span><span class="p">;</span>

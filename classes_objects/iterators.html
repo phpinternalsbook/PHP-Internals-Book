@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
@@ -113,7 +114,7 @@ a bit later why we need to do this):</p>
 <span class="p">}</span> <span class="n">buffer_view_iterator</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>Lets also declare a dummy <tt class="docutils literal"><span class="pre">zend_object_iterator_funcs</span></tt> structure so we have something to work on:</p>
+<p>Let&#8217;s also declare a dummy <tt class="docutils literal"><span class="pre">zend_object_iterator_funcs</span></tt> structure so we have something to work on:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="n">zend_object_iterator_funcs</span> <span class="n">buffer_view_iterator_funcs</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">buffer_view_iterator_dtor</span><span class="p">,</span>
     <span class="n">buffer_view_iterator_valid</span><span class="p">,</span>
@@ -127,8 +128,9 @@ a bit later why we need to do this):</p>
 <p>Now we can implement the <tt class="docutils literal"><span class="pre">get_iterator</span></tt> handler. This handler receives the class entry, the object and whether the
 iteration is done by reference and returns a <tt class="docutils literal"><span class="pre">zend_object_iterator*</span></tt>. All we have to do is allocate the iterator and
 set the respective members:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">zend_object_iterator</span> <span class="o">*</span><span class="nf">buffer_view_get_iterator</span><span class="p">(</span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="kt">int</span> <span class="n">by_ref</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zend_object_iterator</span> <span class="o">*</span><span class="nf">buffer_view_get_iterator</span><span class="p">(</span>
+    <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="kt">int</span> <span class="n">by_ref</span> <span class="n">TSRMLS_DC</span>
+<span class="p">)</span> <span class="p">{</span>
     <span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="n">iter</span><span class="p">;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">by_ref</span><span class="p">)</span> <span class="p">{</span>
@@ -166,7 +168,7 @@ of the <tt class="docutils literal"><span class="pre">Traversable</span></tt> in
 </div>
 <div class="section" id="iterator-functions">
 <h2>Iterator functions<a class="headerlink" href="#iterator-functions" title="Permalink to this headline">¶</a></h2>
-<p>Now lets actually implement the <tt class="docutils literal"><span class="pre">buffer_view_iterator_funcs</span></tt> that we specified above:</p>
+<p>Now let&#8217;s actually implement the <tt class="docutils literal"><span class="pre">buffer_view_iterator_funcs</span></tt> that we specified above:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span> <span class="nf">buffer_view_iterator_dtor</span><span class="p">(</span><span class="n">zend_object_iterator</span> <span class="o">*</span><span class="n">intern</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="n">iter</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="p">)</span> <span class="n">intern</span><span class="p">;</span>
@@ -186,8 +188,9 @@ of the <tt class="docutils literal"><span class="pre">Traversable</span></tt> in
     <span class="k">return</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">view</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">?</span> <span class="n">SUCCESS</span> <span class="o">:</span> <span class="n">FAILURE</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="k">static</span> <span class="kt">void</span> <span class="nf">buffer_view_iterator_get_current_data</span><span class="p">(</span><span class="n">zend_object_iterator</span> <span class="o">*</span><span class="n">intern</span><span class="p">,</span> <span class="n">zval</span> <span class="o">***</span><span class="n">data</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">buffer_view_iterator_get_current_data</span><span class="p">(</span>
+    <span class="n">zend_object_iterator</span> <span class="o">*</span><span class="n">intern</span><span class="p">,</span> <span class="n">zval</span> <span class="o">***</span><span class="n">data</span> <span class="n">TSRMLS_DC</span>
+<span class="p">)</span> <span class="p">{</span>
     <span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="n">iter</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="p">)</span> <span class="n">intern</span><span class="p">;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">current</span><span class="p">)</span> <span class="p">{</span>
@@ -203,14 +206,16 @@ of the <tt class="docutils literal"><span class="pre">Traversable</span></tt> in
 <span class="p">}</span>
 
 <span class="cp">#if ZEND_MODULE_API_NO &gt;= 20121212</span>
-<span class="k">static</span> <span class="kt">void</span> <span class="nf">buffer_view_iterator_get_current_key</span><span class="p">(</span><span class="n">zend_object_iterator</span> <span class="o">*</span><span class="n">intern</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">key</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">buffer_view_iterator_get_current_key</span><span class="p">(</span>
+    <span class="n">zend_object_iterator</span> <span class="o">*</span><span class="n">intern</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">key</span> <span class="n">TSRMLS_DC</span>
+<span class="p">)</span> <span class="p">{</span>
     <span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="n">iter</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="p">)</span> <span class="n">intern</span><span class="p">;</span>
     <span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
 <span class="p">}</span>
 <span class="cp">#else</span>
-<span class="k">static</span> <span class="kt">int</span> <span class="nf">buffer_view_iterator_get_current_key</span><span class="p">(</span><span class="n">zend_object_iterator</span> <span class="o">*</span><span class="n">intern</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">str_key</span><span class="p">,</span> <span class="n">uint</span> <span class="o">*</span><span class="n">str_key_len</span><span class="p">,</span> <span class="n">ulong</span> <span class="o">*</span><span class="n">int_key</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
+<span class="k">static</span> <span class="kt">int</span> <span class="nf">buffer_view_iterator_get_current_key</span><span class="p">(</span>
+    <span class="n">zend_object_iterator</span> <span class="o">*</span><span class="n">intern</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">str_key</span><span class="p">,</span> <span class="n">uint</span> <span class="o">*</span><span class="n">str_key_len</span><span class="p">,</span> <span class="n">ulong</span> <span class="o">*</span><span class="n">int_key</span> <span class="n">TSRMLS_DC</span>
+<span class="p">)</span> <span class="p">{</span>
     <span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="n">iter</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="p">)</span> <span class="n">intern</span><span class="p">;</span>
 
     <span class="o">*</span><span class="n">int_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">ulong</span><span class="p">)</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">;</span>

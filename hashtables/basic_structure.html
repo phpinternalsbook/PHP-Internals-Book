@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
@@ -106,7 +107,7 @@ at the <tt class="docutils literal"><span class="pre">Bucket</span></tt> struct:
 <span class="p">}</span> <span class="n">Bucket</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>You already know what the <tt class="docutils literal"><span class="pre">pNext</span></tt>, <tt class="docutils literal"><span class="pre">pLast</span></tt>, <tt class="docutils literal"><span class="pre">pListNext</span></tt> and <tt class="docutils literal"><span class="pre">pListLast</span></tt> pointers are for. Lets quickly go
+<p>You already know what the <tt class="docutils literal"><span class="pre">pNext</span></tt>, <tt class="docutils literal"><span class="pre">pLast</span></tt>, <tt class="docutils literal"><span class="pre">pListNext</span></tt> and <tt class="docutils literal"><span class="pre">pListLast</span></tt> pointers are for. Let&#8217;s quickly go
 through the remaining members:</p>
 <p><tt class="docutils literal"><span class="pre">h</span></tt> is the hash of the key. If the key is an integer, then <tt class="docutils literal"><span class="pre">h</span></tt> will be that integer (for integers the hash function
 doesn&#8217;t do anything) and <tt class="docutils literal"><span class="pre">nKeyLength</span></tt> will be 0. For string keys <tt class="docutils literal"><span class="pre">h</span></tt> will be the result of <tt class="docutils literal"><span class="pre">zend_hash_func()</span></tt>,
@@ -115,7 +116,7 @@ doesn&#8217;t do anything) and <tt class="docutils literal"><span class="pre">nK
 function, rather it will be a copy of it (which is allocated separately from the bucket). As this would be very
 inefficient when the stored value is a pointer PHP employs a small trick: Instead of storing the pointer in a separate
 allocation it is put into the <tt class="docutils literal"><span class="pre">pDataPtr</span></tt> member. <tt class="docutils literal"><span class="pre">pData</span></tt> then points to that member (<tt class="docutils literal"><span class="pre">pData</span> <span class="pre">=</span> <span class="pre">&amp;pDataPtr</span></tt>).</p>
-<p>Lets have a look at the main <tt class="docutils literal"><span class="pre">HashTable</span></tt> struct now:</p>
+<p>Let&#8217;s have a look at the main <tt class="docutils literal"><span class="pre">HashTable</span></tt> struct now:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_hashtable</span> <span class="p">{</span>
         <span class="n">uint</span> <span class="n">nTableSize</span><span class="p">;</span>
         <span class="n">uint</span> <span class="n">nTableMask</span><span class="p">;</span>
@@ -147,7 +148,7 @@ be 1048576.</p>
 <p>The result of the hash function is a <tt class="docutils literal"><span class="pre">ulong</span></tt>, but the <tt class="docutils literal"><span class="pre">nTableSize</span></tt> will usually be a lot smaller than that. Thus
 the hash can not be directly used to index into the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> array. Instead <tt class="docutils literal"><span class="pre">nIndex</span> <span class="pre">=</span> <span class="pre">h</span> <span class="pre">%</span> <span class="pre">nTableSize</span></tt> is used.
 As the table size is always a power of two this expression is equivalent to <tt class="docutils literal"><span class="pre">nIndex</span> <span class="pre">=</span> <span class="pre">h</span> <span class="pre">&amp;</span> <span class="pre">(nTableSize</span> <span class="pre">-</span> <span class="pre">1)</span></tt>. To see
-why lets see how <tt class="docutils literal"><span class="pre">nTableSize</span> <span class="pre">-</span> <span class="pre">1</span></tt> changes the value:</p>
+why let&#8217;s see how <tt class="docutils literal"><span class="pre">nTableSize</span> <span class="pre">-</span> <span class="pre">1</span></tt> changes the value:</p>
 <div class="highlight-none"><div class="highlight"><pre>nTableSize     = 128 = 0b00000000.00000000.00000000.10000000
 nTableSize - 1 = 127 = 0b00000000.00000000.00000000.01111111
 </pre></div>

@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
@@ -159,6 +160,7 @@ the buffer length, which is a ctor parameter):</p>
         <span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
         <span class="k">return</span><span class="p">;</span>
     <span class="p">}</span>
+    <span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Buffer length must be positive&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
@@ -223,7 +225,7 @@ allocated buffer:</p>
 <span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
 
 <span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">array_buffer_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">PHP_ME</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">__construct</span><span class="p">,</span> <span class="n">arginfo_buffer_ctor</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="o">|</span><span class="n">ZEND_ACC_CTOR</span><span class="p">)</span>
+    <span class="n">PHP_ME</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">__construct</span><span class="p">,</span> <span class="n">arginfo_buffer_ctor</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
     <span class="n">PHP_FE_END</span>
 <span class="p">};</span>
 
@@ -311,13 +313,21 @@ meaning.]</p>
 <span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
 
 <span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">array_buffer_view_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">__construct</span><span class="p">,</span> <span class="n">array_buffer_view_ctor</span><span class="p">,</span> <span class="n">arginfo_buffer_view_ctor</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="o">|</span><span class="n">ZEND_ACC_CTOR</span><span class="p">)</span>
+    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">__construct</span><span class="p">,</span> <span class="n">array_buffer_view_ctor</span><span class="p">,</span> <span class="n">arginfo_buffer_view_ctor</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
 
     <span class="cm">/* ArrayAccess */</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">offsetGet</span><span class="p">,</span> <span class="n">array_buffer_view_offset_get</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">offsetSet</span><span class="p">,</span> <span class="n">array_buffer_view_offset_set</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset_set</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">offsetExists</span><span class="p">,</span> <span class="n">array_buffer_view_offset_exists</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">offsetUnset</span><span class="p">,</span> <span class="n">array_buffer_view_offset_unset</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
+    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
+        <span class="n">offsetGet</span><span class="p">,</span> <span class="n">array_buffer_view_offset_get</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
+    <span class="p">)</span>
+    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
+        <span class="n">offsetSet</span><span class="p">,</span> <span class="n">array_buffer_view_offset_set</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset_set</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
+    <span class="p">)</span>
+    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
+        <span class="n">offsetExists</span><span class="p">,</span> <span class="n">array_buffer_view_offset_exists</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
+    <span class="p">)</span>
+    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
+        <span class="n">offsetUnset</span><span class="p">,</span> <span class="n">array_buffer_view_offset_unset</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
+    <span class="p">)</span>
 
     <span class="n">PHP_FE_END</span>
 <span class="p">};</span>
@@ -326,11 +336,13 @@ meaning.]</p>
 <p>One new thing here is that instead of <tt class="docutils literal"><span class="pre">PHP_ME</span></tt> the macro <tt class="docutils literal"><span class="pre">PHP_ME_MAPPING</span></tt> is used. The difference is that
 <tt class="docutils literal"><span class="pre">PHP_ME</span></tt> maps to a <tt class="docutils literal"><span class="pre">PHP_METHOD</span></tt> whereas <tt class="docutils literal"><span class="pre">PHP_ME_MAPPING</span></tt> maps to a <tt class="docutils literal"><span class="pre">PHP_FUNCTION</span></tt>. An example:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_ME</span><span class="p">(</span><span class="n">ArrayBufferView</span><span class="p">,</span> <span class="n">offsetGet</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-<span class="c1">// maps to</span>
+<span class="cm">/* maps to */</span>
 <span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBufferView</span><span class="p">,</span> <span class="n">offsetGet</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
 
-<span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">offsetGet</span><span class="p">,</span> <span class="n">array_buffer_view_offset_get</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-<span class="c1">// maps to</span>
+<span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
+    <span class="n">offsetGet</span><span class="p">,</span> <span class="n">array_buffer_view_offset_get</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
+<span class="p">)</span>
+<span class="cm">/* maps to */</span>
 <span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_offset_get</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
 </pre></div>
 </div>
@@ -464,10 +476,14 @@ work happens in the constructor:</p>
     <span class="n">zend_error_handling</span> <span class="n">error_handling</span><span class="p">;</span>
 
     <span class="n">zend_replace_error_handling</span><span class="p">(</span><span class="n">EH_THROW</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="s">&quot;O|ll&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">buffer_zval</span><span class="p">,</span> <span class="n">array_buffer_ce</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">offset</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">length</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span>
+            <span class="n">ZEND_NUM_ARGS</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="s">&quot;O|ll&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">buffer_zval</span><span class="p">,</span> <span class="n">array_buffer_ce</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">offset</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">length</span>
+        <span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span>
+    <span class="p">)</span> <span class="p">{</span>
         <span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
         <span class="k">return</span><span class="p">;</span>
     <span class="p">}</span>
+    <span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
 
     <span class="n">view_intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
     <span class="n">buffer_intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">buffer_zval</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
