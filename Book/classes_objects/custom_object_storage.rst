@@ -9,7 +9,7 @@ object storage.
 How are objects created?
 ------------------------
 
-As a first step lets look at how object are created in PHP. For this the ``object_and_properties_init`` macro or one of
+As a first step let's look at how object are created in PHP. For this the ``object_and_properties_init`` macro or one of
 its simpler cousins is used::
 
     // Create an object of type SomeClass and give it the properties from properties_hashtable
@@ -38,7 +38,7 @@ This usually isn't done with the ``zend_update_property`` functions from the pre
     add_property_bool(obj, "isAdmin", is_admin);
     // also _null(), _double(), _stringl(), _resource() and _zval()
 
-So what actually happens when an object is created? To find out lets look at the ``_object_and_properties_init``
+So what actually happens when an object is created? To find out let's look at the ``_object_and_properties_init``
 function::
 
     ZEND_API int _object_and_properties_init(
@@ -233,7 +233,7 @@ like (with inline explanations)::
         test_ce->create_object = test_create_object_handler;
 
         /* Initialize the custom object handlers to the default object handlers. Afterwards you
-         * normally override individual handlers, but for now lets leave them at the defaults. */
+         * normally override individual handlers, but for now let's leave them at the defaults. */
         memcpy(&test_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 
         return SUCCESS;

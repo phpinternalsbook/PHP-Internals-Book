@@ -81,7 +81,7 @@ As expected what you get is a totally empty class.
 Method definition and declaration
 ---------------------------------
 
-To bring it to life lets add a method::
+To bring it to life let's add a method::
 
     PHP_METHOD(Test, helloWorld) /* {{{ */
     {
@@ -127,7 +127,7 @@ special name, which you may encounter when looking at backtraces within method c
     /* expands to */
     void zim_ClassName_methodName(INTERNAL_FUNCTION_PARAMETERS) { }
 
-But now, lets get back to writing methods. Here is another one::
+But now, let's get back to writing methods. Here is another one::
 
     PHP_METHOD(Test, getOwnObjectHandle)
     {
@@ -165,7 +165,7 @@ associated objects are destroyed.)
 Properties and constants
 ------------------------
 
-To do something more useful, lets create two methods for reading from and writing to a property::
+To do something more useful, let's create two methods for reading from and writing to a property::
 
     PHP_METHOD(Test, getFoo)
     {

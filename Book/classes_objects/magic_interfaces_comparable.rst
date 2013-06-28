@@ -16,7 +16,7 @@ The interface itself will look as follows:
         static function compare($left, $right);
     }
 
-First, lets register this new interface in ``MINIT``::
+First, let's register this new interface in ``MINIT``::
 
     zend_class_entry *comparable_ce;
 

@@ -65,7 +65,7 @@ a bit later why we need to do this)::
         zval *current;
     } buffer_view_iterator;
 
-Lets also declare a dummy ``zend_object_iterator_funcs`` structure so we have something to work on::
+Let's also declare a dummy ``zend_object_iterator_funcs`` structure so we have something to work on::
 
     static zend_object_iterator_funcs buffer_view_iterator_funcs = {
         buffer_view_iterator_dtor,
@@ -120,7 +120,7 @@ of the ``Traversable`` interface.
 Iterator functions
 ------------------
 
-Now lets actually implement the ``buffer_view_iterator_funcs`` that we specified above::
+Now let's actually implement the ``buffer_view_iterator_funcs`` that we specified above::
 
     static void buffer_view_iterator_dtor(zend_object_iterator *intern TSRMLS_DC)
     {

@@ -53,7 +53,7 @@ Additionally there are two macros for creating symtables::
 As you can see these macros are just ``zend_hash_init()`` calls using ``ZVAL_PTR_DTOR`` as the destructor. As such
 these macros are not directly related to the string to integer casting behavior described above.
 
-Lets give this new set of functions a try::
+Let's give this new set of functions a try::
 
 	HashTable *myht;
 	zval *zv1, *zv2;
@@ -145,7 +145,7 @@ them are listed in the following table:
     * - ``zval``
       - ``zval *value``
 
-As an example for the usage of these functions, lets just create a dummy array with elements of various types::
+As an example for the usage of these functions, let's just create a dummy array with elements of various types::
 
     PHP_FUNCTION(make_array) {
         zval *zv;
