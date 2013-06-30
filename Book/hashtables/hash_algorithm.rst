@@ -168,44 +168,44 @@ which is defined as follows::
 
     static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
     {
-	    register ulong hash = 5381;
+        register ulong hash = 5381;
 
-	    /* variant with the hash unrolled eight times */
-	    for (; nKeyLength >= 8; nKeyLength -= 8) {
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-	    }
-	    switch (nKeyLength) {
-		    case 7: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 6: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 5: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 4: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 3: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 2: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 1: hash = ((hash << 5) + hash) + *arKey++; break;
-		    case 0: break;
+        /* variant with the hash unrolled eight times */
+        for (; nKeyLength >= 8; nKeyLength -= 8) {
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+        }
+        switch (nKeyLength) {
+            case 7: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 6: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 5: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 4: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 3: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 2: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 1: hash = ((hash << 5) + hash) + *arKey++; break;
+            case 0: break;
             EMPTY_SWITCH_DEFAULT_CASE()
-	    }
-	    return hash;
+        }
+        return hash;
     }
 
 After removing the manual loop-unrolling the function will look like this::
 
     static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
     {
-	    register ulong hash = 5381;
+        register ulong hash = 5381;
 
-	    for (uint i = 0; i < nKeyLength; ++i) {
-	        hash = ((hash << 5) + hash) + arKey[i];
-	    }
+        for (uint i = 0; i < nKeyLength; ++i) {
+            hash = ((hash << 5) + hash) + arKey[i];
+        }
 
-	    return hash;
+        return hash;
     }
 
 The ``hash << 5 + hash`` expression is the same as ``hash * 32 + hash`` or just ``hash * 33``. Using this we can further
@@ -213,13 +213,13 @@ simplify the function::
 
     static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
     {
-	    register ulong hash = 5381;
+        register ulong hash = 5381;
 
-	    for (uint i = 0; i < nKeyLength; ++i) {
-	        hash = hash * 33 + arKey[i];
-	    }
+        for (uint i = 0; i < nKeyLength; ++i) {
+            hash = hash * 33 + arKey[i];
+        }
 
-	    return hash;
+        return hash;
     }
 
 This hash function is called *DJBX33A*, which stands for "Daniel J. Bernstein, Times 33 with Addition". It is one of the

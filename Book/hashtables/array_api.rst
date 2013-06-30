@@ -55,32 +55,32 @@ these macros are not directly related to the string to integer casting behavior 
 
 Let's give this new set of functions a try::
 
-	HashTable *myht;
-	zval *zv1, *zv2;
-	zval **zv_dest;
+    HashTable *myht;
+    zval *zv1, *zv2;
+    zval **zv_dest;
 
-	ALLOC_HASHTABLE(myht);
-	ZEND_INIT_SYMTABLE(myht);
+    ALLOC_HASHTABLE(myht);
+    ZEND_INIT_SYMTABLE(myht);
 
-	MAKE_STD_ZVAL(zv1);
-	ZVAL_STRING(zv1, "zv1", 1);
+    MAKE_STD_ZVAL(zv1);
+    ZVAL_STRING(zv1, "zv1", 1);
 
-	MAKE_STD_ZVAL(zv2);
-	ZVAL_STRING(zv2, "zv2", 1);
+    MAKE_STD_ZVAL(zv2);
+    ZVAL_STRING(zv2, "zv2", 1);
 
-	zend_hash_index_update(myht, 42, &zv1, sizeof(zval *), NULL);
-	zend_symtable_update(myht, "42", sizeof("42"), &zv2, sizeof(zval *), NULL);
+    zend_hash_index_update(myht, 42, &zv1, sizeof(zval *), NULL);
+    zend_symtable_update(myht, "42", sizeof("42"), &zv2, sizeof(zval *), NULL);
 
-	if (zend_hash_index_find(myht, 42, (void **) &zv_dest) == SUCCESS) {
-		php_printf("Value at key 42 is %Z\n", *zv_dest);
-	}
+    if (zend_hash_index_find(myht, 42, (void **) &zv_dest) == SUCCESS) {
+        php_printf("Value at key 42 is %Z\n", *zv_dest);
+    }
 
-	if (zend_symtable_find(myht, "42", sizeof("42"), (void **) &zv_dest) == SUCCESS) {
-		php_printf("Value at key \"42\" is %Z\n", *zv_dest);
-	}
+    if (zend_symtable_find(myht, "42", sizeof("42"), (void **) &zv_dest) == SUCCESS) {
+        php_printf("Value at key \"42\" is %Z\n", *zv_dest);
+    }
 
-	zend_hash_destroy(myht);
-	FREE_HASHTABLE(myht);
+    zend_hash_destroy(myht);
+    FREE_HASHTABLE(myht);
 
 This code will print:
 
