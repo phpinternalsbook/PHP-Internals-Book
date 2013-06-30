@@ -60,15 +60,15 @@ To implement hashtables PHP uses two structures, which can be found in the ``zen
 at the ``Bucket`` struct::
 
     typedef struct bucket {
-	    ulong h;
-	    uint nKeyLength;
-	    void *pData;
-	    void *pDataPtr;
-	    struct bucket *pListNext;
-	    struct bucket *pListLast;
-	    struct bucket *pNext;
-	    struct bucket *pLast;
-	    char *arKey;
+        ulong h;
+        uint nKeyLength;
+        void *pData;
+        void *pDataPtr;
+        struct bucket *pListNext;
+        struct bucket *pListLast;
+        struct bucket *pNext;
+        struct bucket *pLast;
+        char *arKey;
     } Bucket;
 
 You already know what the ``pNext``, ``pLast``, ``pListNext`` and ``pListLast`` pointers are for. Let's quickly go
@@ -86,20 +86,20 @@ allocation it is put into the ``pDataPtr`` member. ``pData`` then points to that
 Let's have a look at the main ``HashTable`` struct now::
 
     typedef struct _hashtable {
-	    uint nTableSize;
-	    uint nTableMask;
-	    uint nNumOfElements;
-	    ulong nNextFreeElement;
-	    Bucket *pInternalPointer;
-	    Bucket *pListHead;
-	    Bucket *pListTail;
-	    Bucket **arBuckets;
-	    dtor_func_t pDestructor;
-	    zend_bool persistent;
-	    unsigned char nApplyCount;
-	    zend_bool bApplyProtection;
+        uint nTableSize;
+        uint nTableMask;
+        uint nNumOfElements;
+        ulong nNextFreeElement;
+        Bucket *pInternalPointer;
+        Bucket *pListHead;
+        Bucket *pListTail;
+        Bucket **arBuckets;
+        dtor_func_t pDestructor;
+        zend_bool persistent;
+        unsigned char nApplyCount;
+        zend_bool bApplyProtection;
     #if ZEND_DEBUG
-	    int inconsistent;
+        int inconsistent;
     #endif
     } HashTable;
 

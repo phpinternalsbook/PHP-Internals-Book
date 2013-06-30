@@ -95,15 +95,15 @@ example of how this linked list could look like for the elements <tt class="docu
 <p>To implement hashtables PHP uses two structures, which can be found in the <tt class="docutils literal"><span class="pre">zend_hash.h</span></tt> file. We&#8217;ll first have a look
 at the <tt class="docutils literal"><span class="pre">Bucket</span></tt> struct:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">bucket</span> <span class="p">{</span>
-        <span class="n">ulong</span> <span class="n">h</span><span class="p">;</span>
-        <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">;</span>
-        <span class="kt">void</span> <span class="o">*</span><span class="n">pData</span><span class="p">;</span>
-        <span class="kt">void</span> <span class="o">*</span><span class="n">pDataPtr</span><span class="p">;</span>
-        <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pListNext</span><span class="p">;</span>
-        <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pListLast</span><span class="p">;</span>
-        <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pNext</span><span class="p">;</span>
-        <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pLast</span><span class="p">;</span>
-        <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">;</span>
+    <span class="n">ulong</span> <span class="n">h</span><span class="p">;</span>
+    <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">pData</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">pDataPtr</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pListNext</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pListLast</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pNext</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">bucket</span> <span class="o">*</span><span class="n">pLast</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">Bucket</span><span class="p">;</span>
 </pre></div>
 </div>
@@ -118,20 +118,20 @@ inefficient when the stored value is a pointer PHP employs a small trick: Instea
 allocation it is put into the <tt class="docutils literal"><span class="pre">pDataPtr</span></tt> member. <tt class="docutils literal"><span class="pre">pData</span></tt> then points to that member (<tt class="docutils literal"><span class="pre">pData</span> <span class="pre">=</span> <span class="pre">&amp;pDataPtr</span></tt>).</p>
 <p>Let&#8217;s have a look at the main <tt class="docutils literal"><span class="pre">HashTable</span></tt> struct now:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_hashtable</span> <span class="p">{</span>
-        <span class="n">uint</span> <span class="n">nTableSize</span><span class="p">;</span>
-        <span class="n">uint</span> <span class="n">nTableMask</span><span class="p">;</span>
-        <span class="n">uint</span> <span class="n">nNumOfElements</span><span class="p">;</span>
-        <span class="n">ulong</span> <span class="n">nNextFreeElement</span><span class="p">;</span>
-        <span class="n">Bucket</span> <span class="o">*</span><span class="n">pInternalPointer</span><span class="p">;</span>
-        <span class="n">Bucket</span> <span class="o">*</span><span class="n">pListHead</span><span class="p">;</span>
-        <span class="n">Bucket</span> <span class="o">*</span><span class="n">pListTail</span><span class="p">;</span>
-        <span class="n">Bucket</span> <span class="o">**</span><span class="n">arBuckets</span><span class="p">;</span>
-        <span class="n">dtor_func_t</span> <span class="n">pDestructor</span><span class="p">;</span>
-        <span class="n">zend_bool</span> <span class="n">persistent</span><span class="p">;</span>
-        <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">nApplyCount</span><span class="p">;</span>
-        <span class="n">zend_bool</span> <span class="n">bApplyProtection</span><span class="p">;</span>
+    <span class="n">uint</span> <span class="n">nTableSize</span><span class="p">;</span>
+    <span class="n">uint</span> <span class="n">nTableMask</span><span class="p">;</span>
+    <span class="n">uint</span> <span class="n">nNumOfElements</span><span class="p">;</span>
+    <span class="n">ulong</span> <span class="n">nNextFreeElement</span><span class="p">;</span>
+    <span class="n">Bucket</span> <span class="o">*</span><span class="n">pInternalPointer</span><span class="p">;</span>
+    <span class="n">Bucket</span> <span class="o">*</span><span class="n">pListHead</span><span class="p">;</span>
+    <span class="n">Bucket</span> <span class="o">*</span><span class="n">pListTail</span><span class="p">;</span>
+    <span class="n">Bucket</span> <span class="o">**</span><span class="n">arBuckets</span><span class="p">;</span>
+    <span class="n">dtor_func_t</span> <span class="n">pDestructor</span><span class="p">;</span>
+    <span class="n">zend_bool</span> <span class="n">persistent</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">nApplyCount</span><span class="p">;</span>
+    <span class="n">zend_bool</span> <span class="n">bApplyProtection</span><span class="p">;</span>
 <span class="cp">#if ZEND_DEBUG</span>
-        <span class="kt">int</span> <span class="n">inconsistent</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">inconsistent</span><span class="p">;</span>
 <span class="cp">#endif</span>
 <span class="p">}</span> <span class="n">HashTable</span><span class="p">;</span>
 </pre></div>
