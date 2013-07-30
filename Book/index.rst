@@ -5,6 +5,7 @@ Table Of Contents
     :maxdepth: 2
 
     introduction.rst
+    zvals.rst
     hashtables.rst
     classes_objects.rst
 
@@ -13,7 +14,6 @@ Table Of Contents
     php_ecosystem.rst
     php_first_look.rst
     managing_memory.rst
-    zvals.rst
     creating_ext.rst
     functions.rst
     resources.rst
