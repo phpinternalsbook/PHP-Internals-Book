@@ -550,7 +550,7 @@ To distinguish the different return values this function is typically used in a 
     uint str_length;
     ulong num_index;
 
-    switch (zend_hash_get_current_key(myht, &str_index, &str_length, &num_index, 0, &pos)) {
+    switch (zend_hash_get_current_key_ex(myht, &str_index, &str_length, &num_index, 0, &pos)) {
         case HASH_KEY_IS_LONG:
             php_printf("%ld", num_index);
             break;
@@ -560,12 +560,12 @@ To distinguish the different return values this function is typically used in a 
             break;
     }
 
-As of PHP 5.5 there is an additional ``zend_hash_get_current_key_zval()`` function which simplifies the common use case
-of writing the key into a zval::
+As of PHP 5.5 there is an additional ``zend_hash_get_current_key_zval_ex()`` function which simplifies the common use
+case of writing the key into a zval::
 
     zval *key;
     MAKE_STD_ZVAL(key);
-    zend_hash_get_current_key_zval(myht, key, &pos);
+    zend_hash_get_current_key_zval_ex(myht, key, &pos);
 
 .. todo::
     Commenting this out for now, as I haven't yet fully figured out the flags for this function.

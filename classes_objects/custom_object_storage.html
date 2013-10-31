@@ -140,8 +140,8 @@ properties are initialized).</p>
     <span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">properties_table</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
     <span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">guards</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
     <span class="n">retval</span><span class="p">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">zend_objects_store_put</span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">zend_objects_free_object_storage</span><span class="p">,</span>
+        <span class="p">(</span><span class="kt">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
+        <span class="p">(</span><span class="kt">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">zend_objects_free_object_storage</span><span class="p">,</span>
         <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
     <span class="p">);</span>
     <span class="n">retval</span><span class="p">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">std_object_handlers</span><span class="p">;</span>
@@ -173,9 +173,9 @@ a dynamically resized array of <tt class="docutils literal"><span class="pre">ze
     <span class="k">union</span> <span class="n">_store_bucket</span> <span class="p">{</span>
         <span class="k">struct</span> <span class="n">_store_object</span> <span class="p">{</span>
             <span class="kt">void</span> <span class="o">*</span><span class="n">object</span><span class="p">;</span>
-            <span class="n">zend_objects_store_dtor_t</span> <span class="n">dtor</span><span class="p">;</span>
-            <span class="n">zend_objects_free_object_storage_t</span> <span class="n">free_storage</span><span class="p">;</span>
-            <span class="n">zend_objects_store_clone_t</span> <span class="n">clone</span><span class="p">;</span>
+            <span class="kt">zend_objects_store_dtor_t</span> <span class="n">dtor</span><span class="p">;</span>
+            <span class="kt">zend_objects_free_object_storage_t</span> <span class="n">free_storage</span><span class="p">;</span>
+            <span class="kt">zend_objects_store_clone_t</span> <span class="n">clone</span><span class="p">;</span>
             <span class="k">const</span> <span class="n">zend_object_handlers</span> <span class="o">*</span><span class="n">handlers</span><span class="p">;</span>
             <span class="n">zend_uint</span> <span class="n">refcount</span><span class="p">;</span>
             <span class="n">gc_root_buffer</span> <span class="o">*</span><span class="n">buffered</span><span class="p">;</span>
@@ -251,8 +251,8 @@ like (with inline explanations):</p>
 <span class="cm">     * free handler. The last NULL parameter is the clone handler, which is left empty for now. */</span>
     <span class="n">retval</span><span class="p">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">zend_objects_store_put</span><span class="p">(</span>
         <span class="n">intern</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">test_free_object_storage_handler</span><span class="p">,</span>
+        <span class="p">(</span><span class="kt">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
+        <span class="p">(</span><span class="kt">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">test_free_object_storage_handler</span><span class="p">,</span>
         <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
     <span class="p">);</span>
 
@@ -328,9 +328,9 @@ This is how such a clone handler might look like:</p>
 <p>The clone handler is then passed as the last argument to <tt class="docutils literal"><span class="pre">zend_objects_store_put</span></tt>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">retval</span><span class="p">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">zend_objects_store_put</span><span class="p">(</span>
     <span class="n">intern</span><span class="p">,</span>
-    <span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
-    <span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">test_free_object_storage_handler</span><span class="p">,</span>
-    <span class="p">(</span><span class="n">zend_objects_store_clone_t</span><span class="p">)</span> <span class="n">test_clone_object_storage_handler</span>
+    <span class="p">(</span><span class="kt">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
+    <span class="p">(</span><span class="kt">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">test_free_object_storage_handler</span><span class="p">,</span>
+    <span class="p">(</span><span class="kt">zend_objects_store_clone_t</span><span class="p">)</span> <span class="n">test_clone_object_storage_handler</span>
     <span class="n">TSRMLS_CC</span>
 <span class="p">);</span>
 </pre></div>

@@ -168,7 +168,7 @@ without concerning ourselves with allocation.</p>
 <span class="p">{</span>
     <span class="n">buffer_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
     <span class="n">smart_str</span> <span class="n">buf</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
-    <span class="n">php_serialize_data_t</span> <span class="n">var_hash</span><span class="p">;</span>
+    <span class="kt">php_serialize_data_t</span> <span class="n">var_hash</span><span class="p">;</span>
     <span class="n">zval</span> <span class="n">zv</span><span class="p">,</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
@@ -225,7 +225,7 @@ properties (as an array).</p>
     <span class="n">buffer_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
     <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">str_len</span><span class="p">;</span>
-    <span class="n">php_unserialize_data_t</span> <span class="n">var_hash</span><span class="p">;</span>
+    <span class="kt">php_unserialize_data_t</span> <span class="n">var_hash</span><span class="p">;</span>
     <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">max</span><span class="p">;</span>
     <span class="n">zval</span> <span class="n">zv</span><span class="p">,</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">;</span>
 
@@ -267,7 +267,7 @@ properties (as an array).</p>
     <span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">zend_hash_copy</span><span class="p">(</span>
             <span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">),</span> <span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span>
-            <span class="p">(</span><span class="n">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">)</span>
+            <span class="p">(</span><span class="kt">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">)</span>
         <span class="p">);</span>
     <span class="p">}</span>
 

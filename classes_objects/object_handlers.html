@@ -391,7 +391,7 @@ using the <tt class="docutils literal"><span class="pre">get_debug_info</span></
 
     <span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">ht</span><span class="p">);</span>
     <span class="n">ZEND_INIT_SYMTABLE_EX</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">+</span> <span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">props</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="n">zend_hash_copy</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="p">(</span><span class="n">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">));</span>
+    <span class="n">zend_hash_copy</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="p">(</span><span class="kt">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">));</span>
 
     <span class="o">*</span><span class="n">is_temp</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
 

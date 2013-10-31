@@ -79,7 +79,7 @@ minimum table size, so it doesn&#8217;t make a difference if you pass 0 or 2 or 
 <p>The third argument of <tt class="docutils literal"><span class="pre">zend_hash_init()</span></tt> should always be <tt class="docutils literal"><span class="pre">NULL</span></tt>: It was previously used to specify a custom hash
 function, but this feature is no longer available. The fourth argument is the destructor function for the stored values
 and has the following signature:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">dtor_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">pDest</span><span class="p">);</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="kt">dtor_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">pDest</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Most of the time this destructor function will be <tt class="docutils literal"><span class="pre">ZVAL_PTR_DTOR</span></tt> (for storing <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt> values). This is just the
@@ -138,7 +138,7 @@ type: <tt class="docutils literal"><span class="pre">sizeof(zval</span> <span cl
 <p>The last argument can be used to both insert the value and retrieve it again in the same go:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span>
 
-<span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="nf">zend_hash_index_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Why would you want to do this? After all, you already know the value you inserted, so why would you want to fetch it
@@ -359,20 +359,20 @@ optimizations.</p>
 <p>Often you don&#8217;t want to work on any specific key, but want to do an operation on <em>all</em> values in the hashtable. PHP
 offers two mechanisms for this, the first being the <tt class="docutils literal"><span class="pre">zend_hash_apply_*()</span></tt> family of functions, which calls a function
 for every element in the hashtable. It is available in three variants:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="kt">void</span> <span class="n">zend_hash_apply</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="n">apply_func_t</span> <span class="n">apply_func</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
-<span class="kt">void</span> <span class="n">zend_hash_apply_with_argument</span><span class="p">(</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="n">apply_func_arg_t</span> <span class="n">apply_func</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">argument</span> <span class="n">TSRMLS_DC</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">zend_hash_apply</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="kt">apply_func_t</span> <span class="n">apply_func</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">zend_hash_apply_with_argument</span><span class="p">(</span>
+    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="kt">apply_func_arg_t</span> <span class="n">apply_func</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">argument</span> <span class="n">TSRMLS_DC</span>
 <span class="p">);</span>
-<span class="kt">void</span> <span class="n">zend_hash_apply_with_arguments</span><span class="p">(</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span> <span class="n">TSRMLS_DC</span><span class="p">,</span> <span class="n">apply_func_args_t</span> <span class="n">apply_func</span><span class="p">,</span> <span class="kt">int</span> <span class="n">num_args</span><span class="p">,</span> <span class="p">...</span>
+<span class="kt">void</span> <span class="nf">zend_hash_apply_with_arguments</span><span class="p">(</span>
+    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span> <span class="n">TSRMLS_DC</span><span class="p">,</span> <span class="kt">apply_func_args_t</span> <span class="n">apply_func</span><span class="p">,</span> <span class="kt">int</span> <span class="n">num_args</span><span class="p">,</span> <span class="p">...</span>
 <span class="p">);</span>
 </pre></div>
 </div>
 <p>The three functions basically do the same thing, but pass on a different number of arguments to the <tt class="docutils literal"><span class="pre">apply_func</span></tt>
 function. Here are the respective signatures of the <tt class="docutils literal"><span class="pre">apply_func</span></tt>s:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">apply_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">pDest</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
-<span class="k">typedef</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">apply_func_arg_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">pDest</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">argument</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
-<span class="k">typedef</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">apply_func_args_t</span><span class="p">)(</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="nf">int</span> <span class="p">(</span><span class="o">*</span><span class="kt">apply_func_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">pDest</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<span class="k">typedef</span> <span class="nf">int</span> <span class="p">(</span><span class="o">*</span><span class="kt">apply_func_arg_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">pDest</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">argument</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<span class="k">typedef</span> <span class="nf">int</span> <span class="p">(</span><span class="o">*</span><span class="kt">apply_func_args_t</span><span class="p">)(</span>
     <span class="kt">void</span> <span class="o">*</span><span class="n">pDest</span> <span class="n">TSRMLS_DC</span><span class="p">,</span> <span class="kt">int</span> <span class="n">num_args</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">args</span><span class="p">,</span> <span class="n">zend_hash_key</span> <span class="o">*</span><span class="n">hash_key</span>
 <span class="p">);</span>
 </pre></div>
@@ -539,7 +539,7 @@ pointer. When using this API the current position is stored in a <tt class="docu
 </div>
 <p>You can additionally fetch the key using the <tt class="docutils literal"><span class="pre">zend_hash_get_current_key()</span></tt> function, which has the following
 signature:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="n">zend_hash_get_current_key_ex</span><span class="p">(</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="nf">zend_hash_get_current_key_ex</span><span class="p">(</span>
     <span class="k">const</span> <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">str_index</span><span class="p">,</span> <span class="n">uint</span> <span class="o">*</span><span class="n">str_length</span><span class="p">,</span>
     <span class="n">ulong</span> <span class="o">*</span><span class="n">num_index</span><span class="p">,</span> <span class="n">zend_bool</span> <span class="n">duplicate</span><span class="p">,</span> <span class="n">HashPosition</span> <span class="o">*</span><span class="n">pos</span>
 <span class="p">);</span>
@@ -562,7 +562,7 @@ above this case cannot occur.</dd>
 <span class="n">uint</span> <span class="n">str_length</span><span class="p">;</span>
 <span class="n">ulong</span> <span class="n">num_index</span><span class="p">;</span>
 
-<span class="k">switch</span> <span class="p">(</span><span class="n">zend_hash_get_current_key</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">str_index</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">str_length</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">num_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pos</span><span class="p">))</span> <span class="p">{</span>
+<span class="k">switch</span> <span class="p">(</span><span class="n">zend_hash_get_current_key_ex</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">str_index</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">str_length</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">num_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pos</span><span class="p">))</span> <span class="p">{</span>
     <span class="k">case</span> <span class="n">HASH_KEY_IS_LONG</span>:
         <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld&quot;</span><span class="p">,</span> <span class="n">num_index</span><span class="p">);</span>
         <span class="k">break</span><span class="p">;</span>
@@ -573,11 +573,11 @@ above this case cannot occur.</dd>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>As of PHP 5.5 there is an additional <tt class="docutils literal"><span class="pre">zend_hash_get_current_key_zval()</span></tt> function which simplifies the common use case
-of writing the key into a zval:</p>
+<p>As of PHP 5.5 there is an additional <tt class="docutils literal"><span class="pre">zend_hash_get_current_key_zval_ex()</span></tt> function which simplifies the common use
+case of writing the key into a zval:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">key</span><span class="p">;</span>
 <span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
-<span class="n">zend_hash_get_current_key_zval</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pos</span><span class="p">);</span>
+<span class="n">zend_hash_get_current_key_zval_ex</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pos</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -590,7 +590,7 @@ hashtables whenever a copy-on-write of an array occurs. Copies are performed usi
 
 <span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">ht_target</span><span class="p">);</span>
 <span class="n">zend_hash_init</span><span class="p">(</span><span class="n">ht_target</span><span class="p">,</span> <span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">ht_source</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">ZVAL_PTR_DTOR</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-<span class="n">zend_hash_copy</span><span class="p">(</span><span class="n">ht_target</span><span class="p">,</span> <span class="n">ht_source</span><span class="p">,</span> <span class="p">(</span><span class="n">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">));</span>
+<span class="n">zend_hash_copy</span><span class="p">(</span><span class="n">ht_target</span><span class="p">,</span> <span class="n">ht_source</span><span class="p">,</span> <span class="p">(</span><span class="kt">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>The fourth argument of <tt class="docutils literal"><span class="pre">zend_hash_copy()</span></tt> is no longer in use, so it should always be <tt class="docutils literal"><span class="pre">NULL</span></tt>. The third argument
@@ -606,7 +606,7 @@ only difference is that <tt class="docutils literal"><span class="pre">merge</sp
 sets it to the same element where it was in the source hashtable.</p>
 <p>To get a more fine-grained control of the merging behavior the <tt class="docutils literal"><span class="pre">zend_hash_merge_ex</span></tt> function can be used, which
 decides which of the elements should be copied using a merge checker function:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="n">zend_bool</span> <span class="p">(</span><span class="o">*</span><span class="n">merge_checker_func_t</span><span class="p">)(</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="nf">zend_bool</span> <span class="p">(</span><span class="o">*</span><span class="kt">merge_checker_func_t</span><span class="p">)(</span>
     <span class="n">HashTable</span> <span class="o">*</span><span class="n">target_ht</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">source_data</span><span class="p">,</span> <span class="n">zend_hash_key</span> <span class="o">*</span><span class="n">hash_key</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">pParam</span>
 <span class="p">);</span>
 </pre></div>
@@ -644,8 +644,8 @@ in case of a key collision uses the greater value:</p>
     <span class="n">RETVAL_ZVAL</span><span class="p">(</span><span class="n">array1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 
     <span class="n">zend_hash_merge_ex</span><span class="p">(</span>
-        <span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">),</span> <span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">array2</span><span class="p">),</span> <span class="p">(</span><span class="n">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span>
-        <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="p">(</span><span class="n">merge_checker_func_t</span><span class="p">)</span> <span class="n">merge_greater</span><span class="p">,</span> <span class="nb">NULL</span>
+        <span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">),</span> <span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">array2</span><span class="p">),</span> <span class="p">(</span><span class="kt">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span>
+        <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="p">(</span><span class="kt">merge_checker_func_t</span><span class="p">)</span> <span class="n">merge_greater</span><span class="p">,</span> <span class="nb">NULL</span>
     <span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
@@ -676,14 +676,14 @@ array(3) {
 <h2>Comparison, sorting and extrema<a class="headerlink" href="#comparison-sorting-and-extrema" title="Permalink to this headline">¶</a></h2>
 <p>The last three functions of the hashtable API all involve the comparison of hashtable elements in one way or another.
 Such comparison are defined by a <em>comparison function</em>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">compare_func_t</span><span class="p">)(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">left</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">right</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="nf">int</span> <span class="p">(</span><span class="o">*</span><span class="kt">compare_func_t</span><span class="p">)(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">left</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">right</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This function takes two hashtable elements and returns how they relate to each other: A negative return implies that
 <tt class="docutils literal"><span class="pre">left</span> <span class="pre">&lt;</span> <span class="pre">right</span></tt>, a positive return means <tt class="docutils literal"><span class="pre">left</span> <span class="pre">&gt;</span> <span class="pre">right</span></tt> and a zero return signifies that the values are equal.</p>
 <p>The first function we&#8217;ll look at is <tt class="docutils literal"><span class="pre">zend_hash_compare()</span></tt>, which compares two hashtables:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="n">zend_hash_compare</span><span class="p">(</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht1</span><span class="p">,</span> <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht2</span><span class="p">,</span> <span class="n">compare_func_t</span> <span class="n">compar</span><span class="p">,</span> <span class="n">zend_bool</span> <span class="n">ordered</span> <span class="n">TSRMLS_DC</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="nf">zend_hash_compare</span><span class="p">(</span>
+    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht1</span><span class="p">,</span> <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht2</span><span class="p">,</span> <span class="kt">compare_func_t</span> <span class="n">compar</span><span class="p">,</span> <span class="n">zend_bool</span> <span class="n">ordered</span> <span class="n">TSRMLS_DC</span>
 <span class="p">);</span>
 </pre></div>
 </div>
@@ -700,21 +700,21 @@ comparison will also be the result of <tt class="docutils literal"><span class="
 case the hashtables are considered equal.</p>
 <p>Both comparison modes can be directly related to the behavior of PHP&#8217;s two equality operators:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cm">/* $ar1 == $ar2 compares the elements with == and does not take order into account: */</span>
-<span class="n">zend_hash_compare</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="n">ht2</span><span class="p">,</span> <span class="p">(</span><span class="n">compare_func_t</span><span class="p">)</span> <span class="n">hash_zval_compare_function</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="n">zend_hash_compare</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="n">ht2</span><span class="p">,</span> <span class="p">(</span><span class="kt">compare_func_t</span><span class="p">)</span> <span class="n">hash_zval_compare_function</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
 
 <span class="cm">/* $ar1 === $ar2 compares the elements with === and takes order into account: */</span>
-<span class="n">zend_hash_compare</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="n">ht2</span><span class="p">,</span> <span class="p">(</span><span class="n">compare_func_t</span><span class="p">)</span> <span class="n">hash_zval_identical_function</span><span class="p">,</span> <span class="mi">1</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="n">zend_hash_compare</span><span class="p">(</span><span class="n">ht1</span><span class="p">,</span> <span class="n">ht2</span><span class="p">,</span> <span class="p">(</span><span class="kt">compare_func_t</span><span class="p">)</span> <span class="n">hash_zval_identical_function</span><span class="p">,</span> <span class="mi">1</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The next function to consider is <tt class="docutils literal"><span class="pre">zend_hash_sort()</span></tt>, which is used for sorting a hashtable:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="n">zend_hash_sort</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="n">sort_func_t</span> <span class="n">sort_func</span><span class="p">,</span> <span class="n">compare_func_t</span> <span class="n">compar</span><span class="p">,</span> <span class="kt">int</span> <span class="n">renumber</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="nf">zend_hash_sort</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="kt">sort_func_t</span> <span class="n">sort_func</span><span class="p">,</span> <span class="kt">compare_func_t</span> <span class="n">compar</span><span class="p">,</span> <span class="kt">int</span> <span class="n">renumber</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This function only does some pre- and postprocessing of the hashtable and delegates the actual sorting process to the
 <tt class="docutils literal"><span class="pre">sort_func</span></tt>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">sort_func_t</span><span class="p">)(</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="kt">sort_func_t</span><span class="p">)(</span>
     <span class="kt">void</span> <span class="o">*</span><span class="n">buckets</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">num_of_buckets</span><span class="p">,</span> <span class="k">register</span> <span class="kt">size_t</span> <span class="n">size_of_bucket</span><span class="p">,</span>
-    <span class="n">compare_func_t</span> <span class="n">compare_func</span> <span class="n">TSRMLS_DC</span>
+    <span class="kt">compare_func_t</span> <span class="n">compare_func</span> <span class="n">TSRMLS_DC</span>
 <span class="p">);</span>
 </pre></div>
 </div>
@@ -727,8 +727,8 @@ renumbered, so that the resulting hashtable will have increasing integer keys.</
 <p>Unless you want to implement your own algorithm the sorting function will always be <tt class="docutils literal"><span class="pre">zend_qsort</span></tt>, which is PHP&#8217;s
 predefined quicksort implementation.</p>
 <p>The last of the comparison-related function is used for finding the smallest or largest element in a hashtable:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="n">zend_hash_minmax</span><span class="p">(</span>
-    <span class="k">const</span> <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="n">compare_func_t</span> <span class="n">compar</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flag</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span><span class="n">pData</span> <span class="n">TSRMLS_DC</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="nf">zend_hash_minmax</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="kt">compare_func_t</span> <span class="n">compar</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flag</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span><span class="n">pData</span> <span class="n">TSRMLS_DC</span>
 <span class="p">);</span>
 </pre></div>
 </div>
