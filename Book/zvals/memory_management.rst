@@ -69,7 +69,7 @@ ID that can be used to look up the "actual content" of the object. Value-semanti
 ID to a different object or switching the type altogether, but they do not prevent you to change the "actual content" of
 the object.
 
-The same applies to resources, because they also only store an ID which can be used up to look up their actual value.
+The same applies to resources, because they also only store an ID which can be used to look up their actual value.
 So again the value-semantics prevent you from changing the resource ID or the type of the zval, but they do not
 prevent you from changing the content of the resource (like advancing the position in a file).
 
@@ -310,7 +310,7 @@ Instead of writing the above code for checking the refcount yourself, you should
     zval_ptr_dtor(&zv_ptr);
 
 This macro takes a ``zval**`` (for historical reasons, it could take a ``zval*`` just as well), decrements its refcount
-and checks whether the zval needs to be destroyed and freed. But unlike our manually written code above it also includes
+and checks whether the zval needs to be destroyed and freed. But unlike our manually written code above, it also includes
 support for the collection of circles. Here is the relevant part of its implementation::
 
     static zend_always_inline void i_zval_ptr_dtor(zval *zval_ptr ZEND_FILE_LINE_DC TSRMLS_DC)
@@ -396,7 +396,7 @@ initialization::
     INIT_PZVAL_COPY(zv_dest, zv_src);
     zval_copy_ctor(zv_dest);
 
-As the combination of ``INIT_PZVAL_COPY()`` and ``zval_copy_ctor()`` is very a common both are combined in the
+As the combination of ``INIT_PZVAL_COPY()`` and ``zval_copy_ctor()`` is very common, both are combined in the
 ``MAKE_COPY_ZVAL()`` macro::
 
     zval *zv_dest;
@@ -457,7 +457,7 @@ Separating zvals
 ----------------
 
 The macros described above are mainly used when you want to copy a zval to another storage location. A typical example
-is copying a value into the ``return_value`` zval. There is a second second set of macros for "zval separation", which
+is copying a value into the ``return_value`` zval. There is a second set of macros for "zval separation", which
 are used in the context of copy-on-write. Their functionality is best understood by looking at the source code::
 
     #define SEPARATE_ZVAL(ppzv)                     \
@@ -472,11 +472,11 @@ are used in the context of copy-on-write. Their functionality is best understood
             }                                       \
         } while (0)
 
-If the refcount is one ``SEPARATE_ZVAL()`` won't do anything. If the refcount is larger it will remove one ref from the
+If the refcount is one, ``SEPARATE_ZVAL()`` won't do anything. If the refcount is larger, it will remove one ref from the
 old zval, copy it to a new zval and assign that new zval to ``*ppzv``. Note that the macro accepts a ``zval**`` and
 will modify the ``zval*`` it points to.
 
-How is this used practically? Imagine you want to modify an array offset like ``$array[42]``. To do so you first fetch
+How is this used practically? Imagine you want to modify an array offset like ``$array[42]``. To do so, you first fetch
 the ``zval**`` pointer to the stored ``zval*`` value. Due to the reference-counting you can't directly modify it (as
 it could be shared with other places), so have to separate it first. The separation will either leave the old zval if
 the refcount is one or it will perform a copy. In the latter case the new zval is assigned to ``*ppzv``, which in this

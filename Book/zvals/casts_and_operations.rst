@@ -243,7 +243,7 @@ But even this will not always be enough. Lets consider a very similar case where
 
     convert_to_long_ex(zv_dest);
 
-    php_printf("%ld\n", Z_LVAL_PP(zv_ptr_ptr));
+    php_printf("%ld\n", Z_LVAL_PP(zv_dest));
 
     /* No need to dtor because array values are dtored automatically */
 
@@ -261,7 +261,7 @@ In cases like these there is no way around copying the zval before converting it
 
     convert_to_long(&tmp_zv);
 
-    php_printf("%ld\n", Z_LVAL_PP(zv_ptr_ptr));
+    php_printf("%ld\n", Z_LVAL(tmp_zv));
 
     zval_dtor(&tmp_zv);
 
@@ -269,8 +269,8 @@ The last ``zval_dtor()`` call in the above code is not strictly necessary, becau
 of type ``IS_LONG``, which is a type that does not require destruction. For conversions to other types like strings or
 arrays the dtor call is necessary though.
 
-If the use of to-long or to-double conversions is common in your code it can make sense to create helper functions which
-perform casts without modifying any zvals. A sample implementation for long casts::
+If the use of to-long or to-double conversions is common in your code, it can make sense to create helper functions which
+perform casts without modifying any zval. A sample implementation for long casts::
 
     long zval_get_long(zval *zv) {
         switch (Z_TYPE_P(zv)) {
@@ -306,7 +306,7 @@ much simpler::
     php_printf("%ld\n", lval);
 
 PHPs standard library already contains one function of this type, namely ``zend_is_true()``. This function is
-functionally equivalent to a bool cast those value is returned directly::
+functionally equivalent to a bool cast from which value is returned directly::
 
     zval *zv_ptr;
     MAKE_STD_ZVAL(zv_ptr);
@@ -327,7 +327,7 @@ follows::
 
     zval tmp_zval;
     int tmp_zval_used;
-    zend_make_printable_zval(zv, &tmp_zval, &tmp_zval_used);
+    zend_make_printable_zval(zv_ptr, &tmp_zval, &tmp_zval_used);
 
     if (tmp_zval_used) {
         zv_ptr = &tmp_zval;
@@ -373,7 +373,7 @@ It is helpful to know that this function also accepts hexadecimal numbers in the
 from ``convert_to_long()`` and ``convert_to_double()`` which would cast ``"0xabc"`` to zero.
 
 ``is_numeric_string()`` is particularly useful in cases where you can work with both integer and floating point numbers,
-but don't want to incur the precision loss associated with using doubles for both cases. To help this use case there
+but don't want to incur the precision loss associated with using doubles for both cases. To help this use case, there
 is an additional ``convert_scalar_to_number()`` function, which accepts a zval and converts non-array values to either
 a long or a double (using ``is_numeric_string()`` for strings). This means that the converted zval will have type
 ``IS_LONG``, ``IS_DOUBLE`` or ``IS_ARRAY``. The usage is the same as for the ``convert_to_*()`` functions::

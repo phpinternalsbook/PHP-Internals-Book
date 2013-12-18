@@ -66,11 +66,12 @@ but as the ``zvalue_value`` union has the size of its *largest* member this woul
 As such the ``lval`` member is reused.
 
 Strings (``IS_STRING``) are stored in ``struct { char *val; int len; } str``, i.e. they consist of a ``char*`` string and
-an ``int`` length. PHP strings need to store an explicit length in order to allow use of NUL bytes (``'\0'``) in them.
-Regardless of this the strings used by PHP are still NUL-terminated to ease interoperability with library functions which
+an ``int`` length. PHP strings need to store an explicit length in order to allow use of NUL bytes (``'\0'``) in them (what is
+actually called "binary safety").
+Regardless of this, the strings used by PHP are still NUL-terminated to ease interoperability with library functions which
 don't take length arguments and expect NUL-terminated strings instead. Of course in this case the strings won't be binary
 safe anymore and will be cut off at the first NUL byte they contain. For example many filesystem related functions behave
-like this.
+like this as well as lots of libc string functions.
 
 The length of a string is in bytes (not Unicode code points) and does **not** include the terminating NUL byte: The length
 of the string ``"foo"`` is 3, even though it is actually stored using 4 bytes. If you determine the length of a constant string
@@ -83,11 +84,11 @@ would cause an overflow (thus making the length negative).
 The remaining three types will only be mentioned here quickly and discussed in greater detail in their own chapters:
 
 Arrays use the ``IS_ARRAY`` type tag and are stored in the ``HashTable *ht`` member. How the ``HashTable`` structure works
-will be discussed in the [TODO:ht ref] chapter.
+will be discussed in the :doc:`hashtable chapter </hashtables>`.
 
 Objects (``IS_OBJECT``) use the ``zend_object_value obj`` member, which consists of an "object handle", which is an integer
 ID used to look up the actual data of the object, and a set of "object handlers", which define how the object behaves.
-PHP's class and object system will be described in the [TODO:obj ref] chapter.
+PHP's class and object system will be described in the :doc:`object chapter </classes_objects>`.
 
 Resources (``IS_RESOURCE``) are similar to objects in that they also store a unique ID that can be used to look up the
 actual value. This ID is stored in the ``long lval`` member. Resources are covered in the [TODO:resources ref] chapter.
@@ -240,7 +241,9 @@ When you want to access the contents of a zval you should always go through thes
 directly accessing its members. This maintains a level of abstraction and makes the intention clearer:
 For example, if you directly accessed the ``lval`` member you could either be fetching the bool value,
 the long value or the resource ID. Using ``Z_BVAL``, ``Z_LVAL`` and ``Z_RESVAL`` instead makes the
-intention unambiguous.
+intention unambiguous. You also protect yourself about possible future changes in the internal API.
+The internal API has already changed though time, and macros have always been updated so that extension
+code still works while the structures, for example, have had their alignement changed.
 
 Setting the value
 -----------------
@@ -277,7 +280,8 @@ with temporary zvals, but in most cases it's true.
 Using the above example this means that the ``return_value`` will live on after our function body leaves (which
 is quite obvious, otherwise nobody could use the return value), so it can't make use of any temporary values
 of the function. E.g. just writing ``Z_STRVAL_P(return_value) = "hello world!"`` would be invalid, because the
-string literal ``"hello world!"`` ceases to exist after the body is left.
+string literal ``"hello world!"`` ceases to exist after the body is left (this is true for every stack allocated
+variables in C).
 
 Because of this we need to copy the string using ``estrdup()``. This will create a separate copy of the string
 on the heap. Because the zval "owns" its value it will make sure to free this copy when the zval is destroyed.
