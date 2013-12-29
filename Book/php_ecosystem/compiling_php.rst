@@ -52,14 +52,14 @@ download an archive from `PHP's download page`_ or clone the git repository from
 `Github`_).
 
 The build process is slightly different for both cases: The git repository doesn't bundle a ``configure`` script, so
-you'll need to generate it using the ``buildconf`` script, which makes use of autotools. Furthermore the git repository
+you'll need to generate it using the ``buildconf`` script, which makes use of autoconf. Furthermore the git repository
 does not contain a pregenerated parser, so you'll also need to have bison installed.
 
 We recommend to checkout out the source code from git, because this will provide you with an easy way to keep your
 installation updated and to try your code with different versions. A git checkout is also required if you want to
 submit patches or pull requests for PHP.
 
-To clone the repo run the following commands in your shell::
+To clone the repository, run the following commands in your shell::
 
     ~> git clone http://git.php.net/repository/php-src.git
     ~> cd php-src
@@ -75,7 +75,7 @@ against multiple PHP versions and configurations.
 Before continuing you should also install some basic build dependencies with your package manager (you'll likely already
 have the first three installed by default):
 
-* ``gcc`` or some other compiler.
+* ``gcc`` or some other compiler suite.
 * ``libc-dev``, which provides the C standard library, including headers.
 * ``make``, which is the build-management tool PHP uses.
 * ``autoconf`` (2.59 or higher), which is used to generate the ``configure`` script.
@@ -95,11 +95,11 @@ install them instead. The packages without ``dev`` typically do not contain nece
 default PHP build will require libxml, which you can install via the ``libxml2-dev`` package.
 
 If you are using Debian or Ubuntu you can use ``sudo apt-get build-dep php5`` to install a large number of optional
-build-dependencies in one go. If you are only aiming for a minimum build, many of them will not be necessary though.
+build-dependencies in one go. If you are only aiming for a default build, many of them will not be necessary though.
 
 .. _PHP's download page: http://www.php.net/downloads.php
 .. _git.php.net: http://git.php.net
-.. _Github: http://www.github.com/php-src
+.. _Github: http://www.github.com/php/php-src
 .. _Git FAQ: https://wiki.php.net/vcs/gitfaq
 
 Build overview
@@ -117,7 +117,7 @@ For a fast build, replace ``N`` with the number of CPU cores you have available 
 By default PHP will build binaries for the CLI and CGI SAPIs, which will be located at ``sapi/cli/php`` and
 ``sapi/cgi/php-cgi`` respectively. To check that everything went well, try running ``sapi/cli/php -v``.
 
-Additionally you can run ``sudo make install`` to install PHP into ``/usr/local``. You can change the target directory
+Additionally you can run ``sudo make install`` to install PHP into ``/usr/local``. The target directory can be changed
 by specifying a ``--prefix`` in the configuration stage::
 
     ~/php-src> ./configure --prefix=$HOME/myphp
@@ -153,7 +153,7 @@ autoheader. Unless you want to work on the buildsystem, this option will be of l
 
 The second option is ``--force``, which will allow running ``./buildconf`` in release packages (e.g. if you downloaded
 the packaged source code and want to generate a new ``./configure``) and additionally clear the configuration caches
-(``config.cache`` and ``autom4te.cache/``).
+``config.cache`` and ``autom4te.cache/``.
 
 If you update your git repository using ``git pull`` (or some other command) and get weird errors during the ``make``
 step, this usually means that something in the build configuration changed and you need to run ``./buildconf --force``.
@@ -172,7 +172,7 @@ scripts. One of them is the already mentioned ``--prefix=DIR``, which changes th
 file and speed up subsequent ``./configure`` calls. Using this option only makes sense once you already have a working
 build and want to quickly change between different configurations.
 
-Apart from generic autoconf options there also many settings specific to PHP. For example, you can choose which
+Apart from generic autoconf options there are also many settings specific to PHP. For example, you can choose which
 extensions and SAPIs should be compiled using the ``--enable-NAME`` and ``--disable-NAME`` switches. If the extension or
 SAPI has external dependencies you need to use ``--with-NAME`` and ``--without-NAME`` instead. If a library needed by
 ``NAME`` is not located in the default location (e.g. because you compiled it yourself) you can specify its location
@@ -231,7 +231,7 @@ is compiled by default, but can be explicitly disabled.
 Some extensions are always compiled and can not be disabled. To create a build that only contains the minimal amount of
 extensions use the ``--disable-all`` option::
 
-    > ./configure --disable-all && make
+    > ./configure --disable-all && make -jN
     > sapi/cli/php -m
     [PHP Modules]
     Core
@@ -248,9 +248,9 @@ switch, so only the CLI binary is generated.
 
 There are two more switches, which you should **always** specify when developing extensions or working on PHP:
 
-``--enable-debug`` enables debug mode, which has multiple effects: Compilation will run with ``-g`` to generated debug
-symbols and additionally use the lowest optimization level ``-O0``, which will make PHP a lot slower, but make debugging
-with tools like ``gdb`` more predictable. Furthermore debug mode defines the ``ZEND_DEBUG`` macro, which will enabled
+``--enable-debug`` enables debug mode, which has multiple effects: Compilation will run with ``-g`` to generate debug
+symbols and additionally use the lowest optimization level ``-O0``. This will make PHP a lot slower, but make debugging
+with tools like ``gdb`` more predictable. Furthermore debug mode defines the ``ZEND_DEBUG`` macro, which will enable
 various debugging helpers in the engine. Among other things memory leaks, as well as incorrect use of some data
 structures, will be reported.
 
@@ -304,12 +304,12 @@ Now you can run ``make install`` to install PHP into ``/usr/local`` (default) or
 the ``--prefix`` configure switch.
 
 ``make install`` will do little more than copy a number of files to the new location. Unless you specified
-``--without-pear`` during configuration it will also download and install PEAR. Here is the resulting tree of a default
+``--without-pear`` during configuration, it will also download and install PEAR. Here is the resulting tree of a default
 PHP build:
 
 .. code-block:: none
 
-    > tree -L 3 ~/myphp
+    > tree -L 3 -F ~/myphp
 
     /home/myuser/myphp
     |-- bin
@@ -356,16 +356,16 @@ PHP build:
 A short overview of the directory structure:
 
 * *bin/* contains the SAPI binaries (``php`` and ``php-cgi``), as well as the ``phpize`` and ``php-config`` scripts.
-  It is also home to the ``pear`` and ``pecl`` scripts.
+  It is also home to the various PEAR/PECL scripts.
 * *etc/* contains configuration. Note that the default *php.ini* directory is **not** here.
 * *include/php* contains header files, which are needed to build additional extensions or embed PHP in custom software.
-* *lib/php* contains PEAR files. The *lib/php/build* directory includes various files necessary for building extensions,
-  e.g. the ``acinclude.m4`` file, which defines PHPs M4 macros. If we had compiled any shared extensions those files
-  would live in a subdirectory of *lib/php/extensions*.
+* *lib/php* contains PEAR files. The *lib/php/build* directory includes files necessary for building extensions, e.g.
+  the ``acinclude.m4`` file containing PHP's M4 macros. If we had compiled any shared extensions those files would live
+  in a subdirectory of *lib/php/extensions*.
 * *php/man* obviously contains man pages for the ``php`` command.
 
-As mentioned the default *php.ini* location is not *etc/*. You can display the location using the ``--ini`` option of
-the PHP binary:
+As already mentioned, the default *php.ini* location is not *etc/*. You can display the location using the ``--ini``
+option of the PHP binary:
 
 .. code-block:: none
 
@@ -395,7 +395,7 @@ Apart from the PHP binaries the *bin/* directory also contains two important scr
 ``phpize`` is the equivalent of ``./buildconf`` for extensions. It will copy various files from *lib/php/build* and
 invoke autoconf/autoheader. You will learn more about this tool in the next section.
 
-``php-config`` provides various information about the configuration of the PHP build. Try it out:
+``php-config`` provides information about the configuration of the PHP build. Try it out:
 
 .. code-block:: none
 
@@ -430,19 +430,19 @@ If the ``make`` command finishes successfully, it will print a message encouragi
     Build complete.
     Don't forget to run 'make test'
 
-``make test`` will run the PHP CLI binary that was built against our test suite, located in the different *tests/*
-directories of the PHP source tree. As a default build is run against approximately 9000 tests (less for a minimal
-build, more if you enable additional extensions) this can take several minutes. The ``make test`` command is currently
-not parallel, so specifying the ``-jN`` option will not make it faster.
+``make test`` will run the PHP CLI binary against our test suite, which is located in the different *tests/* directories
+of the PHP source tree. As a default build is run against approximately 9000 tests (less for a minimal build, more if
+you enable additional extensions) this can take several minutes. The ``make test`` command is currently not parallel, so
+specifying the ``-jN`` option will not make it faster.
 
 If this is the first time you compile PHP on your platform, we encourage you to run the test suite. Depending on your
 OS and your build environment you may find bugs in PHP by running the tests. If there are any failures, the script will
 ask whether you want to send a report to our QA platform, which will allow contributors to analyze the failures. Note
 that it is quite normal to have a few failing tests and your build will likely work well as long as you don't see
-hundreds of failures.
+dozens of failures.
 
-The ``make test`` command internally invokes the ``run-tests.php`` file using your CLI binary. Run
-``sapi/cli/php run-tests.php --help`` to display a list options this script accepts.
+The ``make test`` command internally invokes the ``run-tests.php`` file using your CLI binary. You can run
+``sapi/cli/php run-tests.php --help`` to display a list of options this script accepts.
 
 If you manually run ``run-tests.php`` you need to specify either the ``-p`` or ``-P`` option (or an ugly environment
 variable)::
@@ -450,12 +450,12 @@ variable)::
     ~/php-src> sapi/cli/php run-tests.php -p `pwd`/sapi/cli/php
     ~/php-src> sapi/cli/php run-tests.php -P
 
-``-p`` is used to explicitly specify a binary. Note that in order to run all tests correctly this should be an
+``-p`` is used to explicitly specify a binary to test. Note that in order to run all tests correctly this should be an
 absolute path (or otherwise independent of the directory it is called from). ``-P`` is a shortcut that will use the
-binary that the script was called with. In this case both approaches are the same.
+binary that ``run-tests.php`` was called with. In the above example both approaches are the same.
 
-Instead of running the whole test suite you can also limit it to certain directories only by passing them as arguments
-to ``run-tests.php``. E.g. to test only the Zend engine, the reflection extension and the array functions::
+Instead of running the whole test suite, you can also limit it to certain directories by passing them as arguments to
+``run-tests.php``. E.g. to test only the Zend engine, the reflection extension and the array functions::
 
     ~/php-src> sapi/cli/php run-tests.php -P Zend/ ext/reflection/ ext/standard/tests/array/
 
@@ -475,14 +475,14 @@ own tests and how to debug test failures.
 Fixing compilation problems and ``make clean``
 ----------------------------------------------
 
-As you may know, ``make`` performs an incremental build, i.e. it will not recompile all files, but only those ``.c``
+As you may know ``make`` performs an incremental build, i.e. it will not recompile all files, but only those ``.c``
 files that changed since the last invocation. This is a great way to shorten build times, but it doesn't always work
 well: For example, if you modify a structure in a header file, ``make`` will not automatically recompile all ``.c``
 files making use of that header, thus leading to a broken build.
 
 If you get odd errors while running ``make`` or the resulting binary is broken (e.g. if ``make test`` crashes it before
-it gets to run the first test) you should try to run ``make clean``, which will delete all compiled objects, so that the
-next ``make`` call will perform a full build.
+it gets to run the first test), you should try to run ``make clean``. This will delete all compiled objects, thus
+forcing the next ``make`` call to perform a full build.
 
 Sometimes you also need to run ``make clean`` after changing ``./configure`` options. If you only enable additional
 extensions an incremental build should be safe, but changing other options may require a full rebuild.
@@ -490,10 +490,10 @@ extensions an incremental build should be safe, but changing other options may r
 A more aggressive cleaning target is available via ``make distclean``. This will perform a normal clean, but also roll
 back any files brought by the ``./configure`` command invocation. It will delete configure caches, Makefiles,
 configuration headers and various other files. As the name implies this target "cleans for distribution", so it is
-mostly useful for release managers.
+mostly used by release managers.
 
 Another source of compilation issues is the modification of ``config.m4`` files or other files that are part of the PHP
-build system. If such a file is changed it is necessary to rerun the ``./buildconf`` script. If you do the modification
+build system. If such a file is changed, it is necessary to rerun the ``./buildconf`` script. If you do the modification
 yourself, you will likely remember to run the command, but if it happens as part of a ``git pull`` (or some other
 updating command) the issue might not be so obvious.
 
