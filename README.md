@@ -1,6 +1,15 @@
 PHP-Internals-Book
 ==================
 
+[**Content Outline**](https://docs.google.com/document/d/13PZrbWEIsgzH67JnqH1kXbO5Xt_DsoBHa_JaBjQavQc/edit) on Google Docs.
+
+NOTE
+----
+
+From now on, all new content that is being written should be written in a separate branch. Then once content is ready for publishing, we can merge it down to the master branch (and then push it live).
+
+But works-in-progress should not go in the main branch...
+
 Document format: RST
 --------------------
 
@@ -15,8 +24,9 @@ Coding style
 
 The following "coding style" applies to the written text, not to the included code.
 
- * The maximum line-width for text is 120 characters. C code may overflow this limit in some cases (because PHP code has
-   no strict line limits). We should try though to not make code lines overly long.
+ * The maximum line-width for text is 120 characters.
+ * The maximum line-width for code is 98 characters. Including the four space indentation this would be a limit of 102 characters.
+ * Indentation uses four spaces.
  * Lines should not have trailing whitespace.
  * Punctuation like `?`, `!` or `:` should directly follow after the word (e.g. `foo:` rather than `foo :`).
 

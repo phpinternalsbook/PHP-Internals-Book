@@ -8,7 +8,7 @@ should give you a better understanding of the hashtable structure and its limita
 Analyzing collisions
 --------------------
 
-In order to simplify collision analysis, lets first write a helper function ``array_collision_info()`` which will
+In order to simplify collision analysis, let's first write a helper function ``array_collision_info()`` which will
 take an array and tell us which keys collide into which index. In order to do so we'll go through the ``arBuckets`` and
 for every index create an array that contains some information about all buckets at that index::
 
@@ -49,7 +49,9 @@ for every index create an array that contains some information about all buckets
                 if (bucket->nKeyLength == 0) {
                     add_assoc_long(element, "key", bucket->h);
                 } else {
-                    add_assoc_stringl(element, "key", (char *) bucket->arKey, bucket->nKeyLength - 1, 1);
+                    add_assoc_stringl(
+                        element, "key", (char *) bucket->arKey, bucket->nKeyLength - 1, 1
+                    );
                 }
 
                 {
@@ -63,7 +65,7 @@ for every index create an array that contains some information about all buckets
         }
     }
 
-The code is also a nice usage example for the ``add_`` functions from the previous section. Lets try the function out::
+The code is also a nice usage example for the ``add_`` functions from the previous section. Let's try the function out::
 
     var_dump(array_collision_info([2 => 0, 5 => 1, 10 => 2]));
 
@@ -160,50 +162,50 @@ As such PHP has to perform n inserts with O(n) time, which gives a total executi
 Hash collisions
 ---------------
 
-Now that we successfully created a worst-case scenario using index collisions, lets do the same using actual hash
+Now that we successfully created a worst-case scenario using index collisions, let's do the same using actual hash
 collisions. As this is not possible using integer keys, we'll have to take a look at PHP's string hashing function,
 which is defined as follows::
 
     static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
     {
-	    register ulong hash = 5381;
+        register ulong hash = 5381;
 
-	    /* variant with the hash unrolled eight times */
-	    for (; nKeyLength >= 8; nKeyLength -= 8) {
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-		    hash = ((hash << 5) + hash) + *arKey++;
-	    }
-	    switch (nKeyLength) {
-		    case 7: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 6: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 5: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 4: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 3: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 2: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		    case 1: hash = ((hash << 5) + hash) + *arKey++; break;
-		    case 0: break;
+        /* variant with the hash unrolled eight times */
+        for (; nKeyLength >= 8; nKeyLength -= 8) {
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+            hash = ((hash << 5) + hash) + *arKey++;
+        }
+        switch (nKeyLength) {
+            case 7: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 6: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 5: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 4: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 3: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 2: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+            case 1: hash = ((hash << 5) + hash) + *arKey++; break;
+            case 0: break;
             EMPTY_SWITCH_DEFAULT_CASE()
-	    }
-	    return hash;
+        }
+        return hash;
     }
 
 After removing the manual loop-unrolling the function will look like this::
 
     static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
     {
-	    register ulong hash = 5381;
+        register ulong hash = 5381;
 
-	    for (uint i = 0; i < nKeyLength; ++i) {
-	        hash = ((hash << 5) + hash) + arKey[i];
-	    }
+        for (uint i = 0; i < nKeyLength; ++i) {
+            hash = ((hash << 5) + hash) + arKey[i];
+        }
 
-	    return hash;
+        return hash;
     }
 
 The ``hash << 5 + hash`` expression is the same as ``hash * 32 + hash`` or just ``hash * 33``. Using this we can further
@@ -211,13 +213,13 @@ simplify the function::
 
     static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
     {
-	    register ulong hash = 5381;
+        register ulong hash = 5381;
 
-	    for (uint i = 0; i < nKeyLength; ++i) {
-	        hash = hash * 33 + arKey[i];
-	    }
+        for (uint i = 0; i < nKeyLength; ++i) {
+            hash = hash * 33 + arKey[i];
+        }
 
-	    return hash;
+        return hash;
     }
 
 This hash function is called *DJBX33A*, which stands for "Daniel J. Bernstein, Times 33 with Addition". It is one of the

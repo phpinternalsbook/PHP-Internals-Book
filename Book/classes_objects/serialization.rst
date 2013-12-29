@@ -268,7 +268,7 @@ ensure all the data is valid. You should also not forget that methods like ``uns
 special meaning can still called as normal methods. In order to prevent such calls the above call aborts if
 ``intern->buffer`` is already set.
 
-Now lets look at the second serialization mechanism, which will be used for the buffer views. In order to implement the
+Now let's look at the second serialization mechanism, which will be used for the buffer views. In order to implement the
 ``O`` serialization we'll need a custom ``get_properties`` handler (which returns the "properties" to serialize)
 and a ``__wakeup`` method (which restores the state from the serialized properties).
 

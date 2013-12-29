@@ -21,5 +21,5 @@ Contents:
     classes_objects/internal_structures_and_implementation.rst
 
 .. todo::
-    * fix that long conversion function
     * __construct is not always called
+    * verify that ctors don't segfault or leak on manual call

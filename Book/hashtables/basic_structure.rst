@@ -60,18 +60,18 @@ To implement hashtables PHP uses two structures, which can be found in the ``zen
 at the ``Bucket`` struct::
 
     typedef struct bucket {
-	    ulong h;
-	    uint nKeyLength;
-	    void *pData;
-	    void *pDataPtr;
-	    struct bucket *pListNext;
-	    struct bucket *pListLast;
-	    struct bucket *pNext;
-	    struct bucket *pLast;
-	    char *arKey;
+        ulong h;
+        uint nKeyLength;
+        void *pData;
+        void *pDataPtr;
+        struct bucket *pListNext;
+        struct bucket *pListLast;
+        struct bucket *pNext;
+        struct bucket *pLast;
+        char *arKey;
     } Bucket;
 
-You already know what the ``pNext``, ``pLast``, ``pListNext`` and ``pListLast`` pointers are for. Lets quickly go
+You already know what the ``pNext``, ``pLast``, ``pListNext`` and ``pListLast`` pointers are for. Let's quickly go
 through the remaining members:
 
 ``h`` is the hash of the key. If the key is an integer, then ``h`` will be that integer (for integers the hash function
@@ -83,23 +83,23 @@ function, rather it will be a copy of it (which is allocated separately from the
 inefficient when the stored value is a pointer PHP employs a small trick: Instead of storing the pointer in a separate
 allocation it is put into the ``pDataPtr`` member. ``pData`` then points to that member (``pData = &pDataPtr``).
 
-Lets have a look at the main ``HashTable`` struct now::
+Let's have a look at the main ``HashTable`` struct now::
 
     typedef struct _hashtable {
-	    uint nTableSize;
-	    uint nTableMask;
-	    uint nNumOfElements;
-	    ulong nNextFreeElement;
-	    Bucket *pInternalPointer;
-	    Bucket *pListHead;
-	    Bucket *pListTail;
-	    Bucket **arBuckets;
-	    dtor_func_t pDestructor;
-	    zend_bool persistent;
-	    unsigned char nApplyCount;
-	    zend_bool bApplyProtection;
+        uint nTableSize;
+        uint nTableMask;
+        uint nNumOfElements;
+        ulong nNextFreeElement;
+        Bucket *pInternalPointer;
+        Bucket *pListHead;
+        Bucket *pListTail;
+        Bucket **arBuckets;
+        dtor_func_t pDestructor;
+        zend_bool persistent;
+        unsigned char nApplyCount;
+        zend_bool bApplyProtection;
     #if ZEND_DEBUG
-	    int inconsistent;
+        int inconsistent;
     #endif
     } HashTable;
 
@@ -117,7 +117,7 @@ be 1048576.
 The result of the hash function is a ``ulong``, but the ``nTableSize`` will usually be a lot smaller than that. Thus
 the hash can not be directly used to index into the ``arBuckets`` array. Instead ``nIndex = h % nTableSize`` is used.
 As the table size is always a power of two this expression is equivalent to ``nIndex = h & (nTableSize - 1)``. To see
-why lets see how ``nTableSize - 1`` changes the value:
+why let's see how ``nTableSize - 1`` changes the value:
 
 .. code-block:: none
 

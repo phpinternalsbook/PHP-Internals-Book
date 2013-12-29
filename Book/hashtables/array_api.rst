@@ -18,8 +18,9 @@ This is why there is an additional *symtable* (symbol table) API, which is a thi
 functions which converts integral string keys to actual integer keys. For example, this is how the
 ``zend_symtable_find()`` function is defined::
 
-    static inline int zend_symtable_find(HashTable *ht, const char *arKey, uint nKeyLength, void **pData)
-    {
+    static inline int zend_symtable_find(
+        HashTable *ht, const char *arKey, uint nKeyLength, void **pData
+    ) {
         ZEND_HANDLE_NUMERIC(arKey, nKeyLength, zend_hash_index_find(ht, idx, pData));
         return zend_hash_find(ht, arKey, nKeyLength, pData);
     }
@@ -52,34 +53,34 @@ Additionally there are two macros for creating symtables::
 As you can see these macros are just ``zend_hash_init()`` calls using ``ZVAL_PTR_DTOR`` as the destructor. As such
 these macros are not directly related to the string to integer casting behavior described above.
 
-Lets give this new set of functions a try::
+Let's give this new set of functions a try::
 
-	HashTable *myht;
-	zval *zv1, *zv2;
-	zval **zv_dest;
+    HashTable *myht;
+    zval *zv1, *zv2;
+    zval **zv_dest;
 
-	ALLOC_HASHTABLE(myht);
-	ZEND_INIT_SYMTABLE(myht);
+    ALLOC_HASHTABLE(myht);
+    ZEND_INIT_SYMTABLE(myht);
 
-	MAKE_STD_ZVAL(zv1);
-	ZVAL_STRING(zv1, "zv1", 1);
+    MAKE_STD_ZVAL(zv1);
+    ZVAL_STRING(zv1, "zv1", 1);
 
-	MAKE_STD_ZVAL(zv2);
-	ZVAL_STRING(zv2, "zv2", 1);
+    MAKE_STD_ZVAL(zv2);
+    ZVAL_STRING(zv2, "zv2", 1);
 
-	zend_hash_index_update(myht, 42, &zv1, sizeof(zval *), NULL);
-	zend_symtable_update(myht, "42", sizeof("42"), &zv2, sizeof(zval *), NULL);
+    zend_hash_index_update(myht, 42, &zv1, sizeof(zval *), NULL);
+    zend_symtable_update(myht, "42", sizeof("42"), &zv2, sizeof(zval *), NULL);
 
-	if (zend_hash_index_find(myht, 42, (void **) &zv_dest) == SUCCESS) {
-		php_printf("Value at key 42 is %Z\n", *zv_dest);
-	}
+    if (zend_hash_index_find(myht, 42, (void **) &zv_dest) == SUCCESS) {
+        php_printf("Value at key 42 is %Z\n", *zv_dest);
+    }
 
-	if (zend_symtable_find(myht, "42", sizeof("42"), (void **) &zv_dest) == SUCCESS) {
-		php_printf("Value at key \"42\" is %Z\n", *zv_dest);
-	}
+    if (zend_symtable_find(myht, "42", sizeof("42"), (void **) &zv_dest) == SUCCESS) {
+        php_printf("Value at key \"42\" is %Z\n", *zv_dest);
+    }
 
-	zend_hash_destroy(myht);
-	FREE_HASHTABLE(myht);
+    zend_hash_destroy(myht);
+    FREE_HASHTABLE(myht);
 
 This code will print:
 
@@ -144,7 +145,7 @@ them are listed in the following table:
     * - ``zval``
       - ``zval *value``
 
-As an example for the usage of these functions, lets just create a dummy array with elements of various types::
+As an example for the usage of these functions, let's just create a dummy array with elements of various types::
 
     PHP_FUNCTION(make_array) {
         zval *zv;

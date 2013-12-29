@@ -13,7 +13,7 @@ Hashtables are allocated using ``ALLOC_HASHTABLE()`` and initialized with ``zend
     HashTable *myht;
 
     /* Same as myht = emalloc(sizeof(HashTable)); */
-    ALLOC_HASHTABLE(ht);
+    ALLOC_HASHTABLE(myht);
 
     zend_hash_init(myht, 1000000, NULL, NULL, 0);
 
@@ -302,7 +302,9 @@ Here the second call to ``zend_hash_add()`` returns ``FAILURE`` and the value st
 Note that while there is a ``zend_hash_add()`` function for string keys there is no equivalent for integer indices. If
 you need this kind of behavior you have to either do an ``exists`` call first or make use of a lower-level API::
 
-    _zend_hash_index_update_or_next_insert(myht, 42, &zv, sizeof(zval *), NULL, HASH_ADD ZEND_FILE_LINE_CC)
+    _zend_hash_index_update_or_next_insert(
+        myht, 42, &zv, sizeof(zval *), NULL, HASH_ADD ZEND_FILE_LINE_CC
+    )
 
 For all of the above functions there exists a second ``quick`` variant that accepts a precomputed hash value after the
 string length. This allows you to compute the hash of a string once and then reuse it across multiple calls::
@@ -336,15 +338,21 @@ offers two mechanisms for this, the first being the ``zend_hash_apply_*()`` fami
 for every element in the hashtable. It is available in three variants::
 
     void zend_hash_apply(HashTable *ht, apply_func_t apply_func TSRMLS_DC);
-    void zend_hash_apply_with_argument(HashTable *ht, apply_func_arg_t apply_func, void *argument TSRMLS_DC);
-    void zend_hash_apply_with_arguments(HashTable *ht TSRMLS_DC, apply_func_args_t apply_func, int num_args, ...);
+    void zend_hash_apply_with_argument(
+        HashTable *ht, apply_func_arg_t apply_func, void *argument TSRMLS_DC
+    );
+    void zend_hash_apply_with_arguments(
+        HashTable *ht TSRMLS_DC, apply_func_args_t apply_func, int num_args, ...
+    );
 
 The three functions basically do the same thing, but pass on a different number of arguments to the ``apply_func``
 function. Here are the respective signatures of the ``apply_func``\s::
 
     typedef int (*apply_func_t)(void *pDest TSRMLS_DC);
     typedef int (*apply_func_arg_t)(void *pDest, void *argument TSRMLS_DC);
-    typedef int (*apply_func_args_t)(void *pDest TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key);
+    typedef int (*apply_func_args_t)(
+        void *pDest TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key
+    );
 
 As you can see the ``zend_hash_apply()`` function passes no additional arguments to its callback, the
 ``zend_hash_apply_argument()`` function can pass one additional argument and the ``zend_hash_apply_with_arguments()``
@@ -516,7 +524,7 @@ It's also possible to conduct the iteration in reverse order by using ``end`` in
         /* Do something with data */
     }
 
-You can additionally fetch the key using the ``zend_hash_get_current_key()`` function, which has the following
+You can additionally fetch the key using the ``zend_hash_get_current_key_ex()`` function, which has the following
 signature::
 
     int zend_hash_get_current_key_ex(
@@ -542,7 +550,7 @@ To distinguish the different return values this function is typically used in a 
     uint str_length;
     ulong num_index;
 
-    switch (zend_hash_get_current_key(myht, &str_index, &str_length, &num_index, 0, &pos)) {
+    switch (zend_hash_get_current_key_ex(myht, &str_index, &str_length, &num_index, 0, &pos)) {
         case HASH_KEY_IS_LONG:
             php_printf("%ld", num_index);
             break;
@@ -552,12 +560,12 @@ To distinguish the different return values this function is typically used in a 
             break;
     }
 
-As of PHP 5.5 there is an additional ``zend_hash_get_current_key_zval()`` function which simplifies the common use case
-of writing the key into a zval::
+As of PHP 5.5 there is an additional ``zend_hash_get_current_key_zval_ex()`` function which simplifies the common use
+case of writing the key into a zval::
 
     zval *key;
     MAKE_STD_ZVAL(key);
-    zend_hash_get_current_key_zval(myht, key, &pos);
+    zend_hash_get_current_key_zval_ex(myht, key, &pos);
 
 .. todo::
     Commenting this out for now, as I haven't yet fully figured out the flags for this function.
@@ -679,7 +687,9 @@ This function takes two hashtable elements and returns how they relate to each o
 
 The first function we'll look at is ``zend_hash_compare()``, which compares two hashtables::
 
-    int zend_hash_compare(HashTable *ht1, HashTable *ht2, compare_func_t compar, zend_bool ordered TSRMLS_DC);
+    int zend_hash_compare(
+        HashTable *ht1, HashTable *ht2, compare_func_t compar, zend_bool ordered TSRMLS_DC
+    );
 
 The return has the same meaning as ``compare_func_t``. The function first compares the length of the arrays. If they
 differ, then the array with the larger length is considered greater. What happens when the length is the same depends on
@@ -712,7 +722,8 @@ This function only does some pre- and postprocessing of the hashtable and delega
 ``sort_func``::
 
     typedef void (*sort_func_t)(
-        void *buckets, size_t num_of_buckets, register size_t size_of_bucket, compare_func_t compare_func TSRMLS_DC
+        void *buckets, size_t num_of_buckets, register size_t size_of_bucket,
+        compare_func_t compare_func TSRMLS_DC
     );
 
 This function will receive an array of buckets, their number and their size (always ``sizeof(Bucket *)``), as well as
@@ -728,7 +739,9 @@ predefined quicksort implementation.
 
 The last of the comparison-related function is used for finding the smallest or largest element in a hashtable::
 
-    int zend_hash_minmax(const HashTable *ht, compare_func_t compar, int flag, void **pData TSRMLS_DC);
+    int zend_hash_minmax(
+        const HashTable *ht, compare_func_t compar, int flag, void **pData TSRMLS_DC
+    );
 
 For ``flag=0`` the minimum value is written into ``pData``, for ``flag=1`` the maximum value. If the hashtable is empty
 the function will return ``FAILURE`` (as min/max are not well-defined for an empty array).

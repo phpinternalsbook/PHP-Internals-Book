@@ -15,7 +15,7 @@ Property storage
 ~~~~~~~~~~~~~~~~
 
 In PHP object properties can be declared, but don't have to. How can one efficiently handle such a situation? To find
-out lets recall the standard ``zend_object`` structure::
+out let's recall the standard ``zend_object`` structure::
 
     typedef struct _zend_object {
         zend_class_entry *ce;
@@ -191,7 +191,7 @@ table, which maps property names to ``zend_guard`` structures::
 Object store
 ------------
 
-We already made a lot of use of the object store, so lets have a closer look at it now::
+We already made a lot of use of the object store, so let's have a closer look at it now::
 
     typedef struct _zend_objects_store {
         zend_object_store_bucket *object_buckets;

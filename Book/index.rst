@@ -10,6 +10,8 @@ Table Of Contents
     classes_objects.rst
 
 ..
+    prerequisites.rst
+    php_first_look.rst
     managing_memory.rst
     zvals.rst
     creating_ext.rst
