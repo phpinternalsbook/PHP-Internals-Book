@@ -1,3 +1,25 @@
+.. code-block:: none
+
+    ~/myphp/bin> ldd ./php
+    linux-vdso.so.1 =>  (0x00007fff0adff000)
+	libcrypt.so.1 => /lib/x86_64-linux-gnu/libcrypt.so.1 (0x00007f9689077000)
+	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f9688e61000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f9688c58000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f96889d6000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f96887d2000)
+	libnsl.so.1 => /lib/x86_64-linux-gnu/libnsl.so.1 (0x00007f96885b9000)
+	libxml2.so.2 => /usr/lib/x86_64-linux-gnu/libxml2.so.2 (0x00007f9688457000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f96880cd000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f9687eb0000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f96892d2000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f9687c99000)
+	liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f9687a76000)
+
+Here we checked the dependencies of this PHP build against the system libraries. By default, with a default ``./configure`` command, some extensions get compiled, and those, as well as PHP Core, need dynamic shared libraries to work.
+If you dont know what shared libraries are and what they provide, please, check our chapter about {link}prerequisites{link}
+
+---
+
 Building PHP Extensions
 =======================
 
@@ -12,7 +34,7 @@ Each extension come with some minimal structure for it to be compiled and linked
     * At least one C file, code to be compiled
     * At least one header C file (.h)
     * At least one m4 file, called ``config.m4``, to give the steps *configure* script should follow to make compilation possible.
-    
+
 In fact, extensions are a little bit more complex than that, but rarely crazy complex.
 
 PHP extensions and PECL
@@ -63,7 +85,7 @@ This happens when you run the *configure* script into the PHP source tree. Simpl
 .. code-block:: none
 
     phpsrc/ > ./configure --disable-pdo --enable-soap
-    
+
 In the above example, we indicate we'd like a PHP to be built with all the default extensions minus the PDO one, and with the addition of the SOAP one. By default, the added extensions will be statically built, this means their code will be merged into the code of the final PHP binary, thus, you won't be able to disable them anymore using a .so file. This is known as "static compilation" (thought the exact term for that is "static linkage").
 
 If you want to use shared library, which will build a .so file for your extension, you have to indicate it to the configure script, like this:
@@ -137,7 +159,7 @@ Recall the *phpize* tool we talked about in the :ref:`compiling_php` chapter ? T
     Zend Module Api No:      20090626
     Zend Extension Api No:   220090626
     APC-3.1.13>
-    
+
 Your extension is ready, you can now run the *configure* script into it. Don't forget to provide it with the *php-config* path :
 
 .. code-block:: none
@@ -162,7 +184,7 @@ PHP extensions are loaded with the ``extension=`` hint from the configuration. W
 .. code-block:: ini
 
     extension = memcached.so
-    
+
 From the above example, the loading system will then look for a file named *memcached.so* in the extension directory. This directory has a default place you can change using the ``extension_dir`` key into the configuration file.
 
 .. code-block:: ini
@@ -183,7 +205,7 @@ Second thing : you have to provide the full path to the *.so* object. It then lo
 .. code-block:: ini
 
     zend_extension = /tmp/mydir/php/zendextensions/myextension.so
-    
+
 Zend extensions don't care about the ``extension_dir`` directive or any default directory. This has changed in PHP 5.5.
 Starting from PHP 5.5, Zend extensions loading mechanism is the same as for PHP extensions : they are beeing looked for based on the ``extension_dir`` information from configuration.
 
@@ -205,7 +227,7 @@ At first, what you can do is to check it is correctly loaded in PHP, like this :
 
     > php -dextension=memcached.so -m | grep memcached
     memcached
-    
+
 Ok, it gets loaded with no problem, and PHP tells us it knows about the extension.
 There exists several other interesting switches. For example, if you want to confirm about what configuration settings are provided by the memcached extension, you should run :
 
@@ -259,7 +281,7 @@ And finally, if you want to know what the memcached extension, when loaded, adds
 .. note::
 
     The ``--re`` and ``--ri`` switches invoke Reflection without the need for you to write code. They respectively stand for *"Reflection Informations"* and *"Reflection Extension"*. Remember to use ``--rz`` switch for Zend extensions.
-    
+
 Furthermore, you can run the extension's test suite. It is as easy as invoking ``make test`` in the extension directory, after having compiled it.
 
 Extensions API compatibility
@@ -272,7 +294,7 @@ Extensions are very sensitive to 5 major factors. If they dont fit, the extensio
     * Zend Extension Api No
     * Debug mode
     * Thread safety
-    
+
 The *phpize* tool recall you some of those informations.
 So if you have built a PHP with debug mode, and try to make it load and use an extension which's been built without debug mode, it simply wont work. Same for the other checks.
 
@@ -344,7 +366,7 @@ And now, let's foresee the C code part into PHP which actually loads extensions 
 	    get_module = (zend_module_entry *(*)(void)) DL_FETCH_SYMBOL(handle, "get_module");
 
         (...)
-        
+
 	    if (!get_module) {
 		    DL_UNLOAD(handle);
 		    php_error_docref(NULL TSRMLS_CC, error_type, "Invalid library (maybe not a PHP library) '%s'", filename);
@@ -382,7 +404,7 @@ So by default, PHP tries to help you navigating with extensions.
 .. note::
 
     Usually, when you become an internal developper or an extension developper, you will usually have to play with the debug parameter, and if you have to deal with the Windows platform, threads will show up as well. You can end with compiling the same extension several times against several cases of those parameters.
-    
+
 Remember that every new major/minor version of PHP change parameters such as the PHP Api Version, that's why you need to recompile extensions against a newer PHP version.
 
 .. code-block:: none
@@ -392,7 +414,7 @@ Remember that every new major/minor version of PHP change parameters such as the
     PHP Api Version:         20100412
     Zend Module Api No:      20100525
     Zend Extension Api No:   220100525
-    
+
     > /path/to/php55/bin/phpize -v
     Configuring for:
     PHP Api Version:         20121113
@@ -404,7 +426,7 @@ Remember that every new major/minor version of PHP change parameters such as the
     PHP Api Version:         20090626
     Zend Module Api No:      20090626
     Zend Extension Api No:   220090626
-    
+
 .. note::
 
     *Zend Module Api No* is itself built with a date using the *year.month.day* format. This is the date of the day the API changed and was tagged.

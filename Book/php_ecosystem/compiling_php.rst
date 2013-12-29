@@ -1,209 +1,189 @@
+.. highlight:: bash
+
 .. _compiling_php:
 
-Compiling PHP from sources
-==========================
+Compiling PHP
+=============
 
-Recall on compilation
+This chapter explains how you can compile PHP in a way that is suitable for development of extensions or core
+modifications. We will only cover builds on Unixoid systems. If you wish to build PHP on Windows, you should take a look
+at the `step-by-step build instructions`__ in the PHP wiki [#]_.
+
+This chapter also provides an overview of how the PHP build system works and which tools it uses, but a detailed
+description is outside the scope of this book.
+
+.. __: https://wiki.php.net/internals/windows/stepbystepbuild
+
+.. [#] Disclaimer: We are not liable for any adverse health effects caused by the attempt to compile PHP on Windows.
+
+Why not use packages?
 ---------------------
 
-From what you know or learnt reading our {link}prerequisites chapter{link}, it's now the moment to turn PHP's source code to machine instructions and build the program so that it will run on your platform.
-This chapter focuses on PHP mainly, and we don't know anything about your system, except we assume it is supported by PHP. Remind that this book takes as example Linux based platforms, mainly Debian. We assume you master you system.
-Should you really know your hardware and your system, you would use any custom compiler, compiler module or extension, as well as any compiler special switch. We'll here use default ones, but show you some cool stuff coming from the *GCC* compilation tool.
+If you are currently using PHP, you likely installed it through your package manager, using a command like
+``sudo apt-get install php``. Before explaining the actual compilation you should first understand why doing your own
+compile is necessary and you can't just use a prebuilt package. There are multiple reasons for this:
 
-Getting sources and dependencies ready
---------------------------------------
+Firstly, the prebuilt package only contains the resulting binaries, but misses other things that are necessary to
+compile extensions, e.g. header files. This can easily be remedied by installing a development package, which is
+typically called ``php-dev``. To facilitate debugging with valgrind or gdb one could additionally install debug symbols,
+which are usually available as another package called ``php-dbg``.
 
-There exists two different ways to grab PHP original source code : from packages we provide behind http://download.php.net , this is usually what you'll do. The other way is to check out the source code directly from our git repository, located at http://git.php.net (mirrored on Github, at http://www.github.com/php-src).
-Those two ways differ a little bit when comes the time to compile PHP. Here are what we can say about them :
+But even if you install headers and debug symbols, you'll still be working with a release build of PHP. This means that
+it will be built with high optimization level, which can make debugging very hard. Furthermore release builds will not
+generate warnings about memory leaks or inconsistent data structures. Additionally prebuilt packages don't enable thread
+safety, which is very helpful during development.
 
-    * PHP coming from git doesn't bundle a default configure script, you will have to generate it, so you'll need to run our ``buildconf`` script, which itself relies on the autotools suite you'll have to install if not done yet.
-    * PHP coming from git doesn't bundle generated lexer and parser, you'll have to build them, so you'll need re2c and bison tools.
+Another issue is that nearly all distributions apply additional patches to PHP. In some cases these patches only
+contain minor changes related to configuration, but some distributions make use of highly intrusive patches like
+Suhosin. Some of these patches are known to introduce incompatibilities with low-level extensions like opcache.
 
-Basically, a PHP source coming from our packages is just ready to be built but a PHP source coming from a checkout of any branch from git will need more tools to get those sources prepared for compilation.
+PHP only provides support for the software as provided on `php.net`_ and not for the distribution-modified versions. If
+you want to report bugs, submit patches or make use of our help channels for extension-writing, you should always work
+against the official PHP version. When we talk about "PHP" in this book, we're always referring to the officially
+supported version.
 
-First look at the configure script
-**********************************
+.. _`php.net`: http://www.php.net
 
-.. code-block:: none
+Obtaining the source code
+-------------------------
 
-    > mkdir /tmp/phpsrc && cd /tmp/phpsrc
-    /tmp/phpsrc> wget http://us.php.net/get/php-5.4.15.tar.gz/from/this/mirror
-    /tmp/phpsrc> tar xzf php-5.4.15.tar.gz && cd php-5.4.15
-    /tmp/phpsrc/php-5.4.15> ls -al
-    
-There we downloaded PHP from one of our mirror, unpacked it and browsed the files. We can see a configure script, let's now run it.
+Before you can build PHP you first need to obtain its source code. There are two ways to do this: You can either
+download an archive from `PHP's download page`_ or clone the git repository from `git.php.net`_ (or the mirror on
+`Github`_).
 
-.. note::
+The build process is slightly different for both cases: The git repository doesn't bundle a ``configure`` script, so
+you'll need to generate it using the ``buildconf`` script, which makes use of autotools. Furthermore the git repository
+does not contain a pregenerated parser, so you'll also need to have bison installed.
 
-    Remember that if you get PHP from git, the configure script is not present in the tree. You should then run the buildconf.sh script which will invoke the autotools chain, mainly parsing the .m4 templates and generate a configure script for you. Starting from PHP 5.4, we support autoconf 2.59, notice that before PHP5.4, only autoconf 2.13 is supported.
-    
-.. code-block:: none
+We recommend to checkout out the source code from git, because this will provide you with an easy way to keep your
+installation updated and to try your code with different versions. A git checkout is also required if you want to
+submit patches or pull requests for PHP.
 
-    /tmp/phpsrc/php-5.4.15> ./configure --help | less
-    
-Here you can see all the switches we provide to set up PHP. There are many of them, and we assume you are used to running the configure script, so we won't (and can't) detail all the options you would be able to use.
-Remember that dependi  ng on the version of PHP you use, those switches may differ. For example, we bundle different extensions in different PHP versions setups.
+To clone the repo run the following commands in your shell::
 
-Let's prepare for a default installation :
+    ~> git clone http://git.php.net/repository/php-src.git
+    ~> cd php-src
+    # by default you will be on the master branch, which is the current
+    # development version. You can check out a stable branch instead:
+    ~/php-src> git checkout PHP-5.5
 
-.. code-block:: none
+If you have issues with the git checkout, take a look at the `Git FAQ`_ on the PHP wiki. The Git FAQ also explains how
+to setup git if you want to contribute to PHP itself. Furthermore it contains instructions on setting up multiple
+working directories for different PHP versions. This can be very useful if you need to test your extensions or changes
+against multiple PHP versions and configurations.
 
-    /tmp/phpsrc/php-5.4.15> ./configure --prefix=/home/myuser/myphp
-    
-Depending on you system, the configure script ends up with an error saying that some libraries are missing. By default, when you want to compile PHP, XML support is enabled, and we need libxml2 to provide such a support. Usually the header files for this lib are not installed and configure cannot continue. It may also be the case for other required libraries. Read the output of configure script, and download all the libraries needed, as well as their header files (usually provided by a *"-dev"* package from you package manager tool).
+Before continuing you should also install some basic build dependencies with your package manager (you'll likely already
+have the first three installed by default):
 
-.. note::
+* ``gcc`` or some other compiler.
+* ``libc-dev``, which provides the C standard library, including headers.
+* ``make``, which is the build-management tool PHP uses.
+* ``autoconf`` (2.59 or higher), which is used to generate the ``configure`` script.
+* ``automake`` (1.4 or higher), which generates ``Makefile.in`` files.
+* ``libtool``, which helps manage shared libraries.
+* ``bison`` (2.4 or higher), which is used to generate the PHP parser.
+* (optional) ``re2c``, which is used to generate the PHP lexer. As the git repository already contains a generated
+  lexer you will only need re2c if you wish to make changes to it.
 
-    It even can happen that no compiling suite is found on your system by default. A C compiler is needed to build PHP, as well as a C++ compiler, a C preprocessor and a linker. If you rely on Unix and GNU tools, usually the *GCC* suite provides all you need about that.
-    On Debian based systems, the *build-essential* package provides all tools needed to compile software for you system, it is then a good choice to have it installed.
+On Debian/Ubuntu you can install all these with the following command::
 
-Just running configure script out of the box will prepare PHP sources to be compiled by checking that your system provides all dependencies PHP needs. Once done, it should end successfully with something like :
+    ~/php-src> sudo apt-get install build-essential autoconf automake libtool bison re2c
 
-.. code-block:: none
+Depending on the extensions that you enable during the ``./configure`` stage PHP will need a number of additional
+libraries. When installing these, check if there is a version of the package ending in ``-dev`` or ``-devel`` and
+install them instead. The packages without ``dev`` typically do not contain necessary header files. For example a
+default PHP build will require libxml, which you can install via the ``libxml2-dev`` package.
 
-    Generating files
-    configure: creating ./config.status
-    creating main/internal_functions.c
-    creating main/internal_functions_cli.c
-    +--------------------------------------------------------------------+
-    | License:                                                           |
-    | This software is subject to the PHP License, available in this     |
-    | distribution in the file LICENSE.  By continuing this installation |
-    | process, you are bound by the terms of this license agreement.     |
-    | If you do not agree with the terms of this license, you must abort |
-    | the installation process at this point.                            |
-    +--------------------------------------------------------------------+
+If you are using Debian or Ubuntu you can use ``sudo apt-get build-dep php5`` to install a large number of optional
+build-dependencies in one go. If you are only aiming for a minimum build, many of them will not be necessary though.
 
-    Thank you for using PHP.
+.. _PHP's download page: http://www.php.net/downloads.php
+.. _git.php.net: http://git.php.net
+.. _Github: http://www.github.com/php-src
+.. _Git FAQ: https://wiki.php.net/vcs/gitfaq
 
-    config.status: creating php5.spec
-    config.status: creating main/build-defs.h
-    config.status: creating scripts/phpize
-    config.status: creating scripts/man1/phpize.1
-    config.status: creating scripts/php-config
-    config.status: creating scripts/man1/php-config.1
-    config.status: creating sapi/cli/php.1
-    config.status: creating main/php_config.h
-    config.status: executing default commands
+Build overview
+--------------
 
-Huray, sources are now ready to be compiled.
+Before taking a closer look at what the individual build steps do, here are the commands you need to execute for a
+"default" PHP build::
 
-Let's make and install it !
----------------------------
+    ~/php-src> ./buildconf     # only necessary if building from git
+    ~/php-src> ./configure
+    ~/php-src> make -jN
 
-Once your sources are ready, you now have to compile them all. As PHP relies on autotools and make to get compiled, all you have to do now is run the ``make`` tool, and, that's it !
+For a fast build, replace ``N`` with the number of CPU cores you have available (see ``grep "cpu cores" /proc/cpuinfo``).
 
-.. code-block:: none
+By default PHP will build binaries for the CLI and CGI SAPIs, which will be located at ``sapi/cli/php`` and
+``sapi/cgi/php-cgi`` respectively. To check that everything went well, try running ``sapi/cli/php -v``.
 
-    /tmp/phpsrc/php-5.4.15> make
-    
-make should end successfully, with something like :
+Additionally you can run ``sudo make install`` to install PHP into ``/usr/local``. You can change the target directory
+by specifying a ``--prefix`` in the configuration stage::
 
-.. code-block:: none
+    ~/php-src> ./configure --prefix=$HOME/myphp
+    ~/php-src> make -jN
+    ~/php-src> make install
 
-    Build complete.
-    Don't forget to run 'make test'
-    
-It encourages you to run the ``make test`` command. This command will run the *test* target from the ``MakeFile`` file, which will run the freshly-built PHP binary against our test suite, located into the different *tests/* directories of the PHP source tree.
-Nowadays, we provide by default about 9000 tests, and unfortunately the tests are not run in parallel yet, thus the ``make test`` command can take up to 5min to complete, depending on your hardware.
+Here ``$HOME/myphp`` is the installation location that will be used during the ``make install`` step. Note that
+installing PHP is not necessary, but can be convenient if you want to use your PHP build outside of extension
+development.
 
-If this is the first time you compile PHP on your platform, we encourage you to run the test suite. Depending on your OS, your environment and most of all : your hardware and your compiler, you may find bugs in PHP by running the test suite. The good new is that all is autommated, at the end of the test suite run, the script will ask you if you want to send the report. If you say yes, a report will be uploaded to our qa platform, and it can be analyzed by our automates or our contributors later on. Thank you for this free and easy step :-)
+Now lets take a closer look at the individual build steps!
 
-.. note::
+The ``./buildconf`` script
+--------------------------
 
-    If you are experiencing problems compiling PHP, we provide a help paragraph at the end of this chapter.
-    
-PHP is compiled, now it is time to install it :
+If you are building from the git repository, the first thing you'll have to do is run the ``./buildconf`` script. This
+script does little more than invoking the ``build/build.mk`` makefile, which in turn calls ``build/build2.mk``.
 
-.. code-block:: none
+The main job of these makefiles is to run ``autoconf`` to generate the ``./configure`` script and ``autoheader`` to
+generate the ``main/php_config.h.in`` template. The latter file will be used by configure to generate the final
+configuration header file ``main/php_config.h``.
 
-    /tmp/phpsrc/php-5.4.15> make install
+Both utilities produce their results from the ``configure.in`` file (which specifies most of the PHP build process),
+the ``acinclude.m4`` file (which specifies a large number of PHP-specific M4 macros) and the ``config.m4`` files of
+individual extensions and SAPIs (as well as a bunch of other ``m4`` files).
 
-The compiled files will be installed in the directory you provided to the ``--prefix`` switch of the configure script. For a try, it is usually a good idea to store the installed files somewhere behind your home directory. As an example, we used */home/myuser/myphp*
+The good news is that writing extensions or even doing core modifications will not require much interaction with the
+build system. You will have to write small ``config.m4`` files lateron, but those usually just use two or three of the
+high-level macros that ``acinclude.m4`` provides. As such we will not go into further detail here.
 
-.. note::
+The ``./buildconf`` script only has two options: ``--debug`` will disable warning suppression when calling autoconf and
+autoheader. Unless you want to work on the buildsystem, this option will be of little interest to you.
 
-    You will have noticed that you should customize this directory ( */home/myuser/myphp* ) and make it fit your user account or your needs.
+The second option is ``--force``, which will allow running ``./buildconf`` in release packages (e.g. if you downloaded
+the packaged source code and want to generate a new ``./configure``) and additionally clear the configuration caches
+(``config.cache`` and ``autom4te.cache/``).
 
-Check all is right
-******************
+If you update your git repository using ``git pull`` (or some other command) and get weird errors during the ``make``
+step, this usually means that something in the build configuration changed and you need to run ``./buildconf --force``.
 
-Let's have a look at the default install tree :
+The ``./configure`` script
+--------------------------
 
-.. code-block:: none
+Once the ``./configure`` script is generated you can make use of it to customize your PHP build. You can list all
+supported options using ``--help``::
 
-    > tree -L 3 /home/myuser/myphp
+    ~/php-src> ./configure --help | less
 
-    /home/myuser/myphp
-    |-- bin
-    |   |-- pear
-    |   |-- peardev
-    |   |-- pecl
-    |   |-- phar -> /tmp/myphp/bin/phar.phar
-    |   |-- phar.phar
-    |   |-- php
-    |   |-- php-cgi
-    |   |-- php-config
-    |   `-- phpize
-    |-- etc
-    |   `-- pear.conf
-    |-- include
-    |   `-- php
-    |       |-- ext
-    |       |-- include
-    |       |-- main
-    |       |-- sapi
-    |       |-- TSRM
-    |       `-- Zend
-    |-- lib
-    |   `-- php
-    |       |-- Archive
-    |       |-- build
-    |       |-- Console
-    |       |-- data
-    |       |-- doc
-    |       |-- OS
-    |       |-- PEAR
-    |       |-- PEAR5.php
-    |       |-- pearcmd.php
-    |       |-- PEAR.php
-    |       |-- peclcmd.php
-    |       |-- Structures
-    |       |-- System.php
-    |       |-- test
-    |       `-- XML
-    `-- php
-        `-- man
-            `-- man1
+The first part of the help will list various generic options, which are supported by all autoconf-based configuration
+scripts. One of them is the already mentioned ``--prefix=DIR``, which changes the installation directory used by
+``make install``. Another useful option is ``-C``, which will cache the result of various tests in the ``config.cache``
+file and speed up subsequent ``./configure`` calls. Using this option only makes sense once you already have a working
+build and want to quickly change between different configurations.
 
-Quick tour :
+Apart from generic autoconf options there also many settings specific to PHP. For example, you can choose which
+extensions and SAPIs should be compiled using the ``--enable-NAME`` and ``--disable-NAME`` switches. If the extension or
+SAPI has external dependencies you need to use ``--with-NAME`` and ``--without-NAME`` instead. If a library needed by
+``NAME`` is not located in the default location (e.g. because you compiled it yourself) you can specify its location
+using ``--with-NAME=DIR``.
 
-    * *bin/* contains obviously binaries. The most important is the CLI PHP : *bin/php*
-    * *etc/* contains obviously configuration. Note that the default php.ini directory is *not* here
-    * *include/php* contains header files which will be needed if you want to further build extensions or embed any part of PHP to a custom software
-    * *lib/php* contains PEAR default files. It is also the default php.ini directory and the default extensions directory
-    * *php/man* obviously contains man pages for the ``php`` command.
-    
-.. note ::
-
-    If you don't provide a ``--prefix`` switch to your *configure* command, default location is ``/usr/local``. PHP'll then be merged to the ``/usr/local`` tree, which is all right and respects the {link}Linux Standard Directory Structure{link}
-    If you want to build several versions of PHP, the easiest way is to customize the place they'll be installed in, by playing with the *--prefix* configure switch. Each installation directory is totally independant from each other.
-
-Now let's check our binary against several switches to see what to expect from it :
+By default PHP will build the CLI and CGI SAPIs, as well as a number of extensions. You can find out which extensions
+your PHP binary contains using the ``-m`` option. For a default PHP 5.5 build the result will look as follows:
 
 .. code-block:: none
 
-    ~/myphp> cd bin
-    ~/myphp/bin> ./php -v
-    PHP 5.4.15 (cli) (built: Jun 13 2013 12:24:03)
-    Copyright (c) 1997-2013 The PHP Group
-    Zend Engine v2.4.0, Copyright (c) 1998-2013 Zend Technologies
-
-Ok, this is our PHP.
-
-.. code-block:: none
-
-    ~/myphp/bin> ./php -m
+    ~/php-src> sapi/cli/php -m
     [PHP Modules]
     Core
     ctype
@@ -232,124 +212,28 @@ Ok, this is our PHP.
     xmlreader
     xmlwriter
 
-    [Zend Modules]
+If you now wanted to stop compiling the CGI SAPI, as well as the tokenizer and sqlite3 extensions and instead enable
+opcache and gmp, the corresponding configure command would be::
 
-Here you can see a list of the default extensions which are activated if you don't touch anything about the configure script.
-Default activated extensions may vary upon the PHP version you compile.
+    ~/php-src> ./configure --disable-cgi --disable-tokenizer --without-sqlite3 \
+                           --enable-opcache --with-gmp
 
-.. code-block:: none
-    
-    ~/myphp/bin> ./php --ini
-    Configuration File (php.ini) Path: /tmp/myphp/lib
-    Loaded Configuration File:         (none)
-    Scan for additional .ini files in: (none)
-    Additional .ini files parsed:      (none)
+By default most extensions will be compiled statically, i.e. they will be part of the resulting binary. Only the opcache
+extension is shared by default, i.e. it will generate an ``opcache.so`` shared object in the ``modules/`` directory. You
+can compile other extensions into shared objects as well by writing ``--enable-NAME=shared`` or ``--with-NAME=shared``
+(but not all extensions support this). We'll talk about how to make use of shared extensions in the next section.
 
-Interesting here. Against what you could expect, PHP wont look for a *php.ini* configuration file in its own *etc/* directory, but in its *lib/* directory. And you also can notice that, by default, no *php.ini* is provided.
-There exists two *php.ini* into the source directory, it is your responsability to use them if you want, so you have to copy them on your own. You could also use a custom *php.ini* you write from scratch.
+To find out which switch you need to use and whether an extension is enabled by default, check ``./configure --help``.
+If the switch is either ``--enable-NAME`` or ``--with-NAME`` it means that the extension is not compiled by default and
+needs to be explicitly enabled. ``--disable-NAME`` or ``--without-NAME`` on the other hand indicate an extension that
+is compiled by default, but can be explicitly disabled.
 
-.. code-block:: none
-    
-    ~/myphp/bin> cp /tmp/phpsrc/php-5.4.15/php.ini-development ~/myphp/lib/php.ini
-    ~/myphp/bin> ./php --ini
-    Configuration File (php.ini) Path: /tmp/myphp/lib
-    Loaded Configuration File:         /tmp/myphp/lib/php.ini
-    Scan for additional .ini files in: (none)
-    Additional .ini files parsed:      (none)
+Some extensions are always compiled and can not be disabled. To create a build that only contains the minimal amount of
+extensions use the ``--disable-all`` option::
 
-Here we just copied a default *php.ini* in the default directory and confirmed that PHP now really uses it.
-
-.. note::
-
-    You can customize the *php.ini* path, as well as *"additional .ini files"*. We show you all that in a paragraph later in this chapter.
-    We'd like to remind you as well that PHP not necessarily looks for a *"php.ini"* file, it also looks for a *"php-{sapi name}.ini"* file. The name of the ini file can be customized depending on the SAPI, so, for a CLI PHP, you could use a *php-cli.ini*, and for the CGI PHP, a *php-cgi.ini*. This is interesting as PHP generally should behaves differently depending on the SAPI it is run from. Linux distribution packages usually rely on such a feature to build flexible trees of PHP installations.
-
-.. code-block:: none
-    
-    ~/myphp/bin> ldd ./php
-    linux-vdso.so.1 =>  (0x00007fff0adff000)
-	libcrypt.so.1 => /lib/x86_64-linux-gnu/libcrypt.so.1 (0x00007f9689077000)
-	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f9688e61000)
-	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f9688c58000)
-	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f96889d6000)
-	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f96887d2000)
-	libnsl.so.1 => /lib/x86_64-linux-gnu/libnsl.so.1 (0x00007f96885b9000)
-	libxml2.so.2 => /usr/lib/x86_64-linux-gnu/libxml2.so.2 (0x00007f9688457000)
-	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f96880cd000)
-	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f9687eb0000)
-	/lib64/ld-linux-x86-64.so.2 (0x00007f96892d2000)
-	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f9687c99000)
-	liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f9687a76000)
-
-Here we checked the dependencies of this PHP build against the system libraries. By default, with a default ``./configure`` command, some extensions get compiled, and those, as well as PHP Core, need dynamic shared libraries to work.
-If you dont know what shared libraries are and what they provide, please, check our chapter about {link}prerequisites{link}
-
-PHP tools provided with installation
-------------------------------------
-
-Until now, we talked about the PHP binary. But the bin/ directory created by the setup not only contains the PHP binary. It contains also usefull binaries or scripts, which will be needed for later extension compilation.
-Extensions are treated in their own chapter, here, we'll present tools that help building them.
-
-phpize
-******
-
-``make install`` creates by default a *bin/phpize* file. This is a shell script which is responsible for importing the PHP files to an extension directory in order to further prepare it, compile it and install it.
-We will talk again about this file in the extension dedicated chapter. What important thing you should know is that this file is really tied to this *particular PHP setup*, and will be needed if you further want to build extensions for *this particular PHP setup*.
-
-To have an idea, *phpize* is a shell script, so, go and watch its source. It's trivial to read and understand.
-
-php-config
-**********
-
-In the installed *bin/* directory, you can also find another important file called php-config. This is an executable shell script you can run.
-Let's go for it :
-
-.. code-block:: none
-
-    ~/myphp/bin> php-config
-    Usage: ~/myphp/bin/php-config [OPTION]
-    Options:
-      --prefix            [/home/myuser/myphp/bin/myphp]
-      --includes          [-I/home/myuser/myphp/include/php -I/home/myuser/myphp/include/php/main -I/home/myuser/myphp/include/php/TSRM -I/home/myuser/myphp/include/php/Zend -I/home/myuser/myphp/include/php/ext -I/home/myuser/myphp/include/php/ext/date/lib]
-      --ldflags           []
-      --libs              [-lcrypt   -lresolv -lcrypt -lrt -lrt -lm -ldl -lnsl  -lxml2 -lxml2 -lxml2 -lcrypt -lxml2 -lxml2 -lxml2 -lcrypt ]
-      --extension-dir     [/home/myuser/myphp/lib/php/extensions/debug-non-zts-20100525]
-      --include-dir       [/home/myuser/myphp/include/php]
-      --man-dir           [/home/myuser/myphp/php/man]
-      --php-binary        [/home/myuser/myphp/bin/php]
-      --php-sapis         [ cli cgi]
-      --configure-options [--prefix=/home/myuser/myphp --enable-debug]
-      --version           [5.4.16-dev]
-      --vernum            [50416]
-
-This script is a *pkg-config* like script. It is aimed to be invoked by the compiler when compiling future extensions for this PHP build. You usually provide its path to the configure script of any extension.
-Appart from that, this script has two important options you could need further in your development : it recalls you about the default extension directory of this PHP build, as well as the configure options which were used to build this particular PHP.
-Those informations can also be extracted from ``phpinfo()`` call, though this is little bit cumbersome as the outpout of ``phpinfo()`` will have to be parsed. *php-config* directly gives usefull informations about the PHP setup.
-
-.. note::
-
-    If you are not used to the *pkg-config* tool, it could be interesting you grab more informations about it using your favorite search engine. That way you will fully understand the usage of *php-config*.
-
-Customizing PHP compilation
----------------------------
-
-We know how to compile PHP. We'll now concentrate on particular *./configure* switches aimed to customize many things in the PHP setup. Just invoking the configure script without any option leads to a default PHP install.
-Let's now customize it.
-
-.. note::
-
-    It's both impossible and useless to detail all the *configure* script options. Most of them are taken from default *autoconf* configuration. We encourage you to learn more about *autoconf* and *autotools* if you are not familiar with them. This will help you understand lots of *configure* options.
-
-Interesting configure switches
-******************************
-
-If you just need to test very basic feature of PHP, you could provide the *--disable-all* switch, which disable all non-needed extensions.
-Turning on this switch activates all the --disable possible switches, thus ending, if no more --enable switches were used, in a very tiny PHP binary, having a low memory footprint, but also having far less embeded features.
-Running some stuff against a tiny PHP, just to show :
-
-.. code-block:: none
-
-    > /path/to/tinyphp/bin/php -m 
+    > ./configure --disable-all && make
+    > sapi/cli/php -m
+    [PHP Modules]
     Core
     date
     ereg
@@ -358,113 +242,270 @@ Running some stuff against a tiny PHP, just to show :
     SPL
     standard
 
-Those extensions are the minimum required ones, we talk about them deeper in the dedicated chapter about extensions.
+The ``--disable-all`` option is very useful if you want a fast build and don't need much functionality (e.g. when
+implementing language changes). For the smallest possible build you can additionally specify the ``--disable-cgi``
+switch, so only the CLI binary is generated.
 
-.. warning::
+There are two more switches, which you should **always** specify when developing extensions or working on PHP:
 
-    A "tiny" PHP, compiled with just *--disable-all* switch, is often useless : no XML support at all, not even sessions. This is just a version you could use if you dont want the compilation to last too much (as it is very little, very few files get compiled, thus a minimal compilation time) or if you just need very basic PHP features (strings, array, functions and that's nearly all) with little memory footprint.
+``--enable-debug`` enables debug mode, which has multiple effects: Compilation will run with ``-g`` to generated debug
+symbols and additionally use the lowest optimization level ``-O0``, which will make PHP a lot slower, but make debugging
+with tools like ``gdb`` more predictable. Furthermore debug mode defines the ``ZEND_DEBUG`` macro, which will enabled
+various debugging helpers in the engine. Among other things memory leaks, as well as incorrect use of some data
+structures, will be reported.
 
-You have lots of switches to activate extensions mainly. We won't talk about all of them, but *--with-libedit* or *--with-libreadline* let you build a PHP with a nice interactive mode looking like a REPL (Read Eval Print Loop). You launch it using *-a* switch on the PHP binary, like this:
+``--enable-maintainer-zts`` enables thread-safety. This switch will define the ``ZTS`` macro, which in turn will enable
+the whole TSRM (thread-safe resource manager) machinery used by PHP. Writing thread-safe extensions for PHP is very
+simple, but only if make sure to enable this switch. Otherwise you're bound to forget a ``TSRMLS_*`` macro somewhere and
+your code won't build in a thread-safe environment.
 
-.. code-block:: none
+On the other hand you should not use either of these options if you want to perform performance benchmarks for your
+code, as both can cause significant and asymmetrical slowdowns.
 
-    >/path/to/php/bin/php -a
-    Interactive shell
+Note that ``--enable-debug`` and ``--enable-maintainer-zts`` change the ABI of the PHP binary, e.g. by adding additional
+arguments to many functions. As such shared extensions compiled in debug mode will not be compatible with a PHP binary
+built in release mode. Similarly a thread-safe extension is not compatible with a thread-unsafe PHP build.
 
-    php > $a = "foo";
-    php > var_dump($a);
-    string(3) "foo"
-    php > $b = 3; $c = 8;
-    php > echo $b+$c;
-    11
-    php > 
+Due to the ABI incompatibility ``make install`` (and PECL install) will put shared extensions in different directories
+depending on these options:
 
-Finally we have to talk about this crucial switch you use whenever you develop in PHP source code or you write an extension : the *--enable-debug* switch. It tells the building suite to make a debug version of PHP. If you read the source, it's all about ``#ifdef ZEND_DEBUG`` macros.
-You recognize a PHP with debug switch in several ways :
+* ``$PREFIX/lib/php/extensions/no-debug-non-zts-API_NO`` for release builds without ZTS
+* ``$PREFIX/lib/php/extensions/debug-non-zts-API_NO`` for debug builds without ZTS
+* ``$PREFIX/lib/php/extensions/no-debug-zts-API_NO`` for release builds with ZTS
+* ``$PREFIX/lib/php/extensions/debug-zts-API_NO`` for debug builds with ZTS
 
-    * Just ask for php -v output, it will clearly show "DEBUG"
-    * Invoke *php-config --configure-options* and grep "debug"
+The ``API_NO`` placeholder above refers to the ``ZEND_MODULE_API_NO`` and is just a date like ``20100525``, which is
+used for internal API versioning.
 
-What should be known about debug mode is that the extensions must be built with debug mode as well to work. It even happens that the default extensions directory name is built with the debug flag into it :
+For most purposes the configuration switches described above should be sufficient, but of course ``./configure``
+provides many more options, which you'll find described in the help.
 
-    * For a PHP compiled with debug flag : *lib/php/extensions/debug-non-zts-20100525*
-    * For a PHP compiled without debug flag : *lib/php/extensions/no-debug-non-zts-20100525*
-    
-.. warning::
+Apart from passing options to configure, you can also specify a number of environment variables. Some of the more
+important ones are documented at the end of the configure help output (``./configure --help | tail -25``).
 
-    You cannot not run extensions compiled for a no-debug PHP on a PHP compiled with debug flag, and vice-versa. Even if this is the exact same version of PHP : you have to recompile the extensions in debug mode.
-    
-Also, never run a debug build of PHP in production mode.
+For example you can use ``CC`` to use a different compiler and ``CFLAGS`` to change the used compilation flags::
 
-.. warning::
+    ~/php-src> ./configure --disable-all CC=clang CFLAGS="-O3 -march=native"
 
-    Never run a debug build of PHP in production.
-    
-Seriously, the debug flag slows down PHP execution in so many ways. That's normal, debug adds many more checks everywhere in the C code, structures are usually heavier thus leading to a bigger memory footprint as well.
-Also, enabling debug automatically turns off every compiler optimisation passes, which for GCC means invoking it with the *-O0* flag.
+In this configuration the build will make use of clang (instead of gcc) and use a very high optimization level
+(``-O3 -march=native``).
 
-make options
-************
+``make`` and ``make install``
+-----------------------------
 
-If you know make, then it's OK. If not, we recommand you to use the *-j* flag which basically tells make to run compilation in parallel, distributing compilation tasks on several CPUs / Cores. Use it with the number of Cores you have on your machine.
+After everything is configured, you can use ``make`` to perform the actual compilation::
 
-.. code-block:: none
+    ~/php-src> make -jN    # where N is the number of cores
 
-    > grep "cpu cores" /proc/cpuinfo
-    cpu cores     4
-    path/to/phpsrc > make -j4
+The main result of this operation will be PHP binaries for the enabled SAPIs (by default ``sapi/cli/php`` and
+``sapi/cgi/php-cgi``), as well as shared extensions in the ``modules/`` directory.
 
-If you happen to compile PHP with lots of extensions activated, the time taken to compile can grow up to several minutes on modern hardware, thus the *-j make* flag is very usefull.
+Now you can run ``make install`` to install PHP into ``/usr/local`` (default) or whatever directory you specified using
+the ``--prefix`` configure switch.
 
-Providing additionnal C compiler options
-****************************************
-
-*Make* also let you pass options to the compiler it'll use, by providing the CFLAGS variable.
-With PHP, you cant pass them directly to *make* as libtool is used and just ignores them. Better pass them to your configure script.
-
-Should you want to experiment performance flags of GCC, you could use, for example :
-
-.. code-block:: none
-
-    src/> CFLAGS="-O4 -march=native" ./configure && make
-    
-Those two GCC flags will tell it to compile the files with the maximum optimization level, and to produce machine code for the actual CPU (native architecture), which, depending on your hardware, can give a performance boost to the resulting PHP.
-
-.. warning ::
-
-    Master your compiler and your architecture if you come to play with GCC optimization level and flags. If you dont, you can end up with a PHP randomly crashing. We dont really support high level of optimization in PHP source code, we support the default -O2 level. But if know what you talk about, go for it.
-    
-.. note::
-
-    Perhaps reading http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html may help here. You'll find lots of information about GCC flags.
-
-Compilation usual problems
---------------------------
-
-As you may know, *make* makes a cache of all the objects it builds, so that its next invocations will be much faster. If you change just one C source file and run *make* again, it should guess this and only compile the dedicated object, then tries to link again and end out with the final build.
-But, sometimes, this just does not work well. If you experience strange errors in *make* output, and have invoked *make* several times before, think about running *make clean*, which will delete all the compiled objects so that the next *make* call starts the compilation back from the beginning on a clean basis.
-
-Also, if you play with *configure* options and change them before invoking *make*, better as well to run* make clean* before *make*.
-
-There also exists a *make* target called *"distclean"*, which is a normal clean, but it also rolls back all the stuff brought by the *./configure* command invocation (it deletes configure caches, as well as the *Makefile* and other temporary files).
-In short, remember *make distclean* as beeing a total cleanup of anything created or modified by previous *configure* or *make* calls.
-
-If you use PHP sources from git, or if you modify m4 files (we talk about such files in the extensions dedicated chapter), then you always have to rebuild the configure script.
-If you dont, you'll meet errors at compilation, for sure, because you invoke *configure* so that it will prepare files based on an old API you modified. *configure* has no way to guess new C files to prepare for compilation or new checks to perform : you must rebuild the configure script.
-This is done by deleting the configure script and running the buildconf script, usually with the "force" switch :
+``make install`` will do little more than copy a number of files to the new location. Unless you specified
+``--without-pear`` during configuration it will also download and install PEAR. Here is the resulting tree of a default
+PHP build:
 
 .. code-block:: none
 
-    > rm configure
-    > ./buildconf --force
-    Forcing buildconf
-    Removing configure caches
-    buildconf: checking installation...
-    buildconf: autoconf version 2.69 (ok)
-    rebuilding aclocal.m4
-    rebuilding configure
-    rebuilding main/php_config.h.in
-    
-.. warning::
+    > tree -L 3 ~/myphp
 
-    Think about deleting the configure script before invoking the buildconf script.
+    /home/myuser/myphp
+    |-- bin
+    |   |-- pear*
+    |   |-- peardev*
+    |   |-- pecl*
+    |   |-- phar -> /home/myuser/myphp/bin/phar.phar*
+    |   |-- phar.phar*
+    |   |-- php*
+    |   |-- php-cgi*
+    |   |-- php-config*
+    |   `-- phpize*
+    |-- etc
+    |   `-- pear.conf
+    |-- include
+    |   `-- php
+    |       |-- ext/
+    |       |-- include/
+    |       |-- main/
+    |       |-- sapi/
+    |       |-- TSRM/
+    |       `-- Zend/
+    |-- lib
+    |   `-- php
+    |       |-- Archive/
+    |       |-- build/
+    |       |-- Console/
+    |       |-- data/
+    |       |-- doc/
+    |       |-- OS/
+    |       |-- PEAR/
+    |       |-- PEAR5.php
+    |       |-- pearcmd.php
+    |       |-- PEAR.php
+    |       |-- peclcmd.php
+    |       |-- Structures/
+    |       |-- System.php
+    |       |-- test/
+    |       `-- XML/
+    `-- php
+        `-- man
+            `-- man1/
+
+A short overview of the directory structure:
+
+* *bin/* contains the SAPI binaries (``php`` and ``php-cgi``), as well as the ``phpize`` and ``php-config`` scripts.
+  It is also home to the ``pear`` and ``pecl`` scripts.
+* *etc/* contains configuration. Note that the default *php.ini* directory is **not** here.
+* *include/php* contains header files, which are needed to build additional extensions or embed PHP in custom software.
+* *lib/php* contains PEAR files. The *lib/php/build* directory includes various files necessary for building extensions,
+  e.g. the ``acinclude.m4`` file, which defines PHPs M4 macros. If we had compiled any shared extensions those files
+  would live in a subdirectory of *lib/php/extensions*.
+* *php/man* obviously contains man pages for the ``php`` command.
+
+As mentioned the default *php.ini* location is not *etc/*. You can display the location using the ``--ini`` option of
+the PHP binary:
+
+.. code-block:: none
+
+    ~/myphp/bin> ./php --ini
+    Configuration File (php.ini) Path: /home/myuser/myphp/lib
+    Loaded Configuration File:         (none)
+    Scan for additional .ini files in: (none)
+    Additional .ini files parsed:      (none)
+
+As you can see the default *php.ini* directory is ``$PREFIX/lib`` (libdir) rather than ``$PREFIX/etc`` (sysconfdir). You
+can adjust the default *php.ini* location using the ``--with-config-file-path=PATH`` configure option.
+
+Also note that ``make install`` will not create an ini file. If you want to make use of a *php.ini* file it is your
+responsibility to create one. For example you could copy the default development configuration:
+
+.. code-block:: none
+
+    ~/myphp/bin> cp ~/php-src/php.ini-development ~/myphp/lib/php.ini
+    ~/myphp/bin> ./php --ini
+    Configuration File (php.ini) Path: /home/myuser/myphp/lib
+    Loaded Configuration File:         /home/myuser/myphp/lib/php.ini
+    Scan for additional .ini files in: (none)
+    Additional .ini files parsed:      (none)
+
+Apart from the PHP binaries the *bin/* directory also contains two important scripts: ``phpize`` and ``php-config``.
+
+``phpize`` is the equivalent of ``./buildconf`` for extensions. It will copy various files from *lib/php/build* and
+invoke autoconf/autoheader. You will learn more about this tool in the next section.
+
+``php-config`` provides various information about the configuration of the PHP build. Try it out:
+
+.. code-block:: none
+
+    ~/myphp/bin> ./php-config
+    Usage: ./php-config [OPTION]
+    Options:
+      --prefix            [/home/myuser/myphp]
+      --includes          [-I/home/myuser/myphp/include/php -I/home/myuser/myphp/include/php/main -I/home/myuser/myphp/include/php/TSRM -I/home/myuser/myphp/include/php/Zend -I/home/myuser/myphp/include/php/ext -I/home/myuser/myphp/include/php/ext/date/lib]
+      --ldflags           [ -L/usr/lib/i386-linux-gnu]
+      --libs              [-lcrypt   -lresolv -lcrypt -lrt -lrt -lm -ldl -lnsl  -lxml2 -lxml2 -lxml2 -lcrypt -lxml2 -lxml2 -lxml2 -lcrypt ]
+      --extension-dir     [/home/myuser/myphp/lib/php/extensions/debug-zts-20100525]
+      --include-dir       [/home/myuser/myphp/include/php]
+      --man-dir           [/home/myuser/myphp/php/man]
+      --php-binary        [/home/myuser/myphp/bin/php]
+      --php-sapis         [ cli cgi]
+      --configure-options [--prefix=/home/myuser/myphp --enable-debug --enable-maintainer-zts]
+      --version           [5.4.16-dev]
+      --vernum            [50416]
+
+The script is similar to the ``pkg-config`` script used by linux distributions. It is invoked during the extension
+build process to obtain information about compiler options and paths. You can also use it to quickly get information
+about your build, e.g. your configure options or the default extension directory. This information is also provided by
+``./php -i`` (phpinfo), but ``php-config`` provides it in a simpler form (which can be easily used by automated tools).
+
+Running the test suite
+----------------------
+
+If the ``make`` command finishes successfully, it will print a message encouraging you to run ``make test``:
+
+.. code-block:: none
+
+    Build complete.
+    Don't forget to run 'make test'
+
+``make test`` will run the PHP CLI binary that was built against our test suite, located in the different *tests/*
+directories of the PHP source tree. As a default build is run against approximately 9000 tests (less for a minimal
+build, more if you enable additional extensions) this can take several minutes. The ``make test`` command is currently
+not parallel, so specifying the ``-jN`` option will not make it faster.
+
+If this is the first time you compile PHP on your platform, we encourage you to run the test suite. Depending on your
+OS and your build environment you may find bugs in PHP by running the tests. If there are any failures, the script will
+ask whether you want to send a report to our QA platform, which will allow contributors to analyze the failures. Note
+that it is quite normal to have a few failing tests and your build will likely work well as long as you don't see
+hundreds of failures.
+
+The ``make test`` command internally invokes the ``run-tests.php`` file using your CLI binary. Run
+``sapi/cli/php run-tests.php --help`` to display a list options this script accepts.
+
+If you manually run ``run-tests.php`` you need to specify either the ``-p`` or ``-P`` option (or an ugly environment
+variable)::
+
+    ~/php-src> sapi/cli/php run-tests.php -p `pwd`/sapi/cli/php
+    ~/php-src> sapi/cli/php run-tests.php -P
+
+``-p`` is used to explicitly specify a binary. Note that in order to run all tests correctly this should be an
+absolute path (or otherwise independent of the directory it is called from). ``-P`` is a shortcut that will use the
+binary that the script was called with. In this case both approaches are the same.
+
+Instead of running the whole test suite you can also limit it to certain directories only by passing them as arguments
+to ``run-tests.php``. E.g. to test only the Zend engine, the reflection extension and the array functions::
+
+    ~/php-src> sapi/cli/php run-tests.php -P Zend/ ext/reflection/ ext/standard/tests/array/
+
+This is very useful, because it allows you to quickly run only the parts of the test suite that are relevant to your
+changes. E.g. if you are doing language modifications you likely don't care about the extension tests and only want to
+verify that the Zend engine is still working correctly.
+
+You don't need to explicitly use ``run-tests.php`` to pass options or limit directories. Instead you can use the
+``TESTS`` variable to pass additional arguments via ``make test``. E.g. the equivalent of the previous command would
+be::
+
+    ~/php-src> make test TESTS="Zend/ ext/reflection/ ext/standard/tests/array/"
+
+We will take a more detailed look at the ``run-tests.php`` system later, in particular also talk about how to write your
+own tests and how to debug test failures.
+
+Fixing compilation problems and ``make clean``
+----------------------------------------------
+
+As you may know, ``make`` performs an incremental build, i.e. it will not recompile all files, but only those ``.c``
+files that changed since the last invocation. This is a great way to shorten build times, but it doesn't always work
+well: For example, if you modify a structure in a header file, ``make`` will not automatically recompile all ``.c``
+files making use of that header, thus leading to a broken build.
+
+If you get odd errors while running ``make`` or the resulting binary is broken (e.g. if ``make test`` crashes it before
+it gets to run the first test) you should try to run ``make clean``, which will delete all compiled objects, so that the
+next ``make`` call will perform a full build.
+
+Sometimes you also need to run ``make clean`` after changing ``./configure`` options. If you only enable additional
+extensions an incremental build should be safe, but changing other options may require a full rebuild.
+
+A more aggressive cleaning target is available via ``make distclean``. This will perform a normal clean, but also roll
+back any files brought by the ``./configure`` command invocation. It will delete configure caches, Makefiles,
+configuration headers and various other files. As the name implies this target "cleans for distribution", so it is
+mostly useful for release managers.
+
+Another source of compilation issues is the modification of ``config.m4`` files or other files that are part of the PHP
+build system. If such a file is changed it is necessary to rerun the ``./buildconf`` script. If you do the modification
+yourself, you will likely remember to run the command, but if it happens as part of a ``git pull`` (or some other
+updating command) the issue might not be so obvious.
+
+If you encounter any odd compilation problems that are not resolved by ``make clean``, chances are that running
+``./buildconf --force`` will fix the issue. To avoid typing out the previous ``./configure`` options afterwards, you
+can make use of the ``./config.nice`` script (which contains your last ``./configure`` call)::
+
+    ~/php-src> make clean
+    ~/php-src> ./buildconf --force
+    ~/php-src> ./config.nice
+    ~/php-src> make -jN
+
+One last cleaning script that PHP provides is ``./vcsclean``. This will only work if you checked out the source code
+from git. It effectively boils down to a call to ``git clean -X -f -d``, which will remove all untracked files and
+directories that are ignored by git. You should use this with care.
