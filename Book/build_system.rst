@@ -10,5 +10,5 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    php_ecosystem/building_php.rst
-    php_ecosystem/building_extensions.rst
+    build_system/building_php.rst
+    build_system/building_extensions.rst
