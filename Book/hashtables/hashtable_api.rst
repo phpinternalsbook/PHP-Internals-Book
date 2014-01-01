@@ -524,7 +524,7 @@ It's also possible to conduct the iteration in reverse order by using ``end`` in
         /* Do something with data */
     }
 
-You can additionally fetch the key using the ``zend_hash_get_current_key()`` function, which has the following
+You can additionally fetch the key using the ``zend_hash_get_current_key_ex()`` function, which has the following
 signature::
 
     int zend_hash_get_current_key_ex(

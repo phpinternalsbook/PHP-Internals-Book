@@ -1,1 +1,1 @@
-sphinx-build -b html -d BookHTML/doctrees Book BookHTML/html
+sphinx-build -b html -d BookHTML/doctrees -a Book BookHTML/html

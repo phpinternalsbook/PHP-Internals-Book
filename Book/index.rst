@@ -5,13 +5,13 @@ Table Of Contents
     :maxdepth: 2
 
     introduction.rst
+    build_system.rst
     zvals.rst
     hashtables.rst
     classes_objects.rst
 
 ..
     prerequisites.rst
-    php_ecosystem.rst
     php_first_look.rst
     managing_memory.rst
     creating_ext.rst
