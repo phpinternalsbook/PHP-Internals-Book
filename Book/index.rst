@@ -5,7 +5,7 @@ Table Of Contents
     :maxdepth: 2
 
     introduction.rst
-    php_ecosystem.rst
+    build_system.rst
     hashtables.rst
     classes_objects.rst
 

@@ -1,9 +1,9 @@
 .. highlight:: bash
 
-.. _compiling_php:
+.. _building_php:
 
-Compiling PHP
-=============
+Building PHP
+============
 
 This chapter explains how you can compile PHP in a way that is suitable for development of extensions or core
 modifications. We will only cover builds on Unixoid systems. If you wish to build PHP on Windows, you should take a look
