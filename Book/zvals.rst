@@ -6,7 +6,8 @@ Zvals
     define a function without arginfo or zpp. So this chapter can have PHP_FUNCTION examples, just without heavy zpp
     usage
 
-Intro text
+In this chapter the "zval" data structure, which is used to represent PHP values, is introduced. We explain the concepts
+behind zvals and how to use them in extension code.
 
 Contents:
 

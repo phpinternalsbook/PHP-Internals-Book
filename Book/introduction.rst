@@ -11,12 +11,13 @@ There are three primary goals of this book:
  * Document and describe how you can interact with the community to develop PHP itself.
 
 This book is primarily targeted at developers who have experience in the C programming language. However, where-ever
-possible we will attempt to distill the information and summarize it so that developers who don't know C will still be
-able to understand the content.
+possible we will attempt to distill the information and summarize it so that developers who don't know C well, will
+still be able to understand the content.
 
-.. note:: The chapters that are currently available already require a good understanding of PHP internals. If you are
-   new to PHP extension development, you'll have to wait until the previous chapters are published or start off with
-   other `resources on the topic <https://wiki.php.net/internals/references>`_.
+.. note:: Some of the introductory chapters have not been written yet (in particular the ones on creating basic
+   extensions and declaring functions), so if you're completely new to PHP extension development you'll have to wait
+   until the remaining introductory chapters are published or start off with other
+   `resources on the topic <https://wiki.php.net/internals/references>`_.
 
 As this book is a work-in-progress, any feedback is *greatly* appreciated! Please send any feedback to:
 feedback@phpinternalsbook.com.

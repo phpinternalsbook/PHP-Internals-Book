@@ -6,7 +6,19 @@ Table Of Contents
 
     introduction.rst
     build_system.rst
+
+* Creating PHP extensions
+
+.. toctree::
+    :maxdepth: 2
+
     zvals.rst
+
+* Implementing functions
+
+.. toctree::
+    :maxdepth: 2
+
     hashtables.rst
     classes_objects.rst
 
