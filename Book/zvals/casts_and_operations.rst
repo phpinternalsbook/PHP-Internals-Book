@@ -20,42 +20,42 @@ For this reason PHP provides special functions for performing operations on zval
     MAKE_STD_ZVAL(result);
 
     ZVAL_DOUBLE(a, 3.14);
-    ZVAL_STRING(b, "17");
+    ZVAL_STRING(b, "17", 1);
 
     /* result = a + b */
     add_function(result, a, b TSRMLS_CC);
 
-    php_printf("%Z", result); /* 20.14 */
+    php_printf("%Z\n", result); /* 20.14 */
 
     /* zvals a, b, result need to be dtored */
 
 Apart from ``add_function()`` there are several other functions implementing binary (two-operand) operations, all with
 the same signature::
 
-    int add_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)                 /*  +  */
-    int sub_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)                 /*  -  */
-    int mul_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)                 /*  *  */
-    int div_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)                 /*  /  */
-    int mod_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)                 /*  %  */
-    int concat_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)              /*  .  */
-    int bitwise_or_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)          /*  |  */
-    int bitwise_and_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)         /*  &  */
-    int bitwise_xor_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)         /*  ^  */
-    int shift_left_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)          /*  << */
-    int shift_right_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)         /*  >> */
-    int boolean_xor_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)         /* xor */
-    int is_equal_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)            /*  == */
-    int is_not_equal_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)        /*  != */
-    int is_identical_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)        /* === */
-    int is_not_identical_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)    /* !== */
-    int is_smaller_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)          /*  <  */
-    int is_smaller_or_equal_function(zval *result, zval *op1, zval *op2 TSRMLS_DC) /*  <= */
+    int add_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);                 /*  +  */
+    int sub_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);                 /*  -  */
+    int mul_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);                 /*  *  */
+    int div_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);                 /*  /  */
+    int mod_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);                 /*  %  */
+    int concat_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);              /*  .  */
+    int bitwise_or_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);          /*  |  */
+    int bitwise_and_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);         /*  &  */
+    int bitwise_xor_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);         /*  ^  */
+    int shift_left_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);          /*  << */
+    int shift_right_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);         /*  >> */
+    int boolean_xor_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);         /* xor */
+    int is_equal_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);            /*  == */
+    int is_not_equal_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);        /*  != */
+    int is_identical_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);        /* === */
+    int is_not_identical_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);    /* !== */
+    int is_smaller_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);          /*  <  */
+    int is_smaller_or_equal_function(zval *result, zval *op1, zval *op2 TSRMLS_DC); /*  <= */
 
 All functions take a ``result`` zval into which the result of the operation on ``op1`` and ``op2`` is stored. The
 ``int`` return value is either ``SUCCESS`` or ``FAILURE`` and indicates whether the operation was successful. Note that
-``result`` will always set to some value (like ``false``) even if the operations was not successful.
+``result`` will always be set to some value (like ``false``) even if the operations was not successful.
 
-The ``result`` zvals needs to be allocated and initialized prior to calling one of the functions. Alternatively
+The ``result`` zval needs to be allocated and initialized prior to calling one of the functions. Alternatively
 ``result`` and ``op1`` can be the same, in which case effectively a compound assignment operation is performed::
 
     zval *a, *b;
@@ -68,7 +68,7 @@ The ``result`` zvals needs to be allocated and initialized prior to calling one 
     /* a += b */
     add_function(a, a, b TSRMLS_CC);
 
-    php_printf("%Z", a); /* 45 */
+    php_printf("%Z\n", a); /* 45 */
 
     /* zvals a, b need to be dtored */
 
@@ -82,8 +82,8 @@ short-circuiting away, both operators are just boolean casts followed by a ``&&`
 
 Apart from the binary operators there are also two unary (single operand) functions::
 
-    int boolean_not_function(zval *result, zval *op1 TSRMLS_DC) /*  !  */
-    int bitwise_not_function(zval *result, zval *op1 TSRMLS_DC) /*  ~  */
+    int boolean_not_function(zval *result, zval *op1 TSRMLS_DC); /*  !  */
+    int bitwise_not_function(zval *result, zval *op1 TSRMLS_DC); /*  ~  */
 
 They work in the same way the other functions, but accept only one operand. The unary ``+`` and ``-`` operations are
 missing, because they can be implemented as ``0 + $value`` and ``0 - $value`` respectively, by making use of
@@ -91,8 +91,8 @@ missing, because they can be implemented as ``0 + $value`` and ``0 - $value`` re
 
 The last two functions implement the ``++`` and ``--`` operators::
 
-    int increment_function(zval *op1) /* ++ */
-    int decrement_function(zval *op1) /* -- */
+    int increment_function(zval *op1); /* ++ */
+    int decrement_function(zval *op1); /* -- */
 
 These functions don't take a result zval and instead directly modify the passed operand. Note that using these is
 different from performing a ``+ 1`` or ``- 1`` with ``add_function()``/``sub_function()``. For example incrementing
@@ -126,20 +126,18 @@ computes a more generic result::
     /* zvals a, b, result need to be dtored */
 
 ``compare_function()`` will set the ``result`` zval to one of -1, 1 or 0 corresponding to the relations "smaller than",
-"greater than" or "equal" between the passed values.
+"greater than" or "equal" between the passed values. It is also part of a larger family of comparison functions::
 
-``compare_function()`` is part of a larger family of comparison functions::
+    int compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);
 
-    int compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)
+    int numeric_compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);
 
-    int numeric_compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)
-
-    int string_compare_function_ex(zval *result, zval *op1, zval *op2, zend_bool case_insensitive TSRMLS_DC)
-    int string_compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)
-    int string_case_compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)
+    int string_compare_function_ex(zval *result, zval *op1, zval *op2, zend_bool case_insensitive TSRMLS_DC);
+    int string_compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);
+    int string_case_compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);
 
     #ifdef HAVE_STRCOLL
-    int string_locale_compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC)
+    int string_locale_compare_function(zval *result, zval *op1, zval *op2 TSRMLS_DC);
     #endif
 
 Once again all functions accept two operands and a result zval and return ``SUCCESS``/``FAILURE``.
@@ -182,7 +180,7 @@ PHP provides a ``convert_to_*`` function for every type (apart from resources, a
 The last two functions implement non-standard casts: ``convert_to_long_base()`` is the same as ``convert_to_long()``,
 but it will make use of a particular base for string to long conversions (e.g. ``16`` for hexadecimals).
 ``convert_to_cstring()`` behaves like ``convert_to_string()`` but uses a locale-independent double to string conversion.
-This means that the result will always use `.` as the decimal separator rather than creating locale-specific strings
+This means that the result will always use ``.`` as the decimal separator rather than creating locale-specific strings
 like ``"3,14"`` (Germany).
 
 The ``convert_to_*`` functions will directly modify the passed zval::
@@ -198,7 +196,7 @@ The ``convert_to_*`` functions will directly modify the passed zval::
     zval_dtor(&zv_ptr);
 
 If the zval is used in more than one place (refcount > 1) chances are that directly modifying it would result in
-incorrect behavior. E.g. if you receive a zval by-value and directly apply a ``convert_to_*`` function to it you will
+incorrect behavior. E.g. if you receive a zval by-value and directly apply a ``convert_to_*`` function to it, you will
 modify not only the reference to the zval inside the function but also the reference outside of it.
 
 To solve this issue PHP provides an additional set of ``convert_to_*_ex`` macros::
@@ -306,7 +304,7 @@ much simpler::
     php_printf("%ld\n", lval);
 
 PHPs standard library already contains one function of this type, namely ``zend_is_true()``. This function is
-functionally equivalent to a bool cast from which value is returned directly::
+functionally equivalent to a bool cast from which the value is returned directly::
 
     zval *zv_ptr;
     MAKE_STD_ZVAL(zv_ptr);
@@ -395,7 +393,7 @@ a long or a double (using ``is_numeric_string()`` for strings). This means that 
             break;
     }
 
-    zval_dtor(&zv_ptr);
+    zval_ptr_dtor(&zv_ptr);
 
     /* Double: 3.141 */
 

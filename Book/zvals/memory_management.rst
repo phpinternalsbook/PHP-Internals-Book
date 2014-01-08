@@ -81,11 +81,11 @@ Every time you pass something to a function the value needs to be copied. This m
 an integer or a double, but imagine passing an array with ten million elements to a function. Copying millions of
 elements on every call would be prohibitively slow.
 
-To avoid doing so PHP employs the copy-on-write paradigm: A zval can be shared by multiple variables/functions/etc as
+To avoid doing so, PHP employs the copy-on-write paradigm: A zval can be shared by multiple variables/functions/etc as
 long as it's only read from and not modified. If one of the holders wants to modify it, the zval needs to be copied
 before applying any changes.
 
-If one zval can be used in multiple places, PHP needs some way to find out when the zval is no longer used by anyone
+If one zval can be used in multiple places, PHP needs some way to find out when the zval is no longer used by anyone,
 in order to destroy (and free) it. PHP accomplishes this simply by keeping track of how often the zval is referenced.
 Note that "referenced" here has nothing to do with PHP references (as in ``&``) and just means that something (a
 variable, function, etc) makes use of the zval. The number of references is called the *refcount* and stored in the
@@ -111,9 +111,9 @@ To understand how this works lets consider an example:
                // $a = zval_2(value=2, refcount=1)
 
 The behavior is very straightforward: When a reference is added, increment the refcount, if a reference is removed,
-decrement it. If the refcount reaches 0 the zval is destroyed.
+decrement it. If the refcount reaches 0, the zval is destroyed.
 
-One case where this method does not work is in case of a circular reference:
+One case where this method does not work is the case of a circular reference:
 
 .. code-block:: php
 
@@ -142,13 +142,13 @@ One case where this method does not work is in case of a circular reference:
                 // The refcount of zval_2 is decremented, but the zval has
                 // to stay alive because it's still referenced by zval_1
 
-After the above code has run we have reached a situation where we have two zvals that are not reachable by any variable,
+After the above code has run, we have reached a situation where we have two zvals that are not reachable by any variable,
 but are still kept alive because they reference each other. This is a classical example of where reference-counting
 fails.
 
-To address this issue PHP has a second garbage collection mechanism. How this cycle collector works will be covered in
-[TODO:ref]. We can safely ignore it for now, because the cycle collector (unlike the reference-counting mechanism) is
-mostly transparent to extension authors.
+To address this issue PHP has a second garbage collection mechanism: a cycle collector. We can safely ignore it for now,
+because the cycle collector (unlike the reference-counting mechanism) is mostly transparent to extension authors. If you
+wish to learn more on this topic, the PHP manual contains a short `description of the algorithm`__.
 
 Another case that has to be considered are "actual" PHP references (as in ``&$var``, not the internal "references" we've
 been talking about above). To denote that a zval uses a PHP reference a boolean is_ref flag is used, which is stored in
@@ -195,6 +195,8 @@ with is_ref=1 and refcount>1 in a by-value context will require a copy. For this
 usually slows code down: Nearly all functions in PHP use by-value passing semantics, so they will likely trigger a copy
 when an is_ref=1 zval is passed to them.
 
+.. __: http://php.net/manual/en/features.gc.collecting-cycles.php
+
 Allocating and initializing zvals
 ---------------------------------
 
@@ -230,7 +232,7 @@ needs to be allocated is actually not a ``zval`` but a ``zval_gc_info``::
 The ``ALLOC_*`` macros will allocate a ``zval_gc_info`` and initialize its additional member, but afterwards the value
 can be transparently used as a ``zval`` (because the structure includes a ``zval`` as its first member).
 
-After the zval has been allocated it needs to be initialized. There are two macros do to this. The first one is
+After the zval has been allocated, it needs to be initialized. There are two macros to do this. The first one is
 ``INIT_PZVAL``, which will set refcount=1 and is_ref=0 but leave the value uninitialized::
 
     zval *zv_ptr;
@@ -249,7 +251,7 @@ The second macro is ``INIT_ZVAL`` which will also set refcount=1 and is_ref=0, b
 ``INIT_PZVAL()`` accepts a ``zval*`` (thus the ``P`` in its name) whereas ``INIT_ZVAL()`` takes a ``zval``. When passing
 a ``zval*`` to the latter macro it needs to be dereferenced first.
 
-Because it is very common to both allocate and initialize a zval in one go there are two macros which combine both
+Because it is very common to both allocate and initialize a zval in one go, there are two macros which combine both
 steps::
 
     zval *zv_ptr;
@@ -310,8 +312,8 @@ Instead of writing the above code for checking the refcount yourself, you should
     zval_ptr_dtor(&zv_ptr);
 
 This macro takes a ``zval**`` (for historical reasons, it could take a ``zval*`` just as well), decrements its refcount
-and checks whether the zval needs to be destroyed and freed. But unlike our manually written code above, it also includes
-support for the collection of circles. Here is the relevant part of its implementation::
+and checks whether the zval needs to be destroyed and freed. But unlike our manually written code above, it also
+includes support for the collection of circles. Here is the relevant part of its implementation::
 
     static zend_always_inline void i_zval_ptr_dtor(zval *zval_ptr ZEND_FILE_LINE_DC TSRMLS_DC)
     {
@@ -373,9 +375,9 @@ which just copies the ``value`` and ``type`` members of a zval::
     ZVAL_COPY_VALUE(zv_dest, zv_src);
 
 At this point ``zv_dest`` will have the same type and value as ``zv_src``. Note that "same value" here means that both
-zvals are using the same string value (``char*``), i.e. if the ``zv_src`` zval is destroyed the string value would be
-freed and ``zv_dest`` would be left with a dangling pointer to the freed string. To avoid this the zval copy
-constructor ``zval_copy_ctor()`` needs to be invoked::
+zvals are using the same string value (``char*``), i.e. if the ``zv_src`` zval is destroyed the string value will be
+freed and ``zv_dest`` will be left with a dangling pointer to the freed string. To avoid this the zval copy constructor
+``zval_copy_ctor()`` needs to be invoked::
 
     zval *zv_dest;
     ALLOC_ZVAL(zv_dest);
@@ -404,8 +406,8 @@ As the combination of ``INIT_PZVAL_COPY()`` and ``zval_copy_ctor()`` is very com
     MAKE_COPY_ZVAL(&zv_src, zv_dest);
 
 This macro has a bit of a tricky signature, because it swaps the argument order (the destination is now the second
-argument rather) and also requires the source to be a ``zval**``. Once again this is just a historic artifact and
-doesn't make any technical sense whatsoever.
+argument rather than the first) and also requires the source to be a ``zval**``. Once again this is just a historic
+artifact and doesn't make any technical sense whatsoever.
 
 Apart from these basic copying macros there are several more complicated ones. The most important is ``ZVAL_ZVAL``,
 which is especially common when returning zvals from a function. It has the following signature::
@@ -446,7 +448,7 @@ The most interesting case is the copy=0, dtor=1 combination::
     ZVAL_NULL(zv_src);
     zval_ptr_dtor(&zv_src);
 
-This constitutes a zval move, where the value from ``zv_src`` is moved into ``zv_dest`` without having to invoke the
+This constitutes a zval "move", where the value from ``zv_src`` is moved into ``zv_dest`` without having to invoke the
 copy constructor. This is something that should only be done if ``zv_src`` has refcount=1, in which case the zval will
 be destroyed by the ``zval_ptr_dtor()`` call. If it has a higher refcount the zval will stay alive with a NULL value.
 
@@ -474,11 +476,11 @@ are used in the context of copy-on-write. Their functionality is best understood
 
 If the refcount is one, ``SEPARATE_ZVAL()`` won't do anything. If the refcount is larger, it will remove one ref from the
 old zval, copy it to a new zval and assign that new zval to ``*ppzv``. Note that the macro accepts a ``zval**`` and
-will modify the ``zval*`` it points to.
+will modify which ``zval*`` it points to.
 
 How is this used practically? Imagine you want to modify an array offset like ``$array[42]``. To do so, you first fetch
 the ``zval**`` pointer to the stored ``zval*`` value. Due to the reference-counting you can't directly modify it (as
-it could be shared with other places), so have to separate it first. The separation will either leave the old zval if
+it could be shared with other places), it needs to be separated first. The separation will either leave the old zval if
 the refcount is one or it will perform a copy. In the latter case the new zval is assigned to ``*ppzv``, which in this
 case is the storage location in the array.
 
