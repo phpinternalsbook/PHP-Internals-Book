@@ -1,2 +1,0 @@
-PHP's virtual machine
-=====================

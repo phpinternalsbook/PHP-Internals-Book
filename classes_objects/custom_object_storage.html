@@ -310,7 +310,7 @@ still specify this handler, otherwise inheriting classes won&#8217;t be able to 
 <p>Now only the clone handler is left. Here the semantics should be straightforward, but the use is a bit more tricky.
 This is how such a clone handler might look like:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span> <span class="nf">test_clone_object_storage_handler</span><span class="p">(</span>
-    <span class="n">test_object</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">test_object</span> <span class="o">**</span><span class="n">object_clone</span> <span class="n">TSRMLS_DC</span>
+    <span class="n">test_object</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">test_object</span> <span class="o">**</span><span class="n">object_clone_target</span> <span class="n">TSRMLS_DC</span>
 <span class="p">)</span> <span class="p">{</span>
     <span class="cm">/* Create a new object */</span>
     <span class="n">test_object</span> <span class="o">*</span><span class="n">object_clone</span> <span class="o">=</span> <span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">test_object</span><span class="p">));</span>

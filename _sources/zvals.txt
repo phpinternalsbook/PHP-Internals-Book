@@ -1,22 +1,19 @@
-Zend variables : zvals
-======================
+Zvals
+=====
 
-Now that we know how to manage the memory into PHP source code, let’s see how we
-can create PHP variables from an internals point of view. zvals are C structures
-responsible of PHP variables, but not only. You really need to master that
-special type management in order to play with PHP internals
+..
+    Writing this I'm assuming that in the previous chapter basic extension syntax was introduced und people know how to
+    define a function without arginfo or zpp. So this chapter can have PHP_FUNCTION examples, just without heavy zpp
+    usage
+
+In this chapter the "zval" data structure, which is used to represent PHP values, is introduced. We explain the concepts
+behind zvals and how to use them in extension code.
 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-..
-   zvals/structure.rst
-   zvals/mem_management.rst
-   zvals/main_macros.rst
-   zvals/alloc_and_init.rst
-   zvals/types.rst
-   zvals/refcount_destruct.rst
-   zvals/copy_separation.rst
-   zvals/casts.rst
+    zvals/basic_structure.rst
+    zvals/memory_management.rst
+    zvals/casts_and_operations.rst

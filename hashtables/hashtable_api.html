@@ -537,7 +537,7 @@ pointer. When using this API the current position is stored in a <tt class="docu
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>You can additionally fetch the key using the <tt class="docutils literal"><span class="pre">zend_hash_get_current_key()</span></tt> function, which has the following
+<p>You can additionally fetch the key using the <tt class="docutils literal"><span class="pre">zend_hash_get_current_key_ex()</span></tt> function, which has the following
 signature:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span> <span class="nf">zend_hash_get_current_key_ex</span><span class="p">(</span>
     <span class="k">const</span> <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">str_index</span><span class="p">,</span> <span class="n">uint</span> <span class="o">*</span><span class="n">str_length</span><span class="p">,</span>

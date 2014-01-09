@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Building PHP extensions &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="up" title="Using the PHP build system" href="../build_system.html" />
+    <link rel="next" title="Zvals" href="../zvals.html" />
+    <link rel="prev" title="Building PHP" href="building_php.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Building PHP extensions</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="building_php.html">Building PHP</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../zvals.html">Zvals</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="building-php-extensions">
+<h1>Building PHP extensions<a class="headerlink" href="#building-php-extensions" title="Permalink to this headline">¶</a></h1>
+<p>Now that you know how to compile PHP itself, we&#8217;ll move on to compiling additional extensions. We&#8217;ll discuss how the
+build process works and what different options are available.</p>
+<div class="section" id="loading-shared-extensions">
+<h2>Loading shared extensions<a class="headerlink" href="#loading-shared-extensions" title="Permalink to this headline">¶</a></h2>
+<p>As you already know from the previous section, PHP extensions can be either built statically into the PHP binary, or
+compiled into a shared object (<tt class="docutils literal"><span class="pre">.so</span></tt>). Static linkage is the default for most of the bundled extensions, whereas
+shared objects can be created by explicitly passing <tt class="docutils literal"><span class="pre">--enable-EXTNAME=shared</span></tt> or <tt class="docutils literal"><span class="pre">--with-EXTNAME=shared</span></tt> to
+<tt class="docutils literal"><span class="pre">./configure</span></tt>.</p>
+<p>While static extensions will always be available, shared extensions need to be loaded using the <tt class="docutils literal"><span class="pre">extension</span></tt> or
+<tt class="docutils literal"><span class="pre">zend_extension</span></tt> ini options <a class="footnote-reference" href="#id2" id="id1">[1]</a>. Both options take either an absolute path to the <tt class="docutils literal"><span class="pre">.so</span></tt> file or a path relative to
+the <tt class="docutils literal"><span class="pre">extension_dir</span></tt> setting. (Relative paths for <tt class="docutils literal"><span class="pre">zend_extension</span></tt> are only available as of PHP 5.5, previously you
+always had to use an absolute path.)</p>
+<p>As an example, consider a PHP build compiled using this configure line:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; ./configure --prefix<span class="o">=</span><span class="nv">$HOME</span>/myphp <span class="se">\</span>
+                       --enable-debug --enable-maintainer-zts <span class="se">\</span>
+                       --enable-opcache --with-gmp<span class="o">=</span>shared
+</pre></div>
+</div>
+<p>In this case both the opcache extension and GMP extension are compiled into shared objects located in the <tt class="docutils literal"><span class="pre">modules/</span></tt>
+directory. You can load both either by changing the <tt class="docutils literal"><span class="pre">extension_dir</span></tt> or by passing absolute paths:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php -dzend_extension<span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/modules/opcache.so <span class="se">\</span>
+                        -dextension<span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/modules/gmp.so
+<span class="c"># or</span>
+~/php-src&gt; sapi/cli/php -dextension_dir<span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/modules <span class="se">\</span>
+                        -dzend_extension<span class="o">=</span>opcache.so -dextension<span class="o">=</span>gmp.so
+</pre></div>
+</div>
+<p>During the <tt class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></tt> step both <tt class="docutils literal"><span class="pre">.so</span></tt> files will be moved into the extension directory of your PHP installation,
+which you may find using the <tt class="docutils literal"><span class="pre">php-config</span> <span class="pre">--extension-dir</span></tt> command. For the above build options it will be
+<tt class="docutils literal"><span class="pre">/home/myuser/myphp/lib/php/extensions/no-debug-non-zts-MODULE_API</span></tt>. This value will also be the default of the
+<tt class="docutils literal"><span class="pre">extension_dir</span></tt> ini option, so you won&#8217;t have to specify it explicitly and can load the extensions directly:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/myphp&gt; bin/php -dzend_extension<span class="o">=</span>opcache.so -dextension<span class="o">=</span>gmp.so
+</pre></div>
+</div>
+<p>This leaves us with one question: Which mechanism should you use? Shared objects allow you to have a base PHP binary and
+load additional extensions through the php.ini. Distributions make use of this by providing a bare PHP package and
+distributing the extensions as separate packages. On the other hand, if you are compiling your own PHP binary, you
+likely don&#8217;t have need for this, because you already know which extensions you need.</p>
+<p>As a rule of thumb, you&#8217;ll use static linkage for the extensions bundled by PHP itself and use shared extensions for
+everything else. The reason is simply that building external extensions as shared objects is easier (or at least less
+intrusive), as you will see in a moment. Another benefit is that you can update the extension without rebuilding PHP.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>We&#8217;ll explain the difference between a &#8220;normal&#8221; extension and a Zend extension later in the book. For now it
+suffices to know that Zend extensions are more &#8220;low level&#8221; (e.g. opcache or xdebug) and hook into the workings of
+the Zend Engine itself.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="installing-extensions-from-pecl">
+<h2>Installing extensions from PECL<a class="headerlink" href="#installing-extensions-from-pecl" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://pecl.php.net">PECL</a>, the <em>PHP Extension Community Library</em>, offers a large number of extensions for PHP. When extensions are removed
+from the main PHP distribution, they usually continue to exist in PECL. Similarly many extensions that are now bundled
+with PHP were previously PECL extensions.</p>
+<p>Unless you specified <tt class="docutils literal"><span class="pre">--without-pear</span></tt> during the configuration stage of your PHP build, <tt class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></tt> will download
+and install PECL as a part of PEAR. You will find the <tt class="docutils literal"><span class="pre">pecl</span></tt> script in the <tt class="docutils literal"><span class="pre">$PREFIX/bin</span></tt> directory. Installing
+extensions is now as simple as running <tt class="docutils literal"><span class="pre">pecl</span> <span class="pre">install</span> <span class="pre">EXTNAME</span></tt>, e.g.:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/myphp&gt; bin/pecl install apcu-4.0.2
+</pre></div>
+</div>
+<p>This command will download, compile and install the <a class="reference external" href="http://pecl.php.net/package/APCu">APCu</a> extension. The result will be a <tt class="docutils literal"><span class="pre">apcu.so</span></tt> file in your
+extension directory, which can then be loaded by passing the <tt class="docutils literal"><span class="pre">extension=apcu.so</span></tt> ini option.</p>
+<p>While <tt class="docutils literal"><span class="pre">pecl</span> <span class="pre">install</span></tt> is very handy for the end-user, it is of little interest to extension developers. In the
+following, we&#8217;ll describe two ways to manually build extensions: Either by importing it into the main PHP source tree
+(this allows static linkage) or by doing an external build (only shared).</p>
+</div>
+<div class="section" id="adding-extensions-to-the-php-source-tree">
+<h2>Adding extensions to the PHP source tree<a class="headerlink" href="#adding-extensions-to-the-php-source-tree" title="Permalink to this headline">¶</a></h2>
+<p>There is no fundamental difference between a third-party extension and an extension bundled with PHP. As such you can
+build an external extension simply by copying it into the PHP source tree and then using the usual build procedure.
+We&#8217;ll demonstrate this using APCu as an example.</p>
+<p>First of all, you&#8217;ll have to place the source code of the extension into the <tt class="docutils literal"><span class="pre">ext/EXTNAME</span></tt> directory of your PHP
+source tree. If the extension is available via git, this is as simple as cloning the repository from within <tt class="docutils literal"><span class="pre">ext/</span></tt>:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src/ext&gt; git clone https://github.com/krakjoe/apcu.git
+</pre></div>
+</div>
+<p>Alternatively you can also download a source tarball and extract it:</p>
+<div class="highlight-bash"><div class="highlight"><pre>/tmp&gt; wget http://pecl.php.net/get/apcu-4.0.2.tgz
+/tmp&gt; tar xzf apcu-4.0.2.tgz
+/tmp&gt; mkdir ~/php-src/ext/apcu
+/tmp&gt; cp -r apcu-4.0.2/. ~/php-src/ext/apcu
+</pre></div>
+</div>
+<p>The extension will contain a <tt class="docutils literal"><span class="pre">config.m4</span></tt> file, which specifies extension-specific build instructions for use by
+autoconf. To incorporate them into the <tt class="docutils literal"><span class="pre">./configure</span></tt> script, you&#8217;ll have to run <tt class="docutils literal"><span class="pre">./buildconf</span></tt> again. To ensure that
+the configure file is really regenerated, it is recommended to delete it beforehand:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; rm configure <span class="o">&amp;&amp;</span> ./buildconf --force
+</pre></div>
+</div>
+<p>You can now use the <tt class="docutils literal"><span class="pre">./config.nice</span></tt> script to add APCu to your existing configuration or start over with a completely
+new configure line:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; ./config.nice --enable-apcu
+<span class="c"># or</span>
+~/php-src&gt; ./configure --enable-apcu <span class="c"># --other-options</span>
+</pre></div>
+</div>
+<p>Finally run <tt class="docutils literal"><span class="pre">make</span> <span class="pre">-jN</span></tt> to perform the actual build. As we didn&#8217;t use <tt class="docutils literal"><span class="pre">--enable-apcu=shared</span></tt> the extension is
+statically linked into the PHP binary, i.e. no additional actions are needed to make use of it. Obviously you can also
+use <tt class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></tt> to install the resulting binaries.</p>
+</div>
+<div class="section" id="building-extensions-using-phpize">
+<h2>Building extensions using <tt class="docutils literal"><span class="pre">phpize</span></tt><a class="headerlink" href="#building-extensions-using-phpize" title="Permalink to this headline">¶</a></h2>
+<p>It is also possible to build extensions separately from PHP by making use of the <tt class="docutils literal"><span class="pre">phpize</span></tt> script that was already
+mentioned in the <a class="reference internal" href="building_php.html#building-php"><em>Building PHP</em></a> section.</p>
+<p><tt class="docutils literal"><span class="pre">phpize</span></tt> plays a similar role as the <tt class="docutils literal"><span class="pre">./buildconf</span></tt> script used for PHP builds: First it will import the PHP build
+system into your extension by copying files from <tt class="docutils literal"><span class="pre">$PREFIX/lib/php/build</span></tt>. Among these files are <tt class="docutils literal"><span class="pre">acinclude.m4</span></tt>
+(PHP&#8217;s M4 macros), <tt class="docutils literal"><span class="pre">phpize.m4</span></tt> (which will be renamed to <tt class="docutils literal"><span class="pre">configure.in</span></tt> in your extension and contains the main
+build instructions) and <tt class="docutils literal"><span class="pre">run-tests.php</span></tt>.</p>
+<p>Then <tt class="docutils literal"><span class="pre">phpize</span></tt> will invoke autoconf to generate a <tt class="docutils literal"><span class="pre">./configure</span></tt> file, which can be used to customize the extension
+build. Note that it is not necessary to pass <tt class="docutils literal"><span class="pre">--enable-apcu</span></tt> to it, as this is implicitly assumed. Instead you should
+use <tt class="docutils literal"><span class="pre">--with-php-config</span></tt> to specify the path to your <tt class="docutils literal"><span class="pre">php-config</span></tt> script:</p>
+<div class="highlight-bash"><div class="highlight"><pre>/tmp/apcu-4.0.2&gt; ~/myphp/bin/phpize
+Configuring <span class="k">for</span>:
+PHP Api Version:         20121113
+Zend Module Api No:      20121113
+Zend Extension Api No:   220121113
+
+/tmp/apcu-4.0.2&gt; ./configure --with-php-config<span class="o">=</span><span class="nv">$HOME</span>/myphp/bin/php-config
+/tmp/apcu-4.0.2&gt; make -jN <span class="o">&amp;&amp;</span> make install
+</pre></div>
+</div>
+<p>You should always specify the <tt class="docutils literal"><span class="pre">--with-php-config</span></tt> option when building extensions (unless you have only a single,
+global installation of PHP), otherwise <tt class="docutils literal"><span class="pre">./configure</span></tt> will not be able to correctly determine what PHP version and
+flags to build against. Specifying the <tt class="docutils literal"><span class="pre">php-config</span></tt> script also ensures that <tt class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></tt> will move the generated
+<tt class="docutils literal"><span class="pre">.so</span></tt> file (which can be found in the <tt class="docutils literal"><span class="pre">modules/</span></tt> directory) to the right extension directory.</p>
+<p>As the <tt class="docutils literal"><span class="pre">run-tests.php</span></tt> file was also copied during the <tt class="docutils literal"><span class="pre">phpize</span></tt> stage, you can run the extension tests using
+<tt class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></tt> (or an explicit call to run-tests).</p>
+<p>The <tt class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></tt> target for removing compiled objects is also available and allows you to force a full rebuild of
+the extension, should the incremental build fail after a change. Additionally phpize provides a cleaning option via
+<tt class="docutils literal"><span class="pre">phpize</span> <span class="pre">--clean</span></tt>. This will remove all the files imported by <tt class="docutils literal"><span class="pre">phpize</span></tt>, as well as the files generated by the
+<tt class="docutils literal"><span class="pre">/configure</span></tt> script.</p>
+</div>
+<div class="section" id="displaying-information-about-extensions">
+<h2>Displaying information about extensions<a class="headerlink" href="#displaying-information-about-extensions" title="Permalink to this headline">¶</a></h2>
+<p>The PHP CLI binary provides several options to display information about extensions. You already know <tt class="docutils literal"><span class="pre">-m</span></tt>, which will
+list all loaded extensions. You can use it to verify that an extension was loaded correctly:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/myphp/bin&gt; ./php -dextension<span class="o">=</span>apcu.so -m | grep apcu
+apcu
+</pre></div>
+</div>
+<p>There are several further switches beginning with <tt class="docutils literal"><span class="pre">--r</span></tt> that expose Reflection functionality. For example you can use
+<tt class="docutils literal"><span class="pre">--ri</span></tt> to display the configuration of an extension:</p>
+<div class="highlight-bash"><pre>~/myphp/bin&gt; ./php -dextension=apcu.so --ri apcu
+apcu
+
+APCu Support =&gt; disabled
+Version =&gt; 4.0.2
+APCu Debugging =&gt; Disabled
+MMAP Support =&gt; Enabled
+MMAP File Mask =&gt;
+Serialization Support =&gt; broken
+Revision =&gt; $Revision: 328290 $
+Build Date =&gt; Jan  1 2014 16:40:00
+
+Directive =&gt; Local Value =&gt; Master Value
+apc.enabled =&gt; On =&gt; On
+apc.shm_segments =&gt; 1 =&gt; 1
+apc.shm_size =&gt; 32M =&gt; 32M
+apc.entries_hint =&gt; 4096 =&gt; 4096
+apc.gc_ttl =&gt; 3600 =&gt; 3600
+apc.ttl =&gt; 0 =&gt; 0
+# ...</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">--re</span></tt> switch lists all ini settings, constants, functions and classes added by an extension:</p>
+<div class="highlight-none"><div class="highlight"><pre>~/myphp/bin&gt; ./php -dextension=apcu.so --re apcu
+Extension [ &lt;persistent&gt; extension #27 apcu version 4.0.2 ] {
+  - INI {
+    Entry [ apc.enabled &lt;SYSTEM&gt; ]
+      Current = &#39;1&#39;
+    }
+    Entry [ apc.shm_segments &lt;SYSTEM&gt; ]
+      Current = &#39;1&#39;
+    }
+    # ...
+  }
+
+  - Constants [1] {
+    Constant [ boolean APCU_APC_FULL_BC ] { 1 }
+  }
+
+  - Functions {
+    Function [ &lt;internal:apcu&gt; function apcu_cache_info ] {
+
+      - Parameters [2] {
+        Parameter #0 [ &lt;optional&gt; $type ]
+        Parameter #1 [ &lt;optional&gt; $limited ]
+      }
+    }
+    # ...
+  }
+}
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">--re</span></tt> switch only works for normal extensions, Zend extensions use <tt class="docutils literal"><span class="pre">--rz</span></tt> instead. You can try this on
+opcache:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/myphp/bin&gt; ./php -dzend_extension<span class="o">=</span>opcache.so --rz <span class="s2">&quot;Zend OPcache&quot;</span>
+Zend Extension <span class="o">[</span> Zend OPcache 7.0.3-dev Copyright <span class="o">(</span>c<span class="o">)</span> 1999-2013 by Zend Technologies &lt;http://www.zend.com/&gt; <span class="o">]</span>
+</pre></div>
+</div>
+<p>As you can see, this doesn&#8217;t display any useful information. The reason is that opcache registers both a normal
+extension and a Zend extension, where the former contains all ini settings, constants and functions. So in this
+particular case you still need to use <tt class="docutils literal"><span class="pre">--re</span></tt>. Other Zend extensions make their information available via <tt class="docutils literal"><span class="pre">--rz</span></tt>
+though.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="building_php.html">Building PHP</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../zvals.html">Zvals</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        Send feedback to <a href="mailto:feedback@phpinternalsbook.com">feedback@phpinternalsbook.com</a>
+    </div>
+    
+    <div class="footer">
+        &copy; Copyright 2013, Julien Pauli - Anthony Ferrara - Nikita Popov.
+    </div>
+    <div class="footer feedback">
+        All Rights Reserved
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

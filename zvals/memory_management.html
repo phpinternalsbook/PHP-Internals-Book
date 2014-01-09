@@ -1,0 +1,584 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Memory management &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="up" title="Zvals" href="../zvals.html" />
+    <link rel="next" title="Casts and operations" href="casts_and_operations.html" />
+    <link rel="prev" title="Basic structure" href="basic_structure.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Memory management</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="basic_structure.html">Basic structure</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="casts_and_operations.html">Casts and operations</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="memory-management">
+<h1>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h1>
+<p>The zval structure has two roles: The first, which was described in the previous section, is to store a value and its
+type. The second, which will be covered in this section, is to efficiently manage those values in memory.</p>
+<p>In the following we&#8217;ll have a look at the concepts of reference-counting and copy-on-write and find out how to make use
+of them in extension code.</p>
+<div class="section" id="value-and-reference-semantics">
+<h2>Value- and reference-semantics<a class="headerlink" href="#value-and-reference-semantics" title="Permalink to this headline">¶</a></h2>
+<p>In PHP all values always have value-semantics, unless you explicitly ask for a reference. This means that whenever
+you pass a value to a function or assign one variable to another you&#8217;ll be working on two separate copies of the value.
+Some examples to make sure that this is clear:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
+
+<span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="nv">$b</span> <span class="o">=</span> <span class="nv">$a</span><span class="p">;</span>
+<span class="nv">$a</span><span class="o">++</span><span class="p">;</span>
+
+<span class="c1">// Only $a was incremented, $b stays as is:</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$a</span><span class="p">,</span> <span class="nv">$b</span><span class="p">);</span> <span class="c1">// int(2), int(1)</span>
+
+<span class="k">function</span> <span class="nf">inc</span><span class="p">(</span><span class="nv">$n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$n</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nv">$c</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="nx">inc</span><span class="p">(</span><span class="nv">$c</span><span class="p">);</span>
+
+<span class="c1">// The $c value outside the function and the $n inside the function are distinct</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$c</span><span class="p">);</span> <span class="c1">// int(1)</span>
+</pre></div>
+</div>
+<p>While the above is rather obvious, it&#8217;s important to realize that this is a general rule that always holds. In
+particular this also applies to objects:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
+
+<span class="nv">$obj</span> <span class="o">=</span> <span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="p">[</span><span class="s1">&#39;value&#39;</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">];</span>
+
+<span class="k">function</span> <span class="nf">fnByVal</span><span class="p">(</span><span class="nv">$val</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$val</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">fnByRef</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">$ref</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$ref</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// The by-value function does not modify $obj, the by-reference function does:</span>
+
+<span class="nx">fnByVal</span><span class="p">(</span><span class="nv">$obj</span><span class="p">);</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$obj</span><span class="p">);</span> <span class="c1">// stdClass(value =&gt; 1)</span>
+<span class="nx">fnByRef</span><span class="p">(</span><span class="nv">$obj</span><span class="p">);</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$obj</span><span class="p">);</span> <span class="c1">// int(100)</span>
+</pre></div>
+</div>
+<p>People often say that objects are automatically passed by-reference since PHP 5, but as the above example shows this is
+not true: A by-value function cannot modify the value of the variable that was passed to it, only a by-reference
+function can do that.</p>
+<p>It is true however that objects exhibit a &#8220;reference-like&#8221; behavior: While you can not assign a completely different
+value, you can still change the properties of the object. This is a result of the fact than an object value is just an
+ID that can be used to look up the &#8220;actual content&#8221; of the object. Value-semantics only prevent you from changing this
+ID to a different object or switching the type altogether, but they do not prevent you to change the &#8220;actual content&#8221; of
+the object.</p>
+<p>The same applies to resources, because they also only store an ID which can be used to look up their actual value.
+So again the value-semantics prevent you from changing the resource ID or the type of the zval, but they do not
+prevent you from changing the content of the resource (like advancing the position in a file).</p>
+</div>
+<div class="section" id="reference-counting-and-copy-on-write">
+<h2>Reference-counting and copy-on-write<a class="headerlink" href="#reference-counting-and-copy-on-write" title="Permalink to this headline">¶</a></h2>
+<p>If you think about the above for a bit, you&#8217;ll come to the conclusion that PHP must be doing an awful lot of copying.
+Every time you pass something to a function the value needs to be copied. This may not be particularly problematic for
+an integer or a double, but imagine passing an array with ten million elements to a function. Copying millions of
+elements on every call would be prohibitively slow.</p>
+<p>To avoid doing so, PHP employs the copy-on-write paradigm: A zval can be shared by multiple variables/functions/etc as
+long as it&#8217;s only read from and not modified. If one of the holders wants to modify it, the zval needs to be copied
+before applying any changes.</p>
+<p>If one zval can be used in multiple places, PHP needs some way to find out when the zval is no longer used by anyone,
+in order to destroy (and free) it. PHP accomplishes this simply by keeping track of how often the zval is referenced.
+Note that &#8220;referenced&#8221; here has nothing to do with PHP references (as in <tt class="docutils literal"><span class="pre">&amp;</span></tt>) and just means that something (a
+variable, function, etc) makes use of the zval. The number of references is called the <em>refcount</em> and stored in the
+<tt class="docutils literal"><span class="pre">refcount__gc</span></tt> member of the zval.</p>
+<p>To understand how this works lets consider an example:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
+
+<span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>    <span class="c1">// $a =           zval_1(value=1, refcount=1)</span>
+<span class="nv">$b</span> <span class="o">=</span> <span class="nv">$a</span><span class="p">;</span>   <span class="c1">// $a = $b =      zval_1(value=1, refcount=2)</span>
+<span class="nv">$c</span> <span class="o">=</span> <span class="nv">$b</span><span class="p">;</span>   <span class="c1">// $a = $b = $c = zval_1(value=1, refcount=3)</span>
+
+<span class="nv">$a</span><span class="o">++</span><span class="p">;</span>      <span class="c1">// $b = $c = zval_1(value=1, refcount=2)</span>
+           <span class="c1">// $a =      zval_2(value=2, refcount=1)</span>
+
+<span class="nb">unset</span><span class="p">(</span><span class="nv">$b</span><span class="p">);</span> <span class="c1">// $c = zval_1(value=1, refcount=1)</span>
+           <span class="c1">// $a = zval_2(value=2, refcount=1)</span>
+
+<span class="nb">unset</span><span class="p">(</span><span class="nv">$c</span><span class="p">);</span> <span class="c1">// zval_1 is destroyed, because refcount=0</span>
+           <span class="c1">// $a = zval_2(value=2, refcount=1)</span>
+</pre></div>
+</div>
+<p>The behavior is very straightforward: When a reference is added, increment the refcount, if a reference is removed,
+decrement it. If the refcount reaches 0, the zval is destroyed.</p>
+<p>One case where this method does not work is the case of a circular reference:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
+
+<span class="nv">$a</span> <span class="o">=</span> <span class="p">[];</span> <span class="c1">// $a = zval_1(value=[], refcount=1)</span>
+<span class="nv">$b</span> <span class="o">=</span> <span class="p">[];</span> <span class="c1">// $b = zval_2(value=[], refcount=1)</span>
+
+<span class="nv">$a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$b</span><span class="p">;</span> <span class="c1">// $a = zval_1(value=[0 =&gt; zval_2], refcount=1)</span>
+            <span class="c1">// $b = zval_2(value=[], refcount=2)</span>
+            <span class="c1">// The refcount of zval_2 is incremented because it</span>
+            <span class="c1">// is used in the array of zval_1</span>
+
+<span class="nv">$b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$a</span><span class="p">;</span> <span class="c1">// $a = zval_1(value=[0 =&gt; zval_2], refcount=2)</span>
+            <span class="c1">// $b = zval_2(value=[0 =&gt; zval_1], refcount=2)</span>
+            <span class="c1">// The refcount of zval_1 is incremented because it</span>
+            <span class="c1">// is used in the array of zval_2</span>
+
+<span class="nb">unset</span><span class="p">(</span><span class="nv">$a</span><span class="p">);</span>  <span class="c1">//      zval_1(value=[0 =&gt; zval_2], refcount=1)</span>
+            <span class="c1">// $b = zval_2(value=[0 =&gt; zval_1], refcount=2)</span>
+            <span class="c1">// The refcount of zval_1 is decremented, but the zval has</span>
+            <span class="c1">// to stay alive because it&#39;s still referenced by zval_2</span>
+
+<span class="nb">unset</span><span class="p">(</span><span class="nv">$b</span><span class="p">);</span>  <span class="c1">//      zval_1(value=[0 =&gt; zval_2], refcount=1)</span>
+            <span class="c1">//      zval_2(value=[0 =&gt; zval_1], refcount=1)</span>
+            <span class="c1">// The refcount of zval_2 is decremented, but the zval has</span>
+            <span class="c1">// to stay alive because it&#39;s still referenced by zval_1</span>
+</pre></div>
+</div>
+<p>After the above code has run, we have reached a situation where we have two zvals that are not reachable by any variable,
+but are still kept alive because they reference each other. This is a classical example of where reference-counting
+fails.</p>
+<p>To address this issue PHP has a second garbage collection mechanism: a cycle collector. We can safely ignore it for now,
+because the cycle collector (unlike the reference-counting mechanism) is mostly transparent to extension authors. If you
+wish to learn more on this topic, the PHP manual contains a short <a class="reference external" href="http://php.net/manual/en/features.gc.collecting-cycles.php">description of the algorithm</a>.</p>
+<p>Another case that has to be considered are &#8220;actual&#8221; PHP references (as in <tt class="docutils literal"><span class="pre">&amp;$var</span></tt>, not the internal &#8220;references&#8221; we&#8217;ve
+been talking about above). To denote that a zval uses a PHP reference a boolean is_ref flag is used, which is stored in
+the <tt class="docutils literal"><span class="pre">is_ref__gc</span></tt> member of the zval structure.</p>
+<p>An <tt class="docutils literal"><span class="pre">is_ref=1</span></tt> flag on a zval signals that the zval should <strong>not</strong> be copied before modification. Instead code should
+directly modify the value:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
+
+<span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>   <span class="c1">// $a =      zval_1(value=1, refcount=1, is_ref=0)</span>
+<span class="nv">$b</span> <span class="o">=&amp;</span> <span class="nv">$a</span><span class="p">;</span> <span class="c1">// $a = $b = zval_1(value=1, refcount=2, is_ref=1)</span>
+
+<span class="nv">$b</span><span class="o">++</span><span class="p">;</span>     <span class="c1">// $a = $b = zval_1(value=2, refcount=2, is_ref=1)</span>
+          <span class="c1">// Due to the is_ref=1 PHP directly changes the zval</span>
+          <span class="c1">// rather than making a copy</span>
+</pre></div>
+</div>
+<p>In the above example the zval of <tt class="docutils literal"><span class="pre">$a</span></tt> has refcount=1 before the reference is created. Now consider a very similar
+example where the original refcount is larger than one:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
+
+<span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>   <span class="c1">// $a =           zval_1(value=1, refcount=1, is_ref=0)</span>
+<span class="nv">$b</span> <span class="o">=</span> <span class="nv">$a</span><span class="p">;</span>  <span class="c1">// $a = $b =      zval_1(value=1, refcount=2, is_ref=0)</span>
+<span class="nv">$c</span> <span class="o">=</span> <span class="nv">$b</span>   <span class="c1">// $a = $b = $c = zval_1(value=1, refcount=3, is_ref=0)</span>
+
+<span class="nv">$d</span> <span class="o">=&amp;</span> <span class="nv">$c</span><span class="p">;</span> <span class="c1">// $a = $b = zval_1(value=1, refcount=2, is_ref=0)</span>
+          <span class="c1">// $c = $d = zval_2(value=1, refcount=2, is_ref=1)</span>
+          <span class="c1">// $d is a reference of $c, but *not* of $a and $b, so</span>
+          <span class="c1">// the zval needs to be copied here. Now we have the</span>
+          <span class="c1">// same zval once with is_ref=0 and once with is_ref=1.</span>
+
+<span class="nv">$d</span><span class="o">++</span><span class="p">;</span>     <span class="c1">// $a = $b = zval_1(value=1, refcount=2, is_ref=0)</span>
+          <span class="c1">// $c = $d = zval_2(value=2, refcount=2, is_ref=1)</span>
+          <span class="c1">// Because there are two separate zvals $d++ does</span>
+          <span class="c1">// not modify $a and $b (as expected).</span>
+</pre></div>
+</div>
+<p>As you can see <tt class="docutils literal"><span class="pre">&amp;</span></tt>-referencing a zval with is_ref=0 and refcount&gt;1 requires a copy. Similarly trying to use a zval
+with is_ref=1 and refcount&gt;1 in a by-value context will require a copy. For this reason making use of PHP references
+usually slows code down: Nearly all functions in PHP use by-value passing semantics, so they will likely trigger a copy
+when an is_ref=1 zval is passed to them.</p>
+</div>
+<div class="section" id="allocating-and-initializing-zvals">
+<h2>Allocating and initializing zvals<a class="headerlink" href="#allocating-and-initializing-zvals" title="Permalink to this headline">¶</a></h2>
+<p>Now that you are familiar with the general concepts underlying zval memory management, we can move on to their practical
+implementation. Lets start with zval allocation:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This code-snippets allocates a zval, but does not initialize its members. There is a variant of this macro used to
+allocate persistent zvals, which are not destroyed at the end of the request:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_PERMANENT_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The difference between the two macros is that the former makes use of <tt class="docutils literal"><span class="pre">emalloc()</span></tt> whereas the latter uses
+<tt class="docutils literal"><span class="pre">malloc()</span></tt>. It&#8217;s important to know though that trying to directly allocate zvals will not work:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* This code is WRONG */</span>
+<span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>The reason is that the cycle collector needs to store some additional information in the zval, so the structure that
+needs to be allocated is actually not a <tt class="docutils literal"><span class="pre">zval</span></tt> but a <tt class="docutils literal"><span class="pre">zval_gc_info</span></tt>:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zval_gc_info</span> <span class="p">{</span>
+    <span class="n">zval</span> <span class="n">z</span><span class="p">;</span>
+    <span class="k">union</span> <span class="p">{</span>
+        <span class="n">gc_root_buffer</span>       <span class="o">*</span><span class="n">buffered</span><span class="p">;</span>
+        <span class="k">struct</span> <span class="n">_zval_gc_info</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+    <span class="p">}</span> <span class="n">u</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zval_gc_info</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">ALLOC_*</span></tt> macros will allocate a <tt class="docutils literal"><span class="pre">zval_gc_info</span></tt> and initialize its additional member, but afterwards the value
+can be transparently used as a <tt class="docutils literal"><span class="pre">zval</span></tt> (because the structure includes a <tt class="docutils literal"><span class="pre">zval</span></tt> as its first member).</p>
+<p>After the zval has been allocated, it needs to be initialized. There are two macros to do this. The first one is
+<tt class="docutils literal"><span class="pre">INIT_PZVAL</span></tt>, which will set refcount=1 and is_ref=0 but leave the value uninitialized:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">INIT_PZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="cm">/* zv_ptr has garbage type+value here */</span>
+</pre></div>
+</div>
+<p>The second macro is <tt class="docutils literal"><span class="pre">INIT_ZVAL</span></tt> which will also set refcount=1 and is_ref=0, but will additionally set the type to
+<tt class="docutils literal"><span class="pre">IS_NULL</span></tt>:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">INIT_ZVAL</span><span class="p">(</span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="cm">/* zv_ptr has type=IS_NULL here */</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">INIT_PZVAL()</span></tt> accepts a <tt class="docutils literal"><span class="pre">zval*</span></tt> (thus the <tt class="docutils literal"><span class="pre">P</span></tt> in its name) whereas <tt class="docutils literal"><span class="pre">INIT_ZVAL()</span></tt> takes a <tt class="docutils literal"><span class="pre">zval</span></tt>. When passing
+a <tt class="docutils literal"><span class="pre">zval*</span></tt> to the latter macro it needs to be dereferenced first.</p>
+<p>Because it is very common to both allocate and initialize a zval in one go, there are two macros which combine both
+steps:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="cm">/* zv_ptr has garbage type+value here */</span>
+
+<span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_INIT_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="cm">/* zv_ptr has type=IS_NULL here */</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">MAKE_STD_ZVAL()</span></tt> combines allocation with <tt class="docutils literal"><span class="pre">INIT_PZVAL()</span></tt>, whereas <tt class="docutils literal"><span class="pre">ALLOC_INIT_ZVAL()</span></tt> combines it with
+<tt class="docutils literal"><span class="pre">INIT_ZVAL()</span></tt>.</p>
+</div>
+<div class="section" id="managing-the-refcount-and-zval-destruction">
+<h2>Managing the refcount and zval destruction<a class="headerlink" href="#managing-the-refcount-and-zval-destruction" title="Permalink to this headline">¶</a></h2>
+<p>Once you have an allocated and initialized zval you can make use of the reference-counting mechanism introduced earlier.
+To manage the refcount PHP provides several macros:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span>      <span class="cm">/* Get refcount */</span>
+<span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span>        <span class="cm">/* Increment refcount */</span>
+<span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span>        <span class="cm">/* Decrement refcount */</span>
+<span class="n">Z_SET_REFCOUNT</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="cm">/* Set refcount to some particular value (here 1) */</span>
+</pre></div>
+</div>
+<p>Just like the other <tt class="docutils literal"><span class="pre">Z_</span></tt> macros these are available in variants without a suffix, with a <tt class="docutils literal"><span class="pre">_P</span></tt> suffix and with a
+<tt class="docutils literal"><span class="pre">_PP</span></tt> suffix, which accept a <tt class="docutils literal"><span class="pre">zval</span></tt>, a <tt class="docutils literal"><span class="pre">zval*</span></tt> and a <tt class="docutils literal"><span class="pre">zval**</span></tt> respectively.</p>
+<p>The macro you will most commonly use is <tt class="docutils literal"><span class="pre">Z_ADDREF_P()</span></tt>. A small example:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+
+<span class="n">add_index_zval</span><span class="p">(</span><span class="n">some_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">add_assoc_zval</span><span class="p">(</span><span class="n">some_array</span><span class="p">,</span> <span class="s">&quot;num&quot;</span><span class="p">,</span> <span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The code inserts the integer 42 into an array at the index <tt class="docutils literal"><span class="pre">0</span></tt> and the key <tt class="docutils literal"><span class="pre">&quot;num&quot;</span></tt>, so the zval will be used in two
+places. After the allocation and initialization done by <tt class="docutils literal"><span class="pre">MAKE_STD_ZVAL()</span></tt> the zval starts off with a refcount of 1.
+To use the same zval in two places it needs a refcount of 2, thus it has to be incremented using <tt class="docutils literal"><span class="pre">Z_ADDREF_P()</span></tt>.</p>
+<p>The complement macro <tt class="docutils literal"><span class="pre">Z_DELREF_P()</span></tt> on the other hand is used rather rarely: Usually just decrementing the refcount
+is not enough, because you have to check for the <tt class="docutils literal"><span class="pre">refcount==0</span></tt> case where the zval needs to be destroyed and freed:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">zval_dtor</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+    <span class="n">efree</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">zval_dtor()</span></tt> macro takes a <tt class="docutils literal"><span class="pre">zval*</span></tt> and destroys its value: If it is a string, the string will be freed, if it
+is an array, the HashTable will be destroyed and freed, if it is an object or resource, the refcount of their actual
+values is decremented (which again might lead to them being destroyed and freed).</p>
+<p>Instead of writing the above code for checking the refcount yourself, you should use a second macro called
+<tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt>:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This macro takes a <tt class="docutils literal"><span class="pre">zval**</span></tt> (for historical reasons, it could take a <tt class="docutils literal"><span class="pre">zval*</span></tt> just as well), decrements its refcount
+and checks whether the zval needs to be destroyed and freed. But unlike our manually written code above, it also
+includes support for the collection of circles. Here is the relevant part of its implementation:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="n">zend_always_inline</span> <span class="kt">void</span> <span class="nf">i_zval_ptr_dtor</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">zval_ptr</span> <span class="n">ZEND_FILE_LINE_DC</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">ZEND_ASSERT</span><span class="p">(</span><span class="n">zval_ptr</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">EG</span><span class="p">(</span><span class="n">uninitialized_zval</span><span class="p">));</span>
+        <span class="n">GC_REMOVE_ZVAL_FROM_BUFFER</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+        <span class="n">zval_dtor</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+        <span class="n">efree_rel</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">Z_UNSET_ISREF_P</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">GC_ZVAL_CHECK_POSSIBLE_ROOT</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Z_DELREF_P()</span></tt> returns the new refcount after it was decremented, so writing <tt class="docutils literal"><span class="pre">!Z_DELREF_P(zval_ptr)</span></tt> is the same
+as writing <tt class="docutils literal"><span class="pre">Z_DELREF_P(zval_ptr)</span></tt> followed by a check for <tt class="docutils literal"><span class="pre">Z_REFCOUNT_P(zval_ptr)</span> <span class="pre">==</span> <span class="pre">0</span></tt>.</p>
+<p>Apart from doing the expected <tt class="docutils literal"><span class="pre">zval_dtor()</span></tt> and <tt class="docutils literal"><span class="pre">efree()</span></tt> operations the code also calls two <tt class="docutils literal"><span class="pre">GC_*</span></tt> macros
+handling cycle collection and asserts that <tt class="docutils literal"><span class="pre">&amp;EG(uninitialized_zval)</span></tt> is never freed (this is a magic zval used by the
+engine).</p>
+<p>Furthermore the code also sets <tt class="docutils literal"><span class="pre">is_ref=0</span></tt> if there is only one reference left to the zval. Leaving <tt class="docutils literal"><span class="pre">is_ref=1</span></tt> in
+this case wouldn&#8217;t really make sense because the concept of a <tt class="docutils literal"><span class="pre">&amp;</span></tt> PHP reference only becomes meaningful when two or
+more holders share a zval.</p>
+<p>Some hints on the usage of these macros: You should not use <tt class="docutils literal"><span class="pre">Z_DELREF_P()</span></tt> at all (it&#8217;s only applicable in situations
+where you can guarantee that the zval neither needs to be destroyed nor is a possible root for a circle). Instead you
+should use <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> whenever you want to decrement the refcount. The <tt class="docutils literal"><span class="pre">zval_dtor()</span></tt> macro is typically used
+with temporary, stack-allocated zvals:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="n">zv</span><span class="p">;</span>
+<span class="n">INIT_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
+
+<span class="cm">/* Do something with zv here */</span>
+
+<span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>A temporary zval allocated on the stack cannot be shared because it is freed at the end of the block, as such it cannot
+make use of refcounting and can be destroyed indiscriminately using <tt class="docutils literal"><span class="pre">zval_dtor()</span></tt>.</p>
+</div>
+<div class="section" id="copying-zvals">
+<h2>Copying zvals<a class="headerlink" href="#copying-zvals" title="Permalink to this headline">¶</a></h2>
+<p>While the copy-on-write mechanism can save a lot of zval copies, they do have to happen at some point, e.g. if you
+want to change the value of the zval or transfer it to another storage location.</p>
+<p>PHP provides a large number of copying macros for various use cases, the simplest one being <tt class="docutils literal"><span class="pre">ZVAL_COPY_VALUE()</span></tt>,
+which just copies the <tt class="docutils literal"><span class="pre">value</span></tt> and <tt class="docutils literal"><span class="pre">type</span></tt> members of a zval:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_src</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_src</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv_src</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>At this point <tt class="docutils literal"><span class="pre">zv_dest</span></tt> will have the same type and value as <tt class="docutils literal"><span class="pre">zv_src</span></tt>. Note that &#8220;same value&#8221; here means that both
+zvals are using the same string value (<tt class="docutils literal"><span class="pre">char*</span></tt>), i.e. if the <tt class="docutils literal"><span class="pre">zv_src</span></tt> zval is destroyed the string value will be
+freed and <tt class="docutils literal"><span class="pre">zv_dest</span></tt> will be left with a dangling pointer to the freed string. To avoid this the zval copy constructor
+<tt class="docutils literal"><span class="pre">zval_copy_ctor()</span></tt> needs to be invoked:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">zval_copy_ctor()</span></tt> will do a fully copy of the zval value, i.e. if it is a string the <tt class="docutils literal"><span class="pre">char*</span></tt> will be copied, if it
+is an array the <tt class="docutils literal"><span class="pre">HashTable*</span></tt> is copied and if it is an object or resource their internal reference counts are
+incremented.</p>
+<p>The only thing that is missing now is the initialization of the refcount and the is_ref flag. This could be done using
+the <tt class="docutils literal"><span class="pre">INIT_PZVAL()</span></tt> macro or by making use of <tt class="docutils literal"><span class="pre">MAKE_STD_ZVAL()</span></tt> instead of <tt class="docutils literal"><span class="pre">ALLOC_ZVAL()</span></tt>. Another alternative is
+to use <tt class="docutils literal"><span class="pre">INIT_PZVAL_COPY()</span></tt> instead of <tt class="docutils literal"><span class="pre">ZVAL_COPY_VALUE()</span></tt> which combines doing a copy with refcount/is_ref
+initialization:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">INIT_PZVAL_COPY</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>As the combination of <tt class="docutils literal"><span class="pre">INIT_PZVAL_COPY()</span></tt> and <tt class="docutils literal"><span class="pre">zval_copy_ctor()</span></tt> is very common, both are combined in the
+<tt class="docutils literal"><span class="pre">MAKE_COPY_ZVAL()</span></tt> macro:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">MAKE_COPY_ZVAL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">,</span> <span class="n">zv_dest</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This macro has a bit of a tricky signature, because it swaps the argument order (the destination is now the second
+argument rather than the first) and also requires the source to be a <tt class="docutils literal"><span class="pre">zval**</span></tt>. Once again this is just a historic
+artifact and doesn&#8217;t make any technical sense whatsoever.</p>
+<p>Apart from these basic copying macros there are several more complicated ones. The most important is <tt class="docutils literal"><span class="pre">ZVAL_ZVAL</span></tt>,
+which is especially common when returning zvals from a function. It has the following signature:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">dtor</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">copy</span></tt> parameter specifies whether <tt class="docutils literal"><span class="pre">zval_copy_ctor()</span></tt> should be called on the destination zval and <tt class="docutils literal"><span class="pre">dtor</span></tt>
+determines whether <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> is called on the source zval. Let&#8217;s go through all four possible combinations
+of those values and analyze the behavior. The simplest case is setting both copy and dtor to zero:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="cm">/* equivalent to: */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this case <tt class="docutils literal"><span class="pre">ZVAL_ZVAL()</span></tt> becomes a simple <tt class="docutils literal"><span class="pre">ZVAL_COPY_VALUE()</span></tt> call. As such using this macro with 0,0 arguments
+doesn&#8217;t really make sense. A more useful variant is copy=1, dtor=0:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="cm">/* equivalent to: */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This is basically a normal zval copy analog to <tt class="docutils literal"><span class="pre">MAKE_COPY_ZVAL()</span></tt>, only without the <tt class="docutils literal"><span class="pre">INIT_PZVAL()</span></tt> step. This is
+useful when copying into zvals that are already initialized (e.g. <tt class="docutils literal"><span class="pre">return_value</span></tt>). Additionally setting dtor=1 only
+adds a <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> call:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="cm">/* equivalent to: */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The most interesting case is the copy=0, dtor=1 combination:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="cm">/* equivalent to: */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span> <span class="n">zv_src</span><span class="p">);</span>
+<span class="n">ZVAL_NULL</span><span class="p">(</span><span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This constitutes a zval &#8220;move&#8221;, where the value from <tt class="docutils literal"><span class="pre">zv_src</span></tt> is moved into <tt class="docutils literal"><span class="pre">zv_dest</span></tt> without having to invoke the
+copy constructor. This is something that should only be done if <tt class="docutils literal"><span class="pre">zv_src</span></tt> has refcount=1, in which case the zval will
+be destroyed by the <tt class="docutils literal"><span class="pre">zval_ptr_dtor()</span></tt> call. If it has a higher refcount the zval will stay alive with a NULL value.</p>
+<p>There are two further macros for copying zvals, namely <tt class="docutils literal"><span class="pre">COPY_PZVAL_TO_ZVAL()</span></tt> and <tt class="docutils literal"><span class="pre">REPLACE_ZVAL_VALUE()</span></tt>. Both are
+used rather rarely and will not be discussed here.</p>
+</div>
+<div class="section" id="separating-zvals">
+<h2>Separating zvals<a class="headerlink" href="#separating-zvals" title="Permalink to this headline">¶</a></h2>
+<p>The macros described above are mainly used when you want to copy a zval to another storage location. A typical example
+is copying a value into the <tt class="docutils literal"><span class="pre">return_value</span></tt> zval. There is a second set of macros for &#8220;zval separation&#8221;, which
+are used in the context of copy-on-write. Their functionality is best understood by looking at the source code:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#define SEPARATE_ZVAL(ppzv)                     \</span>
+<span class="cp">    do {                                        \</span>
+<span class="cp">        if (Z_REFCOUNT_PP((ppzv)) &gt; 1) {        \</span>
+<span class="cp">            zval *new_zv;                       \</span>
+<span class="cp">            Z_DELREF_PP(ppzv);                  \</span>
+<span class="cp">            ALLOC_ZVAL(new_zv);                 \</span>
+<span class="cp">            INIT_PZVAL_COPY(new_zv, *(ppzv));   \</span>
+<span class="cp">            *(ppzv) = new_zv;                   \</span>
+<span class="cp">            zval_copy_ctor(new_zv);             \</span>
+<span class="cp">        }                                       \</span>
+<span class="cp">    } while (0)</span>
+</pre></div>
+</div>
+<p>If the refcount is one, <tt class="docutils literal"><span class="pre">SEPARATE_ZVAL()</span></tt> won&#8217;t do anything. If the refcount is larger, it will remove one ref from the
+old zval, copy it to a new zval and assign that new zval to <tt class="docutils literal"><span class="pre">*ppzv</span></tt>. Note that the macro accepts a <tt class="docutils literal"><span class="pre">zval**</span></tt> and
+will modify which <tt class="docutils literal"><span class="pre">zval*</span></tt> it points to.</p>
+<p>How is this used practically? Imagine you want to modify an array offset like <tt class="docutils literal"><span class="pre">$array[42]</span></tt>. To do so, you first fetch
+the <tt class="docutils literal"><span class="pre">zval**</span></tt> pointer to the stored <tt class="docutils literal"><span class="pre">zval*</span></tt> value. Due to the reference-counting you can&#8217;t directly modify it (as
+it could be shared with other places), it needs to be separated first. The separation will either leave the old zval if
+the refcount is one or it will perform a copy. In the latter case the new zval is assigned to <tt class="docutils literal"><span class="pre">*ppzv</span></tt>, which in this
+case is the storage location in the array.</p>
+<p>Doing a simple copy with <tt class="docutils literal"><span class="pre">MAKE_COPY_ZVAL()</span></tt> wouldn&#8217;t be sufficient here because the copied zval would not actually be
+the zval stored in the array.</p>
+<p>Directly using <tt class="docutils literal"><span class="pre">SEPARATE_ZVAL()</span></tt> before performing a zval modification doesn&#8217;t yet account for the case where the zval
+has is_ref=1, in which case the separation should not occur. To handle this case lets first look at the macros PHP
+provides to handle the is_ref flag:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">Z_ISREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span>           <span class="cm">/* Get if zval is reference */</span>
+
+<span class="n">Z_SET_ISREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span>       <span class="cm">/* Set is_ref=1 */</span>
+<span class="n">Z_UNSET_ISREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span>     <span class="cm">/* Set is_ref=0 */</span>
+
+<span class="n">Z_SET_ISREF_TO_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="cm">/* Same as Z_SET_ISREF_P(zv_ptr) */</span>
+<span class="n">Z_SET_ISREF_TO_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="cm">/* Same as Z_UNSET_ISREF_P(zv_ptr) */</span>
+</pre></div>
+</div>
+<p>Once again the macros are available in variants without suffix, <tt class="docutils literal"><span class="pre">_P</span></tt> suffix and <tt class="docutils literal"><span class="pre">_PP</span></tt> suffix, accepting a <tt class="docutils literal"><span class="pre">zval</span></tt>,
+<tt class="docutils literal"><span class="pre">zval*</span></tt> or <tt class="docutils literal"><span class="pre">zval**</span></tt> respectively. Furthermore there is an older <tt class="docutils literal"><span class="pre">PZVAL_IS_REF()</span></tt> macro which is synonymous with
+<tt class="docutils literal"><span class="pre">Z_ISREF_P()</span></tt>.</p>
+<p>Using these PHP provides two more variants of <tt class="docutils literal"><span class="pre">SEPARATE_ZVAL()</span></tt>:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#define SEPARATE_ZVAL_IF_NOT_REF(ppzv)      \</span>
+<span class="cp">    if (!PZVAL_IS_REF(*ppzv)) {             \</span>
+<span class="cp">        SEPARATE_ZVAL(ppzv);                \</span>
+<span class="cp">    }</span>
+
+<span class="cp">#define SEPARATE_ZVAL_TO_MAKE_IS_REF(ppzv)  \</span>
+<span class="cp">    if (!PZVAL_IS_REF(*ppzv)) {             \</span>
+<span class="cp">        SEPARATE_ZVAL(ppzv);                \</span>
+<span class="cp">        Z_SET_ISREF_PP((ppzv));             \</span>
+<span class="cp">    }</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">SEPARATE_ZVAL_IF_NOT_REF()</span></tt> is the macro you&#8217;d usually use when modifying a zval according to copy-on-write.
+<tt class="docutils literal"><span class="pre">SEPARATE_ZVAL_TO_MAKE_IS_REF()</span></tt> is used when you want to turn a zval into a reference (e.g. for a by-reference
+assignment or by-reference argument pass.) The latter is mainly used by the engine and only rarely in extension code.</p>
+<p>There is another macro in the <tt class="docutils literal"><span class="pre">SEPARATE</span></tt> family, which works a bit differently from the other ones:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#define SEPARATE_ARG_IF_REF(varptr) \</span>
+<span class="cp">    if (PZVAL_IS_REF(varptr)) { \</span>
+<span class="cp">        zval *original_var = varptr; \</span>
+<span class="cp">        ALLOC_ZVAL(varptr); \</span>
+<span class="cp">        INIT_PZVAL_COPY(varptr, original_var); \</span>
+<span class="cp">        zval_copy_ctor(varptr); \</span>
+<span class="cp">    } else { \</span>
+<span class="cp">        Z_ADDREF_P(varptr); \</span>
+<span class="cp">    }</span>
+</pre></div>
+</div>
+<p>The first difference is that this macro takes a <tt class="docutils literal"><span class="pre">zval*</span></tt> rather than a <tt class="docutils literal"><span class="pre">zval**</span></tt>. As such it will not be able to
+modify the <tt class="docutils literal"><span class="pre">zval*</span></tt> it separates. Furthermore this macro already increments the refcount for you, whereas the
+<tt class="docutils literal"><span class="pre">SEPARATE_ZVAL</span></tt> macros do not.</p>
+<p>Apart from this it basically complements <tt class="docutils literal"><span class="pre">SEPARATE_ZVAL_IF_NO_REF()</span></tt>: This time the separation happens when the
+zval <strong>is</strong> a reference. It&#8217;s mainly used to make sure that an argument passed to a function is a value, not a
+reference.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="basic_structure.html">Basic structure</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="casts_and_operations.html">Casts and operations</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        Send feedback to <a href="mailto:feedback@phpinternalsbook.com">feedback@phpinternalsbook.com</a>
+    </div>
+    
+    <div class="footer">
+        &copy; Copyright 2013, Julien Pauli - Anthony Ferrara - Nikita Popov.
+    </div>
+    <div class="footer feedback">
+        All Rights Reserved
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>
