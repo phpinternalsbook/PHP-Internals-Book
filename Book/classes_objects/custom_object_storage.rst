@@ -271,7 +271,7 @@ Now only the clone handler is left. Here the semantics should be straightforward
 This is how such a clone handler might look like::
 
     static void test_clone_object_storage_handler(
-        test_object *object, test_object **object_clone TSRMLS_DC
+        test_object *object, test_object **object_clone_target TSRMLS_DC
     ) {
         /* Create a new object */
         test_object *object_clone = emalloc(sizeof(test_object));
