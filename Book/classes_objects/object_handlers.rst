@@ -25,7 +25,7 @@ description.
 
     These handlers correspond to the ``__get``, ``__set``, ``__isset`` and ``__unset`` methods. ``get_property_ptr_ptr``
     is the internal equivalent of ``__get`` returning by reference. The ``zend_literal *key`` passed to these functions
-    exists as an optimization, for example it contains a precomputed hash of of the property name.
+    exists as an optimization, for example it contains a precomputed hash of the property name.
 
 .. c:member::
     zval *read_dimension(zval *object, zval *offset, int type TSRMLS_DC)
@@ -80,7 +80,7 @@ description.
 
 .. c:member:: int get_closure(zval *obj, zend_class_entry **ce_ptr, union _zend_function **fptr_ptr, zval **zobj_ptr TSRMLS_DC)
 
-    This handler is invoked when the the object is used as a function, i.e. it is the internal version of ``__invoke``.
+    This handler is invoked when the object is used as a function, i.e. it is the internal version of ``__invoke``.
     The name derives from the fact that its main use is for the implementation of closures (the ``Closure`` class).
 
 .. c:member::
