@@ -71,7 +71,7 @@ description is outside the scope of this book.</p>
 <tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">php</span></tt>. Before explaining the actual compilation you should first understand why doing your own
 compile is necessary and you can&#8217;t just use a prebuilt package. There are multiple reasons for this:</p>
 <p>Firstly, the prebuilt package only contains the resulting binaries, but misses other things that are necessary to
-compile extensions, e.g. header files. This can easily be remedied by installing a development package, which is
+compile extensions, e.g. header files. This can be easily remedied by installing a development package, which is
 typically called <tt class="docutils literal"><span class="pre">php-dev</span></tt>. To facilitate debugging with valgrind or gdb one could additionally install debug symbols,
 which are usually available as another package called <tt class="docutils literal"><span class="pre">php-dbg</span></tt>.</p>
 <p>But even if you install headers and debug symbols, you&#8217;ll still be working with a release build of PHP. This means that
@@ -243,8 +243,8 @@ needs to be explicitly enabled. <tt class="docutils literal"><span class="pre">-
 is compiled by default, but can be explicitly disabled.</p>
 <p>Some extensions are always compiled and can not be disabled. To create a build that only contains the minimal amount of
 extensions use the <tt class="docutils literal"><span class="pre">--disable-all</span></tt> option:</p>
-<div class="highlight-bash"><div class="highlight"><pre>&gt; ./configure --disable-all <span class="o">&amp;&amp;</span> make -jN
-&gt; sapi/cli/php -m
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; ./configure --disable-all <span class="o">&amp;&amp;</span> make -jN
+~/php-src&gt; sapi/cli/php -m
 <span class="o">[</span>PHP Modules<span class="o">]</span>
 Core
 date

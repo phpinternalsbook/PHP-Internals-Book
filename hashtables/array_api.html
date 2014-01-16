@@ -64,7 +64,7 @@ introducing these simplified APIs we will have a look at a special kind of hasht
 interchangeable. This also applies to arrays where the keys <tt class="docutils literal"><span class="pre">42</span></tt> and <tt class="docutils literal"><span class="pre">&quot;42&quot;</span></tt> should be considered the same. This is
 not the case though with ordinary hashtables: They strictly distinguish the key types and it&#8217;s okay to have both the
 key <tt class="docutils literal"><span class="pre">42</span></tt> and <tt class="docutils literal"><span class="pre">&quot;42&quot;</span></tt> in the same table (with different values).</p>
-<p>This is why there is an additional <em>symtable</em> (symbol table) API, which is a thin wrapper around around some hashtable
+<p>This is why there is an additional <em>symtable</em> (symbol table) API, which is a thin wrapper around some hashtable
 functions which converts integral string keys to actual integer keys. For example, this is how the
 <tt class="docutils literal"><span class="pre">zend_symtable_find()</span></tt> function is defined:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_find</span><span class="p">(</span>

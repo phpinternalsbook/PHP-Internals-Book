@@ -14,7 +14,7 @@ interchangeable. This also applies to arrays where the keys ``42`` and ``"42"`` 
 not the case though with ordinary hashtables: They strictly distinguish the key types and it's okay to have both the
 key ``42`` and ``"42"`` in the same table (with different values).
 
-This is why there is an additional *symtable* (symbol table) API, which is a thin wrapper around around some hashtable
+This is why there is an additional *symtable* (symbol table) API, which is a thin wrapper around some hashtable
 functions which converts integral string keys to actual integer keys. For example, this is how the
 ``zend_symtable_find()`` function is defined::
 
