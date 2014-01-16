@@ -24,7 +24,7 @@ If you are currently using PHP, you likely installed it through your package man
 compile is necessary and you can't just use a prebuilt package. There are multiple reasons for this:
 
 Firstly, the prebuilt package only contains the resulting binaries, but misses other things that are necessary to
-compile extensions, e.g. header files. This can easily be remedied by installing a development package, which is
+compile extensions, e.g. header files. This can be easily remedied by installing a development package, which is
 typically called ``php-dev``. To facilitate debugging with valgrind or gdb one could additionally install debug symbols,
 which are usually available as another package called ``php-dbg``.
 
@@ -231,8 +231,8 @@ is compiled by default, but can be explicitly disabled.
 Some extensions are always compiled and can not be disabled. To create a build that only contains the minimal amount of
 extensions use the ``--disable-all`` option::
 
-    > ./configure --disable-all && make -jN
-    > sapi/cli/php -m
+    ~/php-src> ./configure --disable-all && make -jN
+    ~/php-src> sapi/cli/php -m
     [PHP Modules]
     Core
     date
