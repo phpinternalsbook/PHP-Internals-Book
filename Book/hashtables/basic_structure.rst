@@ -25,9 +25,10 @@ method simply stores all elements having the same hash in a linked list. When a 
 hash and then go through the linked list of "possible" values until it finds the matching entry. Here is an
 illustration of chaining collision resolution:
 
-.. image:: ./images/basic_hashtable.svg
+.. image:: ./images/basic_hashtable.*
    :align: center
    :height: 265px
+   :scale: 200%
 
 The elements of the linked list are called ``Bucket``\s and the C array containing the heads of the linked lists is
 called ``arBuckets``.
@@ -38,9 +39,10 @@ bucket of ``"a"`` which you can do either by traversing the linked list for the 
 pointers in the reverse direction. The latter is what PHP does: Every bucket contains both a pointer to the next bucket
 (``pNext``) and the previous bucket (``pLast``). This is illustrated in the following graphic:
 
-.. image:: ./images/doubly_linked_hashtable.svg
+.. image:: ./images/doubly_linked_hashtable.*
    :align: center
    :height: 250px
+   :scale: 200%
 
 Furthermore PHP hashtables are *ordered*: If you traverse an array you'll get the elements in same order in which you
 inserted them. To support this the buckets have to be part of another linked list which specifies the order. This is
@@ -49,9 +51,10 @@ The forward pointers are stored in ``pListNext``, the backward pointers in ``pLi
 structure has a pointer to the start of the list (``pListHead``) and the end of the list (``pListLast``). Here is an
 example of how this linked list could look like for the elements ``"a"``, ``"b"``, ``"c"`` (in that order):
 
-.. image:: ./images/ordered_hashtable.svg
+.. image:: ./images/ordered_hashtable.*
    :align: center
    :height: 250px
+   :scale: 200%
 
 The HashTable and Bucket structures
 -----------------------------------
