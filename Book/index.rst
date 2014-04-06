@@ -13,12 +13,7 @@ Table Of Contents
     :maxdepth: 2
 
     zvals.rst
-
-* Implementing functions
-
-.. toctree::
-    :maxdepth: 2
-
+    functions.rst
     hashtables.rst
     classes_objects.rst
 
