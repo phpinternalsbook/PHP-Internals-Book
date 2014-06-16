@@ -226,91 +226,84 @@ extension and a Zend extension, where the former contains all ini settings, cons
 particular case you still need to use ``--re``. Other Zend extensions make their information available via ``--rz``
 though.
 
-..
-    nikic: Commented out for now. building_php.rst already mentions ABI incompatibility for zts / debug / api version.
-    This has more detail regarding the 3 different API numbers, but it doesn't really become clear what they mean, and
-    I don't know that either (it seems like we just have too many and they should be reduced to just PHP Api No and
-    Zend Api No.)
+Extensions API compatibility
+****************************
 
-    Extensions API compatibility
-    ****************************
+Extensions are very sensitive to 5 major factors. If they dont fit, the extension wont load into PHP and will be useless :
 
-    Extensions are very sensitive to 5 major factors. If they dont fit, the extension wont load into PHP and will be useless :
+    * PHP Api Version
+    * Zend Module Api No
+    * Zend Extension Api No
+    * Debug mode
+    * Thread safety
 
-        * PHP Api Version
-        * Zend Module Api No
-        * Zend Extension Api No
-        * Debug mode
-        * Thread safety
+The *phpize* tool recall you some of those informations.
+So if you have built a PHP with debug mode, and try to make it load and use an extension which's been built without
+debug mode, it simply wont work. Same for the other checks.
 
-    The *phpize* tool recall you some of those informations.
-    So if you have built a PHP with debug mode, and try to make it load and use an extension which's been built without
-    debug mode, it simply wont work. Same for the other checks.
+*PHP Api Version* is the number of the version of the internal API. *Zend Module Api No* and *Zend Extension Api No*
+are respectively about PHP extensions and Zend extensions API.
 
-    *PHP Api Version* is the number of the version of the internal API. *Zend Module Api No* and *Zend Extension Api No*
-    are respectively about PHP extensions and Zend extensions API.
+Those numbers are later passed as C macros to the extension beeing built, so that it can itself check against those
+parameters and take different code paths based on C preprocessor ``#ifdef``\s As those numbers are passed to the
+extension code as macros, they are written in the extension structure, so that anytime you try to load this extension in
+a PHP binary, they will be checked against the PHP binary's own numbers.
+If they mismatch, then the extension will not load, and an error message will be displayed.
 
-    Those numbers are later passed as C macros to the extension beeing built, so that it can itself checks against those
-    parameters and take different code paths based on C preprocessor ``#ifdef``\s As those numbers are passed to the
-    extension code as macros, they are written in the extension structure, so that anytime you try to load this extension in
-    a PHP binary, they will be checked against the PHP binary's own numbers.
-    If they mismatch, then the extension will not load, and an error message will be displayed.
+If we look at the extension C structure, it looks like this::
 
-    If we look at the extension C structure, it looks like this::
+    zend_module_entry foo_module_entry = {
+        STANDARD_MODULE_HEADER,
+        "foo",
+        foo_functions,
+        PHP_MINIT(foo),
+        PHP_MSHUTDOWN(foo),
+        NULL,
+        NULL,
+        PHP_MINFO(foo),
+        PHP_FOO_VERSION,
+        STANDARD_MODULE_PROPERTIES
+    };
 
-        zend_module_entry foo_module_entry = {
-            STANDARD_MODULE_HEADER,
-            "foo",
-            foo_functions,
-            PHP_MINIT(foo),
-            PHP_MSHUTDOWN(foo),
-            NULL,
-            NULL,
-            PHP_MINFO(foo),
-            PHP_FOO_VERSION,
-            STANDARD_MODULE_PROPERTIES
-        };
+What is interesting for us so far, is the ``STANDARD_MODULE_HEADER`` macro. If we expand it, we can see::
 
-    What is interesting for us so far, is the ``STANDARD_MODULE_HEADER`` macro. If we expand it, we can see::
+    #define STANDARD_MODULE_HEADER_EX sizeof(zend_module_entry), ZEND_MODULE_API_NO, ZEND_DEBUG, USING_ZTS
+    #define STANDARD_MODULE_HEADER STANDARD_MODULE_HEADER_EX, NULL, NULL
 
-        #define STANDARD_MODULE_HEADER_EX sizeof(zend_module_entry), ZEND_MODULE_API_NO, ZEND_DEBUG, USING_ZTS
-        #define STANDARD_MODULE_HEADER STANDARD_MODULE_HEADER_EX, NULL, NULL
+Notice how ``ZEND_MODULE_API_NO``, ``ZEND_DEBUG``, ``USING_ZTS`` are used.
 
-    Notice how ``ZEND_MODULE_API_NO``, ``ZEND_DEBUG``, ``USING_ZTS`` are used.
+If you look at the default directory for PHP extensions, it should look like ``no-debug-non-zts-20090626``. As you'd
+have guessed, this directory is made of distinct parts joined together : debug mode, followed by thread safety
+information, followed by the Zend Module Api No.
+So by default, PHP tries to help you navigating with extensions.
 
+.. note::
 
-    If you look at the default directory for PHP extensions, it should look like ``no-debug-non-zts-20090626``. As you'd
-    have guessed, this directory is made of distinct parts joined together : debug mode, followed by thread safety
-    information, followed by the Zend Module Api No.
-    So by default, PHP tries to help you navigating with extensions.
+    When you become an internal developper or an extension developper, you will usually have to play with the debug parameter, and if you have to deal with the Windows platform, threads will show up as well. You can end with compiling the same extension several times against several cases of those parameters.
 
-    .. note::
+Remember that every new major/minor version of PHP change parameters such as the PHP Api Version, that's why you need to recompile extensions against a newer PHP version.
 
-        Usually, when you become an internal developper or an extension developper, you will usually have to play with the debug parameter, and if you have to deal with the Windows platform, threads will show up as well. You can end with compiling the same extension several times against several cases of those parameters.
+.. code-block:: none
 
-    Remember that every new major/minor version of PHP change parameters such as the PHP Api Version, that's why you need to recompile extensions against a newer PHP version.
+    > /path/to/php54/bin/phpize -v
+    Configuring for:
+    PHP Api Version:         20100412
+    Zend Module Api No:      20100525
+    Zend Extension Api No:   220100525
 
-    .. code-block:: none
+    > /path/to/php55/bin/phpize -v
+    Configuring for:
+    PHP Api Version:         20121113
+    Zend Module Api No:      20121212
+    Zend Extension Api No:   220121212
 
-        > /path/to/php54/bin/phpize -v
-        Configuring for:
-        PHP Api Version:         20100412
-        Zend Module Api No:      20100525
-        Zend Extension Api No:   220100525
+    > /path/to/php53/bin/phpize -v
+    Configuring for:
+    PHP Api Version:         20090626
+    Zend Module Api No:      20090626
+    Zend Extension Api No:   220090626
 
-        > /path/to/php55/bin/phpize -v
-        Configuring for:
-        PHP Api Version:         20121113
-        Zend Module Api No:      20121212
-        Zend Extension Api No:   220121212
+.. note::
 
-        > /path/to/php53/bin/phpize -v
-        Configuring for:
-        PHP Api Version:         20090626
-        Zend Module Api No:      20090626
-        Zend Extension Api No:   220090626
-
-    .. note::
-
-        *Zend Module Api No* is itself built with a date using the *year.month.day* format. This is the date of the day the API changed and was tagged.
-        *Zend Extension Api No* is the Zend version followed by *Zend Module Api No*.
+    *Zend Module Api No* is itself built with a date using the *year.month.day* format. This is the date of the day the API changed and was tagged.
+    *Zend Extension Api No* is the Zend version followed by *Zend Module Api No*.
