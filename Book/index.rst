@@ -5,6 +5,7 @@ Table Of Contents
     :maxdepth: 2
 
     introduction.rst
+    php_main.rst
     build_system.rst
 
 * Creating PHP extensions
