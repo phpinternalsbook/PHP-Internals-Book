@@ -1,8 +1,8 @@
 Arguments and return values
 ===========================
 
-This section discusses several core aspects pertaining to the implementation of internal functions. In particular we'll
-take a look at how internal functions retrieve arguments and return values.
+This section discusses several important aspects pertaining to the implementation of internal functions. In particular
+we'll take a look at how internal functions retrieve arguments and return values.
 
 Function handler parameters
 ---------------------------
@@ -68,7 +68,7 @@ directly modify it without bothering about copy-on-write separations. A few simp
 
     PHP_FUNCTION(return_hello_world) {
         ZVAL_STRING(return_value, "Hello world!", 1);
-        /* Reminder: 1 means the strings needs to be duplicated */
+        /* Reminder: 1 means the string needs to be duplicated */
     }
 
 As setting the return value is such a common operation, there is a set of ``RETVAL_*`` macros, which are just
@@ -91,7 +91,7 @@ macros::
         RETVAL_STRING("Hello world!", 1);
     }
 
-A ``RETVAL_*`` macro is available for all the ``ZVAL_*`` variants, here's a full list::
+A ``RETVAL_*`` macro is available for all the ``ZVAL_*`` variants::
 
     RETVAL_NULL();
     RETVAL_BOOL(bval);
@@ -105,7 +105,7 @@ A ``RETVAL_*`` macro is available for all the ``ZVAL_*`` variants, here's a full
     RETVAL_RESOURCE(resval);
     RETVAL_ZVAL(zval, copy, dtor);
 
-Take care with the ``RETVAL_FALSE`` and ``RETVAL_TRUE`` macros: Unlike all the rest, these two are written without
+Take care with the ``RETVAL_FALSE`` and ``RETVAL_TRUE`` macros: Unlike all the others, these two are written without
 parentheses.
 
 The ``RETVAL_*`` macros only set the return value, but they don't return from the handler function. Consider the common
@@ -130,7 +130,7 @@ required::
 
     do_stuff();
 
-As this is once again a very common operation, there is another set of ``RETURN_*`` macros, which combine the
+As this is once again a very common pattern, there is another set of ``RETURN_*`` macros, which combine the
 corresponding ``RETVAL_*`` with ``return``::
 
     if (invalid_input()) {
@@ -149,8 +149,8 @@ The ``zend_parse_parameters()`` API
 
 The most commonly used way to obtain the arguments (parameters) passed to an internal function is the
 ``zend_parse_parameters()`` API. This function handles everything from type checks, over optional arguments and
-zval separation to variadic arguments. There are a number of other functions for getting function arguments, which we'll
-take a look at lateron, but this is the method that nearly all internal functions utilize.
+zval separation to variadic arguments. There are a number of other functions for getting function arguments, but
+this is the method that nearly all internal functions utilize.
 
 Here's a usage sample for the ``strcmp`` function::
 
@@ -180,7 +180,7 @@ that ``zend_parse_parameters()`` can modify their values.
 The return value of zpp (we'll be using this shorthand in the following) has to be checked against ``FAILURE``, which is
 returned when either a wrong number of arguments has been passed or they weren't of the correct type. By convention
 functions must return ``null`` when a zpp failure occurs. As ``return_value`` is already null at this point, this
-behavior can be implemented simply by adding a ``return``. Note that the convention to return null here is followed
+behaviour can be implemented simply by adding a ``return``. Note that the convention to return null here is followed
 rather strictly (unlike most other conventions in the PHP source code) and you should use it even if you have other
 error return types like ``bool(false)`` as well.
 
@@ -208,8 +208,8 @@ of what the type accepts are listed in the following table:
       - ``long *lval``
       - Same as ``l`` but with different handling for doubles (and doubles in strings): If the double is outside the
         range supported by the ``long`` type, the value will be clipped at ``LONG_MIN`` / ``LONG_MAX``. The default
-        behavior of the integer cast is to use wraparound instead. This means that if you pass ``PHP_INT_MAX + 1`` to an
-        ``l`` argument, you'll get ``LONG_MIN`` (the MIN is not a typo) as the result.
+        behaviour of the integer cast is to use wraparound instead. This means that if you pass ``PHP_INT_MAX + 1`` to
+		an ``l`` argument, you'll get ``LONG_MIN`` (the MIN is not a typo) as the result.
     * - ``d``
       - ``double *dval``
       - Accepts null, bool, long and double according to ``convert_to_double()`` semantics and strings according to
@@ -249,7 +249,7 @@ of what the type accepts are listed in the following table:
     * - ``O``
       - ``zval **zv, zend_class_entry *ce``
       - Accepts only objects of type ``ce`` (according to ``instanceof`` semantics). Unlike all the previous cases,
-        ``ce`` is not a target argument here. Rather it provides additional information for the type check. The target
+        ``ce`` is not a target argument here. Instead it provides additional information for the type check. The target
         argument is the ``zv``.
     * - ``C``
       - ``zend_class_entry **ce``
@@ -284,7 +284,7 @@ Lets take a look at a few more examples! Here's the zpp call for the ``array_pad
         /* ... */
     }
 
-The function accepts an array (``a``), an integer (``l``) and an arbitrary value (``z``). The array is fetched into the
+The function accepts an array (``a``), an integer (``l``) and an arbitrary value (``z``). The array is fetched into
 ``zval *input``, the integer into ``long pad_size`` and the value into ``zval *pad_value``. If you compare these types
 with the previous table, you'll note that the variable declarations have one ``*`` less than the arguments listed in
 the table. The additional level of indirection is added by the use of the ``&`` operator during the zpp call.
@@ -307,7 +307,7 @@ The ``O`` type verifies that the passed argument is an instance of a certain cla
 to pass the expected class entry as an additional argument after the target zval. Note that ``&`` is not being used
 here: The class entry is just extra information for zpp, it will not be modified.
 
-The ``C`` type uses a different approach to specify additional data. Here's a sample usage for
+The ``C`` type uses a different approach to specify additional type data. Here's a sample usage for
 ``ArrayObject::setIteratorClass()`` method::
 
     SPL_METHOD(Array, setIteratorClass) {
@@ -342,7 +342,7 @@ Optional arguments
 ------------------
 
 All functions in the preceding examples accept a fixed number of required parameters: You can pass exactly three
-arguments to ``array_pad()``, not more, not less. Anything else will result a zpp ``FAILURE`` (and a warning). However,
+arguments to ``array_pad()``, not more, not less. Anything else will result a zpp ``FAILURE`` and a warning. However,
 many functions need to handle a number of additional, optional arguments and of course the ``zend_parse_parameters()``
 API has support for this as well.
 
@@ -390,13 +390,13 @@ assign ``NULL`` to optional zval arguments (and other arguments with pointer typ
 
 Here ``search_value`` is initialized to ``NULL``. This value is only used as a way to determine whether or not this
 argument was passed, by checking ``search_value != NULL`` in the implementation. The same can't be done with non-pointer
-types (e.g. initializing ``long lval = 0``, you won't be able to distinguish between the parameter not being passed and
-the value ``0`` being passed). We'll learn how to deal with soon, but first need to introduce another zpp feature:
+types: For example, if you initialize ``long lval = 0``, you won't be able to distinguish between the parameter not being
+passed and the value ``0`` being passed. We'll learn how to deal with soon, but first need to introduce another zpp feature:
 
 Nullable arguments
 ------------------
 
-From the previous section you're already familiar with the ``allow_null`` annotation for arguments, which allows passing
+From the previous section you're already familiar with the ``allow_null`` annotation for arginfos, which allows passing
 of ``null`` in addition to the hinted type. The same can be achieved with zpp by appending an exclamation mark (``!``)
 after the type character.
 

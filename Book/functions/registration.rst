@@ -49,8 +49,8 @@ parent method.
 The remaining members deal with function parameters (or arguments, both terms are used interchangeably by PHP):
 ``arg_info`` is an array of ``zend_arg_info`` structures, which specify information like the argument name, whether it
 is passed by reference, what typehint it uses, etc. ``num_args`` is the number of arguments declared in this array.
-Note that this number says nothing about the number of arguments the function expects: You may be able to pass both more
-and less arguments than ``num_args`` to the function.
+Note that this number says nothing about how many arguments the function actually expects: You may be able to pass both
+more and less arguments than ``num_args`` to the function.
 
 A minimum number of arguments can however be specified via ``required_num_args``. Note that this field is to the most
 part only informational, it is not enforced. The function implementation itself must ensure that the number of provided
@@ -59,7 +59,7 @@ ensure that the Liskov Substitution Principle is not violated during inheritance
 number of required parameters when extending a method.
 
 None of the ``common`` members specify the actual implementation of the function. This is what the specialized
-``zend_internal_function`` and ``zend_op_array`` structures deal with. ``zend_internal_function`` is defined as folows::
+``zend_internal_function`` and ``zend_op_array`` structures deal with. ``zend_internal_function`` is defined as follows::
 
     typedef struct _zend_internal_function {
         /* Common elements */
@@ -117,7 +117,7 @@ that array) as well as function flags. Multiple functions are defined in a NULL 
 These function entries then need to be registered in some way. For non-methods this is done via an entry in the
 ``zend_module_entry`` structure you're already familiar with::
 
-    zend_module_entry gmp_module_entry = {
+    zend_module_entry ext_module_entry = {
         STANDARD_MODULE_HEADER,
         "extname",
         ext_functions,
@@ -238,8 +238,8 @@ Defining argument information
 -----------------------------
 
 When registering a function it is possible to specify additional information about its arguments using the ``arg_info``
-argument of the individual macros. In all of the previous examples we didn't make use of this possibility and passed
-``NULL`` instead.
+argument of the previously introduced macros. In all of the previous examples we didn't make use of this possibility
+and passed ``NULL`` instead.
 
 Argument information is specified using an array of ``zend_arg_info`` structs, which are defined as follows::
 
@@ -269,8 +269,8 @@ The ``is_variadic`` option is available as of PHP 5.6 and can only be be used on
 specifies that the function takes a variable amount of arguments. The typehint and ``pass_by_reference`` value for this
 argument will apply to all arguments passed afterwards as well.
 
-Note that the arginfo does *not* contain a default value or similar. Internal functions do not have a generic concept
-of a default value. Instead defaults are handled in the implementation of the function itself.
+Note that the arginfo for optional parameters does *not* contain a default value. Internal functions do not have a
+generic concept of a default value. Instead defaults are handled in the implementation of the function itself.
 
 Arginfo structures are defined using the ``ZEND_ARG_INFO()`` family of macros. Here's a simple example for the
 ``substr`` function::
@@ -312,7 +312,7 @@ Here the required argument number will be set to ``2``. The additional ``0`` arg
 the same as the second argument to ``ZEND_BEGIN_ARG_INFO_EX()``, i.e. no longer used.
 
 There are three further macros for specifying type hints. ``ZEND_ARG_OBJ_INFO()`` is used for class/interface
-typenhints::
+typehints::
 
     /* iterator_to_array(Traversable $iterator [, $use_keys]) */
 
