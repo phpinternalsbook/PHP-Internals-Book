@@ -145,7 +145,7 @@ the ``acinclude.m4`` file (which specifies a large number of PHP-specific M4 mac
 individual extensions and SAPIs (as well as a bunch of other ``m4`` files).
 
 The good news is that writing extensions or even doing core modifications will not require much interaction with the
-build system. You will have to write small ``config.m4`` files lateron, but those usually just use two or three of the
+build system. You will have to write small ``config.m4`` files later on, but those usually just use two or three of the
 high-level macros that ``acinclude.m4`` provides. As such we will not go into further detail here.
 
 The ``./buildconf`` script only has two options: ``--debug`` will disable warning suppression when calling autoconf and
