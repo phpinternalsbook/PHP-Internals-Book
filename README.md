@@ -1,8 +1,6 @@
 PHP-Internals-Book
 ==================
 
-[**Content Outline**](https://docs.google.com/document/d/13PZrbWEIsgzH67JnqH1kXbO5Xt_DsoBHa_JaBjQavQc/edit) on Google Docs.
-
 NOTE
 ----
 
@@ -100,7 +98,7 @@ We agreed to share our sources privately using the private GitHub repo from ircm
 So we use git together with a github remote.
 Remember that sources must include drawings and all form of binary data we may provide
 
-https://github.com/ircmaxell/PHP-Internals-Book
+https://github.com/phpinternalsbook/PHP-Internals-Book
 
 Author details
 --------------
