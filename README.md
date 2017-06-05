@@ -1,13 +1,6 @@
 PHP-Internals-Book
 ==================
 
-NOTE
-----
-
-From now on, all new content that is being written should be written in a separate branch. Then once content is ready for publishing, we can merge it down to the master branch (and then push it live).
-
-But works-in-progress should not go in the main branch...
-
 Document format: RST
 --------------------
 
@@ -41,16 +34,6 @@ The idea is to publish the TOC and some preview chapters publicly through those
 domains, that way people can follow the progress and stay interested in the
 project.
 
-Todo
-----
-
- * Find a licencing strategy
- * Find a distribution model
- * Validate the outline
- * Write first chapters :)
- * Contact eventual partial contributors that would be needed (Pierre, Ekneuss, Mike, anyone we’ll need eventually)
-
-
 Target Audience
 ---------------
 
@@ -74,35 +57,9 @@ Goals, Why
  * Also, we would dedicate this book to PHP contributors and show all the work that’s been done and that most PHP users simply ignore.
  * Finally we should find some way to justify some choices and design implementations inside PHP
 
-Schedule
---------
+Authors
+-------
 
- * Aug 27 - Sept 3 - Add ideas on topics to write about (can be organized or not)
- * Sept 3 - Sept 10 - Organize ideas into rough outline of book. Have an organized TOC
- * Sept mid - Oct mid - Start writing some chapters
- * Oct mid - Nov 1st - Have a lookback and agree finally on the writing styles, the RST format
- * Nov 1st - First public announce of the project. From this point, no way-back possible, ppl will be expcting our work, so we’ll have to finish it ;-)
-
-Misc
-----
-
- * It takes about a year long to write a book, from the beginning idea to the final print book ; though we can finish the work in about 4 months if we really work hard on it daily, that won’t be the case I think ;-)
- * Don’t hesitate to draw pictures. Drawings are much more explanatory than texts and make the global reading feel more comfortable
- * Don’t worry about the total amount of sheets, write what you want, simply think about the global reading and balance
- * Some of us may have difficulties in English writing. When you write a book, at the end of the process stands a big step of reading, spell checking and fixing. It is recommended to read and read again what’s been written all through the project life, and fix words and sentences, living less work for the final step, usually the most boring one.
-
-Storing sources
----------------
-
-We agreed to share our sources privately using the private GitHub repo from ircmaxell
-So we use git together with a github remote.
-Remember that sources must include drawings and all form of binary data we may provide
-
-https://github.com/phpinternalsbook/PHP-Internals-Book
-
-Author details
---------------
-
-* Julien Pauli: jpauli@php.net - France Paris (UTC+1 DST)
+* Julien Pauli: jpauli@php.net
 * Nikita Popov: nikic@php.net
 * Anthony Ferrara: ircmaxell@php.net
