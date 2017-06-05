@@ -19,5 +19,7 @@ still be able to understand the content.
    until the remaining introductory chapters are published or start off with other
    `resources on the topic <https://wiki.php.net/internals/references>`_.
 
-As this book is a work-in-progress, any feedback is *greatly* appreciated! Please send any feedback to:
-feedback@phpinternalsbook.com.
+The repository for this book is available on GitHub_. Please report issues and provide feedback on the `issue tracker`_.
+
+.. _GitHub: https://github.com/phpinternalsbook/PHP-Internals-Book
+.. _issue tracker: https://github.com/phpinternalsbook/PHP-Internals-Book/issues
