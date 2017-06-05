@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,7 +11,6 @@
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -27,7 +24,6 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="PHP Internals Book" href="../index.html" />
     <link rel="up" title="Classes and objects" href="../classes_objects.html" />
     <link rel="next" title="Iterators" href="iterators.html" />
@@ -66,48 +62,48 @@ implementation from the last section) for a few of them. For all the others only
 <p>As of this writing there are 26 object handlers, which are listed in the following with their signature and a small
 description.</p>
 <dl class="member">
-<dt id="read_property">
-zval *<tt class="descname">read_property</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, int<em>&nbsp;type</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#read_property" title="Permalink to this definition">¶</a></dt>
-<dt id="write_property">
-void <tt class="descname">write_property</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, zval<em>&nbsp;*value</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#write_property" title="Permalink to this definition">¶</a></dt>
-<dt id="has_property">
-int <tt class="descname">has_property</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, int<em>&nbsp;has_set_exists</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#has_property" title="Permalink to this definition">¶</a></dt>
-<dt id="unset_property">
-void <tt class="descname">unset_property</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#unset_property" title="Permalink to this definition">¶</a></dt>
-<dt id="get_property_ptr_ptr">
-zval **<tt class="descname">get_property_ptr_ptr</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get_property_ptr_ptr" title="Permalink to this definition">¶</a></dt>
+<dt id="c.read_property">
+zval *<tt class="descname">read_property</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, int<em>&nbsp;type</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.read_property" title="Permalink to this definition">¶</a></dt>
+<dt id="c.write_property">
+void <tt class="descname">write_property</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, zval<em>&nbsp;*value</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.write_property" title="Permalink to this definition">¶</a></dt>
+<dt id="c.has_property">
+int <tt class="descname">has_property</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, int<em>&nbsp;has_set_exists</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.has_property" title="Permalink to this definition">¶</a></dt>
+<dt id="c.unset_property">
+void <tt class="descname">unset_property</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.unset_property" title="Permalink to this definition">¶</a></dt>
+<dt id="c.get_property_ptr_ptr">
+zval **<tt class="descname">get_property_ptr_ptr</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get_property_ptr_ptr" title="Permalink to this definition">¶</a></dt>
 <dd><p>These handlers correspond to the <tt class="docutils literal"><span class="pre">__get</span></tt>, <tt class="docutils literal"><span class="pre">__set</span></tt>, <tt class="docutils literal"><span class="pre">__isset</span></tt> and <tt class="docutils literal"><span class="pre">__unset</span></tt> methods. <tt class="docutils literal"><span class="pre">get_property_ptr_ptr</span></tt>
 is the internal equivalent of <tt class="docutils literal"><span class="pre">__get</span></tt> returning by reference. The <tt class="docutils literal"><span class="pre">zend_literal</span> <span class="pre">*key</span></tt> passed to these functions
-exists as an optimization, for example it contains a precomputed hash of of the property name.</p>
+exists as an optimization, for example it contains a precomputed hash of the property name.</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="read_dimension">
-zval *<tt class="descname">read_dimension</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*offset</em>, int type<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#read_dimension" title="Permalink to this definition">¶</a></dt>
-<dt id="write_dimension">
-void <tt class="descname">write_dimension</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*offset</em>, zval *value<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#write_dimension" title="Permalink to this definition">¶</a></dt>
-<dt id="has_dimension">
-int <tt class="descname">has_dimension</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, int check_empty<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#has_dimension" title="Permalink to this definition">¶</a></dt>
-<dt id="unset_dimension">
-void <tt class="descname">unset_dimension</tt><big>(</big>zval<em>&nbsp;*object</em>, zval *offset<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#unset_dimension" title="Permalink to this definition">¶</a></dt>
+<dt id="c.read_dimension">
+zval *<tt class="descname">read_dimension</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*offset</em>, int type<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.read_dimension" title="Permalink to this definition">¶</a></dt>
+<dt id="c.write_dimension">
+void <tt class="descname">write_dimension</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*offset</em>, zval *value<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.write_dimension" title="Permalink to this definition">¶</a></dt>
+<dt id="c.has_dimension">
+int <tt class="descname">has_dimension</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, int check_empty<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.has_dimension" title="Permalink to this definition">¶</a></dt>
+<dt id="c.unset_dimension">
+void <tt class="descname">unset_dimension</tt><big>(</big>zval<em>&nbsp;*object</em>, zval *offset<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.unset_dimension" title="Permalink to this definition">¶</a></dt>
 <dd><p>This set of handlers is the internal representation of the <tt class="docutils literal"><span class="pre">ArrayAccess</span></tt> interface.</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="set">
-void <tt class="descname">set</tt><big>(</big>zval<em>&nbsp;**object</em>, zval *value<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#set" title="Permalink to this definition">¶</a></dt>
-<dt id="get">
-zval *<tt class="descname">get</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get" title="Permalink to this definition">¶</a></dt>
+<dt id="c.set">
+void <tt class="descname">set</tt><big>(</big>zval<em>&nbsp;**object</em>, zval *value<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.set" title="Permalink to this definition">¶</a></dt>
+<dt id="c.get">
+zval *<tt class="descname">get</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>These handlers get/set the &#8220;object value&#8221;. They can be used to override (to a certain degree) the compound
 assignment operators (like <tt class="docutils literal"><span class="pre">+=</span></tt> or <tt class="docutils literal"><span class="pre">++</span></tt>) and exist mainly for the purpose of proxy objects. In practice they are
 rarely used.</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="get_properties">
-HashTable *<tt class="descname">get_properties</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get_properties" title="Permalink to this definition">¶</a></dt>
-<dt id="get_debug_info">
-HashTable *<tt class="descname">get_debug_info</tt><big>(</big>zval<em>&nbsp;*object</em>, int *is_temp<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get_debug_info" title="Permalink to this definition">¶</a></dt>
+<dt id="c.get_properties">
+HashTable *<tt class="descname">get_properties</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get_properties" title="Permalink to this definition">¶</a></dt>
+<dt id="c.get_debug_info">
+HashTable *<tt class="descname">get_debug_info</tt><big>(</big>zval<em>&nbsp;*object</em>, int *is_temp<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get_debug_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to get the object properties as a hashtable. The former is more general purpose, for example it is also used
 for the <tt class="docutils literal"><span class="pre">get_object_vars</span></tt> function. The latter on the other hand is used exclusively to display properties in
 debugging functions like <tt class="docutils literal"><span class="pre">var_dump</span></tt>. So even if your object does not provide any formal properties you can still
@@ -115,10 +111,10 @@ have a meaningful debug output.</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="get_method">
-union _zend_function *<tt class="descname">get_method</tt><big>(</big>zval<em>&nbsp;**object_ptr</em>, char<em>&nbsp;*method</em>, int<em>&nbsp;method_len</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get_method" title="Permalink to this definition">¶</a></dt>
-<dt id="call_method">
-int <tt class="descname">call_method</tt><big>(</big>const char<em>&nbsp;*method</em>, INTERNAL_FUNCTION_PARAMETERS<big>)</big><a class="headerlink" href="#call_method" title="Permalink to this definition">¶</a></dt>
+<dt id="c.get_method">
+union _zend_function *<tt class="descname">get_method</tt><big>(</big>zval<em>&nbsp;**object_ptr</em>, char<em>&nbsp;*method</em>, int<em>&nbsp;method_len</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get_method" title="Permalink to this definition">¶</a></dt>
+<dt id="c.call_method">
+int <tt class="descname">call_method</tt><big>(</big>const char<em>&nbsp;*method</em>, INTERNAL_FUNCTION_PARAMETERS<big>)</big><a class="headerlink" href="#c.call_method" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <tt class="docutils literal"><span class="pre">get_method</span></tt> handler fetches the <tt class="docutils literal"><span class="pre">zend_function</span></tt> used to call a certain method. If there is no particular
 <tt class="docutils literal"><span class="pre">zend_function</span></tt> that you want to invoke, but you rather want a <tt class="docutils literal"><span class="pre">__call</span></tt>-like catch-all behavior, then
 <tt class="docutils literal"><span class="pre">get_method</span></tt> can signal that it is a <tt class="docutils literal"><span class="pre">ZEND_OVERLOADED_FUNCTION</span></tt> in which case the <tt class="docutils literal"><span class="pre">call_method</span></tt> handler will
@@ -126,40 +122,40 @@ be used instead.</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="get_constructor">
-union _zend_function *<tt class="descname">get_constructor</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get_constructor" title="Permalink to this definition">¶</a></dt>
+<dt id="c.get_constructor">
+union _zend_function *<tt class="descname">get_constructor</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get_constructor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like <tt class="docutils literal"><span class="pre">get_method</span></tt>, but getting the constructor function. The most common reason to override this handler is to
 disallow manual construction by throwing an error in the handler.</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="count_elements">
-int <tt class="descname">count_elements</tt><big>(</big>zval<em>&nbsp;*object</em>, long *count<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#count_elements" title="Permalink to this definition">¶</a></dt>
+<dt id="c.count_elements">
+int <tt class="descname">count_elements</tt><big>(</big>zval<em>&nbsp;*object</em>, long *count<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.count_elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is just the internal way of implementing the <tt class="docutils literal"><span class="pre">Countable::count</span></tt> method.</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="compare_objects">
-int <tt class="descname">compare_objects</tt><big>(</big>zval<em>&nbsp;*object1</em>, zval *object2<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#compare_objects" title="Permalink to this definition">¶</a></dt>
-<dt id="cast_object">
-int <tt class="descname">cast_object</tt><big>(</big>zval<em>&nbsp;*readobj</em>, zval<em>&nbsp;*retval</em>, int type<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#cast_object" title="Permalink to this definition">¶</a></dt>
+<dt id="c.compare_objects">
+int <tt class="descname">compare_objects</tt><big>(</big>zval<em>&nbsp;*object1</em>, zval *object2<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.compare_objects" title="Permalink to this definition">¶</a></dt>
+<dt id="c.cast_object">
+int <tt class="descname">cast_object</tt><big>(</big>zval<em>&nbsp;*readobj</em>, zval<em>&nbsp;*retval</em>, int type<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.cast_object" title="Permalink to this definition">¶</a></dt>
 <dd><p>Internal classes have the ability to implement a custom compare behavior and override casting behavior for all
 types. Userland classes on the other hand only have the ability to override object to string casting through
 <tt class="docutils literal"><span class="pre">__toString</span></tt>.</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="get_closure">
-int <tt class="descname">get_closure</tt><big>(</big>zval<em>&nbsp;*obj</em>, zend_class_entry<em>&nbsp;**ce_ptr</em>, union _zend_function<em>&nbsp;**fptr_ptr</em>, zval **zobj_ptr<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get_closure" title="Permalink to this definition">¶</a></dt>
-<dd><p>This handler is invoked when the the object is used as a function, i.e. it is the internal version of <tt class="docutils literal"><span class="pre">__invoke</span></tt>.
+<dt id="c.get_closure">
+int <tt class="descname">get_closure</tt><big>(</big>zval<em>&nbsp;*obj</em>, zend_class_entry<em>&nbsp;**ce_ptr</em>, union _zend_function<em>&nbsp;**fptr_ptr</em>, zval **zobj_ptr<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get_closure" title="Permalink to this definition">¶</a></dt>
+<dd><p>This handler is invoked when the object is used as a function, i.e. it is the internal version of <tt class="docutils literal"><span class="pre">__invoke</span></tt>.
 The name derives from the fact that its main use is for the implementation of closures (the <tt class="docutils literal"><span class="pre">Closure</span></tt> class).</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="get_class_entry">
-zend_class_entry *<tt class="descname">get_class_entry</tt><big>(</big>const zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get_class_entry" title="Permalink to this definition">¶</a></dt>
-<dt id="get_class_name">
-int <tt class="descname">get_class_name</tt><big>(</big>const zval<em>&nbsp;*object</em>, const char<em>&nbsp;**class_name</em>, zend_uint<em>&nbsp;*class_name_len</em>, int parent<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get_class_name" title="Permalink to this definition">¶</a></dt>
+<dt id="c.get_class_entry">
+zend_class_entry *<tt class="descname">get_class_entry</tt><big>(</big>const zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get_class_entry" title="Permalink to this definition">¶</a></dt>
+<dt id="c.get_class_name">
+int <tt class="descname">get_class_name</tt><big>(</big>const zval<em>&nbsp;*object</em>, const char<em>&nbsp;**class_name</em>, zend_uint<em>&nbsp;*class_name_len</em>, int parent<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get_class_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>These two handlers are used to get the class entry and class name from an object. There should be little reason to
 overwrite them. The only occasion that I can think of where this would be necessary is if you choose to create a
 custom object structure that does <em>not</em> contain the standard <tt class="docutils literal"><span class="pre">zend_object</span></tt> as a substructure. (This is entirely
@@ -167,14 +163,14 @@ possible, but not usually done.)</p>
 </dd></dl>
 
 <dl class="member">
-<dt id="add_ref">
-void <tt class="descname">add_ref</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#add_ref" title="Permalink to this definition">¶</a></dt>
-<dt id="del_ref">
-void <tt class="descname">del_ref</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#del_ref" title="Permalink to this definition">¶</a></dt>
-<dt id="clone_obj">
-zend_object_value <tt class="descname">clone_obj</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#clone_obj" title="Permalink to this definition">¶</a></dt>
-<dt id="get_gc">
-HashTable *<tt class="descname">get_gc</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;***table</em>, int *n<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#get_gc" title="Permalink to this definition">¶</a></dt>
+<dt id="c.add_ref">
+void <tt class="descname">add_ref</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.add_ref" title="Permalink to this definition">¶</a></dt>
+<dt id="c.del_ref">
+void <tt class="descname">del_ref</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.del_ref" title="Permalink to this definition">¶</a></dt>
+<dt id="c.clone_obj">
+zend_object_value <tt class="descname">clone_obj</tt><big>(</big>zval *object<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.clone_obj" title="Permalink to this definition">¶</a></dt>
+<dt id="c.get_gc">
+HashTable *<tt class="descname">get_gc</tt><big>(</big>zval<em>&nbsp;*object</em>, zval<em>&nbsp;***table</em>, int *n<em>&nbsp;TSRMLS_DC</em><big>)</big><a class="headerlink" href="#c.get_gc" title="Permalink to this definition">¶</a></dt>
 <dd><p>This set of handlers is used for various object maintenance tasks. <tt class="docutils literal"><span class="pre">add_ref</span></tt> is called when a new zval starts
 referencing the object, <tt class="docutils literal"><span class="pre">del_ref</span></tt> is called when a reference is removed. By default these handlers will change
 the refcount in the object store. Once again there should be virtually no reason to overwrite them. The only

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,7 +11,6 @@
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -27,7 +24,6 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="PHP Internals Book" href="../index.html" />
     <link rel="up" title="Using the PHP build system" href="../build_system.html" />
     <link rel="next" title="Zvals" href="../zvals.html" />
@@ -197,7 +193,7 @@ apcu
 </div>
 <p>There are several further switches beginning with <tt class="docutils literal"><span class="pre">--r</span></tt> that expose Reflection functionality. For example you can use
 <tt class="docutils literal"><span class="pre">--ri</span></tt> to display the configuration of an extension:</p>
-<div class="highlight-bash"><pre>~/myphp/bin&gt; ./php -dextension=apcu.so --ri apcu
+<div class="highlight-bash"><div class="highlight"><pre>~/myphp/bin&gt; ./php -dextension=apcu.so --ri apcu
 apcu
 
 APCu Support =&gt; disabled
@@ -216,7 +212,8 @@ apc.shm_size =&gt; 32M =&gt; 32M
 apc.entries_hint =&gt; 4096 =&gt; 4096
 apc.gc_ttl =&gt; 3600 =&gt; 3600
 apc.ttl =&gt; 0 =&gt; 0
-# ...</pre>
+# ...
+</pre></div>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">--re</span></tt> switch lists all ini settings, constants, functions and classes added by an extension:</p>
 <div class="highlight-none"><div class="highlight"><pre>~/myphp/bin&gt; ./php -dextension=apcu.so --re apcu

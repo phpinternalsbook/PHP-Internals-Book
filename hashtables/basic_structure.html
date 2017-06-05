@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,7 +11,6 @@
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -27,7 +24,6 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="PHP Internals Book" href="../index.html" />
     <link rel="up" title="Hashtables" href="../hashtables.html" />
     <link rel="next" title="Hashtable API" href="hashtable_api.html" />
@@ -73,7 +69,8 @@ first being <em>open addressing</em> (which is not covered here). The second one
 method simply stores all elements having the same hash in a linked list. When a key is looked up PHP will calculate the
 hash and then go through the linked list of &#8220;possible&#8221; values until it finds the matching entry. Here is an
 illustration of chaining collision resolution:</p>
-<div align="center" class="align-center"><img height="265px" src="../_images/basic_hashtable.svg" /></div>
+<a class="reference internal image-reference" href="../_images/basic_hashtable.svg"><div align="center" class="align-center"><img height="265px" src="../_images/basic_hashtable.svg" /></div>
+</a>
 <p>The elements of the linked list are called <tt class="docutils literal"><span class="pre">Bucket</span></tt>s and the C array containing the heads of the linked lists is
 called <tt class="docutils literal"><span class="pre">arBuckets</span></tt>.</p>
 <p>Consider how you would delete an element from such a structure: Say you have a pointer to the bucket of <tt class="docutils literal"><span class="pre">&quot;c&quot;</span></tt> and want
@@ -81,14 +78,16 @@ to remove it. To do this you&#8217;d have to set the pointer coming from <tt cla
 bucket of <tt class="docutils literal"><span class="pre">&quot;a&quot;</span></tt> which you can do either by traversing the linked list for the hash value or by additionally storing
 pointers in the reverse direction. The latter is what PHP does: Every bucket contains both a pointer to the next bucket
 (<tt class="docutils literal"><span class="pre">pNext</span></tt>) and the previous bucket (<tt class="docutils literal"><span class="pre">pLast</span></tt>). This is illustrated in the following graphic:</p>
-<div align="center" class="align-center"><img height="250px" src="../_images/doubly_linked_hashtable.svg" /></div>
+<a class="reference internal image-reference" href="../_images/doubly_linked_hashtable.svg"><div align="center" class="align-center"><img height="250px" src="../_images/doubly_linked_hashtable.svg" /></div>
+</a>
 <p>Furthermore PHP hashtables are <em>ordered</em>: If you traverse an array you&#8217;ll get the elements in same order in which you
 inserted them. To support this the buckets have to be part of another linked list which specifies the order. This is
 once again a doubly linked list, for the same reasons as outlined above (and to support traversation in reverse order).
 The forward pointers are stored in <tt class="docutils literal"><span class="pre">pListNext</span></tt>, the backward pointers in <tt class="docutils literal"><span class="pre">pListLast</span></tt>. Additionally the hashtable
 structure has a pointer to the start of the list (<tt class="docutils literal"><span class="pre">pListHead</span></tt>) and the end of the list (<tt class="docutils literal"><span class="pre">pListLast</span></tt>). Here is an
 example of how this linked list could look like for the elements <tt class="docutils literal"><span class="pre">&quot;a&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;b&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;c&quot;</span></tt> (in that order):</p>
-<div align="center" class="align-center"><img height="250px" src="../_images/ordered_hashtable.svg" /></div>
+<a class="reference internal image-reference" href="../_images/ordered_hashtable.svg"><div align="center" class="align-center"><img height="250px" src="../_images/ordered_hashtable.svg" /></div>
+</a>
 </div>
 <div class="section" id="the-hashtable-and-bucket-structures">
 <h2>The HashTable and Bucket structures<a class="headerlink" href="#the-hashtable-and-bucket-structures" title="Permalink to this headline">¶</a></h2>
