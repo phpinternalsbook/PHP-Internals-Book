@@ -125,8 +125,6 @@ Here is a PHP script demonstrating this scenario:
 
 .. code-block:: php
 
-    <?php
-
     $size = pow(2, 16); // any power of 2 will do
 
     $startTime = microtime(true);
@@ -243,7 +241,6 @@ an example of such a collision group:
 
 .. code-block:: php
 
-    <?php
     $array = [
         "E" . chr(122)  => 0,
         "F" . chr(89)   => 1,
