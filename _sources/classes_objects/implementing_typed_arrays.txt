@@ -24,8 +24,6 @@ A small usage example:
 
 .. code-block:: php
 
-    <?php
-
     // allocate a buffer containing 256 bytes
     $buffer = new ArrayBuffer(256);
 

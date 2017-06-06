@@ -170,8 +170,6 @@ understand when "non-read" types like this can happen consider the following exa
 
 .. code-block:: php
 
-    <?php
-
     $foo[0][1];        // [0] is a read_dimension(..., BP_VAR_R),
                        // [1] is a read_dimension(..., BP_VAR_R)
     $foo[0][1] = $bar; // [0] is a read_dimension(..., BP_VAR_W),     [1] is a write_dimension
@@ -353,7 +351,6 @@ A small example of the kind of output this produces:
 
 .. code-block:: php
 
-    <?php
     $buffer = new ArrayBuffer(4);
 
     $view = new Int8Array($buffer);

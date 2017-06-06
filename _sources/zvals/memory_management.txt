@@ -16,8 +16,6 @@ Some examples to make sure that this is clear:
 
 .. code-block:: php
 
-    <?php
-
     $a = 1;
     $b = $a;
     $a++;
@@ -39,8 +37,6 @@ While the above is rather obvious, it's important to realize that this is a gene
 particular this also applies to objects:
 
 .. code-block:: php
-
-    <?php
 
     $obj = (object) ['value' => 1];
 
@@ -95,8 +91,6 @@ To understand how this works lets consider an example:
 
 .. code-block:: php
 
-    <?php
-
     $a = 1;    // $a =           zval_1(value=1, refcount=1)
     $b = $a;   // $a = $b =      zval_1(value=1, refcount=2)
     $c = $b;   // $a = $b = $c = zval_1(value=1, refcount=3)
@@ -116,8 +110,6 @@ decrement it. If the refcount reaches 0, the zval is destroyed.
 One case where this method does not work is the case of a circular reference:
 
 .. code-block:: php
-
-    <?php
 
     $a = []; // $a = zval_1(value=[], refcount=1)
     $b = []; // $b = zval_2(value=[], refcount=1)
@@ -159,8 +151,6 @@ directly modify the value:
 
 .. code-block:: php
 
-    <?php
-
     $a = 1;   // $a =      zval_1(value=1, refcount=1, is_ref=0)
     $b =& $a; // $a = $b = zval_1(value=1, refcount=2, is_ref=1)
 
@@ -172,8 +162,6 @@ In the above example the zval of ``$a`` has refcount=1 before the reference is c
 example where the original refcount is larger than one:
 
 .. code-block:: php
-
-    <?php
 
     $a = 1;   // $a =           zval_1(value=1, refcount=1, is_ref=0)
     $b = $a;  // $a = $b =      zval_1(value=1, refcount=2, is_ref=0)

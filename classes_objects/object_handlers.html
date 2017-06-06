@@ -238,9 +238,7 @@ value don&#8217;t make sense (as nothing would be actually modified).</p>
 code. This parameter specifies the context in which the read occurred. For &#8220;normal&#8221; <tt class="docutils literal"><span class="pre">$foo[0]</span></tt> style reads the <tt class="docutils literal"><span class="pre">type</span></tt>
 will be <tt class="docutils literal"><span class="pre">BP_VAR_R</span></tt>, but it can also be one of <tt class="docutils literal"><span class="pre">BP_VAR_W</span></tt>, <tt class="docutils literal"><span class="pre">BP_VAR_RW</span></tt>, <tt class="docutils literal"><span class="pre">BP_VAR_IS</span></tt> or <tt class="docutils literal"><span class="pre">BP_VAR_UNSET</span></tt>. To
 understand when &#8220;non-read&#8221; types like this can happen consider the following examples:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>        <span class="c1">// [0] is a read_dimension(..., BP_VAR_R),</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>        <span class="c1">// [0] is a read_dimension(..., BP_VAR_R),</span>
                    <span class="c1">// [1] is a read_dimension(..., BP_VAR_R)</span>
 <span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$bar</span><span class="p">;</span> <span class="c1">// [0] is a read_dimension(..., BP_VAR_W),     [1] is a write_dimension</span>
 <span class="nv">$foo</span><span class="p">[][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$bar</span><span class="p">;</span>  <span class="c1">// []  is a read_dimension(..., BP_VAR_W),     [1] is a write_dimension</span>
@@ -407,8 +405,7 @@ hashtable that has to be freed later. Alternatively we could write <tt class="do
 to store the hashtable somewhere else and manually free it (you&#8217;ll find that many objects have some kind of
 <tt class="docutils literal"><span class="pre">debug_info</span></tt> field in their internal structure that is used for this purpose.)</p>
 <p>A small example of the kind of output this produces:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-<span class="nv">$buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ArrayBuffer</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ArrayBuffer</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
 
 <span class="nv">$view</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Int8Array</span><span class="p">(</span><span class="nv">$buffer</span><span class="p">);</span>
 <span class="nv">$view</span><span class="o">-&gt;</span><span class="na">foo</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span><span class="p">;</span>

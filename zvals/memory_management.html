@@ -59,9 +59,7 @@ of them in extension code.</p>
 <p>In PHP all values always have value-semantics, unless you explicitly ask for a reference. This means that whenever
 you pass a value to a function or assign one variable to another you&#8217;ll be working on two separate copies of the value.
 Some examples to make sure that this is clear:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
 <span class="nv">$b</span> <span class="o">=</span> <span class="nv">$a</span><span class="p">;</span>
 <span class="nv">$a</span><span class="o">++</span><span class="p">;</span>
 
@@ -81,9 +79,7 @@ Some examples to make sure that this is clear:</p>
 </div>
 <p>While the above is rather obvious, it&#8217;s important to realize that this is a general rule that always holds. In
 particular this also applies to objects:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$obj</span> <span class="o">=</span> <span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="p">[</span><span class="s1">&#39;value&#39;</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">];</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$obj</span> <span class="o">=</span> <span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="p">[</span><span class="s1">&#39;value&#39;</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">];</span>
 
 <span class="k">function</span> <span class="nf">fnByVal</span><span class="p">(</span><span class="nv">$val</span><span class="p">)</span> <span class="p">{</span>
     <span class="nv">$val</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
@@ -128,9 +124,7 @@ Note that &#8220;referenced&#8221; here has nothing to do with PHP references (a
 variable, function, etc) makes use of the zval. The number of references is called the <em>refcount</em> and stored in the
 <tt class="docutils literal"><span class="pre">refcount__gc</span></tt> member of the zval.</p>
 <p>To understand how this works lets consider an example:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>    <span class="c1">// $a =           zval_1(value=1, refcount=1)</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>    <span class="c1">// $a =           zval_1(value=1, refcount=1)</span>
 <span class="nv">$b</span> <span class="o">=</span> <span class="nv">$a</span><span class="p">;</span>   <span class="c1">// $a = $b =      zval_1(value=1, refcount=2)</span>
 <span class="nv">$c</span> <span class="o">=</span> <span class="nv">$b</span><span class="p">;</span>   <span class="c1">// $a = $b = $c = zval_1(value=1, refcount=3)</span>
 
@@ -147,9 +141,7 @@ variable, function, etc) makes use of the zval. The number of references is call
 <p>The behavior is very straightforward: When a reference is added, increment the refcount, if a reference is removed,
 decrement it. If the refcount reaches 0, the zval is destroyed.</p>
 <p>One case where this method does not work is the case of a circular reference:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$a</span> <span class="o">=</span> <span class="p">[];</span> <span class="c1">// $a = zval_1(value=[], refcount=1)</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$a</span> <span class="o">=</span> <span class="p">[];</span> <span class="c1">// $a = zval_1(value=[], refcount=1)</span>
 <span class="nv">$b</span> <span class="o">=</span> <span class="p">[];</span> <span class="c1">// $b = zval_2(value=[], refcount=1)</span>
 
 <span class="nv">$a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$b</span><span class="p">;</span> <span class="c1">// $a = zval_1(value=[0 =&gt; zval_2], refcount=1)</span>
@@ -184,9 +176,7 @@ been talking about above). To denote that a zval uses a PHP reference a boolean 
 the <tt class="docutils literal"><span class="pre">is_ref__gc</span></tt> member of the zval structure.</p>
 <p>An <tt class="docutils literal"><span class="pre">is_ref=1</span></tt> flag on a zval signals that the zval should <strong>not</strong> be copied before modification. Instead code should
 directly modify the value:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>   <span class="c1">// $a =      zval_1(value=1, refcount=1, is_ref=0)</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>   <span class="c1">// $a =      zval_1(value=1, refcount=1, is_ref=0)</span>
 <span class="nv">$b</span> <span class="o">=&amp;</span> <span class="nv">$a</span><span class="p">;</span> <span class="c1">// $a = $b = zval_1(value=1, refcount=2, is_ref=1)</span>
 
 <span class="nv">$b</span><span class="o">++</span><span class="p">;</span>     <span class="c1">// $a = $b = zval_1(value=2, refcount=2, is_ref=1)</span>
@@ -196,9 +186,7 @@ directly modify the value:</p>
 </div>
 <p>In the above example the zval of <tt class="docutils literal"><span class="pre">$a</span></tt> has refcount=1 before the reference is created. Now consider a very similar
 example where the original refcount is larger than one:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>   <span class="c1">// $a =           zval_1(value=1, refcount=1, is_ref=0)</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>   <span class="c1">// $a =           zval_1(value=1, refcount=1, is_ref=0)</span>
 <span class="nv">$b</span> <span class="o">=</span> <span class="nv">$a</span><span class="p">;</span>  <span class="c1">// $a = $b =      zval_1(value=1, refcount=2, is_ref=0)</span>
 <span class="nv">$c</span> <span class="o">=</span> <span class="nv">$b</span>   <span class="c1">// $a = $b = $c = zval_1(value=1, refcount=3, is_ref=0)</span>
 

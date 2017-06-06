@@ -77,8 +77,6 @@ Consider the following code snippet:
 
 .. code-block:: php
 
-    <?php
-
     class A {
         private $prop = 'A';
     }
@@ -157,8 +155,6 @@ The last member in ``zend_object`` is the ``HashTable *guards`` field. To find o
 happens in the following code using magic ``__set`` properties:
 
 .. code-block:: php
-
-    <?php
 
     class Foo {
         public function __set($name, $value) {
@@ -239,7 +235,6 @@ This reclaiming of unused object handles can be shown with a small script:
 
 .. code-block:: php
 
-    <?php
     var_dump($a = new stdClass); // object(stdClass)#1 (0) {}
     var_dump($b = new stdClass); // object(stdClass)#2 (0) {}
     var_dump($c = new stdClass); // object(stdClass)#3 (0) {}

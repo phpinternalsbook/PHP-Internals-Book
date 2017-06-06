@@ -66,9 +66,7 @@ of signed 32-bit integers you create a <tt class="docutils literal"><span class=
 can use a <tt class="docutils literal"><span class="pre">UInt8Array</span></tt>. It is possible to have several views on the same data, so data can be interpreted both as an
 int32 and a uint8.</p>
 <p>A small usage example:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="c1">// allocate a buffer containing 256 bytes</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="c1">// allocate a buffer containing 256 bytes</span>
 <span class="nv">$buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ArrayBuffer</span><span class="p">(</span><span class="mi">256</span><span class="p">);</span>
 
 <span class="c1">// create an int32 view on the buffer with 256 / 8 = 32 elements</span>

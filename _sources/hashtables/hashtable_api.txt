@@ -473,8 +473,6 @@ works very similarly to manual array iteration in PHP:
 
 .. code-block:: php
 
-    <?php
-
     for (reset($array);
          null !== $data = current($array);
          next($array)

@@ -56,8 +56,7 @@ This feature can be used for various purposes like enforcing additional constrai
 use of it to implement a &#8220;magic&#8221; <tt class="docutils literal"><span class="pre">Comparable</span></tt> interface, which exposes the internal <tt class="docutils literal"><span class="pre">compare_objects</span></tt> handler to
 userland.</p>
 <p>The interface itself will look as follows:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-<span class="k">interface</span> <span class="nx">Comparable</span> <span class="p">{</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="k">interface</span> <span class="nx">Comparable</span> <span class="p">{</span>
     <span class="k">static</span> <span class="k">function</span> <span class="nf">compare</span><span class="p">(</span><span class="nv">$left</span><span class="p">,</span> <span class="nv">$right</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
@@ -163,41 +162,41 @@ for <tt class="docutils literal"><span class="pre">$left</span> <span class="pre
 <p>The <tt class="docutils literal"><span class="pre">ZEND_NORMALIZE_BOOL</span></tt> macro used above normalizes the returned integer to <tt class="docutils literal"><span class="pre">-1</span></tt>, <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">1</span></tt>.</p>
 <p>And that&#8217;s all it takes. Now we can try out the new interface (sorry if the example doesn&#8217;t make particularly much
 sense):</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="x">class Point implements Comparable {</span>
-<span class="x">    protected $x, $y, $z;</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Point</span> <span class="k">implements</span> <span class="nx">Comparable</span> <span class="p">{</span>
+    <span class="k">protected</span> <span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">,</span> <span class="nv">$z</span><span class="p">;</span>
 
-<span class="x">    public function __construct($x, $y, $z) {</span>
-<span class="x">        $this-&gt;x = $x; $this-&gt;y = $y; $this-&gt;z = $z;</span>
-<span class="x">    }</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">,</span> <span class="nv">$z</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">=</span> <span class="nv">$x</span><span class="p">;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">=</span> <span class="nv">$y</span><span class="p">;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">z</span> <span class="o">=</span> <span class="nv">$z</span><span class="p">;</span>
+    <span class="p">}</span>
 
-<span class="x">    /* We assume a point is smaller/greater if all its components are smaller/greater */</span>
-<span class="x">    public static function compare($p1, $p2) {</span>
-<span class="x">        if ($p1-&gt;x == $p2-&gt;x &amp;&amp; $p1-&gt;y == $p2-&gt;y &amp;&amp; $p1-&gt;z == $p2-&gt;z) {</span>
-<span class="x">            return 0;</span>
-<span class="x">        }</span>
+    <span class="cm">/* We assume a point is smaller/greater if all its components are smaller/greater */</span>
+    <span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">compare</span><span class="p">(</span><span class="nv">$p1</span><span class="p">,</span> <span class="nv">$p2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">==</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">==</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">z</span> <span class="o">==</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">z</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
 
-<span class="x">        if ($p1-&gt;x &lt; $p2-&gt;x &amp;&amp; $p1-&gt;y &lt; $p2-&gt;y &amp;&amp; $p1-&gt;z &lt; $p2-&gt;z) {</span>
-<span class="x">            return -1;</span>
-<span class="x">        }</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&lt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&lt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">z</span> <span class="o">&lt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">z</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
 
-<span class="x">        if ($p1-&gt;x &gt; $p2-&gt;x &amp;&amp; $p1-&gt;y &gt; $p2-&gt;y &amp;&amp; $p1-&gt;z &gt; $p2-&gt;z) {</span>
-<span class="x">            return 1;</span>
-<span class="x">        }</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&gt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&gt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">z</span> <span class="o">&gt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">z</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
 
-<span class="x">        // not comparable</span>
-<span class="x">        return 1;</span>
-<span class="x">    }</span>
-<span class="x">}</span>
+        <span class="c1">// not comparable</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 
-<span class="x">$p1 = new Point(1, 1, 1);</span>
-<span class="x">$p2 = new Point(2, 2, 2);</span>
-<span class="x">$p3 = new Point(1, 0, 2);</span>
+<span class="nv">$p1</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="nv">$p2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="nv">$p3</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
 
-<span class="x">var_dump($p1 &lt; $p2, $p1 &gt; $p2, $p1 == $p2); // true, false, false</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$p1</span> <span class="o">&lt;</span> <span class="nv">$p2</span><span class="p">,</span> <span class="nv">$p1</span> <span class="o">&gt;</span> <span class="nv">$p2</span><span class="p">,</span> <span class="nv">$p1</span> <span class="o">==</span> <span class="nv">$p2</span><span class="p">);</span> <span class="c1">// true, false, false</span>
 
-<span class="x">var_dump($p1 == $p1); // true</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$p1</span> <span class="o">==</span> <span class="nv">$p1</span><span class="p">);</span> <span class="c1">// true</span>
 
-<span class="x">var_dump($p1 &lt; $p3, $p1 &gt; $p3, $p1 == $p3); // false, false, false</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$p1</span> <span class="o">&lt;</span> <span class="nv">$p3</span><span class="p">,</span> <span class="nv">$p1</span> <span class="o">&gt;</span> <span class="nv">$p3</span><span class="p">,</span> <span class="nv">$p1</span> <span class="o">==</span> <span class="nv">$p3</span><span class="p">);</span> <span class="c1">// false, false, false</span>
 </pre></div>
 </div>
 </div>

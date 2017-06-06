@@ -11,7 +11,6 @@ The interface itself will look as follows:
 
 .. code-block:: php
 
-    <?php
     interface Comparable {
         static function compare($left, $right);
     }

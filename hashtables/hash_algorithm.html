@@ -167,9 +167,7 @@ be <tt class="docutils literal"><span class="pre">key</span> <span class="pre">%
 table size will collide. If the table size if 8, then the indices will be 0 % 8 = 0, 8 % 8 = 0, 16 % 8 = 0, 24 % 8 = 0,
 etc.</p>
 <p>Here is a PHP script demonstrating this scenario:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$size</span> <span class="o">=</span> <span class="nx">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">);</span> <span class="c1">// any power of 2 will do</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$size</span> <span class="o">=</span> <span class="nx">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">);</span> <span class="c1">// any power of 2 will do</span>
 
 <span class="nv">$startTime</span> <span class="o">=</span> <span class="nb">microtime</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
 
@@ -276,8 +274,7 @@ i.e. we are looking for two strings <tt class="docutils literal"><span class="pr
 <p>This tells us that we can get a collision by taking a two-char string, incrementing the first char by one and
 decrementing the second char by 33. Using this technique we can create groups of 8 strings which all collide. Here is
 an example of such a collision group:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-<span class="nv">$array</span> <span class="o">=</span> <span class="p">[</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$array</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;E&quot;</span> <span class="o">.</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>  <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span>
     <span class="s2">&quot;F&quot;</span> <span class="o">.</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">89</span><span class="p">)</span>   <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
     <span class="s2">&quot;G&quot;</span> <span class="o">.</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">56</span><span class="p">)</span>   <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">,</span>

@@ -84,9 +84,7 @@ resource:     i:0;
 <p>For objects there are two serialization mechanisms: The first one simply serializes the object properties just like it
 is done for arrays. This mechanism uses <tt class="docutils literal"><span class="pre">O</span></tt> as the type specifier.</p>
 <p>Consider the following class:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="k">class</span> <span class="nc">Test</span> <span class="p">{</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Test</span> <span class="p">{</span>
     <span class="k">public</span> <span class="nv">$public</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
     <span class="k">protected</span> <span class="nv">$protected</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
     <span class="k">private</span> <span class="nv">$private</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
@@ -104,9 +102,7 @@ with rather peculiar names: Private properties are prefixed with <tt class="docu
 <tt class="docutils literal"><span class="pre">\0*\0</span></tt>. These names are the result of name mangling, which is something we&#8217;ll cover in a later section.</p>
 <p>The second mechanism allows for custom serialization formats. It delegates the actual serialization to the <tt class="docutils literal"><span class="pre">serialize</span></tt>
 method of the <tt class="docutils literal"><span class="pre">Serializable</span></tt> interface and uses the <tt class="docutils literal"><span class="pre">C</span></tt> type specifier. For example consider this class:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="k">class</span> <span class="nc">Test2</span> <span class="k">implements</span> <span class="nx">Serializable</span> <span class="p">{</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Test2</span> <span class="k">implements</span> <span class="nx">Serializable</span> <span class="p">{</span>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">serialize</span><span class="p">()</span> <span class="p">{</span>
         <span class="k">return</span> <span class="s2">&quot;foobar&quot;</span><span class="p">;</span>
     <span class="p">}</span>

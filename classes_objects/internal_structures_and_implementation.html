@@ -113,9 +113,7 @@ This is done using the <tt class="docutils literal"><span class="pre">rebuild_ob
 <div class="section" id="property-name-mangling">
 <h3>Property name mangling<a class="headerlink" href="#property-name-mangling" title="Permalink to this headline">¶</a></h3>
 <p>Consider the following code snippet:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="k">class</span> <span class="nc">A</span> <span class="p">{</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="k">class</span> <span class="nc">A</span> <span class="p">{</span>
     <span class="k">private</span> <span class="nv">$prop</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span><span class="p">;</span>
 <span class="p">}</span>
 
@@ -187,9 +185,7 @@ you try to directly access the <tt class="docutils literal"><span class="pre">zo
 <h3>Property recursion guards<a class="headerlink" href="#property-recursion-guards" title="Permalink to this headline">¶</a></h3>
 <p>The last member in <tt class="docutils literal"><span class="pre">zend_object</span></tt> is the <tt class="docutils literal"><span class="pre">HashTable</span> <span class="pre">*guards</span></tt> field. To find out what it is used for, consider what
 happens in the following code using magic <tt class="docutils literal"><span class="pre">__set</span></tt> properties:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">__set</span><span class="p">(</span><span class="nv">$name</span><span class="p">,</span> <span class="nv">$value</span><span class="p">)</span> <span class="p">{</span>
         <span class="nv">$this</span><span class="o">-&gt;</span><span class="nv">$name</span> <span class="o">=</span> <span class="nv">$value</span><span class="p">;</span>
     <span class="p">}</span>
@@ -263,8 +259,7 @@ an unused bucket, which is then put in this list. If a new object is created and
 <tt class="docutils literal"><span class="pre">struct</span> <span class="pre">_store_object</span></tt> part of the union will be used. If the bucket is not used, then <tt class="docutils literal"><span class="pre">valid</span></tt> will be 0 and PHP
 will make use of <tt class="docutils literal"><span class="pre">free_list.next</span></tt>.</p>
 <p>This reclaiming of unused object handles can be shown with a small script:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$a</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">);</span> <span class="c1">// object(stdClass)#1 (0) {}</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nb">var_dump</span><span class="p">(</span><span class="nv">$a</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">);</span> <span class="c1">// object(stdClass)#1 (0) {}</span>
 <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$b</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">);</span> <span class="c1">// object(stdClass)#2 (0) {}</span>
 <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$c</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">);</span> <span class="c1">// object(stdClass)#3 (0) {}</span>
 
@@ -295,20 +290,20 @@ is destructed through <tt class="docutils literal"><span class="pre">zval_ptr_dt
 <p>If on the other hand the object is destroyed during shutdown (using <tt class="docutils literal"><span class="pre">zend_objects_store_call_destructors</span></tt>) the zval
 is <em>not</em> known. In this case <tt class="docutils literal"><span class="pre">bucket.obj.handlers</span></tt> will be <tt class="docutils literal"><span class="pre">NULL</span></tt> and PHP falls back to the default object handlers.
 Thus it can sometimes happen that overloaded object behavior is not available in <tt class="docutils literal"><span class="pre">__destruct</span></tt>. An example:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="x">class DLL extends SplDoublyLinkedList {</span>
-<span class="x">    public function __destruct() {</span>
-<span class="x">        var_dump($this);</span>
-<span class="x">    }</span>
-<span class="x">}</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="k">class</span> <span class="nc">DLL</span> <span class="k">extends</span> <span class="nx">SplDoublyLinkedList</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__destruct</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$this</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 
-<span class="x">$dll = new DLL;</span>
-<span class="x">$dll-&gt;push(1);</span>
-<span class="x">$dll-&gt;push(2);</span>
-<span class="x">$dll-&gt;push(3);</span>
+<span class="nv">$dll</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DLL</span><span class="p">;</span>
+<span class="nv">$dll</span><span class="o">-&gt;</span><span class="na">push</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="nv">$dll</span><span class="o">-&gt;</span><span class="na">push</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="nv">$dll</span><span class="o">-&gt;</span><span class="na">push</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
 
-<span class="x">var_dump($dll);</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$dll</span><span class="p">);</span>
 
-<span class="x">set_error_handler(function() use ($dll) {});</span>
+<span class="nb">set_error_handler</span><span class="p">(</span><span class="k">function</span><span class="p">()</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$dll</span><span class="p">)</span> <span class="p">{});</span>
 </pre></div>
 </div>
 <p>This code snippet adds a <tt class="docutils literal"><span class="pre">__destruct</span></tt> method to <tt class="docutils literal"><span class="pre">SplDoublyLinkedList</span></tt> and then forces the destructor to be called

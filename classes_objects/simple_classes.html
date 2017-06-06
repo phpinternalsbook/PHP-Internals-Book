@@ -186,9 +186,7 @@ special name, which you may encounter when looking at backtraces within method c
 </div>
 <p>This method does nothing more than return the object&#8217;s own object handle. To do this it first grabs the <tt class="docutils literal"><span class="pre">$this</span></tt> zval
 using the <tt class="docutils literal"><span class="pre">getThis()</span></tt> macro and then returns the object handle provided by <tt class="docutils literal"><span class="pre">Z_OBJ_HANDLE_P</span></tt>. Try it out:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$t1</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Test</span><span class="p">;</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$t1</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Test</span><span class="p">;</span>
 <span class="nv">$other</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">;</span>
 <span class="nv">$t2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Test</span><span class="p">;</span>
 <span class="k">echo</span> <span class="nv">$t1</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nv">$t2</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
@@ -254,9 +252,7 @@ on the other hand takes an additional boolean <tt class="docutils literal"><span
 &#8220;Undefined property xyz&#8221; notice. In our case we don&#8217;t know whether the property exists beforehand, so we pass <tt class="docutils literal"><span class="pre">1</span></tt>
 (meaning: no notice).</p>
 <p>We can try the new functionality out:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="nv">$t</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Test</span><span class="p">;</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="nv">$t</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Test</span><span class="p">;</span>
 <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$t</span><span class="o">-&gt;</span><span class="na">getFoo</span><span class="p">());</span> <span class="c1">// NULL (and no notice, because we passed silent=1)</span>
 
 <span class="nv">$t</span><span class="o">-&gt;</span><span class="na">setFoo</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">);</span>

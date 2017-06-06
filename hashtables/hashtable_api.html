@@ -482,9 +482,7 @@ you&#8217;ll find that the same method is used to implement it.</p>
 <h2>Iteration<a class="headerlink" href="#iteration" title="Permalink to this headline">¶</a></h2>
 <p>The second way to perform an operation on all values of the hashtable is to iterate over it. Hashtable iteration in C
 works very similarly to manual array iteration in PHP:</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
-
-<span class="k">for</span> <span class="p">(</span><span class="nb">reset</span><span class="p">(</span><span class="nv">$array</span><span class="p">);</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="k">for</span> <span class="p">(</span><span class="nb">reset</span><span class="p">(</span><span class="nv">$array</span><span class="p">);</span>
      <span class="k">null</span> <span class="o">!==</span> <span class="nv">$data</span> <span class="o">=</span> <span class="nb">current</span><span class="p">(</span><span class="nv">$array</span><span class="p">);</span>
      <span class="nb">next</span><span class="p">(</span><span class="nv">$array</span><span class="p">)</span>
 <span class="p">)</span> <span class="p">{</span>
