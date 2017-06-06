@@ -125,6 +125,8 @@ sense):
 
 .. code-block:: php
 
+    <?php
+
     class Point implements Comparable {
         protected $x, $y, $z;
 
