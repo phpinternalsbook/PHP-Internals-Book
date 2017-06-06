@@ -74,7 +74,7 @@ The remaining four types will only be mentioned here quickly and discussed in gr
 
 Strings (``IS_STRING``) are stored in a ``zend_string`` structure, i.e. they consist of a ``char *`` string
 and an ``size_t`` length. You will find more informations about the ``zend_string`` structure and its dedicated API
-into the :doc:`/strings` chapter.
+into the :doc:`/php7/zend_strings` chapter.
 
 Arrays use the ``IS_ARRAY`` type tag and are stored in the ``zend_array *arr`` member. How the ``HashTable`` structure
 works will be discussed in the :doc:`/hashtables` chapter.

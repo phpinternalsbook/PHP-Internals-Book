@@ -5,10 +5,11 @@ PHP 7
     :maxdepth: 2
 
     zvals.rst
-    hashtables.rst
-    classes_objects.rst
+    zend_strings.rst
 
 ..
+    hashtables.rst
+    classes_objects.rst
     prerequisites.rst
     php_first_look.rst
     managing_memory.rst
