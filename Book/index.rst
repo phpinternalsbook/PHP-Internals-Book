@@ -1,6 +1,9 @@
 Table Of Contents
 =================
 
+PHP 5
+-----
+
 .. toctree::
     :maxdepth: 2
 
@@ -25,24 +28,29 @@ Table Of Contents
 PHP 7
 -----
 
+This book is currently being updated for PHP 7. Check back soon...
+
 .. toctree::
     :maxdepth: 2
 
-    php7/index.rst
+    php7/zvals.rst
+    php7/zend_strings.rst
 
 ..
-    prerequisites.rst
-    php_first_look.rst
-    managing_memory.rst
-    creating_ext.rst
-    functions.rst
-    resources.rst
-    streams.rst
-    constants.rst
-    ini.rst
-    sapis.rst
-    zend_engine.rst
-    final.rst
+    php7/hashtables.rst
+    php7/classes_objects.rst
+    php7/prerequisites.rst
+    php7/php_first_look.rst
+    php7/managing_memory.rst
+    php7/creating_ext.rst
+    php7/functions.rst
+    php7/resources.rst
+    php7/streams.rst
+    php7/constants.rst
+    php7/ini.rst
+    php7/sapis.rst
+    php7/zend_engine.rst
+    php7/final.rst
 
 Index and search
 ================
