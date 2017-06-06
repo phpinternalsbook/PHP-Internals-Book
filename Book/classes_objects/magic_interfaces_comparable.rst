@@ -11,7 +11,6 @@ The interface itself will look as follows:
 
 .. code-block:: php
 
-    <?php
     interface Comparable {
         static function compare($left, $right);
     }
@@ -124,8 +123,6 @@ And that's all it takes. Now we can try out the new interface (sorry if the exam
 sense):
 
 .. code-block:: php
-
-    <?php
 
     class Point implements Comparable {
         protected $x, $y, $z;

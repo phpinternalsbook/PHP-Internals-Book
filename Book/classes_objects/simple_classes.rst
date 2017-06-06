@@ -151,8 +151,6 @@ using the ``getThis()`` macro and then returns the object handle provided by ``Z
 
 .. code-block:: php
 
-    <?php
-
     $t1 = new Test;
     $other = new stdClass;
     $t2 = new Test;
@@ -223,8 +221,6 @@ on the other hand takes an additional boolean ``silent`` parameter. It specifies
 We can try the new functionality out:
 
 .. code-block:: php
-
-    <?php
 
     $t = new Test;
     var_dump($t->getFoo()); // NULL (and no notice, because we passed silent=1)

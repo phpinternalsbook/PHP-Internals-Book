@@ -45,8 +45,6 @@ Consider the following class:
 
 .. code-block:: php
 
-    <?php
-
     class Test {
         public $public = 1;
         protected $protected = 2;
@@ -69,8 +67,6 @@ The second mechanism allows for custom serialization formats. It delegates the a
 method of the ``Serializable`` interface and uses the ``C`` type specifier. For example consider this class:
 
 .. code-block:: php
-
-    <?php
 
     class Test2 implements Serializable {
         public function serialize() {
