@@ -1,34 +1,12 @@
-Table Of Contents
+PHP 7
 =================
 
 .. toctree::
     :maxdepth: 2
 
-    introduction.rst
-    build_system.rst
-
-* Creating PHP extensions
-
-.. toctree::
-    :maxdepth: 2
-
     zvals.rst
-
-* Implementing functions
-
-.. toctree::
-    :maxdepth: 2
-
     hashtables.rst
     classes_objects.rst
-
-PHP 7
------
-
-.. toctree::
-    :maxdepth: 2
-
-    php7/index.rst
 
 ..
     prerequisites.rst
