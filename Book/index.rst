@@ -33,6 +33,8 @@ This book is currently being updated for PHP 7. Check back soon...
 .. toctree::
     :maxdepth: 2
 
+    php7/introduction.rst
+    php7/build_system.rst
     php7/zvals.rst
     php7/zend_strings.rst
 
