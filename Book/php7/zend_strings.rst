@@ -3,7 +3,7 @@ Strings management : zend_string
 
 Any program needs to manage strings. Here, we'll detail the zend_string structure which helps for that.
 Every time PHP needs to work with a string, a zend_string structure will be used. This structure is just a simple
-thin wrapper over the char * string type of the C language.
+thin wrapper over the ``char *`` string type of the C language.
 
 It adds memory management facilities, so that a same string can be shared in several places without the need to 
 duplicate it. Also, some strings are "interned", that is they are "persistent" allocated and specialy managed by the 
@@ -12,7 +12,7 @@ memory manager so that they don't get destroyed across several requests.
 Structure and access macros
 ---------------------------
 
-Here is the simple zend_string structure explosed::
+Here is the simple ``zend_string`` structure explosed::
 
     struct _zend_string {
 	    zend_refcounted_h gc;
@@ -28,7 +28,7 @@ an unsigned long ``zend_ulong``. This number is only used when the ``zend_string
 when used together with :doc:`/php7/hashtables`; this is very likely though.
 
 As you know, the string knows its length as the ``len`` field, to support "binary strings". Binary strings are 
-strings that embeds one or several ``NUL`` characters (\\0). When passed to libc functions, those strings will get 
+strings that embed one or several ``NUL`` characters (\\0). When passed to libc functions, those strings will get 
 truncated or their length won't be computed the right way. So in ``zend_string``, the length of the string is always 
 known. Please, note that the length computes the number of ASCII chars (bytes) not counting the terminating ``NUL``, but 
 counting the eventual middle NULs. For example, the string "foo" is stored as "foo\\0" in a ``zend_string`` and its 
@@ -36,7 +36,7 @@ length is then 3. Also, the string "foo\\0bar" will be stored as "foo\\0bar\\0" 
 
 Finally, the characters are stored into the ``char[1]`` field. This is not a ``char *``, but a ``char[1]``. Why that ? 
 This is a memory optimization known as "C struct hack" (you may use a search engine with these terms). Basically, that 
-allows the engine to allocate space for the ``zend_string`` structure and the charcaters to be stored, as one solo C 
+allows the engine to allocate space for the ``zend_string`` structure and the characters to be stored, as one solo C 
 pointer. This optimizes memory accesses as memory will be a contiguous allocated block, and not two blocks sparsed in 
 memory (one for ``zend_string *``, and one for the ``char *`` to store into it).
 
@@ -44,6 +44,9 @@ This struct hack must be remembered, as the memory layout looks like with the C 
 structure, and may be felt/seen when using a C debugger (or when debugging strings). This hack is entirely managed by 
 the API you'll use when manipulating ``zend_string`` structures.
 
+.. image:: ./images/zend_string_memory_layout.png
+   :align: center
+   
 Using zend_string API
 ---------------------
 
@@ -52,7 +55,7 @@ Simple use case
 
 Like with :doc:`/php7/zvals`, you dont manipulate the ``zend_string`` internals fields by hand, but always use macros 
 for that. There also exists macros to trigger actions on strings. Those are not functions but macros, all stored into 
-the required ``Zend/zend_string.h`` header::
+the required `Zend/zend_string.h <https://github.com/php/php-src/blob/PHP-7.0/Zend/zend_string.h>`_ header::
 
     zend_string *str;
     
@@ -72,21 +75,20 @@ If you pass 1, you ask for what we called a "persistent" allocation, that is the
 ``malloc()`` call and will not track the memory allocation in any way.
 
 Then, we display the string. We access the character array by using the ``ZSTR_VAL()`` macro. ``ZSTR_LEN()`` allows 
-access to the length informations. Like with zvals, you always use macros to access the structure fields and don't do 
-that by hand yourself. zend_string related macros all start with ``ZSTR_**()``, beware that is not the same as 
-``Z_STR**()`` macros.
+access to the length information. ``zend_string`` related macros all start with ``ZSTR_**()``, beware that is not the 
+same as ``Z_STR**()`` macros.
 
-.. note:: The length is stored using a ``size_t`` type. Hence, to display it, "%zd" is necessary for printf(). You 
-          should always use the right printf() formats. Failing to do that can crash the application or create security 
-          issues. For a nice recall on printf() formats, please visit 
+.. note:: The length is stored using a ``size_t`` type. Hence, to display it, *"%zd"* is necessary for ``printf()``. You 
+          should always use the right ``printf()`` formats. Failing to do that can crash the application or create 
+          security issues. For a nice recall on ``printf()`` formats, please visit 
           `this link <http://www.cplusplus.com/reference/cstdio/printf/>`_
 
 Finally, we release the string using ``zend_string_release()``. This release is mandatory. This is about memory management.
 The "releasing" is a simple operation : decrement the reference counter of the string, if it falls to zero, the API will 
 free the string for you. If you forget to release a string, you will very likely create a memory leak.
 
-.. note:: You must always think about memory management in C. If you allocate - whether directly using malloc(), or
-          using an API that will do it for you - you must free at some point. Failing to do that will create memory 
+.. note:: You must always think about memory management in C. If you allocate - whether directly using ``malloc()``, or
+          using an API that will do it for you - you must ``free()`` at some point. Failing to do that will create memory 
           leaks and translate into a badly designed program that nobody will be able to use safely.
 
 Playing with the hash
@@ -117,7 +119,7 @@ String copy and memory management
 
 One very nice feature of ``zend_string`` API is that it allows one part to "own" a string by simply declaring interest 
 with it. The engine will then not duplicate the string in memory, but simply increment its refcount 
-(as part of its zend_refcounted_h). This allows sharing a single piece of memory in many places into the code.
+(as part of its ``zend_refcounted_h``). This allows sharing a single piece of memory in many places into the code.
 
 That way, when we talk about "copying" a ``zend_string``, in fact we don't copy anything in memory. If needed- that is 
 still a possible operation- we then talk about "duplicating" the string. Here we go::
@@ -176,43 +178,45 @@ String operations
 The ``zend_string`` API allows other operations, such as extending or shrinking strings, changing their case or comparing
 them. There is no concat operation available yet, but that is pretty easy to perform::
 
-    zend_string *foo, *bar, *foobar, *lc;
+    zend_string *FOO, *bar, *foobar, *foo_lc;
 
-    foo = zend_string_init("FOO", strlen("FOO"), 0);
+    FOO = zend_string_init("FOO", strlen("FOO"), 0);
     bar = zend_string_init("bar", strlen("bar"), 0);
 
     /* Compares a zend_string against a C string litteral */
-    if (!zend_string_equals_literal(foo, "foobar")) {
-    	foobar = zend_string_copy(foo);
+    if (!zend_string_equals_literal(FOO, "foobar")) {
+    	foobar = zend_string_copy(FOO);
 
     	/* realloc()ates the C string to a larger buffer */
     	foobar = zend_string_extend(foobar, strlen("foobar"), 0);
 
-        /* concatenates "bar" after the newly reallocated large enough "foo" */
-    	memcpy(ZSTR_VAL(foobar) + ZSTR_LEN(foo), ZSTR_VAL(bar), ZSTR_LEN(bar));
+        /* concatenates "bar" after the newly reallocated large enough "FOO" */
+    	memcpy(ZSTR_VAL(foobar) + ZSTR_LEN(FOO), ZSTR_VAL(bar), ZSTR_LEN(bar));
     }
 
     php_printf("This is my new string: %s\n", ZSTR_VAL(foobar));
 
     /* Compares two zend_string together */
-    if (!zend_string_equals(foo, foobar)) {
+    if (!zend_string_equals(FOO, foobar)) {
         /* duplicates a string and lowers it */
-    	lc = zend_string_tolower(foobar);
+    	foo_lc = zend_string_tolower(foo);
     }
 
-    php_printf("This is in LC: %s\n", ZSTR_VAL(lc));
+    php_printf("This is FOO in lower-case: %s\n", ZSTR_VAL(foo_lc));
 
     /* frees memory */
-    zend_string_release(foo);
+    zend_string_release(FOO);
     zend_string_release(bar);
     zend_string_release(foobar);
-    zend_string_release(lc);
+    zend_string_release(foo_lc);
 
 zend_string access with zvals
 *****************************
 
-Now that you know how to manage and manipulate zend_string , let's see the interaction they got with zvals.
-You need to be familiar with zvals, if not, read the :doc:`/php7/zvals` dedicated chapter.
+Now that you know how to manage and manipulate ``zend_string``, let's see the interaction they got with the ``zval`` 
+container.
+
+.. note:: You need to be familiar with zvals, if not, read the :doc:`/php7/zvals` dedicated chapter.
 
 The macros will allow you to store a ``zend_string`` into a ``zval``, or to read the ``zend_string`` from a ``zval``::
 
@@ -231,6 +235,8 @@ The macros will allow you to store a ``zend_string`` into a ``zval``, or to read
     
     /* Changes the zend_string into myval : replaces it by another one */
     Z_STR(myval) = world;
+    
+    /* ... */
 
 What you must memorize is that every macro beginning by ``ZSTR_***(s)`` will act on a ``zend_string``.
 
@@ -248,20 +254,108 @@ Every macro beginning by ``Z_STR**(z)`` will act on a ``zend_string`` itself emb
 
 A few other that you won't probably need also exist.
 
-Classical C strings
-*******************
+PHP's history and classical C strings
+*************************************
 
 Just a quick note about classical C strings. In C, strings are character arrays (``char foo[]``), or pointers to 
 characters (``char *``). They don't know anything about their length, that's why they are NUL terminated (knowing the
 beginning of the string and its end, you know its length).
 
 Before PHP 7, ``zend_string`` structure simply did not exist. A traditionnal ``char * / int`` couple were used back in 
-that time. You may still find rare places into PHP where ``char * / int`` couple is used instead of ``zend_string``. 
-You may also find API facilities to interact between a ``zend_string`` on one side, and a ``char * / int`` couple on 
-the other side.
+that time. You may still find rare places into PHP source where ``char * / int`` couple is used instead of 
+``zend_string``. You may also find API facilities to interact between a ``zend_string`` on one side, and a 
+``char * / int`` couple on the other side.
 
-Whereever it is possible : make use of ``zend_string``.
+Whereever it is possible : make use of ``zend_string``. Some rare places don't make use of ``zend_string`` because it 
+is not relevant at that place to use them, but you'll find lots of reference to ``zend_string`` anyway in PHP source 
+code.
 
 Interned zend_string
 ********************
 
+Just a quick word here about interned strings. You should rarely need such a concept in extension development.
+Interned strings also interact with OPCache extension.
+
+Interned strings are deduplicated strings. When used with OPCache, they also get recycled from request to request.
+
+Say you want to create the string "foo". What you tend to do is simply create a new string "foo"::
+
+    zend_string *foo;
+    foo = zend_string-init("foo", strlen("foo"), 0);
+    
+    /* ... */
+    
+But a question arises : Hasn't that piece of string already been created before you need it ?
+When you need a string, you code is executed at some point in PHP's life, that means that some piece of code happening 
+before yours may have needed the exact same piece of string ("foo" for our example).
+
+Interned strings is about asking the engine to probe the interned strings store, and reuse the already allocated pointer 
+if it could find your string. If not : create a new string and "intern" it, that is make it available to other parts 
+of PHP source code (other extensions, the engine itself, etc...).
+
+Here is an example::
+
+    zend_string *foo;
+    foo = zend_string_init("foo", strlen("foo"), 0);
+    
+    foo = zend_new_interned_string(foo);
+    
+    php_printf("This string is interned : %s", ZSTR_VAL(foo));
+    
+    zend_string_release(foo);
+
+What we do in the code above, is we create a new ``zend_string`` very classicaly. Then, we pass that created 
+``zend_string`` to ``zend_new_interned_string()``. This function looks for the same piece of string ("foo" here) into 
+the engine interned string buffer. If it finds it (meaning someone already created such a string), it then releases 
+your string (probably freeing it) and replaces it by the string from the interned string buffer. If it does not find it: 
+it adds it to the interned string buffer and so makes it available for future usage or other parts of PHP.
+
+You must take care about memory allocation. Interned strings always have a refcount set to one, because they don't need 
+to be refcounted, as they will get shared with the interned string buffer, and thus they can't be destroyed out of it.
+
+Example::
+
+    zend_string *foo, *foo2;
+    
+    foo  = zend_string_init("foo", strlen("foo"), 0);
+    foo2 = zend_string_copy(foo); /* increments refcount of foo */
+    
+     /* refcount falls back to 1, even if the string is now
+      * used at three different places */
+    foo = zend_new_interned_string(foo);
+    
+    /* This doesn't do anything, as foo is interned */
+    zend_string_release(foo);
+    
+    /* This doesn't do anything, as foo2 is interned */
+    zend_string_release(foo2);
+    
+    /* At the end of the process, PHP will purge its interned
+      string buffer, and thus free() our "foo" string itself */
+
+It's all about garbage collection you've learnt about in the :doc:`/php7/memory_management` chapter.
+
+When a string is interned, its GC flags are changed to add the ``IS_STR_INTERNED`` flag, whatever the memory allocation 
+class they use (permanent or request based).
+This flag is probed when you want to copy or release a string. If the string is interned, the engine does not increment 
+its refcount as you copy the string. But it doesn't decrement it nor free it if you release the string. It shadowly 
+does nothing. At the end of the process lifetime, it will destroy its interned string buffer, and it will free your 
+interned strings.
+
+This process is in fact a little bit more complex than this if OPCache fires in. OPCache extension changes the way 
+interned strings are used. Without OPCache, if you create an interned zend_string during the process of a request, that 
+string will get cleared at the end of the current request and won't be reused for the next request.
+However, if you use OPCache, interned strings are stored into a shared memory segment and shared between every PHP 
+process of the same pool. Also, interned strings get reused accross several requests.
+
+Interned strings save memory, because the same string is never stored more than once in memory. But it could waste some 
+CPU time as it often needs to lookup the interned string store, even if that process is well optimized yet.
+As an extension designer, here are global rules: 
+
+* If OPCache is used (it should be), and if you need to create request-bound read-only strings : use an interned string.
+* If you need a string you know for sure PHP will have interned (a well-known-PHP-string, f.e "php" or "str_replace"),
+  use an interned string.
+* If the string is not read-only and could/should be altered after its been created, do not use an interned string.
+* If the string is unlikely to be reused in the future, do not use an interned string.
+
+Interned strings are detailed in `Zend/zend_string.c <https://github.com/php/php-src/blob/PHP-7.0/Zend/zend_string.c>`_
