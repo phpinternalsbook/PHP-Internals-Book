@@ -22,7 +22,7 @@ Here is the simple ``zend_string`` structure explosed::
     };
 
 Like you can see, the structure embeds a ``zend_refcounted_h`` header. This is done for memory management and reference
-counting, as you may have learnt by reading the :doc:`php7/memory_management` chapter.
+counting, as you may have learnt by reading the :doc:`/php7/memory_management` chapter.
 As the string is very likely to be used as the key of a HashTable probe, it embeds its hash in the ``h`` field. This is 
 an unsigned long ``zend_ulong``. This number is only used when the ``zend_string`` needs to be hashed, aka especially 
 when used together with :doc:`/php7/hashtables`; this is very likely though.
