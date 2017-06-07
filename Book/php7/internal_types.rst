@@ -1,8 +1,9 @@
 Internal types
 ==============
 
-In this chapter the "zval" data structure, which is used to represent PHP values, is introduced. We explain the concepts
-behind zvals and how to use them in extension code.
+In this chapter we will detail the special types used internally by PHP. Some of those types are directly bound to 
+userland PHP, like the "zval" data structure. Other structures/types, like the "zend_string" one, is not really visible 
+from userland point of view, but is a detail to know if you plan to program PHP from inside.
 
 Contents:
 
@@ -11,8 +12,7 @@ Contents:
 
     internal_types/zvals.rst
     internal_types/zend_strings.rst
-
-..
     internal_types/hashtables/hashtables.rst
+..
     internal_types/objects/classes_and_objects.rst
     internal_types/resources/zend_resources.rst
