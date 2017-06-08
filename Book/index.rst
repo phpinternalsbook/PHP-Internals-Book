@@ -36,6 +36,7 @@ This book is currently being updated for PHP 7. Check back soon...
     php7/introduction.rst
     php7/build_system.rst
     php7/internal_types.rst
+    php7/extensions_design.rst
 
 ..
     php7/hashtables.rst
