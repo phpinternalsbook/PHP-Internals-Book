@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PHPInternalsBook'
-copyright = u'2013, Julien Pauli - Anthony Ferrara - Nikita Popov'
+copyright = u'2013 - 2017, Julien Pauli - Anthony Ferrara - Nikita Popov'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
