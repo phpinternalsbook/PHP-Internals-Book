@@ -48,15 +48,15 @@ Obtaining the source code
 -------------------------
 
 Before you can build PHP you first need to obtain its source code. There are two ways to do this: You can either
-download an archive from `PHP's download page`_ or clone the git repository from `git.php.net`_ (or the mirror on
+download an archive from `PHP's download page`_ or clone the Git repository from `git.php.net`_ (or the mirror on
 `Github`_).
 
-The build process is slightly different for both cases: The git repository doesn't bundle a ``configure`` script, so
-you'll need to generate it using the ``buildconf`` script, which makes use of autoconf. Furthermore the git repository
+The build process is slightly different for both cases: The Git repository doesn't bundle a ``configure`` script, so
+you'll need to generate it using the ``buildconf`` script, which makes use of autoconf. Furthermore the Git repository
 does not contain a pregenerated parser, so you'll also need to have bison installed.
 
-We recommend to checkout out the source code from git, because this will provide you with an easy way to keep your
-installation updated and to try your code with different versions. A git checkout is also required if you want to
+We recommend to clone the source code from Git, because this will provide you with an easy way to keep your
+installation updated and to try your code with different versions. A Git clone is also required if you want to
 submit patches or pull requests for PHP.
 
 To clone the repository, run the following commands in your shell::
@@ -65,10 +65,10 @@ To clone the repository, run the following commands in your shell::
     ~> cd php-src
     # by default you will be on the master branch, which is the current
     # development version. You can check out a stable branch instead:
-    ~/php-src> git checkout PHP-5.5
+    ~/php-src> git checkout PHP-7.1
 
-If you have issues with the git checkout, take a look at the `Git FAQ`_ on the PHP wiki. The Git FAQ also explains how
-to setup git if you want to contribute to PHP itself. Furthermore it contains instructions on setting up multiple
+If you have issues with the Git checkout, take a look at the `Git FAQ`_ on the PHP wiki. The Git FAQ also explains how
+to setup Git if you want to contribute to PHP itself. Furthermore it contains instructions on setting up multiple
 working directories for different PHP versions. This can be very useful if you need to test your extensions or changes
 against multiple PHP versions and configurations.
 
@@ -82,7 +82,7 @@ have the first three installed by default):
 * ``automake`` (1.4 or higher), which generates ``Makefile.in`` files.
 * ``libtool``, which helps manage shared libraries.
 * ``bison`` (2.4 or higher), which is used to generate the PHP parser.
-* (optional) ``re2c``, which is used to generate the PHP lexer. As the git repository already contains a generated
+* (optional) ``re2c``, which is used to generate the PHP lexer. As the Git repository already contains a generated
   lexer you will only need re2c if you wish to make changes to it.
 
 On Debian/Ubuntu you can install all these with the following command::
@@ -94,7 +94,7 @@ libraries. When installing these, check if there is a version of the package end
 install them instead. The packages without ``dev`` typically do not contain necessary header files. For example a
 default PHP build will require libxml, which you can install via the ``libxml2-dev`` package.
 
-If you are using Debian or Ubuntu you can use ``sudo apt-get build-dep php5`` to install a large number of optional
+If you are using Debian or Ubuntu you can use ``sudo apt-get build-dep php`` to install a large number of optional
 build-dependencies in one go. If you are only aiming for a default build, many of them will not be necessary though.
 
 .. _PHP's download page: http://www.php.net/downloads.php
@@ -108,7 +108,7 @@ Build overview
 Before taking a closer look at what the individual build steps do, here are the commands you need to execute for a
 "default" PHP build::
 
-    ~/php-src> ./buildconf     # only necessary if building from git
+    ~/php-src> ./buildconf     # only necessary if building from Git
     ~/php-src> ./configure
     ~/php-src> make -jN
 
@@ -133,7 +133,7 @@ Now lets take a closer look at the individual build steps!
 The ``./buildconf`` script
 --------------------------
 
-If you are building from the git repository, the first thing you'll have to do is run the ``./buildconf`` script. This
+If you are building from the Git repository, the first thing you'll have to do is run the ``./buildconf`` script. This
 script does little more than invoking the ``build/build.mk`` makefile, which in turn calls ``build/build2.mk``.
 
 The main job of these makefiles is to run ``autoconf`` to generate the ``./configure`` script and ``autoheader`` to
@@ -155,7 +155,7 @@ The second option is ``--force``, which will allow running ``./buildconf`` in re
 the packaged source code and want to generate a new ``./configure``) and additionally clear the configuration caches
 ``config.cache`` and ``autom4te.cache/``.
 
-If you update your git repository using ``git pull`` (or some other command) and get weird errors during the ``make``
+If you update your Git repository using ``git pull`` (or some other command) and get weird errors during the ``make``
 step, this usually means that something in the build configuration changed and you need to run ``./buildconf --force``.
 
 The ``./configure`` script
@@ -179,7 +179,7 @@ SAPI has external dependencies you need to use ``--with-NAME`` and ``--without-N
 using ``--with-NAME=DIR``.
 
 By default PHP will build the CLI and CGI SAPIs, as well as a number of extensions. You can find out which extensions
-your PHP binary contains using the ``-m`` option. For a default PHP 5.5 build the result will look as follows:
+your PHP binary contains using the ``-m`` option. For a default PHP 7.1 build the result will look as follows:
 
 .. code-block:: none
 
@@ -189,7 +189,6 @@ your PHP binary contains using the ``-m`` option. For a default PHP 5.5 build th
     ctype
     date
     dom
-    ereg
     fileinfo
     filter
     hash
@@ -236,7 +235,6 @@ extensions use the ``--disable-all`` option::
     [PHP Modules]
     Core
     date
-    ereg
     pcre
     Reflection
     SPL
@@ -256,8 +254,7 @@ structures, will be reported.
 
 ``--enable-maintainer-zts`` enables thread-safety. This switch will define the ``ZTS`` macro, which in turn will enable
 the whole TSRM (thread-safe resource manager) machinery used by PHP. Writing thread-safe extensions for PHP is very
-simple, but only if make sure to enable this switch. Otherwise you're bound to forget a ``TSRMLS_*`` macro somewhere and
-your code won't build in a thread-safe environment.
+simple, but make sure to enable this switch.
 
 On the other hand you should not use either of these options if you want to perform performance benchmarks for your
 code, as both can cause significant and asymmetrical slowdowns.
@@ -274,7 +271,7 @@ depending on these options:
 * ``$PREFIX/lib/php/extensions/no-debug-zts-API_NO`` for release builds with ZTS
 * ``$PREFIX/lib/php/extensions/debug-zts-API_NO`` for debug builds with ZTS
 
-The ``API_NO`` placeholder above refers to the ``ZEND_MODULE_API_NO`` and is just a date like ``20100525``, which is
+The ``API_NO`` placeholder above refers to the ``ZEND_MODULE_API_NO`` and is just a date like ``20160303``, which is
 used for internal API versioning.
 
 For most purposes the configuration switches described above should be sufficient, but of course ``./configure``
@@ -316,7 +313,7 @@ PHP build:
     |   |-- pear*
     |   |-- peardev*
     |   |-- pecl*
-    |   |-- phar -> /home/myuser/myphp/bin/phar.phar*
+    |   |-- phar -> phar.phar*
     |   |-- phar.phar*
     |   |-- php*
     |   |-- php-cgi*
@@ -406,7 +403,7 @@ invoke autoconf/autoheader. You will learn more about this tool in the next sect
       --includes          [-I/home/myuser/myphp/include/php -I/home/myuser/myphp/include/php/main -I/home/myuser/myphp/include/php/TSRM -I/home/myuser/myphp/include/php/Zend -I/home/myuser/myphp/include/php/ext -I/home/myuser/myphp/include/php/ext/date/lib]
       --ldflags           [ -L/usr/lib/i386-linux-gnu]
       --libs              [-lcrypt   -lresolv -lcrypt -lrt -lrt -lm -ldl -lnsl  -lxml2 -lxml2 -lxml2 -lcrypt -lxml2 -lxml2 -lxml2 -lcrypt ]
-      --extension-dir     [/home/myuser/myphp/lib/php/extensions/debug-zts-20100525]
+      --extension-dir     [/home/myuser/myphp/lib/php/extensions/debug-zts-20160303]
       --include-dir       [/home/myuser/myphp/include/php]
       --man-dir           [/home/myuser/myphp/php/man]
       --php-binary        [/home/myuser/myphp/bin/php]
@@ -507,5 +504,5 @@ can make use of the ``./config.nice`` script (which contains your last ``./confi
     ~/php-src> make -jN
 
 One last cleaning script that PHP provides is ``./vcsclean``. This will only work if you checked out the source code
-from git. It effectively boils down to a call to ``git clean -X -f -d``, which will remove all untracked files and
-directories that are ignored by git. You should use this with care.
+from Git. It effectively boils down to a call to ``git clean -X -f -d``, which will remove all untracked files and
+directories that are ignored by Git. You should use this with care.
