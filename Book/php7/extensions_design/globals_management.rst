@@ -1,0 +1,4 @@
+Managing global scope
+=====================
+
+

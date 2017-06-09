@@ -10,7 +10,7 @@ sequence of its module which PHP is one. Starting up, is called internally **the
 abbreviate it as the **MINIT** step.
 
 Once started, PHP waits to treat one/several requests. When we talk about PHP CLI, there will be only one request: the 
-current script to run. However, when we talk about a web environment- should it be thought as PHP-FPM or webserver 
+current script to run. However, when we talk about a web environment- should it be PHP-FPM or webserver 
 module- PHP could serve several requests one after the other. It all depends on how you did configure you webserver: 
 you may tell it to serve an infinite number of requests, or a specific number before shutting down and recycling the 
 process. Everytime a new request shows in to be treated, PHP will run **a request startup step**. We call it the 
@@ -41,9 +41,11 @@ To treat several requests at the same time, you need to run a parallelism model.
 
 Using the process-based model, every PHP interpreter is isolated by the OS into its own process.
 This model is very common under Unix. Every request leaves into its own process.
+This model is used by PHP-CLI, PHP-FPM and PHP-CGI.
 
 With the thread-based model, every PHP interpreter is isolated into a thread, using a thread library.
-This model is mainly used under Microsoft Windows OS, but can be used with most Unixes as well.
+This model is mainly used under Microsoft Windows OS, but can be used with most Unixes as well. This requires PHP and 
+its extensions :doc:`to be built <../build_system/building_extensions>` in ZTS mode.
 
 Here is the process-based model:
 
@@ -55,14 +57,18 @@ And here is the thread-based model:
 .. image:: ./images/php_lifetime_thread.png
    :align: center
 
+.. note:: PHP's multi-processing module is not of your choice, as an extension developer. You will have to support it.
+          You will have to support the fact that your extension could run in a threaded environment, especially under 
+          Windows platforms, and you'll have to program against it.
+
 The PHP extensions hooks
 ************************
 
-As you could have guessed, the PHP engine will trigger your extension at several lifetime points. We call those hook 
-functions. Your extension may declare interest into specific lifetime points by declaring function hooks while it 
+As you could have guessed, the PHP engine will trigger your extension at several lifetime points. We call those *hook 
+functions*. Your extension may declare interest into specific lifetime points by declaring function hooks while it 
 registers against the engine.
 
-Those hooks can clearly be felt once you analyze a PHP extension structure, the ``zend_module_entry`` structure::
+Those hooks can clearly be noticed once you analyze a PHP extension structure, the ``zend_module_entry`` structure::
 
     struct _zend_module_entry {
 	    unsigned short size;
@@ -102,11 +108,12 @@ Module initialization: MINIT()
 
 This is PHP process startup step. In your extension's ``MINIT()``, you'll load and allocate any persistent object or 
 piece of information you'll need for every future request.
+For the big part of them, those allocations will target read-only objects.
 
-In ``MINIT()``, no thread has popped yet, so you may access global variables trully, with no protection at all. Also, 
-you must not allocate memory that is request-bound, as a request has not started yet.
-You never use Zend Memory Manager allocations in ``MINIT()`` steps, but persistent allocations. No ``emalloc()``, but 
-``pemalloc()``. Failing to do that will lead to crashes.
+In ``MINIT()``, no thread or process has popped yet, so you may fully access global variables with no protection at 
+all. Also, you must not allocate memory that is request-bound, as a request has not started yet.
+You never use :doc:`Zend Memory Manager <../memory_management/zend_memory_manager>` allocations in ``MINIT()`` steps, 
+but persistent allocations. No ``emalloc()``, but ``pemalloc()``. Failing to do that will lead to crashes.
 
 At ``MINIT()``, the execution engine is not started yet, so beware of not trying to access any of its structure without 
 special care.
@@ -115,7 +122,12 @@ If you need to register INI entries for your extension, ``MINIT()`` is the right
 
 If you need to register read-only ``zend_strings`` for further usage, it is time to do so here (with persistent alloc).
 
-.. note:: Remember that ``MINIT()`` is called only once in PHP process lifetime: when this later starts.
+If you need to allocate objects that well be written to while serving a request, then you'll need to duplicate their 
+memory allocation to a thread-specific pool for the request. Remember that you can only write safely to global space
+while into ``MINIT()``.
+
+.. note:: Memory management, allocations, and debugging; are part of the :doc:`memory management<../memory_management>` 
+          chapter.
 
 ``MINIT()`` is triggered by ``zend_startup_modules()`` in 
 `php_module_startup() <https://github.com/php/php-src/blob/3704947696fe0ee93e025fa85621d297ac7a1e4d/main/main.c#L2009>`_ 
@@ -130,8 +142,9 @@ This is PHP process shutdown step. Easy enough, you basically perform here the e
 Take care again here: the execution engine is shut down, so you should not access any of its variable (but you should 
 not need to here).
 
-As you don't live in a request here, you should not free resources using Zend Memory Manager ``efree()`` or alikes, but 
-free for persistent allocations, aka ``pefree()``.
+As you don't live in a request here, you should not free resources using 
+:doc:`Zend Memory Manager <../memory_management/zend_memory_manager>` ``efree()`` or alikes, but free for persistent 
+allocations, aka ``pefree()``.
 
 ``MSHUTDOWN()`` is triggered by ``zend_destroy_modules()`` from ``zend_shutdown()`` in  
 `php_module_shutdown() <https://github.com/php/php-src/blob/3704947696fe0ee93e025fa85621d297ac7a1e4d/main/main.c#L2335>`_ 
@@ -141,7 +154,8 @@ Request initialization: RINIT()
 -------------------------------
 
 A request just showed in, and PHP is about to treat it here. In ``RINIT()``, you bootstrap the resources you need to 
-treat that precise request. PHP is a share-nothing architecture, and as-is, it provides memory management facilities.
+treat that precise request. PHP is a share-nothing architecture, and as-is, it provides 
+:doc:`memory management <../memory_management>` facilities.
 
 In ``RINIT()``, if you need to allocate dynamic memory, you'll use Zend Memory Manager. You will call for ``emalloc()``.
 Zend Memory Manager tracks the memory you allocate through it, and when the request shuts down, it will attempt to free 
@@ -150,6 +164,13 @@ the request-bound memory if you forgot to do so (you should not).
 You should not require persistent dynamic memory here, aka libc's ``malloc()`` or Zend's ``pemalloc()``. If you require 
 persistent memory here, and forgets to free it, you'll create leaks that will stack as PHP treats more and more 
 requests, to finally crash the process (Kernel OOM) and starve the machine memory.
+
+Also, take really care not to write to global space here. If PHP is run into a thread as chosen parallelism model, then 
+you'll modify the context for every thread of the pool (every other request treated in parallel to yours) and you could 
+also trigger race conditions if you don't lock the memory.
+If you need globals, you'll need to protect them.
+
+.. note:: Global scope management is explained into :doc:`a dedicated  chapter <globals_management>`.
 
 ``RINIT()`` is triggered by ``zend_activate_module()`` in 
 `php_request_startup() <https://github.com/php/php-src/blob/3704947696fe0ee93e025fa85621d297ac7a1e4d/main/main.c#L1558>`_ 
@@ -205,7 +226,7 @@ Globals management will be covered in its dedicated chapter.
 Remember that globals are not cleared after every request. If you need to reset them for every new request (likely), 
 then you need to put such a procedure into ``RINIT()``.
 
-.. todo: Add a chapter about globals management and ZTS
+.. note:: Global scope management is explained into :doc:`a dedicated  chapter <globals_management>`.
 
 Globals termination: GSHUTDOWN()
 --------------------------------
@@ -220,7 +241,7 @@ Globals management will be covered in its dedicated chapter.
 
 Remember that globals are not cleared after every request; aka ``GSHUTDOWN()`` is not called as part of ``RSHUTDOWN()``.
 
-.. todo: Add a chapter about globals management and ZTS
+.. note:: Global scope management is explained into :doc:`a dedicated  chapter <globals_management>`.
 
 Thoughts on PHP lifecycle
 -------------------------
@@ -245,3 +266,54 @@ threads as multi-processing engine, then you crash every other thread with you, 
 Hooking by overwritting function pointers
 *****************************************
 
+Now you know when the engine will trigger your code, there exists also noticeable function pointers you may replace to 
+hook into the engine.
+As those pointers are global variables, you may replace them into ``MINIT()`` step, and put them back into 
+``MSHUTDOWN()``.
+
+Those of interest are:
+
+.. +---------+-----------------+---------------------------------------------------------------------------+
+.. | Subject | Definition file |                         function                                          |
+.. +---------+-----------------+---------------------------------------------------------------------------+
+.. |  Error  |  Zend/zend.h    | `void (*zend_error_cb)(int type, const char *error_filename,              |
+.. |         |                 | const uint error_lineno, const char *format, va_list args)`               |
+.. +---------+-----------------+---------------------------------------------------------------------------+
+.. |         |                 |                                                                           |
+.. +---------+-----------------+---------------------------------------------------------------------------+
+
+* AST, Zend/zend_ast.h:
+    * `void (*zend_ast_process_t)(zend_ast *ast)`
+
+* Compiler, Zend/zend_compile.h:
+    * `zend_op_array *(*zend_compile_file)(zend_file_handle *file_handle, int type)`
+    * `zend_op_array *(*zend_compile_string)(zval *source_string, char *filename)`
+
+* Executor, Zend/zend_execute.h:
+    * `void (*zend_execute_ex)(zend_execute_data *execute_data)`
+    * `void (*zend_execute_internal)(zend_execute_data *execute_data, zval *return_value)`
+
+* GC, Zend/zend_gc.h:
+    * `int (*gc_collect_cycles)(void)`
+
+* TSRM, TSRM/TSRM.h:
+    * `void (*tsrm_thread_begin_func_t)(THREAD_T thread_id)`
+    * `void (*tsrm_thread_end_func_t)(THREAD_T thread_id)`
+
+* Error, Zend/zend.h:
+    * `void (*zend_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format, 
+      va_list args)`
+
+* Exceptions, Zend/zend_exceptions.h:
+    * `void (*zend_throw_exception_hook)(zval *ex)`
+
+* Lifetime, Zend/zend.h:
+    * `void (*zend_on_timeout)(int seconds)`
+    * `void (*zend_interrupt_function)(zend_execute_data *execute_data)`
+    * `void (*zend_ticks_function)(int ticks)`
+
+Other exists but the above ones are the most important ones you could need while designing PHP extensions.
+As their names are self explanatory, there is no need to detail every of them.
+
+If you need some more informations, you can look for them into PHP source code, and discover when and how they get 
+triggered.

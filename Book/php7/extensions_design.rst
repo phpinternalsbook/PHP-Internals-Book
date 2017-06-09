@@ -11,4 +11,5 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    extensions_design/php_lifecycle.rst  
+    extensions_design/php_lifecycle.rst
+    extensions_design/globals_management.rst  
