@@ -28,10 +28,10 @@ PHP 5
 PHP 7
 -----
 
-This book is currently being updated for PHP 7. Check back soon...
+This part concerns only the PHP 7 branch. It is under development.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
     php7/introduction.rst
     php7/build_system.rst
