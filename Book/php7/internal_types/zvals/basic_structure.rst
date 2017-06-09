@@ -13,8 +13,8 @@ the type can change during the life of a zval, so if the zval previously stored 
 later point in time.
 
 The type is stored as an integer tag (an unsigned int). It can be one of several values. Some values correspond to the eight
-types available in PHP, others are used for internal engine purpose only. These values are referred to using constants of the form ``IS_TYPE``. E.g. ``IS_NULL``
-corresponds to the null type and ``IS_STRING`` corresponds to the string type.
+types available in PHP, others are used for internal engine purpose only. These values are referred to using constants 
+of the form ``IS_TYPE``. E.g. ``IS_NULL`` corresponds to the null type and ``IS_STRING`` corresponds to the string type.
 
 The actual value is stored in a union, which is defined as follows::
 
@@ -60,7 +60,9 @@ Secondly, ``zend_long`` represents an abstraction of the platform long, so whate
 ``zend_long`` weights 4 bytes on 32bit platforms and 8 bytes on 64bit ones.
 
 In addition to that, you may use macros related to longs, ``SIZEOF_ZEND_LONG`` or ``ZEND_LONG_MAX`` f.e.
-See Zend/zend_long.h in source code for more informations.
+See 
+`Zend/zend_long.h <https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_long.h>`_
+in source code for more informations.
 
 The ``double`` type used to store floating point numbers is (typically) an 8-byte value following the IEEE-754
 specification. The details of this format won't be discussed here, but you should at least be aware of the fact that
@@ -74,7 +76,7 @@ The remaining four types will only be mentioned here quickly and discussed in gr
 
 Strings (``IS_STRING``) are stored in a ``zend_string`` structure, i.e. they consist of a ``char *`` string
 and an ``size_t`` length. You will find more informations about the ``zend_string`` structure and its dedicated API
-into the :doc:`/php7/zend_strings` chapter.
+into the :doc:`string <../strings>` chapter.
 
 Arrays use the ``IS_ARRAY`` type tag and are stored in the ``zend_array *arr`` member. How the ``HashTable`` structure
 works will be discussed in the :doc:`/hashtables` chapter.
@@ -120,14 +122,14 @@ internal use-case only. The zval structure has been thought to be very flexible,
 virtually any type of data of interest, and not only the PHP specific types we just reviewed above.
 
 The special ``IS_UNDEF`` type has a special meaning. That means "This zval contains no data of interest, do not access
-any data field from it". This is used for :doc:`/php7/zvals/memory_management` purposes. If you see an ``IS_UNDEF`` zval,
+any data field from it". This is used for :doc:`zvals/memory_management` purposes. If you see an ``IS_UNDEF`` zval,
 that means that it is of no special type and contains no valid information.
 
 The ``zend_refcounted *counted`` field is very tricky to understand. Basically, that field serve as a header for any
-other reference-countable type. This part is detailed into the :doc:`/zvals/memory_management` chapter.
+other reference-countable type. This part is detailed into the :doc:`zvals/memory_management` chapter.
 
 The ``zend_reference *ref`` is used to represent a PHP reference. The ``IS_REFERENCE`` type flag is then used.
-Here as well, we dedicated a chapter to such a concept, have a look at the :doc:`/php7/zvals/memory_management` chapter.
+Here as well, we dedicated a chapter to such a concept, have a look at the :doc:`zvals/memory_management` chapter.
 
 The ``zend_ast_ref *ast`` is used when you manipulate the AST from the compiler. The PHP compilation is detailed into
 the :doc:`/php7/compiler` chapter.
