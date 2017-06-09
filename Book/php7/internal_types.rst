@@ -11,7 +11,7 @@ Contents:
     :maxdepth: 2
 
     internal_types/zvals.rst
-    internal_types/zend_strings.rst
+    internal_types/strings.rst
     internal_types/zend_resources.rst
     
 ..

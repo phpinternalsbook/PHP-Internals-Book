@@ -22,10 +22,9 @@ Here is the simple ``zend_string`` structure explosed::
     };
 
 Like you can see, the structure embeds a ``zend_refcounted_h`` header. This is done for memory management and reference
-counting, as you may have learnt by reading the :doc:`./zvals/memory_management` chapter.
 As the string is very likely to be used as the key of a HashTable probe, it embeds its hash in the ``h`` field. This is 
 an unsigned long ``zend_ulong``. This number is only used when the ``zend_string`` needs to be hashed, aka especially 
-when used together with :doc:`./hashtables`; this is very likely though.
+when used together with :doc:`../hashtables`; this is very likely though.
 
 As you know, the string knows its length as the ``len`` field, to support "binary strings". Binary strings are 
 strings that embed one or several ``NUL`` characters (\\0). When passed to libc functions, those strings will get 
@@ -44,7 +43,7 @@ This struct hack must be remembered, as the memory layout looks like with the C 
 structure, and may be felt/seen when using a C debugger (or when debugging strings). This hack is entirely managed by 
 the API you'll use when manipulating ``zend_string`` structures.
 
-.. image:: ./zend_strings/images/zend_string_memory_layout.png
+.. image:: images/zend_string_memory_layout.png
    :align: center
    
 Using zend_string API
@@ -53,7 +52,7 @@ Using zend_string API
 Simple use case
 ***************
 
-Like with :doc:`zvals`, you dont manipulate the ``zend_string`` internals fields by hand, but always use macros 
+Like with :doc:`../zvals`, you dont manipulate the ``zend_string`` internals fields by hand, but always use macros 
 for that. There also exists macros to trigger actions on strings. Those are not functions but macros, all stored into 
 the required `Zend/zend_string.h <https://github.com/php/php-src/blob/PHP-7.0/Zend/zend_string.h>`_ header::
 
@@ -216,7 +215,7 @@ zend_string access with zvals
 Now that you know how to manage and manipulate ``zend_string``, let's see the interaction they got with the ``zval`` 
 container.
 
-.. note:: You need to be familiar with zvals, if not, read the :doc:`./zvals` dedicated chapter.
+.. note:: You need to be familiar with zvals, if not, read the :doc:`../zvals` dedicated chapter.
 
 The macros will allow you to store a ``zend_string`` into a ``zval``, or to read the ``zend_string`` from a ``zval``::
 
@@ -333,7 +332,7 @@ Example::
     /* At the end of the process, PHP will purge its interned
       string buffer, and thus free() our "foo" string itself */
 
-It's all about garbage collection you've learnt about in the :doc:`./zvals/memory_management` chapter.
+It's all about garbage collection you've learnt about in the :doc:`../zvals/memory_management` chapter.
 
 When a string is interned, its GC flags are changed to add the ``IS_STR_INTERNED`` flag, whatever the memory allocation 
 class they use (permanent or request based).
