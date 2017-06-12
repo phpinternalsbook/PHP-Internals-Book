@@ -226,7 +226,7 @@ particular case you still need to use ``--re``. Other Zend extensions make their
 though.
 
 Extensions API compatibility
-****************************
+----------------------------
 
 Extensions are very sensitive to 5 major factors. If they dont fit, the extension wont load into PHP and will be 
 useless:
@@ -357,3 +357,8 @@ We authors, use something like this in extensions of ours::
     #endif
     
 See ?
+
+Or, simpler (so better ?) is to use PHP_VERSION_ID which you are probably much more familiar about::
+    
+    #if PHP_VERSION_ID >= 50600
+    
