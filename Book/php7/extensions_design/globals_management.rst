@@ -1,4 +1,4 @@
-Managing global scope
+Managing global state
 =====================
 
 

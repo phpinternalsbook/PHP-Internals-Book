@@ -14,5 +14,6 @@ Contents:
     internal_types/strings.rst
     internal_types/zend_resources.rst
     internal_types/hashtables.rst
+    internal_types/functions.rst
 ..
     internal_types/objects/classes_and_objects.rst  

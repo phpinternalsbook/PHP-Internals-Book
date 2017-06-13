@@ -1,5 +1,5 @@
-Strings management : zend_string
-================================
+Strings management: zend_string
+===============================
 
 Any program needs to manage strings. Here, we'll detail the zend_string structure which helps for that.
 Every time PHP needs to work with a string, a zend_string structure will be used. This structure is just a simple
