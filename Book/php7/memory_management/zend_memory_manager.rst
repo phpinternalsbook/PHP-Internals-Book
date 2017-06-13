@@ -35,30 +35,30 @@ default, PHP forgets *a very huge number* of informations from one request to an
 
 There exists however some pretty rare informations you need to persist across several requests. But that's uncommon.
 
-What could be kept unchanged throught requests ? What we call **persistent** objects. Once more let us insist : those 
+What could be kept unchanged through requests ? What we call **persistent** objects. Once more let us insist : those 
 are rare cases. For example, the current PHP executable path won't change from requests to requests. That latter 
 information is allocated permanently, that means it is allocated with a traditionnal libc's ``malloc()`` call.
 
-What else ? Some strings. For example, the "_SERVER" string will be reused from request to request, as every request 
-will create the ``$_SERVER`` PHP array. So the "_SERVER" string itself can be permanently allocated, because it will be 
-allocated once
+What else ? Some strings. For example, the *"_SERVER"* string will be reused from request to request, as every request 
+will create the ``$_SERVER`` PHP array. So the *"_SERVER"* string itself can be permanently allocated, because it will 
+be allocated once.
 
 What you must remember:
 
 * There exists two kinds of dynamic memory allocations while programming PHP (or extensions):
-    * Request-bound dynamic allocations
-    * Permanent dynamic allocations
+    * Request-bound dynamic allocations.
+    * Permanent dynamic allocations.
 
 * Request-bound dynamic memory allocations
-    * Must only be performed when PHP is treating a request (not before, nor after)
-    * Can only be performed using the ZendMM dynamic memory allocation API
-    * Are very common, basically 95% of your dynamic allocations will be request-bound
-    * Are tracked by ZendMM, and you'll be informed about bad usage of the memory area, or if you leak
+    * Must only be performed when PHP is treating a request (not before, nor after).
+    * Can only be performed using the ZendMM dynamic memory allocation API.
+    * Are very common, basically 95% of your dynamic allocations will be request-bound.
+    * Are tracked by ZendMM, and you'll be informed about bad usage of the memory area, or if you leak.
 
 * Permanent dynamic memory allocations
-    * Should not be performed while PHP is treating a request (not forbidden, but a bad idea)
-    * Are not tracked by ZendMM, and you won't be informed about bad usage of the memory area, or if you leak
-    * Should be pretty rare in an extension
+    * Should not be performed while PHP is treating a request (not forbidden, but a bad idea).
+    * Are not tracked by ZendMM, and you won't be informed about bad usage of the memory area, or if you leak.
+    * Should be pretty rare in an extension.
 
 Also, keep in mind that all PHP source code has been based on such a memory level. Thus, many internal structures get 
 allocated using the Zend Memory Manager. Most of them got a "persistent" API call, which when used, lead to 
@@ -196,26 +196,39 @@ Those lines are generated when the Zend Memory Manager shuts down, that is at th
 
 Beware however:
 
-* Obviously ZendMM doesn't know anything about persistent allocations, or allocations that were perform in another way 
+* Obviously ZendMM doesn't know anything about persistent allocations, or allocations that were performed in another way 
   than using it. Hence, ZendMM can only warn you about allocations it is aware of, every traditionnal libc allocation 
-  won't be reported in here.
+  won't be reported in here, f.e.
 * If PHP shuts down in an incorrect maner (what we call an unclean shutdown), ZendMM will report tons of leaks. This is 
   because when incorrectly shutdown, the engine uses a longjmp() call to a catch block, preventing every code that cleans 
   memory to fire-in. Thus, many leaks get reported. This happens especially after a call to PHP's exit()/die(), or if a 
   fatal error gets triggered in some critical parts of PHP.
-* If you use a non-debug build of PHP, nothing shows, ZendMM is dumb.
+* If you use a non-debug build of PHP, nothing shows on stderr, ZendMM is dumb.
 
 What you must remember is that ZendMM leak tracking is a nice bonus tool to have, but it does not replace a 
 :doc:`true C memory debugger <./memory_debugging>`.
 
-
-Buffer overflows or underflows
-------------------------------
-
-Zend Memory Manager engine
+Common errors and mistakes
 **************************
 
-ZendMM substitutes to libc's API by providing a very similar one. That API should only be used when treating requests.
+Here are the most common errors while using ZendMM, and what you should do about them.
 
-ZendMM encapsulates libc's allocator, and like this later, it asks for memory, arange the memory areas, sticks header 
-and canary blocks against it, and gives you back the buffer you asked.
+1. Usage of ZendMM as you are not treating a request.
+
+Get infos about
+:doc:`the PHP lifecycle <../extensions_design/php_lifecycle>` to know in your extensions when you are treating a
+request, and when not.
+
+2. Buffer overflow and underflows.
+
+Use a :doc:`memory debugger <memory_debugging>`. If you write bellow or past a memory area returned by ZendMM, you will 
+overwrite crucial ZendMM structures and trigger a crash. It may happen that the *"zend_mm_heap corrupted"* message gets 
+display in case ZendMM was able to detect the mess for you. The stack trace will show a crash from some code, to some 
+ZendMM code. ZendMM code does not crash itself. If you get crashed in the middle of ZendMM code, that highly probably 
+means you messed up with a pointer somewhere. Kick in your favorite memory debugger and look for the guilty part and 
+fix it.
+
+3. Mix API calls
+
+If you allocate a ZendMM pointer (``emalloc()`` f.e) and free it using libc (``free()``), or the opposite scenario: 
+you will crash. Be rigorous. Also if you pass to ZendMM's ``efree()`` any pointer it doesn't know about: you will crash.
