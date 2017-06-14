@@ -476,7 +476,7 @@ declaration can solve, that will be done in a second.
 
 Then we add our new function to the function registration vector::
 
-    static const zend_function_entry myext_functions[] =
+    static const zend_function_entry pib_functions[] =
     {
 	    PHP_FE(fahrenheit_to_celsius,arginfo_fahrenheit_to_celsius) /* seen above */
 	    PHP_FE(celsius_to_fahrenheit,arginfo_celsius_to_fahrenheit) /* seen above */
@@ -522,3 +522,61 @@ the ``return_value`` zval using ``RETURN_STR()``.
 
 .. note:: ``strpprintf()`` and its sisters are explained in 
           :doc:`the chapter about printing functions <../internal_types/strings/printing_functions>`.
+
+Let's go now for a play with *PHP arrays* and design:
+
+.. code-block:: php
+
+    function multiple_fahrenheit_to_celsius(array $temperatures)
+    {
+        foreach ($temperatures as $temp) {
+            $return[] = fahreinheit_to_celsius($temp);
+        }
+
+        return $return;
+    }
+    
+So thinking at the C implementation, we need to ``zend_parse_parameters()`` and ask for just one array, iterate over it, 
+make the maths operations and add the result in ``return_value``, as an array::
+
+    ZEND_BEGIN_ARG_INFO_EX(arginfo_multiple_fahrenheit_to_celsius, 0, 0, 1)
+        ZEND_ARG_ARRAY_INFO(0, temperatures, 0)
+    ZEND_END_ARG_INFO();
+
+    static const zend_function_entry pib_functions[] =
+    {
+	    /* ... */
+	    PHP_FE(multiple_fahrenheit_to_celsius, arginfo_multiple_fahrenheit_to_celsius)
+	    PHP_FE_END
+    };
+
+    PHP_FUNCTION(multiple_fahrenheit_to_celsius)
+    {
+	    HashTable *temperatures;
+	    zval *data;
+
+	    if (zend_parse_parameters(ZEND_NUM_ARGS(), "h", &temperatures) == FAILURE) {
+		    return;
+	    }
+	    if (zend_hash_num_elements(temperatures) == 0) {
+		    return;
+	    }
+
+	    array_init_size(return_value, zend_hash_num_elements(temperatures));
+
+	    ZEND_HASH_FOREACH_VAL(temperatures, data)
+		    zval dup;
+		    ZVAL_COPY_VALUE(&dup, data);
+		    convert_to_double(&dup);
+		    add_next_index_double(return_value, php_fahrenheit_to_celsius(Z_DVAL(dup)));
+	    ZEND_HASH_FOREACH_END();
+    }
+
+
+.. note:: You need to know :doc:`how Hashtables work<../internal_types/hashtables>`, and the must-read 
+          :doc:`zval chapter<../internal_types/zvals>`
+
+Here, the C part will be faster, as you don't call a PHP function in the loop for the C code, but a static (and probably 
+inlined by the compiler) C function, which is orders of magnitude faster and requires tons less of low-level CPU 
+instructions to run. It's not about that little demo function needs so much love in code performance, it's just to 
+remember one reason why we sometimes use the C language over PHP.
