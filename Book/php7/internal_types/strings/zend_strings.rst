@@ -33,7 +33,7 @@ known. Please, note that the length computes the number of ASCII chars (bytes) n
 counting the eventual middle NULs. For example, the string "foo" is stored as "foo\\0" in a ``zend_string`` and its 
 length is then 3. Also, the string "foo\\0bar" will be stored as "foo\\0bar\\0" and the length will be 7.
 
-Finally, the characters are stored into the ``char[1]`` field. This is not a ``char *``, but a ``char[1]``. Why that ? 
+Finally, the characters are stored into the ``char[1]`` field. This is not a ``char *``, but a ``char[1]``. Why that? 
 This is a memory optimization known as "C struct hack" (you may use a search engine with these terms). Basically, that 
 allows the engine to allocate space for the ``zend_string`` structure and the characters to be stored, as one solo C 
 pointer. This optimizes memory accesses as memory will be a contiguous allocated block, and not two blocks sparsed in 
@@ -284,7 +284,7 @@ Say you want to create the string "foo". What you tend to do is simply create a 
     
     /* ... */
     
-But a question arises : Hasn't that piece of string already been created before you need it ?
+But a question arises : Hasn't that piece of string already been created before you need it?
 When you need a string, you code is executed at some point in PHP's life, that means that some piece of code happening 
 before yours may have needed the exact same piece of string ("foo" for our example).
 

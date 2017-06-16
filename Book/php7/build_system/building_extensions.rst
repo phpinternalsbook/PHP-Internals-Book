@@ -317,10 +317,10 @@ to recompile extensions against a newer PHP version.
     
     Too many numbers? Yes. One API number, bound to one PHP version, would really be enough for anybody and would ease 
     the understanding of PHP versionning. Unfortunately, we got 3 different API numbers in addition to the PHP version 
-    itself. Which one should you look for ? The answer is any : they all-three-of-them evolve when PHP version evolve.
+    itself. Which one should you look for? The answer is any : they all-three-of-them evolve when PHP version evolve.
     For historical reasons, we got 3 different numbers.
     
-But, you are a C developper anren't you ? Why not build a "compatibility" header on your side, based on such number ?
+But, you are a C developper anren't you? Why not build a "compatibility" header on your side, based on such number?
 We authors, use something like this in extensions of ours::
 
     #include "php.h"
@@ -356,9 +356,9 @@ We authors, use something like this in extensions of ours::
     #define IS_PHP_5 1
     #endif
     
-See ?
+See?
 
-Or, simpler (so better ?) is to use PHP_VERSION_ID which you are probably much more familiar about::
+Or, simpler (so better) is to use PHP_VERSION_ID which you are probably much more familiar about::
     
     #if PHP_VERSION_ID >= 50600
     

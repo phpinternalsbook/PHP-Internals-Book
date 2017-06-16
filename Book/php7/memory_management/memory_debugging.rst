@@ -282,7 +282,7 @@ a crash.
 
 Valgrind could also report invalid reads. That means you perform a memory read operation out of the bounds of an 
 allocated pointer. Better scenario that a block overwrite, you still access memory area you should not, and here again 
-in such a scenario that could lead to an immediate crash, or later, or never ? Don't do that.
+in such a scenario that could lead to an immediate crash, or later, or never? Don't do that.
 
 .. note:: As soon as you read "Invalid" in the output of valgrind, that smells really bad for you. Whether invalid 
           read or write, you have a problem in your code, and you should consider this problem as high risk: fix it 
