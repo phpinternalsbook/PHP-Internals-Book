@@ -12,8 +12,8 @@ makes use of it in its heart or in some extensions. Let's see that type together
 and suffers from a long past history, so don't be suprised about its design especially when reading the source code 
 about it
 
-What is the "Resource" type ?
------------------------------
+What is the "Resource" type?
+----------------------------
 
 Easy enough you know about it. We are talking about this here:
 

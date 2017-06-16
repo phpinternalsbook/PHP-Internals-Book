@@ -32,7 +32,7 @@ Here it is::
 You can spot that this structure is not complex. This is all you'll need to declare and register a new function.
 Let's detail it together:
 
-A function's got a name: ``fname``. Nothing to add, you see what it's used for right ? Just notice the ``const char *`` 
+A function's got a name: ``fname``. Nothing to add, you see what it's used for right? Just notice the ``const char *`` 
 type. That can't fit into the engine. This ``fname`` is a model and the engine will create from it an 
 :doc:`interned zend_string<../internal_types/strings/zend_strings>`.
 
@@ -259,7 +259,7 @@ zval, and you are expected to play with it. :doc:`Here are more resources about 
 .. note:: While programming PHP functions in C extensions, you receive the return value as an argument, and you don't 
           return anything from your C function body.
 
-Ok first point explained. Second one as you may have guessed: where are the PHP function arguments ? Where is 
+Ok first point explained. Second one as you may have guessed: where are the PHP function arguments? Where is 
 ``$fahreinheit``? That one is pretty hard to fully explain, it is hell hard to in fact.
 
 But we don't need to have a look at the details here. Let's explain the crucial concepts:

@@ -18,7 +18,7 @@ PHP is a share-nothing architecture. Well, not at 100%. Let us explain.
           here, you'll get additionnal informations about the different steps and cycles that can be drawn from PHP 
           lifetime.
 
-PHP can treat several (dozen, thousands ?) of requests into the same process. By default, PHP will forget anything it 
+PHP can treat several (dozen, thousands?) of requests into the same process. By default, PHP will forget anything it 
 knows of the current request, when that later finishes.
 
 "Forgetting" things translates to freeing any dynamic buffer that got allocated while treating a request. That means 
@@ -35,11 +35,11 @@ default, PHP forgets *a very huge number* of informations from one request to an
 
 There exists however some pretty rare informations you need to persist across several requests. But that's uncommon.
 
-What could be kept unchanged through requests ? What we call **persistent** objects. Once more let us insist : those 
+What could be kept unchanged through requests? What we call **persistent** objects. Once more let us insist : those 
 are rare cases. For example, the current PHP executable path won't change from requests to requests. That latter 
 information is allocated permanently, that means it is allocated with a traditionnal libc's ``malloc()`` call.
 
-What else ? Some strings. For example, the *"_SERVER"* string will be reused from request to request, as every request 
+What else? Some strings. For example, the *"_SERVER"* string will be reused from request to request, as every request 
 will create the ``$_SERVER`` PHP array. So the *"_SERVER"* string itself can be permanently allocated, because it will 
 be allocated once.
 
