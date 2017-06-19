@@ -366,10 +366,10 @@ If you have read :doc:`the chapter about tests <../tests>`, you should now write
 
 \... and launch ``make test``
 
-Advanced example
-****************
+Playing with constants
+**********************
 
-Let's go in some advance examples.
+Let's go with an advanced example.
 Let's add the opposite function: ``celsius_to_fahrenheit($celsius)``::
 
     ZEND_BEGIN_ARG_INFO_EX(arginfo_celsius_to_fahrenheit, 0, 0, 1)
@@ -378,25 +378,25 @@ Let's add the opposite function: ``celsius_to_fahrenheit($celsius)``::
 
     static double php_celsius_to_fahrenheit(double c)
     {
-	    return (((double)9/5) * c) + 32 ;
+        return (((double)9/5) * c) + 32 ;
     }
 
     PHP_FUNCTION(celsius_to_fahrenheit)
     {
-	    double c;
+       double c;
 
-	    if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) == FAILURE) {
-		    return;
-	    }
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) == FAILURE) {
+    	    return;
+        }
 
-	    RETURN_DOUBLE(php_celsius_to_fahrenheit(c));
+        RETURN_DOUBLE(php_celsius_to_fahrenheit(c));
     }
 
     static const zend_function_entry pib_functions[] =
     {
-	    PHP_FE(fahrenheit_to_celsius, arginfo_fahrenheit_to_celsius) /* Done above */
-	    PHP_FE(celsius_to_fahrenheit,arginfo_celsius_to_fahrenheit) /* just added */
-	    PHP_FE_END
+        PHP_FE(fahrenheit_to_celsius, arginfo_fahrenheit_to_celsius) /* Done above */
+        PHP_FE(celsius_to_fahrenheit,arginfo_celsius_to_fahrenheit) /* just added */
+        PHP_FE_END
     };
     
 Now a more complex use case, we show it in PHP before implementing it as a C extension:
@@ -431,10 +431,10 @@ constants against the engine.
 Here is a constant, internally, a ``zend_constant`` structure::
 
     typedef struct _zend_constant {
-	    zval value;
-	    zend_string *name;
-	    int flags;
-	    int module_number;
+        zval value;
+        zend_string *name;
+        int flags;
+        int module_number;
     } zend_constant;
 
 Really an easy structure (that could become a nightmare if you deeply look at how constants are managed into the 
@@ -448,10 +448,10 @@ To register constants, here again there is no difficulty at all, a bunch of macr
 
     PHP_MINIT_FUNCTION(pib)
     {
-	    REGISTER_LONG_CONSTANT("TEMP_CONVERTER_TO_CELSIUS", TEMP_CONVERTER_TO_CELSIUS, CONST_CS|CONST_PERSISTENT);
-	    REGISTER_LONG_CONSTANT("TEMP_CONVERTER_TO_FAHRENHEIT", TEMP_CONVERTER_TO_FAHRENHEIT, CONST_CS|CONST_PERSISTENT);
+        REGISTER_LONG_CONSTANT("TEMP_CONVERTER_TO_CELSIUS", TEMP_CONVERTER_TO_CELSIUS, CONST_CS|CONST_PERSISTENT);
+        REGISTER_LONG_CONSTANT("TEMP_CONVERTER_TO_FAHRENHEIT", TEMP_CONVERTER_TO_FAHRENHEIT, CONST_CS|CONST_PERSISTENT);
 
-	    return SUCCESS;
+        return SUCCESS;
     }
 
 .. note:: It is a good practice to give PHP constants values of C macros. That ease things, and that's what we did.
@@ -478,34 +478,34 @@ Then we add our new function to the function registration vector::
 
     static const zend_function_entry pib_functions[] =
     {
-	    PHP_FE(fahrenheit_to_celsius,arginfo_fahrenheit_to_celsius) /* seen above */
-	    PHP_FE(celsius_to_fahrenheit,arginfo_celsius_to_fahrenheit) /* seen above */
-	    PHP_FE(temperature_converter, arginfo_temperature_converter) /* our new function */
+        PHP_FE(fahrenheit_to_celsius,arginfo_fahrenheit_to_celsius) /* seen above */
+        PHP_FE(celsius_to_fahrenheit,arginfo_celsius_to_fahrenheit) /* seen above */
+        PHP_FE(temperature_converter, arginfo_temperature_converter) /* our new function */
     }
 
 And, the function body::
 
     PHP_FUNCTION(temperature_converter)
     {
-	    double t;
-	    zend_long mode = TEMP_CONVERTER_TO_CELSIUS;
-	    zend_string *result;
+        double t;
+        zend_long mode = TEMP_CONVERTER_TO_CELSIUS;
+        zend_string *result;
 
-	    if (zend_parse_parameters(ZEND_NUM_ARGS(), "d|l", &t, &mode) == FAILURE) {
-		    return;
-	    }
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "d|l", &t, &mode) == FAILURE) {
+            return;
+        }
 
-	    switch (mode)
-	    {
-		    case TEMP_CONVERTER_TO_CELSIUS:
-			    result = strpprintf(0, "%.2f degrees fahrenheit gives %.2f degrees celsius", t, php_fahrenheit_to_celsius(t));
-			    RETURN_STR(result);
-		    case TEMP_CONVERTER_TO_FAHRENHEIT:
-			    result = strpprintf(0, "%.2f degrees celsius gives %.2f degrees fahrenheit", t, php_celsius_to_fahrenheit(t));
-			    RETURN_STR(result);
-		    default:
-			    php_error(E_WARNING, "Invalid mode provided, accepted values are 1 or 2");
-	    }
+        switch (mode)
+        {
+            case TEMP_CONVERTER_TO_CELSIUS:
+                result = strpprintf(0, "%.2f degrees fahrenheit gives %.2f degrees celsius", t, php_fahrenheit_to_celsius(t));
+                RETURN_STR(result);
+            case TEMP_CONVERTER_TO_FAHRENHEIT:
+                result = strpprintf(0, "%.2f degrees celsius gives %.2f degrees fahrenheit", t, php_celsius_to_fahrenheit(t));
+                RETURN_STR(result);
+            default:
+                php_error(E_WARNING, "Invalid mode provided, accepted values are 1 or 2");
+        }
     }
 
 Remember to well look at `README.PARAMETER_PARSING_API <https://github.com/php/php-src/blob/
@@ -522,6 +522,9 @@ the ``return_value`` zval using ``RETURN_STR()``.
 
 .. note:: ``strpprintf()`` and its sisters are explained in 
           :doc:`the chapter about printing functions <../internal_types/strings/printing_functions>`.
+
+A go with Hashtables (PHP arrays)
+*********************************
 
 Let's go now for a play with *PHP arrays* and design:
 
@@ -546,30 +549,30 @@ make the maths operations and add the result in ``return_value``, as an array::
     static const zend_function_entry pib_functions[] =
     {
 	    /* ... */
-	    PHP_FE(multiple_fahrenheit_to_celsius, arginfo_multiple_fahrenheit_to_celsius)
-	    PHP_FE_END
+        PHP_FE(multiple_fahrenheit_to_celsius, arginfo_multiple_fahrenheit_to_celsius)
+        PHP_FE_END
     };
 
     PHP_FUNCTION(multiple_fahrenheit_to_celsius)
     {
-	    HashTable *temperatures;
-	    zval *data;
+        HashTable *temperatures;
+        zval *data;
 
-	    if (zend_parse_parameters(ZEND_NUM_ARGS(), "h", &temperatures) == FAILURE) {
-		    return;
-	    }
-	    if (zend_hash_num_elements(temperatures) == 0) {
-		    return;
-	    }
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "h", &temperatures) == FAILURE) {
+            return;
+        }
+        if (zend_hash_num_elements(temperatures) == 0) {
+    	    return;
+        }
 
-	    array_init_size(return_value, zend_hash_num_elements(temperatures));
+        array_init_size(return_value, zend_hash_num_elements(temperatures));
 
-	    ZEND_HASH_FOREACH_VAL(temperatures, data)
-		    zval dup;
-		    ZVAL_COPY_VALUE(&dup, data);
-		    convert_to_double(&dup);
-		    add_next_index_double(return_value, php_fahrenheit_to_celsius(Z_DVAL(dup)));
-	    ZEND_HASH_FOREACH_END();
+        ZEND_HASH_FOREACH_VAL(temperatures, data)
+            zval dup;
+            ZVAL_COPY_VALUE(&dup, data);
+            convert_to_double(&dup);
+        add_next_index_double(return_value, php_fahrenheit_to_celsius(Z_DVAL(dup)));
+        ZEND_HASH_FOREACH_END();
     }
 
 
