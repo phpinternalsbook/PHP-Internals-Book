@@ -124,6 +124,11 @@ strings.
 Whatever happens, pointers returned by ZendMM must be freed using ZendMM, aka ``efree()`` call and 
 **not libc's free()**.
 
+.. note:: A note on persistent allocations. Persistent allocations stay alive between requests. You traditionnaly use 
+          the common libc ``malloc/free`` to perform that, but ZendMM has got some shortcuts to libc allocator : the 
+          "persistent" API. This API starts by the *"p"* letter, hence a ``pemalloc()`` is nothing more than a 
+          ``malloc()``, a ``pefree()`` is a ``free()`` and a ``pestrdup()`` is a ``strdup()``. Just to say.
+
 Zend Memory Manager debugging shields
 *************************************
 
@@ -217,7 +222,8 @@ Here are the most common errors while using ZendMM, and what you should do about
 
 Get infos about
 :doc:`the PHP lifecycle <../extensions_design/php_lifecycle>` to know in your extensions when you are treating a
-request, and when not.
+request, and when not. If you use ZendMM out of the scope of a request (like in ``MINIT()``), the allocation will be 
+silently cleared by ZendMM before treating the first request, and you'll probably use-after-free : simply don't.
 
 2. Buffer overflow and underflows.
 
