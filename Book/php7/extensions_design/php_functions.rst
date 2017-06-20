@@ -273,6 +273,9 @@ But we don't need to have a look at the details here. Let's explain the crucial 
   the stack, to know until when you should end reading them.
 * Everything goes by the ``zend_execute_data *execute_data`` you received as argument. But we can't detail that now.
 
+Parsing parameters : zend_parse_parameters()
+--------------------------------------------
+
 To read arguments, welcome ``zend_parse_parameters()`` API (called 'zpp').
 
 .. note:: While programming PHP functions in C extensions, you receive PHP function arguments thanks to the 
@@ -583,3 +586,63 @@ Here, the C part will be faster, as you don't call a PHP function in the loop fo
 inlined by the compiler) C function, which is orders of magnitude faster and requires tons less of low-level CPU 
 instructions to run. It's not about that little demo function needs so much love in code performance, it's just to 
 remember one reason why we sometimes use the C language over PHP.
+
+Managing references
+*******************
+
+Now let's go to play with PHP references. You've learnt from :doc:`the zval chapter <../internal_types/zvals>` that 
+references are a special trick used into the engine. As a reminder, a reference (by that we mean a ``&$php_reference``) 
+is a heap allocated ``zval`` stored into a ``zval`` container. Haha.
+
+So, it is not very hard to deal with those into PHP functions, as soon as you remember what references are, and what 
+they're designed to.
+
+If your function accept a parameter as a reference, you must declare that in arguments signature and be passed a 
+reference from your ``zend_parse_parameter()`` call. Let's see that like always, with a PHP example first:
+
+.. code-block::php
+
+    function fahrenheit_to_celsius_by_ref(&$fahreinheit)
+    {
+        $fahreinheit = 9/5 * $fahrenheit + 32;
+    }
+
+So now in C, first we must change our ``arg_info``::
+
+    ZEND_BEGIN_ARG_INFO_EX(arginfo_fahrenheit_to_celsius, 0, 0, 1)
+        ZEND_ARG_INFO(1, fahrenheit)
+    ZEND_END_ARG_INFO();
+    
+*1*, passed in the ``ZEND_ARG_INFO()`` macro tells the engine that argument must be passed by reference.
+
+Then, when we receive the argument, we use the *"z/"* argument type, to tell that we want to be given it as a ``zval *``.
+As we did hint the engine about the fact that it should pass us a reference, we'll be given a reference into that zval, 
+aka it will be of type ``IS_REFERENCE``. We just need to dereference it (that is to fetch the zval stored into the 
+zval), and modify it as-is, as the expected behavior of references is that you must modify the value carried by the 
+reference::
+
+    PHP_FUNCTION(fahrenheit_to_celsius)
+    {
+        double result;
+        zval *param;
+
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "z/", &param) == FAILURE) {
+            return;
+        }
+
+        ZVAL_DEREF(param);
+        convert_to_double(param);
+
+        ZVAL_DOUBLE(param, php_fahrenheit_to_celsius(Z_DVAL_P(param)));
+    }
+
+Done.
+
+We used *"z/"*. If you read the `zpp readme <https://github.com/php/php-src/blob/
+ef4b2fc283ddaf9bd692015f1db6dad52171c3ce/README.PARAMETER_PARSING_API>`_, you'll notice that the *"/"* tells the engine 
+to separate the value into the zval.
+
+Remember that the zval is just a container, it could carry f.e an array (*zend_array*) and that latter could be shared 
+elsewhere in the engine which would not expect it to be changed.
+
+.. note:: The default ``return_value`` value is ``NULL``. If we don't touch it, the function will return PHP's ``NULL``.
