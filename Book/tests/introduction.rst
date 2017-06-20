@@ -1,3 +1,5 @@
+.. _tests_introduction:
+
 Testing with ``.phpt`` files
 ============================
 

@@ -354,7 +354,7 @@ Both just set the type and value of the ``return_value`` zval, but ``RETURN_***(
 Adding tests
 ************
 
-If you have read :doc:`the chapter about tests <../tests>`, you should now write a simple test::
+If you have read the chapter about tests (see :ref:`tests_introduction`), you should now write a simple test::
 
     --TEST--
     Test fahrenheit_to_celsius
