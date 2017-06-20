@@ -13,5 +13,7 @@ Contents:
 
     extensions_design/php_lifecycle.rst
     extensions_design/extension_skeleton.rst
+    extensions_design/zend_extensions.rst
     extensions_design/globals_management.rst
+    extensions_design/ini_settings.rst
     extensions_design/php_functions.rst
