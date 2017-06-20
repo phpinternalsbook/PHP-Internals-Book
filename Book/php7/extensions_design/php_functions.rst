@@ -615,7 +615,7 @@ So now in C, first we must change our ``arg_info``::
     
 *1*, passed in the ``ZEND_ARG_INFO()`` macro tells the engine that argument must be passed by reference.
 
-Then, when we receive the argument, we use the *"z/"* argument type, to tell that we want to be given it as a ``zval *``.
+Then, when we receive the argument, we use the *"z"* argument type, to tell that we want to be given it as a ``zval *``.
 As we did hint the engine about the fact that it should pass us a reference, we'll be given a reference into that zval, 
 aka it will be of type ``IS_REFERENCE``. We just need to dereference it (that is to fetch the zval stored into the 
 zval), and modify it as-is, as the expected behavior of references is that you must modify the value carried by the 
@@ -626,7 +626,7 @@ reference::
         double result;
         zval *param;
 
-        if (zend_parse_parameters(ZEND_NUM_ARGS(), "z/", &param) == FAILURE) {
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &param) == FAILURE) {
             return;
         }
 
@@ -637,12 +637,5 @@ reference::
     }
 
 Done.
-
-We used *"z/"*. If you read the `zpp readme <https://github.com/php/php-src/blob/
-ef4b2fc283ddaf9bd692015f1db6dad52171c3ce/README.PARAMETER_PARSING_API>`_, you'll notice that the *"/"* tells the engine 
-to separate the value into the zval.
-
-Remember that the zval is just a container, it could carry f.e an array (*zend_array*) and that latter could be shared 
-elsewhere in the engine which would not expect it to be changed.
 
 .. note:: The default ``return_value`` value is ``NULL``. If we don't touch it, the function will return PHP's ``NULL``.
