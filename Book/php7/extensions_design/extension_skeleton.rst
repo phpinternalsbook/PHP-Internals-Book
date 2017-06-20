@@ -1,5 +1,5 @@
-Extension skeleton
-==================
+A look into a PHP extension and extension skeleton
+==================================================
 
 Here we detail what a PHP extension look like, and how to generate a skeleton using some tools. That will allow us to 
 use a skeleton code and hack into it, instead of creating every needed piece by hand from scratch.
@@ -13,9 +13,38 @@ How the engine loads extensions
 You remember :doc:`the chapter about building PHP extensions <../build_system/building_extensions>`, so you know how 
 to compile/build it and install it.
 
+You may build **statically compiled** extensions, those are extensions that are part of PHP's heart and melt into it.
+They are not represented as *.so* files, but as *.o* objects that are linked into the final PHP executable (ELF). Thus, 
+such extensions cannot be disabled, they are part of the PHP executable body code : they are here, in, whatever you say 
+and do. Some extensions are required to be statically built, f.e *ext/core*, *ext/standard*, *ext/spl* and 
+*ext/mysqlnd* (non-exhaustive list).
+
+You can find the list of statically compiled extensions by looking at the ``main/internal_functions.c`` that is 
+generated while you compile PHP. This step is detailed in 
+:doc:`the chapter about building PHP <../build_system/building_php>`.
+
+Then, you may also build **dynamically loaded** extensions. Those are the famous *extension.so* files that are born at 
+the end of the individual compilation process. Dynamically loaded extensions offer the advantage to be pluggable and 
+unpluggable at runtime, and don't require a recompilation of all PHP to be enabled or disabled. The drawback is that 
+the PHP process startup time is longer when it must load .so files. But that's a matter of milliseconds and you don't 
+really suffer from that.
+
+Another drawback of dynamically loaded extensions is the extension loading order. Some extensions may require other 
+ones to be loaded before them. Although this is not a good practice, we'll see that PHP extension system allows you to 
+declare dependencies to master such an order, but dependencies are usually a bad idea and should be avoided.
+
+Last thing : PHP statically compiled extensions start before dynamically compiled ones. That means that their 
+``MINIT()`` is called before extensions.so files' ``MINIT()``.
+
 When PHP starts, it quickly goes to parse its different INI files. If present, those later may declare extensions to 
 load using the *"extension=some_ext.so"* line reference.
-PHP then collects every extension parsed from INI configuration, and will try to load them.
+PHP then collects every extension parsed from INI configuration, and will try to load them in the same order they've 
+been added to the INI file, until some extensions declared some dependencies (which will then be loaded before).
+
+.. note:: If you use an operating system package manager, you may have noticed that packagers usually name their 
+          extension file with heading numbers, aka *00_ext.ini*, *01_ext.ini* etc... This is to master the order 
+          extensions will be loaded. Some uncommon extensions require a specific order to be run. We'd like to remind 
+          you that depending on other extensions to be loaded before yours is a bad idea.
 
 To load extensions, `libdl <https://en.wikipedia.org/wiki/Dynamic_loading>`_ and its 
 `dlopen()/dlsym() <http://www.unix.com/man-page/All/3lib/libdl/>`_ functions are used.
@@ -36,8 +65,8 @@ engine once wanting to load your extension.
           `ext/standard/dl.c <https://github.com/php/php-src/blob/27d681435174433c3a9b0b8325361dfa383be0a6/ext/
           standard/dl.c#L90>`_
 
-What is an extension ?
-**********************
+What is a PHP extension ?
+*************************
 
 A PHP extension, not to be confused with a :doc:`Zend extension <zend_extensions>`, is set up by the usage of a 
 ``zend_module_entry`` structure::
@@ -86,7 +115,8 @@ The ``ini_entry`` vector is actually unused. You :doc:`register INI entries <ini
 
 Then you may declare dependencies, that means that your extension could need another extension to be loaded before it, 
 or could declare a conflict with another extensions. This is done using the ``deps`` field. In reality, this is very 
-ucommonly used, and more generally it is a bad pactice to create dependencies accross PHP extensions.
+ucommonly used, and more generally it is a bad pactice to create dependencies accross PHP extensions. Also, note that 
+dependencies are 
 
 After that you declare a ``name``. Nothing to say, this name is the name of your extension (which can be different from 
 the name of its own *.so* file). Take care the name is case sensitive in most operations, we suggest you use something 
