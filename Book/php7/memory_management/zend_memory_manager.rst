@@ -126,8 +126,9 @@ Whatever happens, pointers returned by ZendMM must be freed using ZendMM, aka ``
 
 .. note:: A note on persistent allocations. Persistent allocations stay alive between requests. You traditionnaly use 
           the common libc ``malloc/free`` to perform that, but ZendMM has got some shortcuts to libc allocator : the 
-          "persistent" API. This API starts by the *"p"* letter, hence a ``pemalloc()`` is nothing more than a 
-          ``malloc()``, a ``pefree()`` is a ``free()`` and a ``pestrdup()`` is a ``strdup()``. Just to say.
+          "persistent" API. This API starts by the *"p"* letter and let you choose between ZendMM alloc, or persistent 
+          alloc. Hence a ``pemalloc(<size>, 1)`` is nothing more than a ``malloc()``, a ``pefree(<ptr>, 1)`` is a 
+          ``free()`` and a ``pestrdup(<ptr>, 1)`` is a ``strdup()``. Just to say.
 
 Zend Memory Manager debugging shields
 *************************************
