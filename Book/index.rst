@@ -54,6 +54,20 @@ This part concerns only the PHP 7 branch. It is under development.
     php7/zend_engine.rst
     php7/final.rst
 
+Testing PHP Source
+------------------
+
+Writing tests applies to both PHP 5 & PHP 7.
+
+.. toctree::
+    :maxdepth: 3
+
+    tests/introduction.rst
+    tests/overview.rst
+    tests/running_the_test_suite.rst
+    tests/phpt_file_structure.rst
+    tests/examining_failed_test_output.rst
+
 Index and search
 ================
 
