@@ -243,6 +243,21 @@ Remember that globals are not cleared after every request; aka ``GSHUTDOWN()`` i
 
 .. note:: Global scope management is explained into :doc:`a dedicated  chapter <globals_management>`.
 
+Information gathering: MINFO()
+------------------------------
+
+That hook is special as it is never triggered automatically by the engine, but only when you ask it informations about 
+an extension. The typical use case is a call to ``phpinfo()``. This function is then run, and it is expected to print 
+into a stream special informations about the current extension.
+
+The ``phpinfo()`` panel informations, in short.
+
+This function can also be called through the CLI, using one of the reflection switch such as ``php --ri pib`` or via 
+userland with a call to ``ini_get_all()`` f.e
+
+You may leave it empty, in such a case only the name of the extension is displayed and nothing more (possible INI 
+settings are not displayed as this happens as part of MINFO()).
+
 Thoughts on PHP lifecycle
 -------------------------
 .. image:: ./images/php_extensions_lifecycle.png
