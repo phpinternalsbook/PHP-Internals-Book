@@ -1,13 +1,14 @@
 Strings management: zend_string
 ===============================
 
-Any program needs to manage strings. Here, we'll detail the zend_string structure which helps for that.
-Every time PHP needs to work with a string, a zend_string structure will be used. This structure is just a simple
+Any program needs to manage strings. Here, we'll detail a custom solution that fits PHP needs : ``zend_string``.
+Every time PHP needs to work with a string, a ``zend_string`` structure will be used. This structure is just a simple
 thin wrapper over the ``char *`` string type of the C language.
 
 It adds memory management facilities, so that a same string can be shared in several places without the need to 
 duplicate it. Also, some strings are "interned", that is they are "persistent" allocated and specialy managed by the 
-memory manager so that they don't get destroyed across several requests.
+memory manager so that they don't get destroyed across several requests. Those later get a permanent allocation from 
+:doc:`Zend Memory Manager <../../memory_management/zend_memory_manager>`.
 
 Structure and access macros
 ---------------------------
@@ -72,6 +73,9 @@ will be destroyed at the end of the current request. If you don't do it yourself
 shout at you about a memory leak you just created.
 If you pass 1, you ask for what we called a "persistent" allocation, that is the engine will use a traditionnal C 
 ``malloc()`` call and will not track the memory allocation in any way.
+
+.. note:: If you need more information about memory management, you may read the :doc:`dedicated chapter 
+          <../../memory_management>`.
 
 Then, we display the string. We access the character array by using the ``ZSTR_VAL()`` macro. ``ZSTR_LEN()`` allows 
 access to the length information. ``zend_string`` related macros all start with ``ZSTR_**()``, beware that is not the 

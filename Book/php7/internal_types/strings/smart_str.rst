@@ -79,11 +79,12 @@ a request-bound allocation for the underlying ``zend_string``. Example::
     smart_str_appends_ex(&my_str, "Hello world", 1); /* 1 means persistent allocation */
 
 Then, depending on what you want to append, you'll use the right API call. If you append a classical C string, you can 
-use ``smart_str_appends()``. If you make use of a binary string, and thus know its length, then use 
-``smart_str_appendl()``.
+use ``smart_str_appends(smart_str *dst, const char *src)``. If you make use of a binary string, and thus know its 
+length, then use ``smart_str_appendl(smart_str *dst, const char *src, size_t len)``.
 
-The less specific ``smart_str_append()`` simply appends a ``zend_string`` to your ``smart_str`` string. And if you come 
-to play with others ``smart_str``, use ``smart_str_append_smart_str()`` to combine them together.
+The less specific ``smart_str_append(smart_str *dest, const zend_string *src)`` simply appends a ``zend_string`` to 
+your ``smart_str`` string. And if you come to play with others ``smart_str``, use 
+``smart_str_append_smart_str(smart_str *dst, const smart_str *src)`` to combine them together.
 
 smart_str specific tricks
 *************************
