@@ -38,6 +38,7 @@ This part concerns only the PHP 7 branch. It is under development.
     php7/internal_types.rst
     php7/extensions_design.rst
     php7/memory_management.rst
+    php7/zend_engine.rst
 ..
     php7/hashtables.rst
     php7/classes_objects.rst
