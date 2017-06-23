@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Running the test suite &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="next" title="The .phpt file structure" href="phpt_file_structure.html" />
+    <link rel="prev" title="Testing overview" href="overview.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Running the test suite</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="overview.html">Testing overview</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="running-the-test-suite">
+<span id="runing-the-test-suite"></span><h1>Running the test suite<a class="headerlink" href="#running-the-test-suite" title="Permalink to this headline">¶</a></h1>
+<p>Now that we have an basic understanding of what kind of testing we&#8217;re doing, let&#8217;s run the test suite. Before we can run
+the tests, make sure you have successfully built php from source (see <a class="reference internal" href="../php7/build_system/building_php.html#building-php"><span>Building PHP</span></a>) and you have an executable
+at <code class="docutils literal"><span class="pre">sapi/cli/php</span></code>.</p>
+<p>There are two ways to run the test suite.</p>
+<div class="section" id="running-tests-directly-with-run-tests-php">
+<h2>Running tests directly with <code class="docutils literal"><span class="pre">run-tests.php</span></code><a class="headerlink" href="#running-tests-directly-with-run-tests-php" title="Permalink to this headline">¶</a></h2>
+<p>You can run the test suite directly with run-tests.php. At minimum you&#8217;ll need to specify the php executable that you
+wish to test against which you can do with the <code class="docutils literal"><span class="pre">-p</span></code> flag. Note that in order to run all tests correctly this should be
+an absolute path to the PHP executable.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php -p <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sapi/cli/php
+</pre></div>
+</div>
+<p>A shortcut flag you can use to tell run-tests to test against the PHP executable that is currently invoked is by using
+the <code class="docutils literal"><span class="pre">-P</span></code> flag.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php -P
+</pre></div>
+</div>
+<p>If you don&#8217;t want to have to set the <code class="docutils literal"><span class="pre">-p</span></code> or <code class="docutils literal"><span class="pre">-P</span></code> flag every time, you could specify the php executable with the
+<code class="docutils literal"><span class="pre">TEST_PHP_EXECUTABLE</span></code> environment variable which can be set with <code class="docutils literal"><span class="pre">export</span></code> on Linux machines.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; <span class="nb">export</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
+~/php-src&gt; sapi/cli/php run-tests.php
+</pre></div>
+</div>
+<p>On Windows you can set the environment variable using <code class="docutils literal"><span class="pre">set</span></code>.</p>
+<div class="highlight-bash"><div class="highlight"><pre>C:<span class="se">\p</span>hp-src&gt; <span class="nb">set</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
+C:<span class="se">\p</span>hp-src&gt; sapi/cli/php run-tests.php
+</pre></div>
+</div>
+<p>By default <code class="docutils literal"><span class="pre">run-tests.php</span></code> will start running all 15,000+ tests in the test suite which would take forever-ever. You
+can specify a target folder of tests to run or even a single test. The following example will run all the tests
+associated with <a class="reference external" href="http://php.net/csprng">PHP 7&#8217;s CSPRNG</a>.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php -P ext/standard/tests/random
+</pre></div>
+</div>
+<p>You can also specify multiple target folders or files to run.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php -P Zend/ ext/reflection/ ext/standard/tests/array/
+</pre></div>
+</div>
+<p>Hopefully all the tests will have passed. If not... oops.</p>
+</div>
+<div class="section" id="running-tests-via-the-makefile-recommended">
+<h2>Running tests via the <code class="docutils literal"><span class="pre">Makefile</span></code> (recommended)<a class="headerlink" href="#running-tests-via-the-makefile-recommended" title="Permalink to this headline">¶</a></h2>
+<p>The recommended way of running the test suite is via the <code class="docutils literal"><span class="pre">test</span></code> target which is defined in the <code class="docutils literal"><span class="pre">Makefile</span></code>. The
+<code class="docutils literal"><span class="pre">test</span></code> target does all the hard work of specifying the PHP executable for you (the one you compiled), setting up some
+default INI settings and specifying the best run-tests flags for you. You needn&#8217;t worry about setting environment
+variables or setting additional flags so the command is very simple.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make <span class="nb">test</span>
+</pre></div>
+</div>
+<p>As before, <code class="docutils literal"><span class="pre">run-tests.php</span></code> will start running the entire test suite. To specify a folder or single test to execute you
+can pass <code class="docutils literal"><span class="pre">make</span></code> a <code class="docutils literal"><span class="pre">TESTS</span></code> variable. The following example will test that PHP can handle binary literals properly.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>Zend/tests/binary.phpt
+</pre></div>
+</div>
+<p>You can specify multiple target folders or files to run by separating each path with a space in the <code class="docutils literal"><span class="pre">TESTS</span></code> variable.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;Zend/ ext/reflection/ ext/standard/tests/array/&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="executing-tests-in-parallel">
+<h2>Executing tests in parallel<a class="headerlink" href="#executing-tests-in-parallel" title="Permalink to this headline">¶</a></h2>
+<p>You can&#8217;t.</p>
+</div>
+<div class="section" id="more-options">
+<h2>More options<a class="headerlink" href="#more-options" title="Permalink to this headline">¶</a></h2>
+<p>For a full list of supported options that run-tests supports, just run it with <code class="docutils literal"><span class="pre">--help</span></code>.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php --help
+</pre></div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="overview.html">Testing overview</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

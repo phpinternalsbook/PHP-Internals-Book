@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Memory management &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="next" title="Zend Memory Manager" href="memory_management/zend_memory_manager.html" />
+    <link rel="prev" title="Registering and using PHP functions" href="extensions_design/php_functions.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Memory management</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="extensions_design/php_functions.html">Registering and using PHP functions</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="memory_management/zend_memory_manager.html">Zend Memory Manager</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="memory-management">
+<h1>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h1>
+<p>C programmers usually have to deal with memory by hand. With dynamic memory, the programmer allocates memory when
+needing and frees it when finished. Failing to free dynamic memory leads to a &#8220;memory leak&#8221;, which may or may not be a
+bad thing. In the case of PHP, as the process could live for a virtually infinite amount of time, creating a memory leak
+will be dramatic. In any situation, leaking memory really translates to poorly and badly designed programs that cannot
+be trusted.
+Memory leaking is easy to understand. You ask the OS to book some part of the main machine memory for you, but you never
+tell it to release it back for other processes usage : you are not alone on the machine, other processes need some
+memory, and the OS itself as well.</p>
+<p>Also, in C, memory areas are clearly bound. Reading or writing before or after the bounds is a very nasty operation.
+That will lead for sure to a crash, or worse an exploitable security issue. There are no magical things like
+auto-resizeable areas with the C language. You must clearly tell the machine (and the CPU) what you want it to do. No
+guess, no magic, no automation of any kind (like garbage collection).</p>
+<p>PHP&#8217;s got a very specific memory model, and provides its own layer over the traditionnal libc&#8217;s dynamic memory
+allocator. This layer is called <strong>Zend Memory Manager</strong>.</p>
+<p>This chapter explains you what Zend Memory Manager is, how you must use it, and what you must/must not do with it.
+After that, we&#8217;ll quickly introduce you to specific tools used in the C area to debug dynamic memory.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you need, please get some (possibly strong) knowledge about C memory allocation classes (static vs
+dynamic memory), and about libc&#8217;s allocator.</p>
+</div>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="memory_management/zend_memory_manager.html">Zend Memory Manager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/zend_memory_manager.html#the-two-main-kind-of-dynamic-memory-pools-in-php">The two main kind of dynamic memory pools in PHP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/zend_memory_manager.html#zend-memory-manager-api">Zend Memory Manager API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/zend_memory_manager.html#zend-memory-manager-debugging-shields">Zend Memory Manager debugging shields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/zend_memory_manager.html#zendmm-internal-design">ZendMM internal design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/zend_memory_manager.html#common-errors-and-mistakes">Common errors and mistakes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory_management/memory_debugging.html">Debugging memory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/memory_debugging.html#a-quick-note-about-valgrind">A quick note about valgrind</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/memory_debugging.html#before-starting">Before starting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/memory_debugging.html#memory-leak-detection-example">Memory leak detection example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/memory_debugging.html#buffer-overflow-underflow-detection">Buffer overflow/underflow detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="memory_management/memory_debugging.html#conclusions">Conclusions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="extensions_design/php_functions.html">Registering and using PHP functions</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="memory_management/zend_memory_manager.html">Zend Memory Manager</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

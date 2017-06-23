@@ -28,14 +28,17 @@ PHP 5
 PHP 7
 -----
 
-This book is currently being updated for PHP 7. Check back soon...
+This part concerns only the PHP 7 branch. It is under development.
 
-.. toctree
-    :maxdepth: 2
+.. toctree::
+    :maxdepth: 3
 
-    php7/zvals.rst
-    php7/zend_strings.rst
-
+    php7/introduction.rst
+    php7/build_system.rst
+    php7/internal_types.rst
+    php7/extensions_design.rst
+    php7/memory_management.rst
+    php7/zend_engine.rst
 ..
     php7/hashtables.rst
     php7/classes_objects.rst
@@ -51,6 +54,20 @@ This book is currently being updated for PHP 7. Check back soon...
     php7/sapis.rst
     php7/zend_engine.rst
     php7/final.rst
+
+Testing PHP Source
+------------------
+
+Writing tests applies to both PHP 5 & PHP 7.
+
+.. toctree::
+    :maxdepth: 3
+
+    tests/introduction.rst
+    tests/overview.rst
+    tests/running_the_test_suite.rst
+    tests/phpt_file_structure.rst
+    tests/examining_failed_test_output.rst
 
 Index and search
 ================

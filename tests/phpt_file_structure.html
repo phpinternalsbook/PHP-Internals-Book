@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The .phpt file structure &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="next" title="Examining failed test output" href="examining_failed_test_output.html" />
+    <link rel="prev" title="Running the test suite" href="running_the_test_suite.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>The .phpt file structure</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="running_the_test_suite.html">Running the test suite</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="examining_failed_test_output.html">Examining failed test output</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="the-phpt-file-structure">
+<span id="phpt-file-structure"></span><h1>The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure<a class="headerlink" href="#the-phpt-file-structure" title="Permalink to this headline">¶</a></h1>
+<p>Now that we know how to run the tests with run-tests, let&#8217;s dive into a phpt file in more detail. A phpt file is just a
+normal PHP file but it contains a number of different sections which run-tests supports.</p>
+<div class="section" id="a-basic-test-example">
+<h2>A basic test example<a class="headerlink" href="#a-basic-test-example" title="Permalink to this headline">¶</a></h2>
+<p>Here&#8217;s a basic example of a PHP source test that tests the <code class="docutils literal"><span class="pre">echo</span></code> construct.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">TEST</span><span class="o">--</span>
+<span class="k">echo</span> <span class="o">-</span> <span class="nx">basic</span> <span class="nx">test</span> <span class="k">for</span> <span class="k">echo</span> <span class="nx">language</span> <span class="nx">construct</span>
+<span class="o">--</span><span class="nx">FILE</span><span class="o">--</span>
+<span class="o">&lt;?</span><span class="nx">php</span>
+<span class="k">echo</span> <span class="s1">&#39;This works &#39;</span><span class="p">,</span> <span class="s1">&#39;and takes args!&#39;</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+<span class="x">--EXPECT--</span>
+<span class="x">This works and takes args!</span>
+</pre></div>
+</div>
+<p>Did you know that <a class="reference external" href="http://php.net/manual/en/function.echo.php">echo can take a list of arguments</a>? Well you do now.</p>
+<p>There are <a class="reference external" href="http://qa.php.net/phpt_details.php">many more sections</a> that are available to us in a phpt file, but these three are the bare-minimum required.
+The <code class="docutils literal"><span class="pre">--EXPECT--</span></code> section has a few variations but we&#8217;ll get into describing the sections in just a bit.</p>
+<p>Notice that of the three sections, we have everything we need to run a black-box test. We have a name for the test, a
+bit of code and the expected output. Again, black-box testing doesn&#8217;t care <em>how</em> the code runs, it only concerns itself
+with the end result.</p>
+</div>
+<div class="section" id="some-notable-sections">
+<h2>Some notable sections<a class="headerlink" href="#some-notable-sections" title="Permalink to this headline">¶</a></h2>
+<p>Now that we&#8217;ve seen the three required sections for every  <code class="docutils literal"><span class="pre">.phpt</span></code> file let&#8217;s take a look a few other common sections
+we&#8217;ll no doubt encounter.</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">--TEST--</span></code> <span class="classifier-delimiter">:</span> <span class="classifier">The name of the test</span></dt>
+<dd><p class="first">The <a class="reference external" href="http://qa.php.net/phpt_details.php#test_section">&#8211;TEST&#8211; section</a> just describes the test (for humans) in one line. This will be displayed in the console when
+the test is run, so it&#8217;s good to be descriptive but not overly verbose. If your test needs a longer description, add
+a <a class="reference external" href="http://qa.php.net/phpt_details.php#description_section">&#8211;DESCRIPTION&#8211; section</a>.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">TEST</span><span class="o">--</span>
+<span class="nb">json_decode</span><span class="p">()</span> <span class="nx">with</span> <span class="nx">large</span> <span class="nx">integers</span>
+</pre></div>
+</div>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">--TEST--</span></code> section must be the very first line of the phpt file. Otherwise run-tests will not
+consider it to be a valid test file and mark the test as &#8220;borked&#8221;.</p>
+</div>
+</dd>
+<dt><code class="docutils literal"><span class="pre">--FILE--</span></code> <span class="classifier-delimiter">:</span> <span class="classifier">The PHP code to run</span></dt>
+<dd><p class="first">The <a class="reference external" href="http://qa.php.net/phpt_details.php#file_section">&#8211;FILE&#8211; section</a> is the PHP code that we want to test. In our above example we&#8217;re making sure the <code class="docutils literal"><span class="pre">echo</span></code>
+construct can take a list of arguments and concatenate them into standard out.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">FILE</span><span class="o">--</span>
+<span class="o">&lt;?</span><span class="nx">php</span>
+<span class="nv">$json</span> <span class="o">=</span> <span class="s1">&#39;{&quot;largenum&quot;:123456789012345678901234567890}&#39;</span><span class="p">;</span>
+<span class="nv">$x</span> <span class="o">=</span> <span class="nb">json_decode</span><span class="p">(</span><span class="nv">$json</span><span class="p">);</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$x</span><span class="o">-&gt;</span><span class="na">largenum</span><span class="p">);</span>
+<span class="nv">$x</span> <span class="o">=</span> <span class="nb">json_decode</span><span class="p">(</span><span class="nv">$json</span><span class="p">,</span> <span class="k">false</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="nx">JSON_BIGINT_AS_STRING</span><span class="p">);</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$x</span><span class="o">-&gt;</span><span class="na">largenum</span><span class="p">);</span>
+<span class="k">echo</span> <span class="s2">&quot;Done</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+</div>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Although it is considered a best-practice to leave off the closing PHP tag (<code class="docutils literal"><span class="pre">?&gt;</span></code>) in userland, this is
+not the case with a phpt file. If you leave off the closing PHP tag, run-tests will have no trouble
+running your test, but your test will no longer be able to run as a normal PHP file. It will also make
+your IDE go bonkers. So always remember to include the closing PHP tag in every <code class="docutils literal"><span class="pre">--FILE--</span></code> section.</p>
+</div>
+</dd>
+<dt><code class="docutils literal"><span class="pre">--EXPECT--</span></code> <span class="classifier-delimiter">:</span> <span class="classifier">The expected output</span></dt>
+<dd><p class="first">The <a class="reference external" href="http://qa.php.net/phpt_details.php#expect_section">&#8211;EXPECT&#8211; section</a> contains exactly what we would expect to see from standard output. If you&#8217;re expecting
+fancy assertions like you get in <a class="reference external" href="https://phpunit.de/">PHPUnit</a>, you won&#8217;t get any here. Remember, these are <em>`functional tests`_</em> so we
+just examine the output after providing inputs.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">EXPECT</span><span class="o">--</span>
+<span class="nx">float</span><span class="p">(</span><span class="mf">1.2345678901235E+29</span><span class="p">)</span>
+<span class="nx">string</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="s2">&quot;123456789012345678901234567890&quot;</span>
+<span class="nx">Done</span>
+</pre></div>
+</div>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Trailing new lines are trimmed off by run-tests for both the expected and actual output so you don&#8217;t have
+to worry about adding or removing trailing new lines at the end of the <code class="docutils literal"><span class="pre">--EXPECT--</span></code> section.</p>
+</div>
+</dd>
+<dt><code class="docutils literal"><span class="pre">--EXPECTF--</span></code> <span class="classifier-delimiter">:</span> <span class="classifier">The expected output with substitution</span></dt>
+<dd><p class="first">Because the tests need to run on a multitude of environments, we often times may not know what the actual output
+of a script will be. Or perhaps the functionality that your testing is nondeterministic. For this use case we have
+the <a class="reference external" href="http://qa.php.net/phpt_details.php#expectf_section">&#8211;EXPECTF&#8211; section</a> which allows us to substitute sections of output with substitution characters much
+like the <a class="reference external" href="http://php.net/sprintf">sprintf() function</a> in PHP.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">EXPECTF</span><span class="o">--</span>
+<span class="nx">string</span><span class="p">(</span><span class="o">%</span><span class="nx">d</span><span class="p">)</span> <span class="s2">&quot;%s&quot;</span>
+<span class="nx">Done</span>
+</pre></div>
+</div>
+<p>This is particularly handy when creating error-case tests that output the absolute path to the PHP file; something
+that would vary from environment to environment.</p>
+<p>Below is an abbreviated error-case example taken from <a class="reference external" href="https://github.com/php/php-src/blob/master/ext/standard/tests/password/password_bcrypt_errors.phpt">a real test</a> of the <a class="reference external" href="http://php.net/password">password hashing functions</a> which
+makes use of the <code class="docutils literal"><span class="pre">--EXPECTF--</span></code> section.</p>
+<div class="last highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">TEST</span><span class="o">--</span>
+<span class="nx">Test</span> <span class="nx">error</span> <span class="nx">operation</span> <span class="nx">of</span> <span class="nb">password_hash</span><span class="p">()</span> <span class="nx">with</span> <span class="nx">bcrypt</span> <span class="nx">hashing</span>
+<span class="o">--</span><span class="nx">FILE</span><span class="o">--</span>
+<span class="o">&lt;?</span><span class="nx">php</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nb">password_hash</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">PASSWORD_BCRYPT</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span><span class="s2">&quot;cost&quot;</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">)));</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+<span class="x">--EXPECTF--</span>
+<span class="x">Warning: password_hash(): Invalid bcrypt cost parameter specified: 3 in %s on line %d</span>
+<span class="x">NULL</span>
+</pre></div>
+</div>
+</dd>
+<dt><code class="docutils literal"><span class="pre">--SKIPIF--</span></code> <span class="classifier-delimiter">:</span> <span class="classifier">Conditions that a test should be skipped</span></dt>
+<dd><p class="first">Since PHP can be configured with myriad options, the build of PHP that you&#8217;re running might not be compiled with the
+required dependencies that are needed to run a test. The case where this is most common is the extension tests.</p>
+<p>If a test needs an extension installed in order to run the test will have a <a class="reference external" href="http://qa.php.net/phpt_details.php#skipif_section">&#8211;SKIPIF&#8211; section</a> which checks that
+the extension is indeed installed.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">SKIPIF</span><span class="o">--</span>
+<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">extension_loaded</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">))</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;skip ext/json must be installed&#39;</span><span class="p">);</span> <span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+</div>
+<p>Any tests that meet the <code class="docutils literal"><span class="pre">--SKIPIF--</span></code> condition will be marked as &#8220;skipped&#8221; by run-tests and continue on to the
+next test in the queue. Any text after the word &#8220;skip&#8221; will be returned in the output when you run the test from
+run-tests as the reason why the test was skipped.</p>
+<p>Many of the tests will halt the script execution with <a class="reference external" href="http://php.net/die">die()</a> or <a class="reference external" href="http://php.net/exit">exit()</a> if the <code class="docutils literal"><span class="pre">--SKIPIF--</span></code> condition is met
+as in the example above. It is important to understand that just because you <code class="docutils literal"><span class="pre">die()</span></code> in a <code class="docutils literal"><span class="pre">--SKIPIF--</span></code> section,
+that does not mean run-tests will skip your test. Run-tests simply examines the output of <code class="docutils literal"><span class="pre">--SKIPIF--</span></code> and looks
+for the word &#8220;skip&#8221; as the first four characters. If the first word is not &#8220;skip&#8221;, the test will not be skipped.</p>
+<p>In fact, you don&#8217;t have to halt execution at all as long as &#8220;skip&#8221; is the first word of the output.</p>
+<p>The following example will skip a test. Note how we didn&#8217;t halt the script execution.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">SKIPIF</span><span class="o">--</span>
+<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">extension_loaded</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">))</span> <span class="k">echo</span> <span class="s1">&#39;skip&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+</div>
+<p>By contrast, examine the following example. Notice how it halts script execution but since the word &#8220;skip&#8221; isn&#8217;t the
+the first word in the output, run-tests will still happily run the test without skipping it.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">SKIPIF</span><span class="o">--</span>
+<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">extension_loaded</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">))</span> <span class="k">exit</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+</div>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Although it is not required to halt script execution in the <code class="docutils literal"><span class="pre">--SKIPIF--</span></code> section, it is always highly
+recommended so that you can still run the phpt file as a normal php file and see a nice message like &#8220;skip
+ext/json must be installed&#8221; instead of getting a ton of random errors.</p>
+</div>
+</dd>
+<dt><code class="docutils literal"><span class="pre">--INI--</span></code></dt>
+<dd><p class="first">Sometimes tests rely on having very specific INI settings set. In this case you can define any INI settings with the
+<a class="reference external" href="http://qa.php.net/phpt_details.php#ini_section">&#8211;INI&#8211; section</a>. Each INI setting is place on a new line within the section.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">INI</span><span class="o">--</span>
+<span class="nb">date</span><span class="o">.</span><span class="nx">timezone</span><span class="o">=</span><span class="nx">America</span><span class="o">/</span><span class="nx">Chicago</span>
+</pre></div>
+</div>
+<p class="last">Run-tests does all the magic involved with setting the INI configuration for you.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="writing-a-simple-test">
+<h2>Writing a simple test<a class="headerlink" href="#writing-a-simple-test" title="Permalink to this headline">¶</a></h2>
+<p>Let&#8217;s write our first test just to get familiar with the process.</p>
+<p>Typically tests are stored in a <code class="docutils literal"><span class="pre">tests/</span></code> directory that lives near the code we want to test. For example, the <a class="reference external" href="http://php.net/pdo">PDO
+extension</a> is found at <code class="docutils literal"><span class="pre">ext/pdo</span></code> in the PHP source code. If you open that directory, you&#8217;ll see a <a class="reference external" href="https://github.com/php/php-src/tree/master/ext/pdo/tests">tests/ directory</a>
+with lots of <code class="docutils literal"><span class="pre">.phpt</span></code> files in it. All the other extensions are set up the same way. There are also tests for the Zend
+engine which are located in <a class="reference external" href="https://github.com/php/php-src/tree/master/Zend/tests">Zend/tests/</a>.</p>
+<p>For this example, we&#8217;ll just temporarily create a test in the root <code class="docutils literal"><span class="pre">php-src</span></code> directory. Create and open a new file
+with your favorite editor.</p>
+<div class="highlight-bash"><div class="highlight"><pre>$ vi echo_basic.phpt
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you&#8217;ve never used vim before, you&#8217;ll probably be stuck after running the command above. Just press
+<code class="docutils literal"><span class="pre">&lt;esc&gt;</span></code> a bunch of times and then type <code class="docutils literal"><span class="pre">:q!</span></code> and it should poop you back out to the terminal. You can just
+use your favorite editor for this part instead of vim. And then when you get an extra second later on, <a class="reference external" href="https://www.google.com/search?q=learn+vim">learn
+vim</a>.</p>
+</div>
+<p>Now copy and paste the example test from above into the new test file. Here&#8217;s the test file again to save you some
+scrolling around.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">--</span><span class="nx">TEST</span><span class="o">--</span>
+<span class="k">echo</span> <span class="o">-</span> <span class="nx">basic</span> <span class="nx">test</span> <span class="k">for</span> <span class="k">echo</span> <span class="nx">language</span> <span class="nx">construct</span>
+<span class="o">--</span><span class="nx">FILE</span><span class="o">--</span>
+<span class="o">&lt;?</span><span class="nx">php</span>
+<span class="k">echo</span> <span class="s1">&#39;This works &#39;</span><span class="p">,</span> <span class="s1">&#39;and takes args!&#39;</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+<span class="x">--EXPECT--</span>
+<span class="x">This works and takes args!</span>
+</pre></div>
+</div>
+<p>After you save the file as <code class="docutils literal"><span class="pre">echo_basic.phpt</span></code> in the root of the PHP source code and exit your editor, run the example
+test with make.</p>
+<div class="highlight-bash"><div class="highlight"><pre>$ make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>echo_basic.phpt
+</pre></div>
+</div>
+<p>If everything worked, you&#8217;ll see the following passing test summary.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="o">=====================================================================</span>
+Running selected tests.
+PASS <span class="nb">echo</span> - basic <span class="nb">test</span> <span class="k">for</span> <span class="nb">echo</span> language construct <span class="o">[</span>echo_basic.phpt<span class="o">]</span>
+<span class="o">=====================================================================</span>
+Number of tests :    <span class="m">1</span>                 1
+Tests skipped   :    <span class="m">0</span> <span class="o">(</span>  0.0%<span class="o">)</span> --------
+Tests warned    :    <span class="m">0</span> <span class="o">(</span>  0.0%<span class="o">)</span> <span class="o">(</span>  0.0%<span class="o">)</span>
+Tests failed    :    <span class="m">0</span> <span class="o">(</span>  0.0%<span class="o">)</span> <span class="o">(</span>  0.0%<span class="o">)</span>
+Expected fail   :    <span class="m">0</span> <span class="o">(</span>  0.0%<span class="o">)</span> <span class="o">(</span>  0.0%<span class="o">)</span>
+Tests passed    :    <span class="m">1</span> <span class="o">(</span>100.0%<span class="o">)</span> <span class="o">(</span>100.0%<span class="o">)</span>
+---------------------------------------------------------------------
+Time taken      :    <span class="m">0</span> <span class="nv">seconds</span>
+<span class="o">=====================================================================</span>
+</pre></div>
+</div>
+<p>Notice how text from the <code class="docutils literal"><span class="pre">--TEST--</span></code> section of the test is being displayed in the console:</p>
+<div class="highlight-bash"><div class="highlight"><pre>PASS <span class="nb">echo</span> - basic <span class="nb">test</span> <span class="k">for</span> <span class="nb">echo</span> language construct <span class="o">[</span>echo_basic.phpt<span class="o">]</span>
+</pre></div>
+</div>
+<p>To illustrate the point that black-box testing only cares about the output, let&#8217;s change the PHP code in the
+<code class="docutils literal"><span class="pre">--FILE--</span></code> section and keep everything else the same.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+<span class="k">const</span> <span class="no">BANG</span> <span class="o">=</span> <span class="s1">&#39;!&#39;</span><span class="p">;</span>
+<span class="k">class</span> <span class="nc">works</span> <span class="p">{}</span>
+<span class="k">echo</span> <span class="nb">sprintf</span><span class="p">(</span><span class="s1">&#39;This %s and takes args%s&#39;</span><span class="p">,</span> <span class="nx">works</span><span class="o">::</span><span class="na">class</span><span class="p">,</span> <span class="nx">BANG</span><span class="p">);</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+</div>
+<p>Now let&#8217;s run the test again.</p>
+<div class="highlight-bash"><div class="highlight"><pre>$ make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>echo_basic.phpt
+</pre></div>
+</div>
+<p>The test should still pass because the expected output is still the same as it was before. Let&#8217;s try another example.
+Replace the PHP code in the <code class="docutils literal"><span class="pre">--FILE--</span></code> section of the test with the following code and then run the test again.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+<span class="nv">$url</span> <span class="o">=</span> <span class="s1">&#39;https://gist.githubusercontent.com/SammyK/9c7bf6acdc5bcaa2cfbb404adc61abe6/&#39;</span><span class="p">;</span>
+<span class="nv">$url</span> <span class="o">.=</span> <span class="s1">&#39;raw/04af30473fc78033f7d8941ecd567934b0f804c0/foo-phpt-output.txt&#39;</span><span class="p">;</span>
+<span class="k">echo</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+</div>
+<p>Although this one looks obscure, I set up a <a class="reference external" href="https://gist.githubusercontent.com/SammyK/9c7bf6acdc5bcaa2cfbb404adc61abe6/raw/04af30473fc78033f7d8941ecd567934b0f804c0/foo-phpt-output.txt">Gist with the expected output</a> and we&#8217;re just dumping the body of an HTTP
+request to that Gist. Unless there are network connection issues or if the gist gets deleted, this will produce the same
+output as the other bits of code and the test will still pass. This will fail if you don&#8217;t have the <a class="reference external" href="http://php.net/openssl">ext/openssl</a>
+extension installed since the Gist is behind https.</p>
+<p>Let&#8217;s try one more example. Replace the PHP code in the <code class="docutils literal"><span class="pre">--FILE--</span></code> section with the following.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+<span class="nb">ob_start</span><span class="p">();</span>
+
+<span class="k">echo</span> <span class="s1">&#39;and &#39;</span><span class="p">;</span>
+<span class="nb">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="k">echo</span> <span class="s1">&#39;takes &#39;</span><span class="p">;</span>
+<span class="nb">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="k">echo</span> <span class="s1">&#39;args!&#39;</span><span class="p">;</span>
+
+<span class="nv">$foo</span> <span class="o">=</span> <span class="nb">ob_get_contents</span><span class="p">();</span>
+<span class="nb">ob_clean</span><span class="p">();</span>
+
+<span class="k">echo</span> <span class="s1">&#39;This works &#39;</span><span class="p">;</span>
+<span class="nb">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="k">echo</span> <span class="nv">$foo</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+</div>
+<p>Crazy, right? This will take a few seconds just to output a simple string and you&#8217;d never do this in real life, but the
+test will still pass. Run-tests does not care that that your code is slow <a class="footnote-reference" href="#id2" id="id1">[1]</a> or inefficient or just terrible, if the
+expected output matches the actual output, your test will be in the green.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><strong>Timeouts:</strong> The default timeout for run-tests is 60 seconds (or 300 seconds when testing for memory leaks) but you can specify a different timeout using the <code class="docutils literal"><span class="pre">--set-timeout</span></code> flag.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="running_the_test_suite.html">Running the test suite</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="examining_failed_test_output.html">Examining failed test output</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

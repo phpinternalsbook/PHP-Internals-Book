@@ -1,0 +1,520 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Building PHP &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../../index.html" />
+    <link rel="up" title="Using the PHP build system" href="../build_system.html" />
+    <link rel="next" title="Building PHP extensions" href="building_extensions.html" />
+    <link rel="prev" title="Using the PHP build system" href="../build_system.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Building PHP</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="../build_system.html">Using the PHP build system</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="building_extensions.html">Building PHP extensions</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="building-php">
+<span id="id1"></span><h1>Building PHP<a class="headerlink" href="#building-php" title="Permalink to this headline">¶</a></h1>
+<p>This chapter explains how you can compile PHP in a way that is suitable for development of extensions or core
+modifications. We will only cover builds on Unixoid systems. If you wish to build PHP on Windows, you should take a look
+at the <a class="reference external" href="https://wiki.php.net/internals/windows/stepbystepbuild">step-by-step build instructions</a> in the PHP wiki <a class="footnote-reference" href="#id4" id="id2">[1]</a>.</p>
+<p>This chapter also provides an overview of how the PHP build system works and which tools it uses, but a detailed
+description is outside the scope of this book.</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>Disclaimer: We are not liable for any adverse health effects caused by the attempt to compile PHP on Windows.</td></tr>
+</tbody>
+</table>
+<div class="section" id="why-not-use-packages">
+<h2>Why not use packages?<a class="headerlink" href="#why-not-use-packages" title="Permalink to this headline">¶</a></h2>
+<p>If you are currently using PHP, you likely installed it through your package manager, using a command like
+<code class="docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">php</span></code>. Before explaining the actual compilation you should first understand why doing your own
+compile is necessary and you can&#8217;t just use a prebuilt package. There are multiple reasons for this:</p>
+<p>Firstly, the prebuilt package only contains the resulting binaries, but misses other things that are necessary to
+compile extensions, e.g. header files. This can be easily remedied by installing a development package, which is
+typically called <code class="docutils literal"><span class="pre">php-dev</span></code>. To facilitate debugging with valgrind or gdb one could additionally install debug symbols,
+which are usually available as another package called <code class="docutils literal"><span class="pre">php-dbg</span></code>.</p>
+<p>But even if you install headers and debug symbols, you&#8217;ll still be working with a release build of PHP. This means that
+it will be built with high optimization level, which can make debugging very hard. Furthermore release builds will not
+generate warnings about memory leaks or inconsistent data structures. Additionally prebuilt packages don&#8217;t enable thread
+safety, which is very helpful during development.</p>
+<p>Another issue is that nearly all distributions apply additional patches to PHP. In some cases these patches only
+contain minor changes related to configuration, but some distributions make use of highly intrusive patches like
+Suhosin. Some of these patches are known to introduce incompatibilities with low-level extensions like opcache.</p>
+<p>PHP only provides support for the software as provided on <a class="reference external" href="http://www.php.net">php.net</a> and not for the distribution-modified versions. If
+you want to report bugs, submit patches or make use of our help channels for extension-writing, you should always work
+against the official PHP version. When we talk about &#8220;PHP&#8221; in this book, we&#8217;re always referring to the officially
+supported version.</p>
+</div>
+<div class="section" id="obtaining-the-source-code">
+<h2>Obtaining the source code<a class="headerlink" href="#obtaining-the-source-code" title="Permalink to this headline">¶</a></h2>
+<p>Before you can build PHP you first need to obtain its source code. There are two ways to do this: You can either
+download an archive from <a class="reference external" href="http://www.php.net/downloads.php">PHP&#8217;s download page</a> or clone the git repository from <a class="reference external" href="http://git.php.net">git.php.net</a> (or the mirror on
+<a class="reference external" href="http://www.github.com/php/php-src">Github</a>).</p>
+<p>The build process is slightly different for both cases: The git repository doesn&#8217;t bundle a <code class="docutils literal"><span class="pre">configure</span></code> script, so
+you&#8217;ll need to generate it using the <code class="docutils literal"><span class="pre">buildconf</span></code> script, which makes use of autoconf. Furthermore the git repository
+does not contain a pregenerated parser, so you&#8217;ll also need to have bison installed.</p>
+<p>We recommend to checkout out the source code from git, because this will provide you with an easy way to keep your
+installation updated and to try your code with different versions. A git checkout is also required if you want to
+submit patches or pull requests for PHP.</p>
+<p>To clone the repository, run the following commands in your shell:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~&gt; git clone http://git.php.net/repository/php-src.git
+~&gt; <span class="nb">cd</span> php-src
+<span class="c1"># by default you will be on the master branch, which is the current</span>
+<span class="c1"># development version. You can check out a stable branch instead:</span>
+~/php-src&gt; git checkout PHP-7.0
+</pre></div>
+</div>
+<p>If you have issues with the git checkout, take a look at the <a class="reference external" href="https://wiki.php.net/vcs/gitfaq">Git FAQ</a> on the PHP wiki. The Git FAQ also explains how
+to setup git if you want to contribute to PHP itself. Furthermore it contains instructions on setting up multiple
+working directories for different PHP versions. This can be very useful if you need to test your extensions or changes
+against multiple PHP versions and configurations.</p>
+<p>Before continuing you should also install some basic build dependencies with your package manager (you&#8217;ll likely already
+have the first three installed by default):</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">gcc</span></code> or some other compiler suite.</li>
+<li><code class="docutils literal"><span class="pre">libc-dev</span></code>, which provides the C standard library, including headers.</li>
+<li><code class="docutils literal"><span class="pre">make</span></code>, which is the build-management tool PHP uses.</li>
+<li><code class="docutils literal"><span class="pre">autoconf</span></code> (2.59 or higher), which is used to generate the <code class="docutils literal"><span class="pre">configure</span></code> script.</li>
+<li><code class="docutils literal"><span class="pre">automake</span></code> (1.4 or higher), which generates <code class="docutils literal"><span class="pre">Makefile.in</span></code> files.</li>
+<li><code class="docutils literal"><span class="pre">libtool</span></code>, which helps manage shared libraries.</li>
+<li><code class="docutils literal"><span class="pre">bison</span></code> (2.4 or higher), which is used to generate the PHP parser.</li>
+<li>(optional) <code class="docutils literal"><span class="pre">re2c</span></code>, which is used to generate the PHP lexer. As the git repository already contains a generated
+lexer you will only need re2c if you wish to make changes to it.</li>
+</ul>
+<p>On Debian/Ubuntu you can install all these with the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sudo apt-get install build-essential autoconf automake libtool bison re2c
+</pre></div>
+</div>
+<p>Depending on the extensions that you enable during the <code class="docutils literal"><span class="pre">./configure</span></code> stage PHP will need a number of additional
+libraries. When installing these, check if there is a version of the package ending in <code class="docutils literal"><span class="pre">-dev</span></code> or <code class="docutils literal"><span class="pre">-devel</span></code> and
+install them instead. The packages without <code class="docutils literal"><span class="pre">dev</span></code> typically do not contain necessary header files. For example a
+default PHP build will require libxml, which you can install via the <code class="docutils literal"><span class="pre">libxml2-dev</span></code> package.</p>
+<p>If you are using Debian or Ubuntu you can use <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">build-dep</span> <span class="pre">php7</span></code> to install a large number of optional
+build-dependencies in one go. If you are only aiming for a default build, many of them will not be necessary though.</p>
+</div>
+<div class="section" id="build-overview">
+<h2>Build overview<a class="headerlink" href="#build-overview" title="Permalink to this headline">¶</a></h2>
+<p>Before taking a closer look at what the individual build steps do, here are the commands you need to execute for a
+&#8220;default&#8221; PHP build:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; ./buildconf     <span class="c1"># only necessary if building from git</span>
+~/php-src&gt; ./configure
+~/php-src&gt; make -jN
+</pre></div>
+</div>
+<p>For a fast build, replace <code class="docutils literal"><span class="pre">N</span></code> with the number of CPU cores you have available (see <code class="docutils literal"><span class="pre">grep</span> <span class="pre">&quot;cpu</span> <span class="pre">cores&quot;</span> <span class="pre">/proc/cpuinfo</span></code>).</p>
+<p>By default PHP will build binaries for the CLI and CGI SAPIs, which will be located at <code class="docutils literal"><span class="pre">sapi/cli/php</span></code> and
+<code class="docutils literal"><span class="pre">sapi/cgi/php-cgi</span></code> respectively. To check that everything went well, try running <code class="docutils literal"><span class="pre">sapi/cli/php</span> <span class="pre">-v</span></code>.</p>
+<p>Additionally you can run <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">make</span> <span class="pre">install</span></code> to install PHP into <code class="docutils literal"><span class="pre">/usr/local</span></code>. The target directory can be changed
+by specifying a <code class="docutils literal"><span class="pre">--prefix</span></code> in the configuration stage:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; ./configure --prefix<span class="o">=</span>$HOME/myphp
+~/php-src&gt; make -jN
+~/php-src&gt; make install
+</pre></div>
+</div>
+<p>Here <code class="docutils literal"><span class="pre">$HOME/myphp</span></code> is the installation location that will be used during the <code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code> step. Note that
+installing PHP is not necessary, but can be convenient if you want to use your PHP build outside of extension
+development.</p>
+<p>Now lets take a closer look at the individual build steps!</p>
+</div>
+<div class="section" id="the-buildconf-script">
+<h2>The <code class="docutils literal"><span class="pre">./buildconf</span></code> script<a class="headerlink" href="#the-buildconf-script" title="Permalink to this headline">¶</a></h2>
+<p>If you are building from the git repository, the first thing you&#8217;ll have to do is run the <code class="docutils literal"><span class="pre">./buildconf</span></code> script. This
+script does little more than invoking the <code class="docutils literal"><span class="pre">build/build.mk</span></code> makefile, which in turn calls <code class="docutils literal"><span class="pre">build/build2.mk</span></code>.</p>
+<p>The main job of these makefiles is to run <code class="docutils literal"><span class="pre">autoconf</span></code> to generate the <code class="docutils literal"><span class="pre">./configure</span></code> script and <code class="docutils literal"><span class="pre">autoheader</span></code> to
+generate the <code class="docutils literal"><span class="pre">main/php_config.h.in</span></code> template. The latter file will be used by configure to generate the final
+configuration header file <code class="docutils literal"><span class="pre">main/php_config.h</span></code>.</p>
+<p>Both utilities produce their results from the <code class="docutils literal"><span class="pre">configure.in</span></code> file (which specifies most of the PHP build process),
+the <code class="docutils literal"><span class="pre">acinclude.m4</span></code> file (which specifies a large number of PHP-specific M4 macros) and the <code class="docutils literal"><span class="pre">config.m4</span></code> files of
+individual extensions and SAPIs (as well as a bunch of other <code class="docutils literal"><span class="pre">m4</span></code> files).</p>
+<p>The good news is that writing extensions or even doing core modifications will not require much interaction with the
+build system. You will have to write small <code class="docutils literal"><span class="pre">config.m4</span></code> files later on, but those usually just use two or three of the
+high-level macros that <code class="docutils literal"><span class="pre">acinclude.m4</span></code> provides. As such we will not go into further detail here.</p>
+<p>The <code class="docutils literal"><span class="pre">./buildconf</span></code> script only has two options: <code class="docutils literal"><span class="pre">--debug</span></code> will disable warning suppression when calling autoconf and
+autoheader. Unless you want to work on the buildsystem, this option will be of little interest to you.</p>
+<p>The second option is <code class="docutils literal"><span class="pre">--force</span></code>, which will allow running <code class="docutils literal"><span class="pre">./buildconf</span></code> in release packages (e.g. if you downloaded
+the packaged source code and want to generate a new <code class="docutils literal"><span class="pre">./configure</span></code>) and additionally clear the configuration caches
+<code class="docutils literal"><span class="pre">config.cache</span></code> and <code class="docutils literal"><span class="pre">autom4te.cache/</span></code>.</p>
+<p>If you update your git repository using <code class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span></code> (or some other command) and get weird errors during the <code class="docutils literal"><span class="pre">make</span></code>
+step, this usually means that something in the build configuration changed and you need to run <code class="docutils literal"><span class="pre">./buildconf</span> <span class="pre">--force</span></code>.</p>
+</div>
+<div class="section" id="the-configure-script">
+<h2>The <code class="docutils literal"><span class="pre">./configure</span></code> script<a class="headerlink" href="#the-configure-script" title="Permalink to this headline">¶</a></h2>
+<p>Once the <code class="docutils literal"><span class="pre">./configure</span></code> script is generated you can make use of it to customize your PHP build. You can list all
+supported options using <code class="docutils literal"><span class="pre">--help</span></code>:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; ./configure --help <span class="p">|</span> less
+</pre></div>
+</div>
+<p>The first part of the help will list various generic options, which are supported by all autoconf-based configuration
+scripts. One of them is the already mentioned <code class="docutils literal"><span class="pre">--prefix=DIR</span></code>, which changes the installation directory used by
+<code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code>. Another useful option is <code class="docutils literal"><span class="pre">-C</span></code>, which will cache the result of various tests in the <code class="docutils literal"><span class="pre">config.cache</span></code>
+file and speed up subsequent <code class="docutils literal"><span class="pre">./configure</span></code> calls. Using this option only makes sense once you already have a working
+build and want to quickly change between different configurations.</p>
+<p>Apart from generic autoconf options there are also many settings specific to PHP. For example, you can choose which
+extensions and SAPIs should be compiled using the <code class="docutils literal"><span class="pre">--enable-NAME</span></code> and <code class="docutils literal"><span class="pre">--disable-NAME</span></code> switches. If the extension or
+SAPI has external dependencies you need to use <code class="docutils literal"><span class="pre">--with-NAME</span></code> and <code class="docutils literal"><span class="pre">--without-NAME</span></code> instead. If a library needed by
+<code class="docutils literal"><span class="pre">NAME</span></code> is not located in the default location (e.g. because you compiled it yourself) you can specify its location
+using <code class="docutils literal"><span class="pre">--with-NAME=DIR</span></code>.</p>
+<p>By default PHP will build the CLI and CGI SAPIs, as well as a number of extensions. You can find out which extensions
+your PHP binary contains using the <code class="docutils literal"><span class="pre">-m</span></code> option. For a default PHP 7.0 build the result will look as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php -m
+[PHP Modules]
+Core
+ctype
+date
+dom
+fileinfo
+filter
+hash
+iconv
+json
+libxml
+pcre
+PDO
+pdo_sqlite
+Phar
+posix
+Reflection
+session
+SimpleXML
+SPL
+sqlite3
+standard
+tokenizer
+xml
+xmlreader
+xmlwriter
+</pre></div>
+</div>
+<p>If you now wanted to stop compiling the CGI SAPI, as well as the tokenizer and sqlite3 extensions and instead enable
+opcache and gmp, the corresponding configure command would be:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; ./configure --disable-cgi --disable-tokenizer --without-sqlite3 <span class="se">\</span>
+                       --enable-opcache --with-gmp
+</pre></div>
+</div>
+<p>By default most extensions will be compiled statically, i.e. they will be part of the resulting binary. Only the opcache
+extension is shared by default, i.e. it will generate an <code class="docutils literal"><span class="pre">opcache.so</span></code> shared object in the <code class="docutils literal"><span class="pre">modules/</span></code> directory. You
+can compile other extensions into shared objects as well by writing <code class="docutils literal"><span class="pre">--enable-NAME=shared</span></code> or <code class="docutils literal"><span class="pre">--with-NAME=shared</span></code>
+(but not all extensions support this). We&#8217;ll talk about how to make use of shared extensions in the next section.</p>
+<p>To find out which switch you need to use and whether an extension is enabled by default, check <code class="docutils literal"><span class="pre">./configure</span> <span class="pre">--help</span></code>.
+If the switch is either <code class="docutils literal"><span class="pre">--enable-NAME</span></code> or <code class="docutils literal"><span class="pre">--with-NAME</span></code> it means that the extension is not compiled by default and
+needs to be explicitly enabled. <code class="docutils literal"><span class="pre">--disable-NAME</span></code> or <code class="docutils literal"><span class="pre">--without-NAME</span></code> on the other hand indicate an extension that
+is compiled by default, but can be explicitly disabled.</p>
+<p>Some extensions are always compiled and can not be disabled. To create a build that only contains the minimal amount of
+extensions use the <code class="docutils literal"><span class="pre">--disable-all</span></code> option:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; ./configure --disable-all <span class="o">&amp;&amp;</span> make -jN
+~/php-src&gt; sapi/cli/php -m
+<span class="o">[</span>PHP Modules<span class="o">]</span>
+Core
+date
+pcre
+Reflection
+SPL
+standard
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">--disable-all</span></code> option is very useful if you want a fast build and don&#8217;t need much functionality (e.g. when
+implementing language changes). For the smallest possible build you can additionally specify the <code class="docutils literal"><span class="pre">--disable-cgi</span></code>
+switch, so only the CLI binary is generated.</p>
+<p>There are two more switches, which you should <strong>always</strong> specify when developing extensions or working on PHP:</p>
+<p><code class="docutils literal"><span class="pre">--enable-debug</span></code> enables debug mode, which has multiple effects: Compilation will run with <code class="docutils literal"><span class="pre">-g</span></code> to generate debug
+symbols and additionally use the lowest optimization level <code class="docutils literal"><span class="pre">-O0</span></code>. This will make PHP a lot slower, but make debugging
+with tools like <code class="docutils literal"><span class="pre">gdb</span></code> more predictable. Furthermore debug mode defines the <code class="docutils literal"><span class="pre">ZEND_DEBUG</span></code> macro, which will enable
+various debugging helpers in the engine. Among other things memory leaks, as well as incorrect use of some data
+structures, will be reported.</p>
+<p><code class="docutils literal"><span class="pre">--enable-maintainer-zts</span></code> enables thread-safety. This switch will define the <code class="docutils literal"><span class="pre">ZTS</span></code> macro, which in turn will enable
+the whole TSRM (thread-safe resource manager) machinery used by PHP. Writing thread-safe extensions for PHP is very
+simple, but only if make sure to enable this switch.</p>
+<p>On the other hand you should not use either of these options if you want to perform performance benchmarks for your
+code, as both can cause significant and asymmetrical slowdowns.</p>
+<p>Note that <code class="docutils literal"><span class="pre">--enable-debug</span></code> and <code class="docutils literal"><span class="pre">--enable-maintainer-zts</span></code> change the ABI of the PHP binary, e.g. by adding additional
+arguments to many functions. As such shared extensions compiled in debug mode will not be compatible with a PHP binary
+built in release mode. Similarly a thread-safe extension is not compatible with a thread-unsafe PHP build.</p>
+<p>Due to the ABI incompatibility <code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code> (and PECL install) will put shared extensions in different directories
+depending on these options:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">$PREFIX/lib/php/extensions/no-debug-non-zts-API_NO</span></code> for release builds without ZTS</li>
+<li><code class="docutils literal"><span class="pre">$PREFIX/lib/php/extensions/debug-non-zts-API_NO</span></code> for debug builds without ZTS</li>
+<li><code class="docutils literal"><span class="pre">$PREFIX/lib/php/extensions/no-debug-zts-API_NO</span></code> for release builds with ZTS</li>
+<li><code class="docutils literal"><span class="pre">$PREFIX/lib/php/extensions/debug-zts-API_NO</span></code> for debug builds with ZTS</li>
+</ul>
+<p>The <code class="docutils literal"><span class="pre">API_NO</span></code> placeholder above refers to the <code class="docutils literal"><span class="pre">ZEND_MODULE_API_NO</span></code> and is just a date like <code class="docutils literal"><span class="pre">20100525</span></code>, which is
+used for internal API versioning.</p>
+<p>For most purposes the configuration switches described above should be sufficient, but of course <code class="docutils literal"><span class="pre">./configure</span></code>
+provides many more options, which you&#8217;ll find described in the help.</p>
+<p>Apart from passing options to configure, you can also specify a number of environment variables. Some of the more
+important ones are documented at the end of the configure help output (<code class="docutils literal"><span class="pre">./configure</span> <span class="pre">--help</span> <span class="pre">|</span> <span class="pre">tail</span> <span class="pre">-25</span></code>).</p>
+<p>For example you can use <code class="docutils literal"><span class="pre">CC</span></code> to use a different compiler and <code class="docutils literal"><span class="pre">CFLAGS</span></code> to change the used compilation flags:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; ./configure --disable-all <span class="nv">CC</span><span class="o">=</span>clang <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-O3 -march=native&quot;</span>
+</pre></div>
+</div>
+<p>In this configuration the build will make use of clang (instead of gcc) and use a very high optimization level
+(<code class="docutils literal"><span class="pre">-O3</span> <span class="pre">-march=native</span></code>).</p>
+<p>You may use additionnal compiler warning flags that could help you spot some bugs.
+For GCC, you may read them <a class="reference external" href="https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#Warning-Options">in the GCC manual</a></p>
+</div>
+<div class="section" id="make-and-make-install">
+<h2><code class="docutils literal"><span class="pre">make</span></code> and <code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code><a class="headerlink" href="#make-and-make-install" title="Permalink to this headline">¶</a></h2>
+<p>After everything is configured, you can use <code class="docutils literal"><span class="pre">make</span></code> to perform the actual compilation:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make -jN    <span class="c1"># where N is the number of cores</span>
+</pre></div>
+</div>
+<p>The main result of this operation will be PHP binaries for the enabled SAPIs (by default <code class="docutils literal"><span class="pre">sapi/cli/php</span></code> and
+<code class="docutils literal"><span class="pre">sapi/cgi/php-cgi</span></code>), as well as shared extensions in the <code class="docutils literal"><span class="pre">modules/</span></code> directory.</p>
+<p>Now you can run <code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code> to install PHP into <code class="docutils literal"><span class="pre">/usr/local</span></code> (default) or whatever directory you specified using
+the <code class="docutils literal"><span class="pre">--prefix</span></code> configure switch.</p>
+<p><code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code> will do little more than copy a number of files to the new location. Unless you specified
+<code class="docutils literal"><span class="pre">--without-pear</span></code> during configuration, it will also download and install PEAR. Here is the resulting tree of a default
+PHP build:</p>
+<div class="highlight-none"><div class="highlight"><pre>&gt; tree -L 3 -F ~/myphp
+
+/home/myuser/myphp
+|-- bin
+|   |-- pear*
+|   |-- peardev*
+|   |-- pecl*
+|   |-- phar -&gt; /home/myuser/myphp/bin/phar.phar*
+|   |-- phar.phar*
+|   |-- php*
+|   |-- php-cgi*
+|   |-- php-config*
+|   `-- phpize*
+|-- etc
+|   `-- pear.conf
+|-- include
+|   `-- php
+|       |-- ext/
+|       |-- include/
+|       |-- main/
+|       |-- sapi/
+|       |-- TSRM/
+|       `-- Zend/
+|-- lib
+|   `-- php
+|       |-- Archive/
+|       |-- build/
+|       |-- Console/
+|       |-- data/
+|       |-- doc/
+|       |-- OS/
+|       |-- PEAR/
+|       |-- PEAR5.php
+|       |-- pearcmd.php
+|       |-- PEAR.php
+|       |-- peclcmd.php
+|       |-- Structures/
+|       |-- System.php
+|       |-- test/
+|       `-- XML/
+`-- php
+    `-- man
+        `-- man1/
+</pre></div>
+</div>
+<p>A short overview of the directory structure:</p>
+<ul class="simple">
+<li><em>bin/</em> contains the SAPI binaries (<code class="docutils literal"><span class="pre">php</span></code> and <code class="docutils literal"><span class="pre">php-cgi</span></code>), as well as the <code class="docutils literal"><span class="pre">phpize</span></code> and <code class="docutils literal"><span class="pre">php-config</span></code> scripts.
+It is also home to the various PEAR/PECL scripts.</li>
+<li><em>etc/</em> contains configuration. Note that the default <em>php.ini</em> directory is <strong>not</strong> here.</li>
+<li><em>include/php</em> contains header files, which are needed to build additional extensions or embed PHP in custom software.</li>
+<li><em>lib/php</em> contains PEAR files. The <em>lib/php/build</em> directory includes files necessary for building extensions, e.g.
+the <code class="docutils literal"><span class="pre">acinclude.m4</span></code> file containing PHP&#8217;s M4 macros. If we had compiled any shared extensions those files would live
+in a subdirectory of <em>lib/php/extensions</em>.</li>
+<li><em>php/man</em> obviously contains man pages for the <code class="docutils literal"><span class="pre">php</span></code> command.</li>
+</ul>
+<p>As already mentioned, the default <em>php.ini</em> location is not <em>etc/</em>. You can display the location using the <code class="docutils literal"><span class="pre">--ini</span></code>
+option of the PHP binary:</p>
+<div class="highlight-none"><div class="highlight"><pre>~/myphp/bin&gt; ./php --ini
+Configuration File (php.ini) Path: /home/myuser/myphp/lib
+Loaded Configuration File:         (none)
+Scan for additional .ini files in: (none)
+Additional .ini files parsed:      (none)
+</pre></div>
+</div>
+<p>As you can see the default <em>php.ini</em> directory is <code class="docutils literal"><span class="pre">$PREFIX/lib</span></code> (libdir) rather than <code class="docutils literal"><span class="pre">$PREFIX/etc</span></code> (sysconfdir). You
+can adjust the default <em>php.ini</em> location using the <code class="docutils literal"><span class="pre">--with-config-file-path=PATH</span></code> configure option.</p>
+<p>Also note that <code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code> will not create an ini file. If you want to make use of a <em>php.ini</em> file it is your
+responsibility to create one. For example you could copy the default development configuration:</p>
+<div class="highlight-none"><div class="highlight"><pre>~/myphp/bin&gt; cp ~/php-src/php.ini-development ~/myphp/lib/php.ini
+~/myphp/bin&gt; ./php --ini
+Configuration File (php.ini) Path: /home/myuser/myphp/lib
+Loaded Configuration File:         /home/myuser/myphp/lib/php.ini
+Scan for additional .ini files in: (none)
+Additional .ini files parsed:      (none)
+</pre></div>
+</div>
+<p>Apart from the PHP binaries the <em>bin/</em> directory also contains two important scripts: <code class="docutils literal"><span class="pre">phpize</span></code> and <code class="docutils literal"><span class="pre">php-config</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">phpize</span></code> is the equivalent of <code class="docutils literal"><span class="pre">./buildconf</span></code> for extensions. It will copy various files from <em>lib/php/build</em> and
+invoke autoconf/autoheader. You will learn more about this tool in the next section.</p>
+<p><code class="docutils literal"><span class="pre">php-config</span></code> provides information about the configuration of the PHP build. Try it out:</p>
+<div class="highlight-none"><div class="highlight"><pre>~/myphp/bin&gt; ./php-config
+Usage: ./php-config [OPTION]
+Options:
+  --prefix            [/home/myuser/myphp]
+  --includes          [-I/home/myuser/myphp/include/php -I/home/myuser/myphp/include/php/main -I/home/myuser/myphp/include/php/TSRM -I/home/myuser/myphp/include/php/Zend -I/home/myuser/myphp/include/php/ext -I/home/myuser/myphp/include/php/ext/date/lib]
+  --ldflags           [ -L/usr/lib/i386-linux-gnu]
+  --libs              [-lcrypt   -lresolv -lcrypt -lrt -lrt -lm -ldl -lnsl  -lxml2 -lxml2 -lxml2 -lcrypt -lxml2 -lxml2 -lxml2 -lcrypt ]
+  --extension-dir     [/home/myuser/myphp/lib/php/extensions/debug-zts-20100525]
+  --include-dir       [/home/myuser/myphp/include/php]
+  --man-dir           [/home/myuser/myphp/php/man]
+  --php-binary        [/home/myuser/myphp/bin/php]
+  --php-sapis         [ cli cgi]
+  --configure-options [--prefix=/home/myuser/myphp --enable-debug --enable-maintainer-zts]
+  --version           [5.4.16-dev]
+  --vernum            [50416]
+</pre></div>
+</div>
+<p>The script is similar to the <code class="docutils literal"><span class="pre">pkg-config</span></code> script used by linux distributions. It is invoked during the extension
+build process to obtain information about compiler options and paths. You can also use it to quickly get information
+about your build, e.g. your configure options or the default extension directory. This information is also provided by
+<code class="docutils literal"><span class="pre">./php</span> <span class="pre">-i</span></code> (phpinfo), but <code class="docutils literal"><span class="pre">php-config</span></code> provides it in a simpler form (which can be easily used by automated tools).</p>
+</div>
+<div class="section" id="running-the-test-suite">
+<h2>Running the test suite<a class="headerlink" href="#running-the-test-suite" title="Permalink to this headline">¶</a></h2>
+<p>If the <code class="docutils literal"><span class="pre">make</span></code> command finishes successfully, it will print a message encouraging you to run <code class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></code>:</p>
+<div class="highlight-none"><div class="highlight"><pre>Build complete.
+Don&#39;t forget to run &#39;make test&#39;
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></code> will run the PHP CLI binary against our test suite, which is located in the different <em>tests/</em> directories
+of the PHP source tree. As a default build is run against approximately 9000 tests (less for a minimal build, more if
+you enable additional extensions) this can take several minutes. The <code class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></code> command is currently not parallel, so
+specifying the <code class="docutils literal"><span class="pre">-jN</span></code> option will not make it faster.</p>
+<p>If this is the first time you compile PHP on your platform, we encourage you to run the test suite. Depending on your
+OS and your build environment you may find bugs in PHP by running the tests. If there are any failures, the script will
+ask whether you want to send a report to our QA platform, which will allow contributors to analyze the failures. Note
+that it is quite normal to have a few failing tests and your build will likely work well as long as you don&#8217;t see
+dozens of failures.</p>
+<p>The <code class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></code> command internally invokes the <code class="docutils literal"><span class="pre">run-tests.php</span></code> file using your CLI binary. You can run
+<code class="docutils literal"><span class="pre">sapi/cli/php</span> <span class="pre">run-tests.php</span> <span class="pre">--help</span></code> to display a list of options this script accepts.</p>
+<p>If you manually run <code class="docutils literal"><span class="pre">run-tests.php</span></code> you need to specify either the <code class="docutils literal"><span class="pre">-p</span></code> or <code class="docutils literal"><span class="pre">-P</span></code> option (or an ugly environment
+variable):</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php -p <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sapi/cli/php
+~/php-src&gt; sapi/cli/php run-tests.php -P
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">-p</span></code> is used to explicitly specify a binary to test. Note that in order to run all tests correctly this should be an
+absolute path (or otherwise independent of the directory it is called from). <code class="docutils literal"><span class="pre">-P</span></code> is a shortcut that will use the
+binary that <code class="docutils literal"><span class="pre">run-tests.php</span></code> was called with. In the above example both approaches are the same.</p>
+<p>Instead of running the whole test suite, you can also limit it to certain directories by passing them as arguments to
+<code class="docutils literal"><span class="pre">run-tests.php</span></code>. E.g. to test only the Zend engine, the reflection extension and the array functions:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php -P Zend/ ext/reflection/ ext/standard/tests/array/
+</pre></div>
+</div>
+<p>This is very useful, because it allows you to quickly run only the parts of the test suite that are relevant to your
+changes. E.g. if you are doing language modifications you likely don&#8217;t care about the extension tests and only want to
+verify that the Zend engine is still working correctly.</p>
+<p>You don&#8217;t need to explicitly use <code class="docutils literal"><span class="pre">run-tests.php</span></code> to pass options or limit directories. Instead you can use the
+<code class="docutils literal"><span class="pre">TESTS</span></code> variable to pass additional arguments via <code class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></code>. E.g. the equivalent of the previous command would
+be:</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;Zend/ ext/reflection/ ext/standard/tests/array/&quot;</span>
+</pre></div>
+</div>
+<p>We will take a more detailed look at the <code class="docutils literal"><span class="pre">run-tests.php</span></code> system later, in particular also talk about how to write your
+own tests and how to debug test failures.</p>
+</div>
+<div class="section" id="fixing-compilation-problems-and-make-clean">
+<h2>Fixing compilation problems and <code class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></code><a class="headerlink" href="#fixing-compilation-problems-and-make-clean" title="Permalink to this headline">¶</a></h2>
+<p>As you may know <code class="docutils literal"><span class="pre">make</span></code> performs an incremental build, i.e. it will not recompile all files, but only those <code class="docutils literal"><span class="pre">.c</span></code>
+files that changed since the last invocation. This is a great way to shorten build times, but it doesn&#8217;t always work
+well: For example, if you modify a structure in a header file, <code class="docutils literal"><span class="pre">make</span></code> will not automatically recompile all <code class="docutils literal"><span class="pre">.c</span></code>
+files making use of that header, thus leading to a broken build.</p>
+<p>If you get odd errors while running <code class="docutils literal"><span class="pre">make</span></code> or the resulting binary is broken (e.g. if <code class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></code> crashes it before
+it gets to run the first test), you should try to run <code class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></code>. This will delete all compiled objects, thus
+forcing the next <code class="docutils literal"><span class="pre">make</span></code> call to perform a full build.</p>
+<p>Sometimes you also need to run <code class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></code> after changing <code class="docutils literal"><span class="pre">./configure</span></code> options. If you only enable additional
+extensions an incremental build should be safe, but changing other options may require a full rebuild.</p>
+<p>A more aggressive cleaning target is available via <code class="docutils literal"><span class="pre">make</span> <span class="pre">distclean</span></code>. This will perform a normal clean, but also roll
+back any files brought by the <code class="docutils literal"><span class="pre">./configure</span></code> command invocation. It will delete configure caches, Makefiles,
+configuration headers and various other files. As the name implies this target &#8220;cleans for distribution&#8221;, so it is
+mostly used by release managers.</p>
+<p>Another source of compilation issues is the modification of <code class="docutils literal"><span class="pre">config.m4</span></code> files or other files that are part of the PHP
+build system. If such a file is changed, it is necessary to rerun the <code class="docutils literal"><span class="pre">./buildconf</span></code> script. If you do the modification
+yourself, you will likely remember to run the command, but if it happens as part of a <code class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span></code> (or some other
+updating command) the issue might not be so obvious.</p>
+<p>If you encounter any odd compilation problems that are not resolved by <code class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></code>, chances are that running
+<code class="docutils literal"><span class="pre">./buildconf</span> <span class="pre">--force</span></code> will fix the issue. To avoid typing out the previous <code class="docutils literal"><span class="pre">./configure</span></code> options afterwards, you
+can make use of the <code class="docutils literal"><span class="pre">./config.nice</span></code> script (which contains your last <code class="docutils literal"><span class="pre">./configure</span></code> call):</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make clean
+~/php-src&gt; ./buildconf --force
+~/php-src&gt; ./config.nice
+~/php-src&gt; make -jN
+</pre></div>
+</div>
+<p>One last cleaning script that PHP provides is <code class="docutils literal"><span class="pre">./vcsclean</span></code>. This will only work if you checked out the source code
+from git. It effectively boils down to a call to <code class="docutils literal"><span class="pre">git</span> <span class="pre">clean</span> <span class="pre">-X</span> <span class="pre">-f</span> <span class="pre">-d</span></code>, which will remove all untracked files and
+directories that are ignored by git. You should use this with care.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="../build_system.html">Using the PHP build system</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="building_extensions.html">Building PHP extensions</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

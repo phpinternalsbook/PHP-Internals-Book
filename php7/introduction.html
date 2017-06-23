@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="next" title="Using the PHP build system" href="build_system.html" />
+    <link rel="prev" title="Internal structures and implementation" href="../classes_objects/internal_structures_and_implementation.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Introduction</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="../classes_objects/internal_structures_and_implementation.html">Internal structures and implementation</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="build_system.html">Using the PHP build system</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>This book is a collaborative effort between several PHP developers to better document and describe how PHP works
+internally.</p>
+<p>There are three primary goals of this book:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Document and describe how PHP internals work.</li>
+<li>Document and describe how to extend the language with extensions.</li>
+<li>Document and describe how you can interact with the community to develop PHP itself.</li>
+</ul>
+</div></blockquote>
+<p>This book is primarily targeted at developers who have experience in the C programming language. However, where-ever
+possible we will attempt to distill the information and summarize it so that developers who don&#8217;t know C well, will
+still be able to understand the content.</p>
+<p>However, let us insist. You won&#8217;t be able to achieve something productive, stable (crash free under any platform),
+performant and useful, if you don&#8217;t know the C language. Here are some pretty nice online resources about the C
+language itself, its ecosystem and build tools, and Operating System APIs :</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.tenouk.com/">http://www.tenouk.com/</a></li>
+<li><a class="reference external" href="https://en.wikibooks.org/wiki/C_Programming">https://en.wikibooks.org/wiki/C_Programming</a></li>
+<li><a class="reference external" href="http://c-faq.com/">http://c-faq.com/</a></li>
+<li><a class="reference external" href="https://www.gnu.org/software/libc/">https://www.gnu.org/software/libc/</a></li>
+<li><a class="reference external" href="http://www.faqs.org/docs/Linux-HOWTO/Program-Library-HOWTO.html">http://www.faqs.org/docs/Linux-HOWTO/Program-Library-HOWTO.html</a></li>
+<li><a class="reference external" href="http://www.iecc.com/linker/linker10.html">http://www.iecc.com/linker/linker10.html</a></li>
+</ul>
+<p>We also highly recommand you some books. You&#8217;ll learn with them how to efficiently use the C language, and how to
+make it translate to efficient CPU instructions so that you can design strong/fast/reliable and secure programs.</p>
+<ul class="simple">
+<li>The C Programming Language (Ritchie &amp; Kernighan)</li>
+<li>Advanced Topics in C Core Concepts in Data Structures</li>
+<li>Learn C the Hard Way</li>
+<li>The Art of Debugging with GDB DDD and Eclipse</li>
+<li>The Linux Programming Interface</li>
+<li>Advanced Linux Programming</li>
+<li>Hackers Delight</li>
+<li>Write Great Code (2 Volumes)</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This book is Work-In-Progress and some chapters have not been written yet (in particular the ones on creating
+basic extensions and declaring functions), so if you&#8217;re completely new to PHP extension development you&#8217;ll have to
+wait until the remaining introductory chapters are published or start off with other
+<a class="reference external" href="https://wiki.php.net/internals/references">resources on the topic</a>.</p>
+</div>
+<p>The repository for this book is available on <a class="reference external" href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>. Please report issues and provide feedback on the <a class="reference external" href="https://github.com/phpinternalsbook/PHP-Internals-Book/issues">issue tracker</a>.</p>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="../classes_objects/internal_structures_and_implementation.html">Internal structures and implementation</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="build_system.html">Using the PHP build system</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

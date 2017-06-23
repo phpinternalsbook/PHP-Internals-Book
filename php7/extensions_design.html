@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Extensions design &mdash; PHP Internals Book</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="next" title="Learning the PHP lifecycle" href="extensions_design/php_lifecycle.html" />
+    <link rel="prev" title="Functions: zend_function" href="internal_types/functions.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Extensions design</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="internal_types/functions.html">Functions: zend_function</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="extensions_design/php_lifecycle.html">Learning the PHP lifecycle</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="extensions-design">
+<h1>Extensions design<a class="headerlink" href="#extensions-design" title="Permalink to this headline">¶</a></h1>
+<p>In this chapter you&#8217;ll learn how to design PHP extensions. You&#8217;ll learn about the PHP lifecycle, how and when to manage
+memory, the different hooks you can use or the different function pointers you can replace to actively change PHP&#8217;s
+internal machinery. You&#8217;ll design PHP functions and classes to provide them through your extension, and you&#8217;ll play
+with INI settings.</p>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/php_lifecycle.html">Learning the PHP lifecycle</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_lifecycle.html#the-parallelism-models">The parallelism models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_lifecycle.html#the-php-extensions-hooks">The PHP extensions hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_lifecycle.html#hooking-by-overwritting-function-pointers">Hooking by overwritting function pointers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/extension_skeleton.html">A look into a PHP extension and extension skeleton</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_skeleton.html#how-the-engine-loads-extensions">How the engine loads extensions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_skeleton.html#what-is-a-php-extension">What is a PHP extension ?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_skeleton.html#generating-extension-skeleton-with-scripts">Generating extension skeleton with scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_skeleton.html#publishing-api">Publishing API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/zend_extensions.html">Zend Extensions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/zend_extensions.html#on-differences-between-php-and-zend-extensions">On differences between PHP and Zend extensions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/zend_extensions.html#what-is-a-zend-extension">What is a Zend extension ?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/zend_extensions.html#why-need-a-zend-extension">Why need a Zend extension ?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/zend_extensions.html#api-versions-and-conflicts-management">API versions and conflicts management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/zend_extensions.html#zend-extensions-lifetime-hooks">Zend extensions lifetime hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/zend_extensions.html#practice-my-first-example-zend-extension">Practice : my first example Zend extension</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/zend_extensions.html#hybrid-extensions">Hybrid extensions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/globals_management.html">Managing global state</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/ini_settings.html">Declaring and using INI settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/php_functions.html">Registering and using PHP functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#zend-function-entry-structure">zend_function_entry structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#registering-php-functions">Registering PHP functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#declaring-function-arguments">Declaring function arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#the-php-function-structure-and-api-in-c">The PHP function structure and API, in C</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#adding-tests">Adding tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#playing-with-constants">Playing with constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#a-go-with-hashtables-php-arrays">A go with Hashtables (PHP arrays)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#managing-references">Managing references</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="internal_types/functions.html">Functions: zend_function</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="extensions_design/php_lifecycle.html">Learning the PHP lifecycle</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

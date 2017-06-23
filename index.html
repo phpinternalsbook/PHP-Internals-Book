@@ -27,12 +27,12 @@
     <link rel="top" title="PHP Internals Book" href="#" />
     <link rel="next" title="Introduction" href="introduction.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="#">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="#">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Table Of Contents</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
         <a class="uplink" href="#">Contents</a>
@@ -99,20 +99,169 @@
 </div>
 <div class="section" id="php-7">
 <h2>PHP 7<a class="headerlink" href="#php-7" title="Permalink to this headline">¶</a></h2>
-<p>This book is currently being updated for PHP 7. Check back soon...</p>
+<p>This part concerns only the PHP 7 branch. It is under development.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="php7/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="php7/build_system.html">Using the PHP build system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="php7/build_system/building_php.html">Building PHP</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#why-not-use-packages">Why not use packages?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#obtaining-the-source-code">Obtaining the source code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#build-overview">Build overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#the-buildconf-script">The <code class="docutils literal"><span class="pre">./buildconf</span></code> script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#the-configure-script">The <code class="docutils literal"><span class="pre">./configure</span></code> script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#make-and-make-install"><code class="docutils literal"><span class="pre">make</span></code> and <code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#running-the-test-suite">Running the test suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#fixing-compilation-problems-and-make-clean">Fixing compilation problems and <code class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="php7/build_system/building_extensions.html">Building PHP extensions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#loading-shared-extensions">Loading shared extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#installing-extensions-from-pecl">Installing extensions from PECL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#adding-extensions-to-the-php-source-tree">Adding extensions to the PHP source tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#building-extensions-using-phpize">Building extensions using <code class="docutils literal"><span class="pre">phpize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#displaying-information-about-extensions">Displaying information about extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#extensions-api-compatibility">Extensions API compatibility</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="php7/internal_types.html">Internal types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="php7/internal_types/zvals.html">Zvals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zvals/basic_structure.html">Basic structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="php7/internal_types/strings.html">Strings management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/strings/zend_strings.html">Strings management: zend_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/strings/smart_str.html">smart_str API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/strings/printing_functions.html">PHP&#8217;s custom printf functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="php7/internal_types/zend_resources.html">The Resource type: zend_resource</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#what-is-the-resource-type">What is the &#8220;Resource&#8221; type?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#resource-types-and-resource-destruction">Resource types and resource destruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#playing-with-resources">Playing with resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#reference-counting-resources">Reference counting resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#persistent-resources">Persistent resources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="php7/internal_types/hashtables.html">HashTables: zend_array</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php7/internal_types/functions.html">Functions: zend_function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="php7/extensions_design.html">Extensions design</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="php7/extensions_design/php_lifecycle.html">Learning the PHP lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_lifecycle.html#the-parallelism-models">The parallelism models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_lifecycle.html#the-php-extensions-hooks">The PHP extensions hooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_lifecycle.html#hooking-by-overwritting-function-pointers">Hooking by overwritting function pointers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="php7/extensions_design/extension_skeleton.html">A look into a PHP extension and extension skeleton</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/extension_skeleton.html#how-the-engine-loads-extensions">How the engine loads extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/extension_skeleton.html#what-is-a-php-extension">What is a PHP extension ?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/extension_skeleton.html#generating-extension-skeleton-with-scripts">Generating extension skeleton with scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/extension_skeleton.html#publishing-api">Publishing API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="php7/extensions_design/zend_extensions.html">Zend Extensions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/zend_extensions.html#on-differences-between-php-and-zend-extensions">On differences between PHP and Zend extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/zend_extensions.html#what-is-a-zend-extension">What is a Zend extension ?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/zend_extensions.html#why-need-a-zend-extension">Why need a Zend extension ?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/zend_extensions.html#api-versions-and-conflicts-management">API versions and conflicts management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/zend_extensions.html#zend-extensions-lifetime-hooks">Zend extensions lifetime hooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/zend_extensions.html#practice-my-first-example-zend-extension">Practice : my first example Zend extension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/zend_extensions.html#hybrid-extensions">Hybrid extensions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="php7/extensions_design/globals_management.html">Managing global state</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php7/extensions_design/ini_settings.html">Declaring and using INI settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php7/extensions_design/php_functions.html">Registering and using PHP functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_functions.html#zend-function-entry-structure">zend_function_entry structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_functions.html#registering-php-functions">Registering PHP functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_functions.html#declaring-function-arguments">Declaring function arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_functions.html#the-php-function-structure-and-api-in-c">The PHP function structure and API, in C</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_functions.html#adding-tests">Adding tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_functions.html#playing-with-constants">Playing with constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_functions.html#a-go-with-hashtables-php-arrays">A go with Hashtables (PHP arrays)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/php_functions.html#managing-references">Managing references</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="php7/memory_management.html">Memory management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="php7/memory_management/zend_memory_manager.html">Zend Memory Manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/zend_memory_manager.html#the-two-main-kind-of-dynamic-memory-pools-in-php">The two main kind of dynamic memory pools in PHP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/zend_memory_manager.html#zend-memory-manager-api">Zend Memory Manager API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/zend_memory_manager.html#zend-memory-manager-debugging-shields">Zend Memory Manager debugging shields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/zend_memory_manager.html#zendmm-internal-design">ZendMM internal design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/zend_memory_manager.html#common-errors-and-mistakes">Common errors and mistakes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="php7/memory_management/memory_debugging.html">Debugging memory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/memory_debugging.html#a-quick-note-about-valgrind">A quick note about valgrind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/memory_debugging.html#before-starting">Before starting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/memory_debugging.html#memory-leak-detection-example">Memory leak detection example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/memory_debugging.html#buffer-overflow-underflow-detection">Buffer overflow/underflow detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/memory_management/memory_debugging.html#conclusions">Conclusions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="php7/zend_engine.html">Zend engine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="php7/zend_engine/zend_compiler.html">Zend Compiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php7/zend_engine/zend_executor.html">Zend Executor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php7/zend_engine/zend_opcache.html">Zend OPCache</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="testing-php-source">
+<h2>Testing PHP Source<a class="headerlink" href="#testing-php-source" title="Permalink to this headline">¶</a></h2>
+<p>Writing tests applies to both PHP 5 &amp; PHP 7.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tests/introduction.html">Testing with <code class="docutils literal"><span class="pre">.phpt</span></code> files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests/introduction.html#todo">&#64;TODO</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests/overview.html">Testing overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests/overview.html#black-box-testing">Black-box testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests/overview.html#where-the-test-files-live">Where the test files live</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests/running_the_test_suite.html">Running the test suite</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#running-tests-directly-with-run-tests-php">Running tests directly with <code class="docutils literal"><span class="pre">run-tests.php</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#running-tests-via-the-makefile-recommended">Running tests via the <code class="docutils literal"><span class="pre">Makefile</span></code> (recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#executing-tests-in-parallel">Executing tests in parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#more-options">More options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests/phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests/phpt_file_structure.html#a-basic-test-example">A basic test example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests/phpt_file_structure.html#some-notable-sections">Some notable sections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests/phpt_file_structure.html#writing-a-simple-test">Writing a simple test</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests/examining_failed_test_output.html">Examining failed test output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests/examining_failed_test_output.html#failed-test-output-files">Failed test output files</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 </div>
 <div class="section" id="index-and-search">
 <h1>Index and search<a class="headerlink" href="#index-and-search" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
 </ul>
 </div>
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
         <a class="uplink" href="#">Contents</a>
