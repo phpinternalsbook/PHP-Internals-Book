@@ -38,7 +38,7 @@ First of all, Zend extensions are compiled and loaded the same way as PHP extens
 also for Zend extensions.
 
 .. note:: If not done, :doc:`get some informations about PHP extensions <../extensions_design>` as we will compare 
-          against them here. Zend extensions share a very part of concepts with PHP extensions.
+          against them here. Zend extensions share a very big part of concepts with PHP extensions.
 
 Here is a Zend extension. Note that you need to publish not one but two structures for the engine to load your Zend 
 extension::
@@ -126,7 +126,7 @@ Finally, if your goal is "just" to *add* some new concepts (functions, classes, 
 PHP extension, but if you need to *change* a current behavior of PHP, probably a Zend extension will be better.
 
 We can't give rules here, but we can explain how all that stuff works, so that you get your own idea of the 
-capabilities brought by Zend extension against PHP extension.
+capabilities brought by Zend extensions against PHP extensions.
 
 Also, you may create an *hybrid* extension, which is both a Zend extension *and* a PHP extension (this is tricky but 
 perfectly valid and allows you to program in both "worlds" at the same time).
@@ -138,11 +138,11 @@ You know that PHP extensions check against several rules before loading, to know
 version you try to load them on. This has been detailed into 
 :doc:`the chapter about building PHP extensions <../build_system/building_extensions>`.
 
-For Zend extension, the same rules apply, but a little bit differently : Instead of the engine trashing you away in 
-case of mismatch in numbers, it will use the ``zend_extension_version_info`` structure you published to know what to do.
+For Zend extension, the same rules apply, but a little bit differently : it will use the 
+``zend_extension_version_info`` structure you published to know what to do.
 
 The ``zend_extension_version_info`` structure you declare contain only two informations that the engine will use when 
-you load your Zend extension :
+it starts loading your Zend extension :
 
 * ``ZEND_EXTENSION_API_NO``
 * ``ZEND_EXTENSION_BUILD_ID``
@@ -150,11 +150,13 @@ you load your Zend extension :
 The ``ZEND_EXTENSION_API_NO`` is checked when your Zend extension is loaded. But the difference is that if this number 
 doesn't match your Zend extension's, you still have a chance to get loaded. The engine will call for your 
 ``api_no_check()`` hook, if you declared one, and will pass it the current PHP runtime ``ZEND_EXTENSION_API_NO``. Here, 
-you must tell if you support that API number, or not.
+you must tell if you support that API number, or not, simply by returning that info to the engine. If you don't support, 
+the engine won't load your extension and print a warning message about that.
 
 The same applies to the other ABI settings, such as ``ZEND_DEBUG``, or ``ZTS``. Where PHP extensions will refuse to 
 load if there is a mismatch, Zend extensions are given a chance to load as the engine checks against 
 ``build_id_check()`` hook and pass it the ``ZEND_EXTENSION_BUILD_ID``. Here again, you say if you are compatible or not.
+Here again, if you say "no", the engine won't load your extension and print a warning message about that.
 
 Remember that we detail how API and ABI is numbered, 
 :doc:`in the chapter about building PHP extensions <../build_system/building_extensions>`.
@@ -162,16 +164,16 @@ Remember that we detail how API and ABI is numbered,
 Those abilities to force things against the engine are rarely used in practice.
 
 .. note:: You see how more complex Zend extensions are compared to PHP extensions ? The engine is less restrictive, and 
-          it suppose that you know what you do, for the best or the worst.
+          it supposes that you know what you're doing, for the best or the worst.
           
 .. warning:: Zend extensions should really be developped by experienced and advanced programmers, as the engine is 
-             weaker about its checks. It clearly supposes that you master what you do.
+             weaker about its checks. It clearly supposes that you master what you're doing.
 
 To sum things up about API compatibility, well, every step is detailed in 
 `zend_load_extension() <https://github.com/php/php-src/blob/57dba0e2f5e39f6b05031317048e39d463243cc3/Zend/
 zend_extensions.c#L67>`_.
 
-Then comes the problem of Zend extension conflicts. One may be incompatible with an other, and to master that, every 
+Then comes the problem of Zend extensions conflicts. One may be incompatible with an other, and to master that, every 
 Zend extension has got a hook called ``message_handler``. If declared, this hook is triggered on every already loaded 
 extension when another Zend extension gets loaded. You are passed a pointer to its ``zend_extension`` structure, and you 
 may then detect which one it is, and abort if you think you'll confict with it. This is something rarely used in 
@@ -223,7 +225,7 @@ Practice : my first example Zend extension
 
 Here we'll detail in practice some hooks Zend extensions can use, and what to do with them, in some very simple scenario.
 
-.. warning:: Remember that Zend extension design usually require that you master the 
+.. warning:: Remember that Zend extensions design usually require that you master the 
              :doc:`Zend engine <../zend_engine>` deeply.
 
 For our example here, we're gonna design a Zend extension that uses those hooks :
@@ -245,8 +247,8 @@ extensions, simply we won't declare in there the same things::
     /* Remember that we must declare such a symbol in a Zend extension. It is used to check
      * if it was built against the same API as the one PHP runtime uses */
     zend_extension_version_info extension_version_info = {
-	    ZEND_EXTENSION_API_NO,
-	    ZEND_EXTENSION_BUILD_ID
+        ZEND_EXTENSION_API_NO,
+     ZEND_EXTENSION_BUILD_ID
     };
 
     zend_extension zend_extension_entry = {
@@ -280,7 +282,7 @@ extensions, simply we won't declare in there the same things::
     
     static void pib_zend_extension_fcall_begin_handler(zend_execute_data *ex) { }
 
-So far so good, this extension compiles as a zend extension, but does nothing. Not really nothing.
+So far so good, this extension compiles as a Zend extension, but does nothing. Not really nothing.
 The first lines in the ``zend_extension`` structure appear in the ``phpinfo()``::
 
     This program makes use of the Zend Scripting Language Engine:
@@ -314,13 +316,14 @@ Then we'll start to dive into the engine, with our ``op_array_handler`` hook::
             uint32_t i, num_args = op_array->num_args;
 
             if (op_array->fn_flags & ZEND_ACC_CLOSURE) {
-        	    smart_str_appends(&out, "a closure ");
+                smart_str_appends(&out, "a closure ");
             } else {
-        	    smart_str_appends(&out, "function ");
-        	    smart_str_append(&out, op_array->function_name);
+                smart_str_appends(&out, "function ");
+                smart_str_append(&out, op_array->function_name);
             }
             smart_str_appendc(&out, '(');
 
+            /* The variadic arg is not declared as an arg internally */
             if (op_array->fn_flags & ZEND_ACC_VARIADIC) {
                 num_args++;
             }
@@ -394,10 +397,12 @@ Let's continue then ?::
     static void pib_zend_extension_fcall_begin_handler(zend_execute_data *execute_data)
     {
         if (!execute_data->call) {
+            /* Fetch the next OPline. We use pointer arithmetic for that */
             zend_op n = execute_data->func->op_array.opcodes[(execute_data->opline - execute_data->func->op_array.opcodes) + 1];
             if (n.extended_value == ZEND_EVAL) {
                 php_printf("Begining of a code eval() in %s:%u", ZSTR_VAL(execute_data->func->op_array.filename), n.lineno);
             } else {
+                /* The file to be include()ed is stored into the operand 1 of the OPLine */
                 zend_string *file = zval_get_string(EX_CONSTANT(n.op1));
                 php_printf("Begining of an include of file '%s'", ZSTR_VAL(file));
                 zend_string_release(file);
@@ -470,3 +475,417 @@ Hybrid extensions
 What we call hybrid extensions, are extensions that are **both** Zend extensions, and PHP extensions.
 
 How is that possible ? And what for ?.
+
+Well there are several answers to such a question :
+
+* To :doc:`register new PHP functions <php_functions>`, a PHP extension is better than a Zend extension, as it already 
+  knows how to do and has been designed for that specific purpose first. That would be pitty not to use it. OPCache 
+  does that.
+* If you need to register about all the hooks in the full lifecycle, you'll obviously need both sides
+* If you need to master the order Zend extensions are loaded, f.e to get loaded after OPCache, you will need to be 
+  hybrid
+
+The trick is simple, choose between : 
+
+* You are a PHP extension mainly. You get registered as a PHP extension, and when you start (``MINIT()``), you register 
+  yourself as a Zend Extension (slave).
+* You are a Zend extension mainly. You get registered as a Zend extension, and when you start (``startup()``), you 
+  register yourself as a PHP Extension (slave).
+
+So whether you are a PHP extension master and a Zend extension slave ; Or the opposite flavor.  
+
+As for the trick to be fully understood, we repeat here the full lifecycle of PHP and Zend extensions. Picture-print it 
+into your brain :
+
+.. image:: ./images/php_extensions_lifecycle_full.png
+   :align: center
+   
+Remember however, whatever schema you choose to go with, you'll have to register the slave part and trigger it by hand, 
+as the engine obviously won't do it. The engine triggers automaticaly the master part.
+
+Hybrid Zend extension master, PHP extension slave
+-------------------------------------------------
+
+Ok that is easy. We don't want to be loaded as a PHP extension, but exclusively as a Zend extension. To force things, 
+we won't publish the mandatory symbol ``get_module`` that the engine looks for when it tried to register a PHP 
+extension from reading the INI file.
+
+Thus, we will only be able to be registered as a *zend_extension=pib.so*. Registering as *extension=pib.so* will fail, 
+as the engine will fail to find our not-exported ``get_module`` symbol.
+
+But, in our startup hook of Zend extension, nothing prevents us from registering ourselves as a PHP extension::
+
+    #include "php.h"
+    #include "Zend/zend_extensions.h"
+    #include "php_pib.h"
+
+    #define PRINT(what) fprintf(stderr, what "\n");
+
+    /* Declared as static, thus private */
+    static zend_module_entry pib_module_entry = {
+        STANDARD_MODULE_HEADER,
+        "pib",
+        NULL, /* Function entries */
+        PHP_MINIT(pib), /* Module init */
+        PHP_MSHUTDOWN(pib), /* Module shutdown */
+        PHP_RINIT(pib), /* Request init */
+        PHP_RSHUTDOWN(pib), /* Request shutdown */
+        NULL, /* Module information */
+        "0.1", /* Replace with version number for your extension */
+        STANDARD_MODULE_PROPERTIES
+    };
+
+    /* This line should stay commented
+    ZEND_GET_MODULE(pib)
+    */
+
+    zend_extension_version_info extension_version_info = {
+        ZEND_EXTENSION_API_NO,
+        ZEND_EXTENSION_BUILD_ID
+    };
+
+    zend_extension zend_extension_entry = {
+        "pib-zend-extension",
+        "1.0",
+        "PHPInternalsBook Authors",
+        "http://www.phpinternalsbook.com",
+        "Our Copyright",
+        pib_zend_extension_startup,
+        pib_zend_extension_shutdown,
+        pib_zend_extension_activate,
+        pib_zend_extension_deactivate,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+
+        STANDARD_ZEND_EXTENSION_PROPERTIES
+    };
+
+    static void pib_zend_extension_activate(void)
+    {
+        PRINT("Zend extension new request starting up");
+    }
+
+    static void pib_zend_extension_deactivate(void)
+    {
+        PRINT("Zend extension current request is shutting down");
+    }
+
+    static int pib_zend_extension_startup(zend_extension *ext)
+    {
+        PRINT("Zend extension is starting up");
+
+        /* When the Zend extension part will startup(), make it register
+           a PHP extension by calling ourselves zend_startup_module() */
+        return zend_startup_module(&pib_module_entry);
+    }
+    
+    static void pib_zend_extension_shutdown(zend_extension *ext)
+    {
+        PRINT("Zend extension is shutting down");
+    }
+
+    static PHP_MINIT_FUNCTION(pib)
+    {
+        PRINT("PHP extension is starting up");
+
+        return SUCCESS;
+    }
+
+    static PHP_MSHUTDOWN_FUNCTION(pib)
+    {
+        PRINT("PHP extension is shutting down");
+
+        return SUCCESS;
+    }
+
+    static PHP_RINIT_FUNCTION(pib)
+    {
+        PRINT("PHP extension new request starting up");
+
+        return SUCCESS;
+    }
+
+    static PHP_RSHUTDOWN_FUNCTION(pib)
+    {
+        PRINT("PHP extension current request is shutting down");
+
+        return SUCCESS;
+    }
+
+We are done. Starting PHP with such a Zend extension activated will print the following on stderr::
+
+    Zend extension is starting up
+    PHP extension is starting up
+    Zend extension new request starting up
+    PHP extension new request starting up
+    PHP extension current request is shutting down
+    Zend extension current request is shutting down
+    PHP extension is shutting down
+    Zend extension is shutting down
+
+Like you can see, the hooks are honored in the right order, except the first two ones. Theoretically, PHP extensions 
+should startup before Zend extensions, but as we got registered as a Zend extension, when the engine runs our Zend 
+extension hook, it knows nothing about our PHP extension module startup part (``MINIT()``) yet. We tell it to start our 
+PHP extension up, and then as part of Zend extension ``startup()`` hook, we make it trigger the PHP extension startup 
+hook by hand, by callling for ``zend_startup_module()``. Obviously you'll have to take care not to create a circular 
+loop and not to make the engine crazy about what you will concretely do in such hooks.
+
+It is perfectly both easy and logical.
+
+From now, we are both a PHP extension and a Zend extension. Look at that::
+
+    > php -dzend_extension=pib.so -m
+    [PHP modules]
+    Core
+    date
+    (...)
+    pib
+    posix
+    Reflection
+    (...)
+
+    [Zend Modules]
+    pib-zend-extension
+
+Our PHP extension is effectively called "pib" and shows up, and our Zend extension is effectively called 
+"pib-zend-extension" and shows up as well. We chose two different names for both parts, we could have chosen the same 
+name.
+
+.. note:: OPCache and Xdebug use such an hybrid model, they are Zend extensions, but they need to publish PHP 
+          functions and thus they are also PHP extensions to do so.
+
+Hybrid PHP extension master, Zend extension slave
+-------------------------------------------------
+
+Now let's go for the other way around : we want to be registered by the engine as a PHP extension, and not as a 
+Zend extension, but still want to be hybrid.
+
+Well, we'll do the opposite : we won't publish our ``zend_extension_version_info`` symbol, this way it will be 
+impossible to load us as a Zend extension : the engine will deny that. But obviously this time, we'll declare a 
+``get_module`` symbol to be able to get loaded as a PHP extension. And, in our ``MINIT()``, we'll register ourselves as 
+a Zend extension ::
+
+    #include "php.h"
+    #include "Zend/zend_extensions.h"
+    #include "php_pib.h"
+    #include "Zend/zend_smart_str.h"
+
+    #define PRINT(what) fprintf(stderr, what "\n");
+
+    zend_module_entry pib_module_entry = {
+        STANDARD_MODULE_HEADER,
+        "pib",
+        NULL, /* Function entries */
+        PHP_MINIT(pib), /* Module init */
+        PHP_MSHUTDOWN(pib), /* Module shutdown */
+        PHP_RINIT(pib), /* Request init */
+        PHP_RSHUTDOWN(pib), /* Request shutdown */
+        NULL, /* Module information */
+        "0.1", /* Replace with version number for your extension */
+        STANDARD_MODULE_PROPERTIES
+    };
+
+    ZEND_GET_MODULE(pib)
+
+    /* Should be kept commented 
+     * zend_extension_version_info extension_version_info = {
+     *   ZEND_EXTENSION_API_NO,
+     *    ZEND_EXTENSION_BUILD_ID
+     * };
+     */
+
+    static zend_extension zend_extension_entry = {
+        "pib-zend-extension",
+        "1.0",
+        "PHPInternalsBook Authors",
+        "http://www.phpinternalsbook.com",
+        "Our Copyright",
+        pib_zend_extension_startup,
+        pib_zend_extension_shutdown,
+        pib_zend_extension_activate,
+        pib_zend_extension_deactivate,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+
+        STANDARD_ZEND_EXTENSION_PROPERTIES
+    };
+
+    static void pib_zend_extension_activate(void)
+    {
+        PRINT("Zend extension new request starting up");
+    }
+
+    static void pib_zend_extension_deactivate(void)
+    {
+        PRINT("Zend extension current request is shutting down");
+    }
+
+    static int pib_zend_extension_startup(zend_extension *ext)
+    {
+        PRINT("Zend extension is starting up");
+
+        return SUCCESS;
+    }
+
+    static PHP_MINIT_FUNCTION(pib)
+    {
+        PRINT("PHP extension is starting up");
+
+        /* Register our zend_extension part now */
+        zend_register_extension(&zend_extension_entry, NULL);
+
+        return SUCCESS;
+    }
+
+    static void pib_zend_extension_shutdown(zend_extension *ext)
+    {
+        PRINT("Zend extension is shutting down");
+    }
+
+    static PHP_MSHUTDOWN_FUNCTION(pib)
+    {
+        PRINT("PHP extension is shutting down");
+
+        return SUCCESS;
+    }
+
+    static PHP_RINIT_FUNCTION(pib)
+    {
+        PRINT("PHP extension new request starting up");
+
+        return SUCCESS;
+    }
+
+    static PHP_RSHUTDOWN_FUNCTION(pib)
+    {
+        PRINT("PHP extension current request is shutting down");
+
+        return SUCCESS;
+    }
+
+And that crashes badly just at the end (sad !), at ``pib_zend_extension_shutdown()``. Firing a debugger, it is easy to 
+know why.
+
+Here, we are loaded as a PHP extension. Look at the hooks. When hitting ``MSHUTDOWN()``, the engine runs our 
+``MSHUTDOWN()``, but **it unloads us** just after that ! It calls for ``dlclose()`` on our extension, 
+`look at the source code <https://github.com/php/php-src/blob/4d6100569b7611ef66086bec96fe8b5046e30ef7/Zend/
+zend_API.c#L2527>`_, the solution is as often located in there.
+
+So what happens is easy, just after trigerring our ``RSHUTDOWN()``, the engine unloads our *pib.so* ; when it comes to 
+call our Zend extension part ``shutdown()``, we are not part of the process address space anymore, thus we badly crash 
+the entire PHP process.
+
+What is the solution ? Well if you read the source, and if you read the other chapters of this book, you should know 
+that if we pass an env ``ZEND_DONT_UNLOAD_MODULES`` and put it to 1 , the engine won't unload us. We could then write 
+such an env in ``MSHUTDOWN()``, and unwrite it in ``shutdown()``. 
+`putenv() <http://man7.org/linux/man-pages/man3/putenv.3.html>`_ will do the job. That's fine even if that's tricky. 
+Also, if another extension between us plays with that, that will smell for us.
+
+The second solution is less portable but safer/stronger, and calls for your knowledge of how libdl works. 
+`Read libdl manual <https://linux.die.net/man/3/dlopen>`_, and you'll find a 
+`glibc <https://www.gnu.org/software/libc/>`_-only solution.
+
+That solution is to increment the refcount of the libdl handle, by calling ``dlopen()`` one more time for our extension. 
+That way, when the engine will ``dlclose()`` us, libdl will simply decrement the refcount of the shared object (ourselves), 
+but won't close it until the last reference (us) does so.
+But ``dlopen()`` takes a full path to the object to open, and we don't know our own location path (where will be located 
+our *pib.so* on the runtime environment ?). To get that path, we'll have to call for 
+`dladdr() <https://linux.die.net/man/3/dlopen>`_ , but ``dladdr()`` is glibc only. We are less portable here, but we are 
+clearly safe. If you run on a system which doesn't use glibc (very unlikely), get some informations about it to know if 
+it supports ``dladdr()`` call or an alternative.
+
+.. note:: That is one drawback of the C language : the lack of definition when it was born back in 1970 makes its usage 
+          often platform dependant. You have to master the platforms you target.
+
+The closing part, will be part of the unload of the Zend extension, and for that we'll have to share the libdl handle 
+between the ``zend_module_entry``, and the ``zend_extension``.
+
+Code patched::
+
+    static PHP_MINIT_FUNCTION(pib)
+    {
+        Dl_info infos;
+
+        PRINT("PHP extension is starting up");
+
+        /* Register our zend_extension part, and share our libdl handle so that
+           the zend_extension shutdown step in the engine will dlclose() us */
+        zend_register_extension(&zend_extension_entry, pib_module_entry.handle);
+
+        /* Get our full path filename at runtime */
+        dladdr(ZEND_MODULE_STARTUP_N(pib), &infos);
+        
+        /* Increment our libdl's handle refcount by reopening ourselves */
+        dlopen(infos.dli_fname, 0);
+
+        return SUCCESS;
+    }
+
+If you launch it now, you'll get the expected result::
+
+    PHP extension is starting up
+    Zend extension is starting up
+    Zend extension new request starting up
+    PHP extension new request starting up
+    PHP extension current request is shutting down
+    Zend extension current request is shutting down
+    PHP extension is shutting down
+    Zend extension is shutting down
+
+.. note:: Blackfire uses such an hybrid model but hasn't got a Zend extension shutdown() hook and thus doesn't need the 
+          patch about module unload.
+
+Hybrid hybrid
+-------------
+
+Hybrid hybrid is simply a model where you allow the user to load you whether as Zend extension or PHP extension.
+
+What you have to do, is remember how you've been loaded, using a global for example, so that you can take care of both 
+modes.
+
+Let's write just the diff parts::
+
+    static char started = 0;
+
+    static int pib_zend_extension_startup(zend_extension *ext)
+    {
+        if (!started) {
+            started = 1;
+            return zend_startup_module(&pib_module_entry);
+        }
+
+        PRINT("Zend extension is starting up");
+
+        return SUCCESS;
+    }
+
+    static PHP_MINIT_FUNCTION(pib)
+    {
+        if (!started)    {
+            started = 1;
+            Dl_info infos;
+            zend_register_extension(&zend_extension_entry, pib_module_entry.handle);
+
+            dladdr(ZEND_MODULE_STARTUP_N(pib), &infos);
+            dlopen(infos.dli_fname, 0);
+        }
+
+        PRINT("PHP extension is starting up");
+
+        return SUCCESS;
+    }
+
+Obviously every symbol must be public. With the code above, you can get loaded as PHP extension (extension=pib.so) or 
+as Zend extension (zend_extension=pib.so) ; end-user will have choice, that's the advantage of such a model, even if 
+we authors are not aware of its usage.
+
