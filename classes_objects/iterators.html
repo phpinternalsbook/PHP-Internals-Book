@@ -29,12 +29,12 @@
     <link rel="next" title="Serialization" href="serialization.html" />
     <link rel="prev" title="Object handlers" href="object_handlers.html" /> 
   </head>
-  <body role="document">
-      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Iterators</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav">
       
         <p>
         «&#160;&#160;<a href="object_handlers.html">Object handlers</a>
@@ -54,9 +54,9 @@
 aspect is still missing though: Iteration. In this section we&#8217;ll look at how iterators are implemented internally and
 how we can make use of them. Once again typed arrays will serve as the example.</p>
 <div class="section" id="the-get-iterator-handler">
-<h2>The <code class="docutils literal"><span class="pre">get_iterator</span></code> handler<a class="headerlink" href="#the-get-iterator-handler" title="Permalink to this headline">¶</a></h2>
-<p>Internally iteration works very similar to the userland <code class="docutils literal"><span class="pre">IteratorAggregate</span></code> interface. The class has a
-<code class="docutils literal"><span class="pre">get_iterator</span></code> handler that returns a <code class="docutils literal"><span class="pre">zend_object_iterator*</span></code>, which looks as follows:</p>
+<h2>The <tt class="docutils literal"><span class="pre">get_iterator</span></tt> handler<a class="headerlink" href="#the-get-iterator-handler" title="Permalink to this headline">¶</a></h2>
+<p>Internally iteration works very similar to the userland <tt class="docutils literal"><span class="pre">IteratorAggregate</span></tt> interface. The class has a
+<tt class="docutils literal"><span class="pre">get_iterator</span></tt> handler that returns a <tt class="docutils literal"><span class="pre">zend_object_iterator*</span></tt>, which looks as follows:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">struct</span> <span class="n">_zend_object_iterator</span> <span class="p">{</span>
     <span class="kt">void</span> <span class="o">*</span><span class="n">data</span><span class="p">;</span>
     <span class="n">zend_object_iterator_funcs</span> <span class="o">*</span><span class="n">funcs</span><span class="p">;</span>
@@ -64,8 +64,8 @@ how we can make use of them. Once again typed arrays will serve as the example.<
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">index</span></code> member is used internally by the <code class="docutils literal"><span class="pre">foreach</span></code> implementation. It is incremented on each iteration and is
-used for the keys if you don&#8217;t specify a custom key function. The <code class="docutils literal"><span class="pre">funcs</span></code> member contains handlers for the different
+<p>The <tt class="docutils literal"><span class="pre">index</span></tt> member is used internally by the <tt class="docutils literal"><span class="pre">foreach</span></tt> implementation. It is incremented on each iteration and is
+used for the keys if you don&#8217;t specify a custom key function. The <tt class="docutils literal"><span class="pre">funcs</span></tt> member contains handlers for the different
 iteration actions:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_object_iterator_funcs</span> <span class="p">{</span>
     <span class="cm">/* release all resources associated with this iterator instance */</span>
@@ -91,16 +91,16 @@ iteration actions:</p>
 <span class="p">}</span> <span class="n">zend_object_iterator_funcs</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>The handlers are pretty similar to the <code class="docutils literal"><span class="pre">Iterator</span></code> interface, only with slightly different names. The only handler
-that has no correspondence in userland is <code class="docutils literal"><span class="pre">invalidate_current</span></code>, which can be used to destroy the current key/value.
-The handler is largely unused though, in particular <code class="docutils literal"><span class="pre">foreach</span></code> won&#8217;t even call it.</p>
-<p>The last member in the struct is <code class="docutils literal"><span class="pre">data</span></code>, which can be used to carry around some custom data. Usually this one slot
+<p>The handlers are pretty similar to the <tt class="docutils literal"><span class="pre">Iterator</span></tt> interface, only with slightly different names. The only handler
+that has no correspondence in userland is <tt class="docutils literal"><span class="pre">invalidate_current</span></tt>, which can be used to destroy the current key/value.
+The handler is largely unused though, in particular <tt class="docutils literal"><span class="pre">foreach</span></tt> won&#8217;t even call it.</p>
+<p>The last member in the struct is <tt class="docutils literal"><span class="pre">data</span></tt>, which can be used to carry around some custom data. Usually this one slot
 isn&#8217;t enough though, so instead of the structure is extended, similarly to what you have already seen with
-<code class="docutils literal"><span class="pre">zend_object</span></code>.</p>
+<tt class="docutils literal"><span class="pre">zend_object</span></tt>.</p>
 <p>In order to iterate typed arrays we&#8217;ll have to store a few things: First of all, we need to hold a reference to the
-buffer view object (otherwise it may be destroyed during iteration). We can store this in the <code class="docutils literal"><span class="pre">data</span></code> member.
-Furthermore we should keep around the <code class="docutils literal"><span class="pre">buffer_view_object</span></code> so we don&#8217;t have to refetch it on every handler call.
-Additionally we&#8217;ll have to store the current iteration <code class="docutils literal"><span class="pre">offset</span></code> and the <code class="docutils literal"><span class="pre">zval*</span></code> of the current element (you&#8217;ll see
+buffer view object (otherwise it may be destroyed during iteration). We can store this in the <tt class="docutils literal"><span class="pre">data</span></tt> member.
+Furthermore we should keep around the <tt class="docutils literal"><span class="pre">buffer_view_object</span></tt> so we don&#8217;t have to refetch it on every handler call.
+Additionally we&#8217;ll have to store the current iteration <tt class="docutils literal"><span class="pre">offset</span></tt> and the <tt class="docutils literal"><span class="pre">zval*</span></tt> of the current element (you&#8217;ll see
 a bit later why we need to do this):</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_buffer_view_iterator</span> <span class="p">{</span>
     <span class="n">zend_object_iterator</span> <span class="n">intern</span><span class="p">;</span>
@@ -110,7 +110,7 @@ a bit later why we need to do this):</p>
 <span class="p">}</span> <span class="n">buffer_view_iterator</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>Let&#8217;s also declare a dummy <code class="docutils literal"><span class="pre">zend_object_iterator_funcs</span></code> structure so we have something to work on:</p>
+<p>Let&#8217;s also declare a dummy <tt class="docutils literal"><span class="pre">zend_object_iterator_funcs</span></tt> structure so we have something to work on:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="n">zend_object_iterator_funcs</span> <span class="n">buffer_view_iterator_funcs</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">buffer_view_iterator_dtor</span><span class="p">,</span>
     <span class="n">buffer_view_iterator_valid</span><span class="p">,</span>
@@ -121,8 +121,8 @@ a bit later why we need to do this):</p>
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>Now we can implement the <code class="docutils literal"><span class="pre">get_iterator</span></code> handler. This handler receives the class entry, the object and whether the
-iteration is done by reference and returns a <code class="docutils literal"><span class="pre">zend_object_iterator*</span></code>. All we have to do is allocate the iterator and
+<p>Now we can implement the <tt class="docutils literal"><span class="pre">get_iterator</span></tt> handler. This handler receives the class entry, the object and whether the
+iteration is done by reference and returns a <tt class="docutils literal"><span class="pre">zend_object_iterator*</span></tt>. All we have to do is allocate the iterator and
 set the respective members:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_object_iterator</span> <span class="o">*</span><span class="nf">buffer_view_get_iterator</span><span class="p">(</span>
     <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="kt">int</span> <span class="n">by_ref</span> <span class="n">TSRMLS_DC</span>
@@ -159,12 +159,12 @@ set the respective members:</p>
 <span class="cp">        zend_ce_arrayaccess, zend_ce_traversable);</span>
 </pre></div>
 </div>
-<p>The new things are the assignment to the <code class="docutils literal"><span class="pre">get_iterator</span></code> and <code class="docutils literal"><span class="pre">iterator_funcs.funcs</span></code> as well as the implementation
-of the <code class="docutils literal"><span class="pre">Traversable</span></code> interface.</p>
+<p>The new things are the assignment to the <tt class="docutils literal"><span class="pre">get_iterator</span></tt> and <tt class="docutils literal"><span class="pre">iterator_funcs.funcs</span></tt> as well as the implementation
+of the <tt class="docutils literal"><span class="pre">Traversable</span></tt> interface.</p>
 </div>
 <div class="section" id="iterator-functions">
 <h2>Iterator functions<a class="headerlink" href="#iterator-functions" title="Permalink to this headline">¶</a></h2>
-<p>Now let&#8217;s actually implement the <code class="docutils literal"><span class="pre">buffer_view_iterator_funcs</span></code> that we specified above:</p>
+<p>Now let&#8217;s actually implement the <tt class="docutils literal"><span class="pre">buffer_view_iterator_funcs</span></tt> that we specified above:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span> <span class="nf">buffer_view_iterator_dtor</span><span class="p">(</span><span class="n">zend_object_iterator</span> <span class="o">*</span><span class="n">intern</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="n">iter</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="p">)</span> <span class="n">intern</span><span class="p">;</span>
@@ -181,7 +181,7 @@ of the <code class="docutils literal"><span class="pre">Traversable</span></code
 <span class="p">{</span>
     <span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="n">iter</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="p">)</span> <span class="n">intern</span><span class="p">;</span>
 
-    <span class="k">return</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">view</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">?</span> <span class="nl">SUCCESS</span> <span class="p">:</span> <span class="n">FAILURE</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">view</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">?</span> <span class="n">SUCCESS</span> <span class="o">:</span> <span class="n">FAILURE</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="k">static</span> <span class="kt">void</span> <span class="nf">buffer_view_iterator_get_current_data</span><span class="p">(</span>
@@ -236,28 +236,28 @@ of the <code class="docutils literal"><span class="pre">Traversable</span></code
 </pre></div>
 </div>
 <p>The functions should be rather straightforward, so only a few comments:</p>
-<p><code class="docutils literal"><span class="pre">get_current_data</span></code> gets a <code class="docutils literal"><span class="pre">zval***</span> <span class="pre">data</span></code> as the parameter and expects us to write a <code class="docutils literal"><span class="pre">zval**</span></code> into it using
-<code class="docutils literal"><span class="pre">*data</span> <span class="pre">=</span> <span class="pre">...</span></code>. The <code class="docutils literal"><span class="pre">zval**</span></code> is required because iteration can also happen by reference, in which case <code class="docutils literal"><span class="pre">zval*</span></code>
-won&#8217;t suffice. The <code class="docutils literal"><span class="pre">zval**</span></code> is the reason why we have to store the current <code class="docutils literal"><span class="pre">zval*</span></code> in the iterator.</p>
-<p>How the <code class="docutils literal"><span class="pre">get_current_key</span></code> handler looks like depends on the PHP version: With PHP 5.5 you simply have to write the
-key into the passed <code class="docutils literal"><span class="pre">key</span></code> variable using one of the <code class="docutils literal"><span class="pre">ZVAL_*</span></code> macros.</p>
-<p>On older versions of PHP the <code class="docutils literal"><span class="pre">get_current_key</span></code> handler takes three parameters that can be set depending on which key
-type is returned. If you return <code class="docutils literal"><span class="pre">HASH_KEY_NON_EXISTANT</span></code> the resulting key will be <code class="docutils literal"><span class="pre">null</span></code> and you don&#8217;t have to set
-any of them. For <code class="docutils literal"><span class="pre">HASH_KEY_IS_LONG</span></code> you set the <code class="docutils literal"><span class="pre">int_key</span></code> argument. For <code class="docutils literal"><span class="pre">HASH_KEY_IS_STRING</span></code> you have to set
-<code class="docutils literal"><span class="pre">str_key</span></code> and <code class="docutils literal"><span class="pre">str_key_len</span></code>. Note that here <code class="docutils literal"><span class="pre">str_key_len</span></code> is the string length plus one (similar to how it is done
-in the <code class="docutils literal"><span class="pre">zend_hash</span></code> APIs).</p>
+<p><tt class="docutils literal"><span class="pre">get_current_data</span></tt> gets a <tt class="docutils literal"><span class="pre">zval***</span> <span class="pre">data</span></tt> as the parameter and expects us to write a <tt class="docutils literal"><span class="pre">zval**</span></tt> into it using
+<tt class="docutils literal"><span class="pre">*data</span> <span class="pre">=</span> <span class="pre">...</span></tt>. The <tt class="docutils literal"><span class="pre">zval**</span></tt> is required because iteration can also happen by reference, in which case <tt class="docutils literal"><span class="pre">zval*</span></tt>
+won&#8217;t suffice. The <tt class="docutils literal"><span class="pre">zval**</span></tt> is the reason why we have to store the current <tt class="docutils literal"><span class="pre">zval*</span></tt> in the iterator.</p>
+<p>How the <tt class="docutils literal"><span class="pre">get_current_key</span></tt> handler looks like depends on the PHP version: With PHP 5.5 you simply have to write the
+key into the passed <tt class="docutils literal"><span class="pre">key</span></tt> variable using one of the <tt class="docutils literal"><span class="pre">ZVAL_*</span></tt> macros.</p>
+<p>On older versions of PHP the <tt class="docutils literal"><span class="pre">get_current_key</span></tt> handler takes three parameters that can be set depending on which key
+type is returned. If you return <tt class="docutils literal"><span class="pre">HASH_KEY_NON_EXISTANT</span></tt> the resulting key will be <tt class="docutils literal"><span class="pre">null</span></tt> and you don&#8217;t have to set
+any of them. For <tt class="docutils literal"><span class="pre">HASH_KEY_IS_LONG</span></tt> you set the <tt class="docutils literal"><span class="pre">int_key</span></tt> argument. For <tt class="docutils literal"><span class="pre">HASH_KEY_IS_STRING</span></tt> you have to set
+<tt class="docutils literal"><span class="pre">str_key</span></tt> and <tt class="docutils literal"><span class="pre">str_key_len</span></tt>. Note that here <tt class="docutils literal"><span class="pre">str_key_len</span></tt> is the string length plus one (similar to how it is done
+in the <tt class="docutils literal"><span class="pre">zend_hash</span></tt> APIs).</p>
 </div>
 <div class="section" id="honoring-inheritance">
 <h2>Honoring inheritance<a class="headerlink" href="#honoring-inheritance" title="Permalink to this headline">¶</a></h2>
 <p>Once again we need to consider what happens when the user extends the class and wants to change the iteration behavior.
 Right now he would have to reimplement the iteration mechanism manually, because the individual iteration handlers are
 not exposed to userland (only through foreach).</p>
-<p>As already with the object handlers we&#8217;ll solve this by also implementing the normal <code class="docutils literal"><span class="pre">Iterator</span></code> interface. This time
+<p>As already with the object handlers we&#8217;ll solve this by also implementing the normal <tt class="docutils literal"><span class="pre">Iterator</span></tt> interface. This time
 we won&#8217;t need special handling to ensure that PHP actually calls the overridden methods: PHP will automatically use the
-fast internal handlers when the class is used directly, but will use the <code class="docutils literal"><span class="pre">Iterator</span></code> methods if the class is extended.</p>
-<p>In order to implement the <code class="docutils literal"><span class="pre">Iterator</span></code> methods we have to add a new <code class="docutils literal"><span class="pre">size_t</span> <span class="pre">current_offset</span></code> member to
-<code class="docutils literal"><span class="pre">buffer_view_object</span></code>, which stores the current offset for the iteration methods (and is completely separate from the
-iteration state used by <code class="docutils literal"><span class="pre">get_iterator</span></code>-style iterators). The methods itself are to the most part just argument
+fast internal handlers when the class is used directly, but will use the <tt class="docutils literal"><span class="pre">Iterator</span></tt> methods if the class is extended.</p>
+<p>In order to implement the <tt class="docutils literal"><span class="pre">Iterator</span></tt> methods we have to add a new <tt class="docutils literal"><span class="pre">size_t</span> <span class="pre">current_offset</span></tt> member to
+<tt class="docutils literal"><span class="pre">buffer_view_object</span></tt>, which stores the current offset for the iteration methods (and is completely separate from the
+iteration state used by <tt class="docutils literal"><span class="pre">get_iterator</span></tt>-style iterators). The methods itself are to the most part just argument
 checking boilerplate:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_rewind</span><span class="p">)</span>
 <span class="p">{</span>
@@ -335,7 +335,7 @@ checking boilerplate:</p>
 <span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">array_buffer_view_current</span><span class="p">,</span> <span class="n">arginfo_buffer_view_void</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Obviously we now should also implement <code class="docutils literal"><span class="pre">Iterator</span></code> rather than <code class="docutils literal"><span class="pre">Traversable</span></code>:</p>
+<p>Obviously we now should also implement <tt class="docutils literal"><span class="pre">Iterator</span></tt> rather than <tt class="docutils literal"><span class="pre">Traversable</span></tt>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cp">#define DEFINE_ARRAY_BUFFER_VIEW_CLASS(class_name, type)                     \</span>
 <span class="cp">    INIT_CLASS_ENTRY(tmp_ce, #class_name, array_buffer_view_functions);      \</span>
 <span class="cp">    type##_array_ce = zend_register_internal_class(&amp;tmp_ce TSRMLS_CC);       \</span>
@@ -346,9 +346,9 @@ checking boilerplate:</p>
 <span class="cp">        zend_ce_arrayaccess, zend_ce_iterator);</span>
 </pre></div>
 </div>
-<p>One last consideration regarding this: In general it is always better to implement <code class="docutils literal"><span class="pre">IteratorAggregate</span></code> rather than
-<code class="docutils literal"><span class="pre">Iterator</span></code>, because <code class="docutils literal"><span class="pre">IteratorAggregate</span></code> decouples the iterator state from the main object. This is obviously simply
-better design, but also allows things like independent nested iteration. I still chose to implement <code class="docutils literal"><span class="pre">Iterator</span></code> here,
+<p>One last consideration regarding this: In general it is always better to implement <tt class="docutils literal"><span class="pre">IteratorAggregate</span></tt> rather than
+<tt class="docutils literal"><span class="pre">Iterator</span></tt>, because <tt class="docutils literal"><span class="pre">IteratorAggregate</span></tt> decouples the iterator state from the main object. This is obviously simply
+better design, but also allows things like independent nested iteration. I still chose to implement <tt class="docutils literal"><span class="pre">Iterator</span></tt> here,
 because aggregates have a higher implementational overhead (as they require a separate class that has to interact with
 an independent object).</p>
 </div>
@@ -356,7 +356,7 @@ an independent object).</p>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav">
       
         <p>
         «&#160;&#160;<a href="object_handlers.html">Object handlers</a>

@@ -29,12 +29,12 @@
     <link rel="next" title="Memory management" href="../memory_management.html" />
     <link rel="prev" title="Declaring and using INI settings" href="ini_settings.html" /> 
   </head>
-  <body role="document">
-      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Registering and using PHP functions</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav">
       
         <p>
         «&#160;&#160;<a href="ini_settings.html">Declaring and using INI settings</a>
@@ -60,7 +60,7 @@ then.</p>
 <a class="reference internal" href="../memory_management.html"><em>memory management</em></a> here. Also, know your <a class="reference internal" href="php_lifecycle.html"><em>hooks</em></a>.</p>
 <div class="section" id="zend-function-entry-structure">
 <h2>zend_function_entry structure<a class="headerlink" href="#zend-function-entry-structure" title="Permalink to this headline">¶</a></h2>
-<p>Not to be confused with <a class="reference internal" href="../internal_types/functions.html"><em>the zend_function structure</em></a>, <code class="docutils literal"><span class="pre">zend_function_entry</span></code> is
+<p>Not to be confused with <a class="reference internal" href="../internal_types/functions.html"><em>the zend_function structure</em></a>, <tt class="docutils literal"><span class="pre">zend_function_entry</span></tt> is
 used to register functions against the engine while in an extension.
 Here it is:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cp">#define INTERNAL_FUNCTION_PARAMETERS zend_execute_data *execute_data, zval *return_value</span>
@@ -76,19 +76,19 @@ Here it is:</p>
 </div>
 <p>You can spot that this structure is not complex. This is all you&#8217;ll need to declare and register a new function.
 Let&#8217;s detail it together:</p>
-<p>A function&#8217;s got a name: <code class="docutils literal"><span class="pre">fname</span></code>. Nothing to add, you see what it&#8217;s used for right? Just notice the <code class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>
-type. That can&#8217;t fit into the engine. This <code class="docutils literal"><span class="pre">fname</span></code> is a model and the engine will create from it an
+<p>A function&#8217;s got a name: <tt class="docutils literal"><span class="pre">fname</span></tt>. Nothing to add, you see what it&#8217;s used for right? Just notice the <tt class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></tt>
+type. That can&#8217;t fit into the engine. This <tt class="docutils literal"><span class="pre">fname</span></tt> is a model and the engine will create from it an
 <a class="reference internal" href="../internal_types/strings/zend_strings.html"><em>interned zend_string</em></a>.</p>
-<p>Then comes the <code class="docutils literal"><span class="pre">handler</span></code>. This is a function pointer to the C code that will be the body of that function. Here,
+<p>Then comes the <tt class="docutils literal"><span class="pre">handler</span></tt>. This is a function pointer to the C code that will be the body of that function. Here,
 we&#8217;ll use macros to ease its declaration (we&#8217;ll see that in a minute). Into this function, we&#8217;ll be able to parse the
 parameters the function receives, and generate a return value just like any PHP userland function. Notice that this
 return value is passed to our handler as a parameter.</p>
-<p>Arguments. The <code class="docutils literal"><span class="pre">arg_info</span></code> variable is about declaring the API arguments our function will accept. Here again,
+<p>Arguments. The <tt class="docutils literal"><span class="pre">arg_info</span></tt> variable is about declaring the API arguments our function will accept. Here again,
 that part can be tricky to deeply understand, but we don&#8217;t need to get too deep and we&#8217;ll once more use macros to
 abstract and ease arguments declaration. What you should know is that you are not required to declare any arguments
 here for the function to work, but it is highly recommanded. We&#8217;ll get back to that. Arguments are an array of
-<code class="docutils literal"><span class="pre">arg_info</span></code>, and thus its size is passed as <code class="docutils literal"><span class="pre">num_args</span></code>.</p>
-<p>Then come <code class="docutils literal"><span class="pre">flags</span></code>. We won&#8217;t detail flags in this chapter. Those are used internally, you&#8217;ll find some details in the
+<tt class="docutils literal"><span class="pre">arg_info</span></tt>, and thus its size is passed as <tt class="docutils literal"><span class="pre">num_args</span></tt>.</p>
+<p>Then come <tt class="docutils literal"><span class="pre">flags</span></tt>. We won&#8217;t detail flags in this chapter. Those are used internally, you&#8217;ll find some details in the
 dedicated <a class="reference internal" href="../internal_types/functions.html"><em>zend_function</em></a> chapter.</p>
 </div>
 <div class="section" id="registering-php-functions">
@@ -139,12 +139,12 @@ current request: they are permanent.</p>
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>Let&#8217;s play with a simple <code class="docutils literal"><span class="pre">fahrenheit_to_celsius()</span></code> function (which name tells us what it will perform).</p>
-<p>Defining a function is done by using the <code class="docutils literal"><span class="pre">PHP_FUNCTION()</span></code> macro. That latter will take its argument and expand to the
+<p>Let&#8217;s play with a simple <tt class="docutils literal"><span class="pre">fahrenheit_to_celsius()</span></tt> function (which name tells us what it will perform).</p>
+<p>Defining a function is done by using the <tt class="docutils literal"><span class="pre">PHP_FUNCTION()</span></tt> macro. That latter will take its argument and expand to the
 right structure.
-Then, we gather that function symbol and add it to the <code class="docutils literal"><span class="pre">pib_functions</span></code> vector. This is on type
-<code class="docutils literal"><span class="pre">zend_function_entry</span> <span class="pre">*</span></code>, the type extected by our <code class="docutils literal"><span class="pre">zend_module_entry</span></code> symbol. Into this vector, we add our PHP
-functions using the <code class="docutils literal"><span class="pre">PHP_FE</span></code> macro. That latter needs the PHP function name, and an argument vector which we passed
+Then, we gather that function symbol and add it to the <tt class="docutils literal"><span class="pre">pib_functions</span></tt> vector. This is on type
+<tt class="docutils literal"><span class="pre">zend_function_entry</span> <span class="pre">*</span></tt>, the type extected by our <tt class="docutils literal"><span class="pre">zend_module_entry</span></tt> symbol. Into this vector, we add our PHP
+functions using the <tt class="docutils literal"><span class="pre">PHP_FE</span></tt> macro. That latter needs the PHP function name, and an argument vector which we passed
 NULL for the moment.</p>
 <p>Into our <em>php_pib.h</em> header file, we should here declare our function, like the C language tells us to do so:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cm">/* pib.h */</span>
@@ -166,11 +166,11 @@ Here is the same code, but with the macros expanded, so that you can have a look
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Notice how <code class="docutils literal"><span class="pre">PHP_FUNCTION()</span></code> expanded to a C symbol beginning by <code class="docutils literal"><span class="pre">zif_</span></code>. <em>&#8216;zif&#8217;</em> stands for
+<p>Notice how <tt class="docutils literal"><span class="pre">PHP_FUNCTION()</span></tt> expanded to a C symbol beginning by <tt class="docutils literal"><span class="pre">zif_</span></tt>. <em>&#8216;zif&#8217;</em> stands for
 <em>Zend Internal Function</em>, it is added to the name of your function to prevent symbol name collisions in the compilation
-of PHP and its modules. Thus, our <code class="docutils literal"><span class="pre">fahrenheit_to_celsius()</span></code> PHP function uses a C handler named
-<code class="docutils literal"><span class="pre">zif_fahrenheit_to_celsius()</span></code>. It is the same for nearly every PHP function. If you look for &#8220;zif_var_dump&#8221;, you&#8217;ll
-read the PHP <code class="docutils literal"><span class="pre">var_dump()</span></code> source code function, etc...</p>
+of PHP and its modules. Thus, our <tt class="docutils literal"><span class="pre">fahrenheit_to_celsius()</span></tt> PHP function uses a C handler named
+<tt class="docutils literal"><span class="pre">zif_fahrenheit_to_celsius()</span></tt>. It is the same for nearly every PHP function. If you look for &#8220;zif_var_dump&#8221;, you&#8217;ll
+read the PHP <tt class="docutils literal"><span class="pre">var_dump()</span></tt> source code function, etc...</p>
 </div>
 <div class="section" id="declaring-function-arguments">
 <h2>Declaring function arguments<a class="headerlink" href="#declaring-function-arguments" title="Permalink to this headline">¶</a></h2>
@@ -185,7 +185,7 @@ Extension [ &lt;persistent&gt; extension #37 pib version 0.1 ] {
 }
 </pre></div>
 </div>
-<p>But its arguments are missing. If we want to publish a <code class="docutils literal"><span class="pre">fahrenheit_to_celsius($fahrenheit)</span></code> function signature, we
+<p>But its arguments are missing. If we want to publish a <tt class="docutils literal"><span class="pre">fahrenheit_to_celsius($fahrenheit)</span></tt> function signature, we
 need one mandatory argument.</p>
 <p>What you must know is that argument declaration has nothing to do with the function internal work. That means that this
 function could have worked if we would have written its body now. Even with no declared arguments.</p>
@@ -195,7 +195,7 @@ function could have worked if we would have written its body now. Even with no d
 informations about the function. Arguments are also used by the engine, especially when we talk about
 arguments passed by reference, or functions returning references.</p>
 </div>
-<p>To declare arguments, we need to familiarize with the <code class="docutils literal"><span class="pre">zend_internal_arg_info</span></code> structure:</p>
+<p>To declare arguments, we need to familiarize with the <tt class="docutils literal"><span class="pre">zend_internal_arg_info</span></tt> structure:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_internal_arg_info</span> <span class="p">{</span>
         <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
         <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">class_name</span><span class="p">;</span>
@@ -215,12 +215,12 @@ Fortunately, you are once more provided some macros to abstract the hard job for
 </div>
 <p>The code above details how to create an argument, but when we expand macros, we can feel some difficulty:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="k">const</span> <span class="n">zend_internal_arg_info</span> <span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span> \
-            <span class="p">{</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">)(</span><span class="n">zend_uintptr_t</span><span class="p">)(</span><span class="mi">1</span><span class="p">),</span> <span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">},</span>
+            <span class="p">{</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">)(</span><span class="kt">zend_uintptr_t</span><span class="p">)(</span><span class="mi">1</span><span class="p">),</span> <span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">},</span>
             <span class="p">{</span> <span class="s">&quot;fahrenheit&quot;</span><span class="p">,</span> <span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">},</span>
     <span class="p">};</span>
 </pre></div>
 </div>
-<p>As we can see, a <code class="docutils literal"><span class="pre">zend_internal_arg_info</span></code> structure is created by the macros.
+<p>As we can see, a <tt class="docutils literal"><span class="pre">zend_internal_arg_info</span></tt> structure is created by the macros.
 If you read the API of such macros, then all becomes clear to us:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cm">/* API only */</span>
 <span class="cp">#define ZEND_BEGIN_ARG_INFO_EX(name, _unused, return_reference, required_num_args)</span>
@@ -234,9 +234,9 @@ If you read the API of such macros, then all becomes clear to us:</p>
 </div>
 <p>This bunch of macros allow you to deal with every use-case.</p>
 <ul class="simple">
-<li>The <code class="docutils literal"><span class="pre">ZEND_BEGIN_ARG_INFO_EX()</span></code> allows you to declare how many required arguments your function accept. It also
+<li>The <tt class="docutils literal"><span class="pre">ZEND_BEGIN_ARG_INFO_EX()</span></tt> allows you to declare how many required arguments your function accept. It also
 allows to declare a <em>&amp;return_by_ref()</em> function.</li>
-<li>Then you need one of the <code class="docutils literal"><span class="pre">ZEND_ARG_***_INFO()</span></code> per argument. Using it you can tell if the argument is
+<li>Then you need one of the <tt class="docutils literal"><span class="pre">ZEND_ARG_***_INFO()</span></tt> per argument. Using it you can tell if the argument is
 <em>&amp;$passed_by_ref</em> and if you need a type hint.</li>
 </ul>
 <div class="admonition note">
@@ -244,9 +244,9 @@ allows to declare a <em>&amp;return_by_ref()</em> function.</li>
 <p class="last">If you don&#8217;t know how to name the arguments vector symbol, a practice is to use the
 <em>&#8216;arginfo_[function name]&#8217;</em> pattern.</p>
 </div>
-<p>So back to our <code class="docutils literal"><span class="pre">fahrenheit_to_celsius()</span></code> function, we declare a simple return by value function (very classical
-use-case), with one argument called <code class="docutils literal"><span class="pre">fahrenheit</span></code>, not passed by reference (here again, very traditionnal).</p>
-<p>That created the <code class="docutils literal"><span class="pre">arginfo_fahrenheit_to_celsius</span></code> symbol of type <code class="docutils literal"><span class="pre">zend_internal_arg_info[]</span></code> (a vector, or an array,
+<p>So back to our <tt class="docutils literal"><span class="pre">fahrenheit_to_celsius()</span></tt> function, we declare a simple return by value function (very classical
+use-case), with one argument called <tt class="docutils literal"><span class="pre">fahrenheit</span></tt>, not passed by reference (here again, very traditionnal).</p>
+<p>That created the <tt class="docutils literal"><span class="pre">arginfo_fahrenheit_to_celsius</span></tt> symbol of type <tt class="docutils literal"><span class="pre">zend_internal_arg_info[]</span></tt> (a vector, or an array,
 that is the same), and we must now use that back into our function declaration to attach it some args:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_FE</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">,</span> <span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">)</span>
 </pre></div>
@@ -255,7 +255,7 @@ that is the same), and we must now use that back into our function declaration t
 mismatch. Great!</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">There exists other macros. <code class="docutils literal"><span class="pre">ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX()</span></code> f.e. You may find all of them into
+<p class="last">There exists other macros. <tt class="docutils literal"><span class="pre">ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX()</span></tt> f.e. You may find all of them into
 the source code located in
 <a class="reference external" href="https://github.com/php/php-src/blob/648be8600ff89e1b0e4a4ad25cebad42b53bed6d/Zend/zend_API.h">Zend/zend_api.h</a></p>
 </div>
@@ -285,8 +285,8 @@ Here is what it looks like when programmed in C:</p>
 </pre></div>
 </div>
 <p>Take a break and think about the majors differences.</p>
-<p>First strange thing, in C, the function is not expected to return anything. That&#8217;s a <code class="docutils literal"><span class="pre">void</span></code> declared function, you
-can&#8217;t here in C return something. But we notice we receive an argument called <code class="docutils literal"><span class="pre">return_value</span></code> of type <code class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></code>,
+<p>First strange thing, in C, the function is not expected to return anything. That&#8217;s a <tt class="docutils literal"><span class="pre">void</span></tt> declared function, you
+can&#8217;t here in C return something. But we notice we receive an argument called <tt class="docutils literal"><span class="pre">return_value</span></tt> of type <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt>,
 which seems to smell very nice. In programming PHP function in C, you are given the return value as a pointer to a
 zval, and you are expected to play with it. <a class="reference internal" href="../internal_types/zvals.html"><em>Here are more resources about zvals</em></a>.</p>
 <div class="admonition note">
@@ -295,7 +295,7 @@ zval, and you are expected to play with it. <a class="reference internal" href="
 return anything from your C function body.</p>
 </div>
 <p>Ok first point explained. Second one as you may have guessed: where are the PHP function arguments? Where is
-<code class="docutils literal"><span class="pre">$fahreinheit</span></code>? That one is pretty hard to fully explain, it is hell hard to in fact.</p>
+<tt class="docutils literal"><span class="pre">$fahreinheit</span></tt>? That one is pretty hard to fully explain, it is hell hard to in fact.</p>
 <p>But we don&#8217;t need to have a look at the details here. Let&#8217;s explain the crucial concepts:</p>
 <ul class="simple">
 <li>The arguments have been pushed by the engine onto a stack. They are all stacked next to each other somewhere in
@@ -305,17 +305,17 @@ the runtime passed arguments. Not only those you declared, but those that have b
 been called. The engine takes care of everything for you.</li>
 <li>To read arguments, you need a function or a macro, and you need to be told how many arguments have been pushed onto
 the stack, to know until when you should end reading them.</li>
-<li>Everything goes by the <code class="docutils literal"><span class="pre">zend_execute_data</span> <span class="pre">*execute_data</span></code> you received as argument. But we can&#8217;t detail that now.</li>
+<li>Everything goes by the <tt class="docutils literal"><span class="pre">zend_execute_data</span> <span class="pre">*execute_data</span></tt> you received as argument. But we can&#8217;t detail that now.</li>
 </ul>
 <div class="section" id="parsing-parameters-zend-parse-parameters">
 <h3>Parsing parameters : zend_parse_parameters()<a class="headerlink" href="#parsing-parameters-zend-parse-parameters" title="Permalink to this headline">¶</a></h3>
-<p>To read arguments, welcome <code class="docutils literal"><span class="pre">zend_parse_parameters()</span></code> API (called &#8216;zpp&#8217;).</p>
+<p>To read arguments, welcome <tt class="docutils literal"><span class="pre">zend_parse_parameters()</span></tt> API (called &#8216;zpp&#8217;).</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">While programming PHP functions in C extensions, you receive PHP function arguments thanks to the
-<code class="docutils literal"><span class="pre">zend_parse_parameters()</span></code> function and its friends.</p>
+<tt class="docutils literal"><span class="pre">zend_parse_parameters()</span></tt> function and its friends.</p>
 </div>
-<p><code class="docutils literal"><span class="pre">zend_parse_parameters()</span></code> is the function that will read arguments onto the Zend engine stack for you. You will tell
+<p><tt class="docutils literal"><span class="pre">zend_parse_parameters()</span></tt> is the function that will read arguments onto the Zend engine stack for you. You will tell
 it how many arguments to read, and on what kind of type you want it to serve you. That function will convert the
 argument to the type you ask, if that is needed, and possible, according to PHP type cast rules. If you need an
 integer, and are given a float, and if no strict type hint rule would have blocked, then the engine will convert the
@@ -333,10 +333,10 @@ float as an integer, and give it to you.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>We want to be given a double on the c variable. We then call <code class="docutils literal"><span class="pre">zend_parse_parameters()</span></code>.</p>
-<p>The first argument is the number of arguments the runtime have been given. <code class="docutils literal"><span class="pre">ZEND_NUM_ARGS()</span></code> is a macro that tells
+<p>We want to be given a double on the c variable. We then call <tt class="docutils literal"><span class="pre">zend_parse_parameters()</span></tt>.</p>
+<p>The first argument is the number of arguments the runtime have been given. <tt class="docutils literal"><span class="pre">ZEND_NUM_ARGS()</span></tt> is a macro that tells
 us, we then use it to tell zpp() how many arguments to read.</p>
-<p>Then, we pass a <code class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code> , the <em>&#8220;d&#8221;</em> string. Here, you are expected to write one letter per argument to receive,
+<p>Then, we pass a <tt class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></tt> , the <em>&#8220;d&#8221;</em> string. Here, you are expected to write one letter per argument to receive,
 except some special cases not taught here. A simple <em>&#8220;d&#8221;</em> means <em>&#8220;I want the first received argument to be
 converted-if-needed to a float (double)&#8221;</em>.</p>
 <p>Then, you pass after that string as many C real arguments as needed to satisfy the second argument. One <em>&#8220;d&#8221;</em> means &#8220;one
@@ -353,7 +353,7 @@ Be logical.</p>
 <p>Please, note also the normal procedure of argument parsing. The function zend_parse_parameters() should return SUCCESS
 on success or FAILURE on failure. Failure could mean you did not use the ZEND_NUM_ARGS() value but provided a value by
 hand (bad idea), or you did something wrong in argument parsing. If it is the case, it&#8217;s then time to return, abort the
-current function (you should return <code class="docutils literal"><span class="pre">void</span></code> from your C function, so just <code class="docutils literal"><span class="pre">return</span></code>).</p>
+current function (you should return <tt class="docutils literal"><span class="pre">void</span></tt> from your C function, so just <tt class="docutils literal"><span class="pre">return</span></tt>).</p>
 <p>So far so good, we received a double. Let&#8217;s now perform the math operations and return a result:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">double</span> <span class="nf">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="kt">double</span> <span class="n">f</span><span class="p">)</span>
 <span class="p">{</span>
@@ -373,15 +373,15 @@ current function (you should return <code class="docutils literal"><span class="
 </pre></div>
 </div>
 <p>Returning values should be easy to you, as you know <a class="reference internal" href="../internal_types/zvals.html"><em>how zvals work</em></a>. You must fill-in
-the <code class="docutils literal"><span class="pre">return_value</span></code>.</p>
-<p>To do that, some <code class="docutils literal"><span class="pre">RETURN_***()</span></code> macros are dedicated as well as some <code class="docutils literal"><span class="pre">RETVAL_***()</span></code> ones.
-Both just set the type and value of the <code class="docutils literal"><span class="pre">return_value</span></code> zval, but <code class="docutils literal"><span class="pre">RETURN_***()</span></code> ones will follow that by a C
-<code class="docutils literal"><span class="pre">return</span></code> that will return from that current function.</p>
+the <tt class="docutils literal"><span class="pre">return_value</span></tt>.</p>
+<p>To do that, some <tt class="docutils literal"><span class="pre">RETURN_***()</span></tt> macros are dedicated as well as some <tt class="docutils literal"><span class="pre">RETVAL_***()</span></tt> ones.
+Both just set the type and value of the <tt class="docutils literal"><span class="pre">return_value</span></tt> zval, but <tt class="docutils literal"><span class="pre">RETURN_***()</span></tt> ones will follow that by a C
+<tt class="docutils literal"><span class="pre">return</span></tt> that will return from that current function.</p>
 </div>
 </div>
 <div class="section" id="adding-tests">
 <h2>Adding tests<a class="headerlink" href="#adding-tests" title="Permalink to this headline">¶</a></h2>
-<p>If you have read the chapter about tests (see <a class="reference internal" href="../../tests/introduction.html#tests-introduction"><span>Testing with .phpt files</span></a>), you should now write a simple test:</p>
+<p>If you have read the chapter about tests (see <a class="reference internal" href="../../tests/introduction.html#tests-introduction"><em>Testing with .phpt files</em></a>), you should now write a simple test:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="o">--</span><span class="n">TEST</span><span class="o">--</span>
 <span class="n">Test</span> <span class="n">fahrenheit_to_celsius</span>
 <span class="o">--</span><span class="n">SKIPIF</span><span class="o">--</span>
@@ -394,12 +394,12 @@ Both just set the type and value of the <code class="docutils literal"><span cla
 <span class="mf">21.11</span>
 </pre></div>
 </div>
-<p>... and launch <code class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></code></p>
+<p>... and launch <tt class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></tt></p>
 </div>
 <div class="section" id="playing-with-constants">
 <h2>Playing with constants<a class="headerlink" href="#playing-with-constants" title="Permalink to this headline">¶</a></h2>
 <p>Let&#8217;s go with an advanced example.
-Let&#8217;s add the opposite function: <code class="docutils literal"><span class="pre">celsius_to_fahrenheit($celsius)</span></code>:</p>
+Let&#8217;s add the opposite function: <tt class="docutils literal"><span class="pre">celsius_to_fahrenheit($celsius)</span></tt>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_celsius_to_fahrenheit</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">celsius</span><span class="p">)</span>
 <span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span>
@@ -451,9 +451,9 @@ Let&#8217;s add the opposite function: <code class="docutils literal"><span clas
 <p>That example helps us introduce <strong>constants</strong>.</p>
 <p>Constants are easy to manage in extensions, like they are in their userland counter-part. Constants are persistent,
 most often, that means that they should persist their value accross requests. If you are aware of
-<a class="reference internal" href="php_lifecycle.html"><em>the PHP lifecycle</em></a>, you should have guessed that <code class="docutils literal"><span class="pre">MINIT()</span></code> is the right stage to register
+<a class="reference internal" href="php_lifecycle.html"><em>the PHP lifecycle</em></a>, you should have guessed that <tt class="docutils literal"><span class="pre">MINIT()</span></tt> is the right stage to register
 constants against the engine.</p>
-<p>Here is a constant, internally, a <code class="docutils literal"><span class="pre">zend_constant</span></code> structure:</p>
+<p>Here is a constant, internally, a <tt class="docutils literal"><span class="pre">zend_constant</span></tt> structure:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_constant</span> <span class="p">{</span>
     <span class="n">zval</span> <span class="n">value</span><span class="p">;</span>
     <span class="n">zend_string</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
@@ -463,7 +463,7 @@ constants against the engine.</p>
 </pre></div>
 </div>
 <p>Really an easy structure (that could become a nightmare if you deeply look at how constants are managed into the
-engine). You declare a <code class="docutils literal"><span class="pre">name</span></code>, a <code class="docutils literal"><span class="pre">value</span></code>, some <code class="docutils literal"><span class="pre">flags</span></code> (not many) and the <code class="docutils literal"><span class="pre">module_number</span></code> is automatically set
+engine). You declare a <tt class="docutils literal"><span class="pre">name</span></tt>, a <tt class="docutils literal"><span class="pre">value</span></tt>, some <tt class="docutils literal"><span class="pre">flags</span></tt> (not many) and the <tt class="docutils literal"><span class="pre">module_number</span></tt> is automatically set
 to your extension number (no need to take care of that).</p>
 <p>To register constants, here again there is no difficulty at all, a bunch of macros do the job for you:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cp">#define TEMP_CONVERTER_TO_FAHRENHEIT 2</span>
@@ -482,12 +482,12 @@ to your extension number (no need to take care of that).</p>
 <p class="first admonition-title">Note</p>
 <p class="last">It is a good practice to give PHP constants values of C macros. That ease things, and that&#8217;s what we did.</p>
 </div>
-<p>Depending on your constant type, you&#8217;ll use <code class="docutils literal"><span class="pre">REGISTER_LONG_CONSTANT()</span></code>, <code class="docutils literal"><span class="pre">REGISTER_DOUBLE_CONSTANT()</span></code>, etc...
+<p>Depending on your constant type, you&#8217;ll use <tt class="docutils literal"><span class="pre">REGISTER_LONG_CONSTANT()</span></tt>, <tt class="docutils literal"><span class="pre">REGISTER_DOUBLE_CONSTANT()</span></tt>, etc...
 API and macros are located into
 <a class="reference external" href="https://github.com/php/php-src/blob/648be8600ff89e1b0e4a4ad25cebad42b53bed6d/Zend/zend_constants.h">Zend/zend_constants.h</a>.</p>
-<p>The flags are mixed <em>OR</em> operation between <code class="docutils literal"><span class="pre">CONST_CS</span></code> (case-sensitive constant, what we want), and
-<code class="docutils literal"><span class="pre">CONST_PERSISTENT</span></code> (a persistent constant, accross requests, what we want as well).</p>
-<p>Now our <code class="docutils literal"><span class="pre">temperature_converter($temp,</span> <span class="pre">$type</span> <span class="pre">=</span> <span class="pre">TEMP_CONVERTER_TO_CELSIUS)</span></code> function in C:</p>
+<p>The flags are mixed <em>OR</em> operation between <tt class="docutils literal"><span class="pre">CONST_CS</span></tt> (case-sensitive constant, what we want), and
+<tt class="docutils literal"><span class="pre">CONST_PERSISTENT</span></tt> (a persistent constant, accross requests, what we want as well).</p>
+<p>Now our <tt class="docutils literal"><span class="pre">temperature_converter($temp,</span> <span class="pre">$type</span> <span class="pre">=</span> <span class="pre">TEMP_CONVERTER_TO_CELSIUS)</span></tt> function in C:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_temperature_converter</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
     <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
@@ -518,13 +518,13 @@ declaration can solve, that will be done in a second.</p>
 
     <span class="k">switch</span> <span class="p">(</span><span class="n">mode</span><span class="p">)</span>
     <span class="p">{</span>
-        <span class="k">case</span> <span class="nl">TEMP_CONVERTER_TO_CELSIUS</span><span class="p">:</span>
+        <span class="k">case</span> <span class="n">TEMP_CONVERTER_TO_CELSIUS</span>:
             <span class="n">result</span> <span class="o">=</span> <span class="n">strpprintf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;%.2f degrees fahrenheit gives %.2f degrees celsius&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">t</span><span class="p">));</span>
             <span class="n">RETURN_STR</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
-        <span class="k">case</span> <span class="nl">TEMP_CONVERTER_TO_FAHRENHEIT</span><span class="p">:</span>
+        <span class="k">case</span> <span class="n">TEMP_CONVERTER_TO_FAHRENHEIT</span>:
             <span class="n">result</span> <span class="o">=</span> <span class="n">strpprintf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;%.2f degrees celsius gives %.2f degrees fahrenheit&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">php_celsius_to_fahrenheit</span><span class="p">(</span><span class="n">t</span><span class="p">));</span>
             <span class="n">RETURN_STR</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
-        <span class="k">default</span><span class="o">:</span>
+        <span class="nl">default:</span>
             <span class="n">php_error</span><span class="p">(</span><span class="n">E_WARNING</span><span class="p">,</span> <span class="s">&quot;Invalid mode provided, accepted values are 1 or 2&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">}</span>
@@ -532,15 +532,15 @@ declaration can solve, that will be done in a second.</p>
 </div>
 <p>Remember to well look at <a class="reference external" href="https://github.com/php/php-src/blob/ef4b2fc283ddaf9bd692015f1db6dad52171c3ce/README.PARAMETER_PARSING_API">README.PARAMETER_PARSING_API</a>. It&#8217;s not a hard API, you must familiarize
 with it.</p>
-<p>We use <em>&#8220;d|l&#8221;</em> as arguments to <code class="docutils literal"><span class="pre">zend_parse_parameters()</span></code>. One double and optionnaly (the pipe <em>&#8220;|&#8221;</em>) one long. Take
-care, if the optionnal argument is not provided at runtime (what <code class="docutils literal"><span class="pre">ZEND_NUM_ARGS()</span></code> tells us about, as a reminder),
-then the <code class="docutils literal"><span class="pre">&amp;mode</span></code> variable won&#8217;t be touched by zpp(). That&#8217;s why we provide a default value of
-<code class="docutils literal"><span class="pre">TEMP_CONVERTER_TO_CELSIUS</span></code> to that variable.</p>
-<p>Then we use <code class="docutils literal"><span class="pre">strpprintf()</span></code> to build a <a class="reference internal" href="../internal_types/strings/zend_strings.html"><em>zend_string</em></a>, and return it into
-the <code class="docutils literal"><span class="pre">return_value</span></code> zval using <code class="docutils literal"><span class="pre">RETURN_STR()</span></code>.</p>
+<p>We use <em>&#8220;d|l&#8221;</em> as arguments to <tt class="docutils literal"><span class="pre">zend_parse_parameters()</span></tt>. One double and optionnaly (the pipe <em>&#8220;|&#8221;</em>) one long. Take
+care, if the optionnal argument is not provided at runtime (what <tt class="docutils literal"><span class="pre">ZEND_NUM_ARGS()</span></tt> tells us about, as a reminder),
+then the <tt class="docutils literal"><span class="pre">&amp;mode</span></tt> variable won&#8217;t be touched by zpp(). That&#8217;s why we provide a default value of
+<tt class="docutils literal"><span class="pre">TEMP_CONVERTER_TO_CELSIUS</span></tt> to that variable.</p>
+<p>Then we use <tt class="docutils literal"><span class="pre">strpprintf()</span></tt> to build a <a class="reference internal" href="../internal_types/strings/zend_strings.html"><em>zend_string</em></a>, and return it into
+the <tt class="docutils literal"><span class="pre">return_value</span></tt> zval using <tt class="docutils literal"><span class="pre">RETURN_STR()</span></tt>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><code class="docutils literal"><span class="pre">strpprintf()</span></code> and its sisters are explained in
+<p class="last"><tt class="docutils literal"><span class="pre">strpprintf()</span></tt> and its sisters are explained in
 <a class="reference internal" href="../internal_types/strings/printing_functions.html"><em>the chapter about printing functions</em></a>.</p>
 </div>
 </div>
@@ -557,8 +557,8 @@ the <code class="docutils literal"><span class="pre">return_value</span></code> 
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>So thinking at the C implementation, we need to <code class="docutils literal"><span class="pre">zend_parse_parameters()</span></code> and ask for just one array, iterate over it,
-make the maths operations and add the result in <code class="docutils literal"><span class="pre">return_value</span></code>, as an array:</p>
+<p>So thinking at the C implementation, we need to <tt class="docutils literal"><span class="pre">zend_parse_parameters()</span></tt> and ask for just one array, iterate over it,
+make the maths operations and add the result in <tt class="docutils literal"><span class="pre">return_value</span></tt>, as an array:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_multiple_fahrenheit_to_celsius</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">ZEND_ARG_ARRAY_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 <span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span>
@@ -606,22 +606,22 @@ remember one reason why we sometimes use the C language over PHP.</p>
 <div class="section" id="managing-references">
 <h2>Managing references<a class="headerlink" href="#managing-references" title="Permalink to this headline">¶</a></h2>
 <p>Now let&#8217;s go to play with PHP references. You&#8217;ve learnt from <a class="reference internal" href="../internal_types/zvals.html"><em>the zval chapter</em></a> that
-references are a special trick used into the engine. As a reminder, a reference (by that we mean a <code class="docutils literal"><span class="pre">&amp;$php_reference</span></code>)
-is a heap allocated <code class="docutils literal"><span class="pre">zval</span></code> stored into a <code class="docutils literal"><span class="pre">zval</span></code> container. Haha.</p>
+references are a special trick used into the engine. As a reminder, a reference (by that we mean a <tt class="docutils literal"><span class="pre">&amp;$php_reference</span></tt>)
+is a heap allocated <tt class="docutils literal"><span class="pre">zval</span></tt> stored into a <tt class="docutils literal"><span class="pre">zval</span></tt> container. Haha.</p>
 <p>So, it is not very hard to deal with those into PHP functions, as soon as you remember what references are, and what
 they&#8217;re designed to.</p>
 <p>If your function accept a parameter as a reference, you must declare that in arguments signature and be passed a
-reference from your <code class="docutils literal"><span class="pre">zend_parse_parameter()</span></code> call. Let&#8217;s see that like always, with a PHP example first:</p>
-<p>So now in C, first we must change our <code class="docutils literal"><span class="pre">arg_info</span></code>:</p>
+reference from your <tt class="docutils literal"><span class="pre">zend_parse_parameter()</span></tt> call. Let&#8217;s see that like always, with a PHP example first:</p>
+<p>So now in C, first we must change our <tt class="docutils literal"><span class="pre">arg_info</span></tt>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">fahrenheit</span><span class="p">)</span>
 <span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span>
 </pre></div>
 </div>
-<p><em>1</em>, passed in the <code class="docutils literal"><span class="pre">ZEND_ARG_INFO()</span></code> macro tells the engine that argument must be passed by reference.</p>
-<p>Then, when we receive the argument, we use the <em>&#8220;z&#8221;</em> argument type, to tell that we want to be given it as a <code class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></code>.
+<p><em>1</em>, passed in the <tt class="docutils literal"><span class="pre">ZEND_ARG_INFO()</span></tt> macro tells the engine that argument must be passed by reference.</p>
+<p>Then, when we receive the argument, we use the <em>&#8220;z&#8221;</em> argument type, to tell that we want to be given it as a <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt>.
 As we did hint the engine about the fact that it should pass us a reference, we&#8217;ll be given a reference into that zval,
-aka it will be of type <code class="docutils literal"><span class="pre">IS_REFERENCE</span></code>. We just need to dereference it (that is to fetch the zval stored into the
+aka it will be of type <tt class="docutils literal"><span class="pre">IS_REFERENCE</span></tt>. We just need to dereference it (that is to fetch the zval stored into the
 zval), and modify it as-is, as the expected behavior of references is that you must modify the value carried by the
 reference:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span>
@@ -643,14 +643,14 @@ reference:</p>
 <p>Done.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The default <code class="docutils literal"><span class="pre">return_value</span></code> value is <code class="docutils literal"><span class="pre">NULL</span></code>. If we don&#8217;t touch it, the function will return PHP&#8217;s <code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p class="last">The default <tt class="docutils literal"><span class="pre">return_value</span></tt> value is <tt class="docutils literal"><span class="pre">NULL</span></tt>. If we don&#8217;t touch it, the function will return PHP&#8217;s <tt class="docutils literal"><span class="pre">NULL</span></tt>.</p>
 </div>
 </div>
 </div>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav">
       
         <p>
         «&#160;&#160;<a href="ini_settings.html">Declaring and using INI settings</a>

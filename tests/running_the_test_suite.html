@@ -28,19 +28,19 @@
     <link rel="next" title="The .phpt file structure" href="phpt_file_structure.html" />
     <link rel="prev" title="Testing overview" href="overview.html" /> 
   </head>
-  <body role="document">
-      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Running the test suite</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav">
       
         <p>
         «&#160;&#160;<a href="overview.html">Testing overview</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a>&#160;&#160;»
+        <a href="phpt_file_structure.html">The <tt class="docutils literal"><span class="pre">.phpt</span></tt> file structure</a>&#160;&#160;»
         </p>
 
       </div>
@@ -50,34 +50,34 @@
   <div class="section" id="running-the-test-suite">
 <span id="runing-the-test-suite"></span><h1>Running the test suite<a class="headerlink" href="#running-the-test-suite" title="Permalink to this headline">¶</a></h1>
 <p>Now that we have an basic understanding of what kind of testing we&#8217;re doing, let&#8217;s run the test suite. Before we can run
-the tests, make sure you have successfully built php from source (see <a class="reference internal" href="../php7/build_system/building_php.html#building-php"><span>Building PHP</span></a>) and you have an executable
-at <code class="docutils literal"><span class="pre">sapi/cli/php</span></code>.</p>
+the tests, make sure you have successfully built php from source (see <a class="reference internal" href="../php7/build_system/building_php.html#building-php"><em>Building PHP</em></a>) and you have an executable
+at <tt class="docutils literal"><span class="pre">sapi/cli/php</span></tt>.</p>
 <p>There are two ways to run the test suite.</p>
 <div class="section" id="running-tests-directly-with-run-tests-php">
-<h2>Running tests directly with <code class="docutils literal"><span class="pre">run-tests.php</span></code><a class="headerlink" href="#running-tests-directly-with-run-tests-php" title="Permalink to this headline">¶</a></h2>
+<h2>Running tests directly with <tt class="docutils literal"><span class="pre">run-tests.php</span></tt><a class="headerlink" href="#running-tests-directly-with-run-tests-php" title="Permalink to this headline">¶</a></h2>
 <p>You can run the test suite directly with run-tests.php. At minimum you&#8217;ll need to specify the php executable that you
-wish to test against which you can do with the <code class="docutils literal"><span class="pre">-p</span></code> flag. Note that in order to run all tests correctly this should be
+wish to test against which you can do with the <tt class="docutils literal"><span class="pre">-p</span></tt> flag. Note that in order to run all tests correctly this should be
 an absolute path to the PHP executable.</p>
 <div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php -p <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sapi/cli/php
 </pre></div>
 </div>
 <p>A shortcut flag you can use to tell run-tests to test against the PHP executable that is currently invoked is by using
-the <code class="docutils literal"><span class="pre">-P</span></code> flag.</p>
+the <tt class="docutils literal"><span class="pre">-P</span></tt> flag.</p>
 <div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php -P
 </pre></div>
 </div>
-<p>If you don&#8217;t want to have to set the <code class="docutils literal"><span class="pre">-p</span></code> or <code class="docutils literal"><span class="pre">-P</span></code> flag every time, you could specify the php executable with the
-<code class="docutils literal"><span class="pre">TEST_PHP_EXECUTABLE</span></code> environment variable which can be set with <code class="docutils literal"><span class="pre">export</span></code> on Linux machines.</p>
-<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; <span class="nb">export</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
+<p>If you don&#8217;t want to have to set the <tt class="docutils literal"><span class="pre">-p</span></tt> or <tt class="docutils literal"><span class="pre">-P</span></tt> flag every time, you could specify the php executable with the
+<tt class="docutils literal"><span class="pre">TEST_PHP_EXECUTABLE</span></tt> environment variable which can be set with <tt class="docutils literal"><span class="pre">export</span></tt> on Linux machines.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; <span class="nb">export </span><span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
 ~/php-src&gt; sapi/cli/php run-tests.php
 </pre></div>
 </div>
-<p>On Windows you can set the environment variable using <code class="docutils literal"><span class="pre">set</span></code>.</p>
-<div class="highlight-bash"><div class="highlight"><pre>C:<span class="se">\p</span>hp-src&gt; <span class="nb">set</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
+<p>On Windows you can set the environment variable using <tt class="docutils literal"><span class="pre">set</span></tt>.</p>
+<div class="highlight-bash"><div class="highlight"><pre>C:<span class="se">\p</span>hp-src&gt; <span class="nb">set </span><span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
 C:<span class="se">\p</span>hp-src&gt; sapi/cli/php run-tests.php
 </pre></div>
 </div>
-<p>By default <code class="docutils literal"><span class="pre">run-tests.php</span></code> will start running all 15,000+ tests in the test suite which would take forever-ever. You
+<p>By default <tt class="docutils literal"><span class="pre">run-tests.php</span></tt> will start running all 15,000+ tests in the test suite which would take forever-ever. You
 can specify a target folder of tests to run or even a single test. The following example will run all the tests
 associated with <a class="reference external" href="http://php.net/csprng">PHP 7&#8217;s CSPRNG</a>.</p>
 <div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php -P ext/standard/tests/random
@@ -90,21 +90,21 @@ associated with <a class="reference external" href="http://php.net/csprng">PHP 7
 <p>Hopefully all the tests will have passed. If not... oops.</p>
 </div>
 <div class="section" id="running-tests-via-the-makefile-recommended">
-<h2>Running tests via the <code class="docutils literal"><span class="pre">Makefile</span></code> (recommended)<a class="headerlink" href="#running-tests-via-the-makefile-recommended" title="Permalink to this headline">¶</a></h2>
-<p>The recommended way of running the test suite is via the <code class="docutils literal"><span class="pre">test</span></code> target which is defined in the <code class="docutils literal"><span class="pre">Makefile</span></code>. The
-<code class="docutils literal"><span class="pre">test</span></code> target does all the hard work of specifying the PHP executable for you (the one you compiled), setting up some
+<h2>Running tests via the <tt class="docutils literal"><span class="pre">Makefile</span></tt> (recommended)<a class="headerlink" href="#running-tests-via-the-makefile-recommended" title="Permalink to this headline">¶</a></h2>
+<p>The recommended way of running the test suite is via the <tt class="docutils literal"><span class="pre">test</span></tt> target which is defined in the <tt class="docutils literal"><span class="pre">Makefile</span></tt>. The
+<tt class="docutils literal"><span class="pre">test</span></tt> target does all the hard work of specifying the PHP executable for you (the one you compiled), setting up some
 default INI settings and specifying the best run-tests flags for you. You needn&#8217;t worry about setting environment
 variables or setting additional flags so the command is very simple.</p>
 <div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make <span class="nb">test</span>
 </pre></div>
 </div>
-<p>As before, <code class="docutils literal"><span class="pre">run-tests.php</span></code> will start running the entire test suite. To specify a folder or single test to execute you
-can pass <code class="docutils literal"><span class="pre">make</span></code> a <code class="docutils literal"><span class="pre">TESTS</span></code> variable. The following example will test that PHP can handle binary literals properly.</p>
-<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>Zend/tests/binary.phpt
+<p>As before, <tt class="docutils literal"><span class="pre">run-tests.php</span></tt> will start running the entire test suite. To specify a folder or single test to execute you
+can pass <tt class="docutils literal"><span class="pre">make</span></tt> a <tt class="docutils literal"><span class="pre">TESTS</span></tt> variable. The following example will test that PHP can handle binary literals properly.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make <span class="nb">test </span><span class="nv">TESTS</span><span class="o">=</span>Zend/tests/binary.phpt
 </pre></div>
 </div>
-<p>You can specify multiple target folders or files to run by separating each path with a space in the <code class="docutils literal"><span class="pre">TESTS</span></code> variable.</p>
-<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;Zend/ ext/reflection/ ext/standard/tests/array/&quot;</span>
+<p>You can specify multiple target folders or files to run by separating each path with a space in the <tt class="docutils literal"><span class="pre">TESTS</span></tt> variable.</p>
+<div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; make <span class="nb">test </span><span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;Zend/ ext/reflection/ ext/standard/tests/array/&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -114,7 +114,7 @@ can pass <code class="docutils literal"><span class="pre">make</span></code> a <
 </div>
 <div class="section" id="more-options">
 <h2>More options<a class="headerlink" href="#more-options" title="Permalink to this headline">¶</a></h2>
-<p>For a full list of supported options that run-tests supports, just run it with <code class="docutils literal"><span class="pre">--help</span></code>.</p>
+<p>For a full list of supported options that run-tests supports, just run it with <tt class="docutils literal"><span class="pre">--help</span></tt>.</p>
 <div class="highlight-bash"><div class="highlight"><pre>~/php-src&gt; sapi/cli/php run-tests.php --help
 </pre></div>
 </div>
@@ -123,14 +123,14 @@ can pass <code class="docutils literal"><span class="pre">make</span></code> a <
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav">
       
         <p>
         «&#160;&#160;<a href="overview.html">Testing overview</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a>&#160;&#160;»
+        <a href="phpt_file_structure.html">The <tt class="docutils literal"><span class="pre">.phpt</span></tt> file structure</a>&#160;&#160;»
         </p>
 
       </div>

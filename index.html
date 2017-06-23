@@ -27,12 +27,12 @@
     <link rel="top" title="PHP Internals Book" href="#" />
     <link rel="next" title="Introduction" href="introduction.html" /> 
   </head>
-  <body role="document">
-      <div class="header" role="banner"><h1 class="heading"><a href="#">
+  <body>
+      <div class="header"><h1 class="heading"><a href="#">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Table Of Contents</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav">
       
         <p>
         <a class="uplink" href="#">Contents</a>
@@ -108,18 +108,18 @@
 <li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#why-not-use-packages">Why not use packages?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#obtaining-the-source-code">Obtaining the source code</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#build-overview">Build overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#the-buildconf-script">The <code class="docutils literal"><span class="pre">./buildconf</span></code> script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#the-configure-script">The <code class="docutils literal"><span class="pre">./configure</span></code> script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#make-and-make-install"><code class="docutils literal"><span class="pre">make</span></code> and <code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#the-buildconf-script">The <tt class="docutils literal"><span class="pre">./buildconf</span></tt> script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#the-configure-script">The <tt class="docutils literal"><span class="pre">./configure</span></tt> script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#make-and-make-install"><tt class="docutils literal"><span class="pre">make</span></tt> and <tt class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></tt></a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#running-the-test-suite">Running the test suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#fixing-compilation-problems-and-make-clean">Fixing compilation problems and <code class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_php.html#fixing-compilation-problems-and-make-clean">Fixing compilation problems and <tt class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></tt></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="php7/build_system/building_extensions.html">Building PHP extensions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#loading-shared-extensions">Loading shared extensions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#installing-extensions-from-pecl">Installing extensions from PECL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#adding-extensions-to-the-php-source-tree">Adding extensions to the PHP source tree</a></li>
-<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#building-extensions-using-phpize">Building extensions using <code class="docutils literal"><span class="pre">phpize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#building-extensions-using-phpize">Building extensions using <tt class="docutils literal"><span class="pre">phpize</span></tt></a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#displaying-information-about-extensions">Displaying information about extensions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/build_system/building_extensions.html#extensions-api-compatibility">Extensions API compatibility</a></li>
 </ul>
@@ -221,7 +221,7 @@
 <p>Writing tests applies to both PHP 5 &amp; PHP 7.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tests/introduction.html">Testing with <code class="docutils literal"><span class="pre">.phpt</span></code> files</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tests/introduction.html">Testing with <tt class="docutils literal"><span class="pre">.phpt</span></tt> files</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tests/introduction.html#todo">&#64;TODO</a></li>
 </ul>
 </li>
@@ -231,13 +231,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tests/running_the_test_suite.html">Running the test suite</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#running-tests-directly-with-run-tests-php">Running tests directly with <code class="docutils literal"><span class="pre">run-tests.php</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#running-tests-via-the-makefile-recommended">Running tests via the <code class="docutils literal"><span class="pre">Makefile</span></code> (recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#running-tests-directly-with-run-tests-php">Running tests directly with <tt class="docutils literal"><span class="pre">run-tests.php</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#running-tests-via-the-makefile-recommended">Running tests via the <tt class="docutils literal"><span class="pre">Makefile</span></tt> (recommended)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#executing-tests-in-parallel">Executing tests in parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tests/running_the_test_suite.html#more-options">More options</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tests/phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tests/phpt_file_structure.html">The <tt class="docutils literal"><span class="pre">.phpt</span></tt> file structure</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tests/phpt_file_structure.html#a-basic-test-example">A basic test example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tests/phpt_file_structure.html#some-notable-sections">Some notable sections</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tests/phpt_file_structure.html#writing-a-simple-test">Writing a simple test</a></li>
@@ -254,14 +254,14 @@
 <div class="section" id="index-and-search">
 <h1>Index and search<a class="headerlink" href="#index-and-search" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
 </ul>
 </div>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav">
       
         <p>
         <a class="uplink" href="#">Contents</a>

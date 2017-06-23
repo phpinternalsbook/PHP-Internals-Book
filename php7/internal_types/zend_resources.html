@@ -29,12 +29,12 @@
     <link rel="next" title="HashTables: zend_array" href="hashtables.html" />
     <link rel="prev" title="PHP’s custom printf functions" href="strings/printing_functions.html" /> 
   </head>
-  <body role="document">
-      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>The Resource type: zend_resource</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav">
       
         <p>
         «&#160;&#160;<a href="strings/printing_functions.html">PHP&#8217;s custom printf functions</a>
@@ -51,10 +51,10 @@
   <div class="section" id="the-resource-type-zend-resource">
 <h1>The Resource type: zend_resource<a class="headerlink" href="#the-resource-type-zend-resource" title="Permalink to this headline">¶</a></h1>
 <p>Even though PHP could really get rid of the &#8220;resource&#8221; type, because
-<code class="xref doc docutils literal"><span class="pre">custom</span> <span class="pre">object</span> <span class="pre">storage</span></code> allows to build a PHP representation of any
+<tt class="xref doc docutils literal"><span class="pre">custom</span> <span class="pre">object</span> <span class="pre">storage</span></tt> allows to build a PHP representation of any
 abstract kind of data, that resource type still exists in PHP, and you may need to deal with it.</p>
 <p>If you need to create resources, we really would like to push you not to, but instead use objects and their
-<code class="xref doc docutils literal"><span class="pre">custom</span> <span class="pre">storage</span></code> management. Objects is the PHP type that can embed
+<tt class="xref doc docutils literal"><span class="pre">custom</span> <span class="pre">storage</span></tt> management. Objects is the PHP type that can embed
 anything of any type. However, for historical reasons, PHP still knows about that special type &#8220;Resource&#8221;, and still
 makes use of it in its heart or in some extensions. Let&#8217;s see that type together. Beware however, it is really cryptic
 and suffers from a long past history, so don&#8217;t be suprised about its design especially when reading the source code
@@ -66,7 +66,7 @@ about it</p>
 <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$fp</span><span class="p">);</span> <span class="cm">/* resource(2) of type (stream) */</span>
 </pre></div>
 </div>
-<p>Internally, a resource is bound to the <code class="docutils literal"><span class="pre">zend_resource</span></code> structure type:</p>
+<p>Internally, a resource is bound to the <tt class="docutils literal"><span class="pre">zend_resource</span></tt> structure type:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">struct</span> <span class="n">_zend_resource</span> <span class="p">{</span>
         <span class="n">zend_refcounted_h</span> <span class="n">gc</span><span class="p">;</span>
         <span class="kt">int</span>               <span class="n">handle</span><span class="p">;</span>
@@ -75,20 +75,20 @@ about it</p>
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>We find the traditionnal <code class="docutils literal"><span class="pre">zend_refcounted_h</span></code> header, meaning that resources are reference countable. If you feel lost
-with reference counting and memory tracking, you may refer to the <code class="xref doc docutils literal"><span class="pre">./zvals/memory_management</span></code> chapter.</p>
-<p>The <code class="docutils literal"><span class="pre">handle</span></code> is an integer that is used internally by the engine to locate the resource into an internal resource
+<p>We find the traditionnal <tt class="docutils literal"><span class="pre">zend_refcounted_h</span></tt> header, meaning that resources are reference countable. If you feel lost
+with reference counting and memory tracking, you may refer to the <tt class="xref doc docutils literal"><span class="pre">./zvals/memory_management</span></tt> chapter.</p>
+<p>The <tt class="docutils literal"><span class="pre">handle</span></tt> is an integer that is used internally by the engine to locate the resource into an internal resource
 table. It is used as the key for such a table.</p>
-<p>The <code class="docutils literal"><span class="pre">type</span></code> is used to regroup resources of the same type together. This is about the way resources get destroyed and
+<p>The <tt class="docutils literal"><span class="pre">type</span></tt> is used to regroup resources of the same type together. This is about the way resources get destroyed and
 how they are fetched back from their handle.</p>
-<p>Finally, the <code class="docutils literal"><span class="pre">ptr</span></code> field in <code class="docutils literal"><span class="pre">zend_resource</span></code> is your abstract data. Remember resources are about storing an abstract
+<p>Finally, the <tt class="docutils literal"><span class="pre">ptr</span></tt> field in <tt class="docutils literal"><span class="pre">zend_resource</span></tt> is your abstract data. Remember resources are about storing an abstract
 data that cannot fit in any data type PHP can represent natively.</p>
 </div>
 <div class="section" id="resource-types-and-resource-destruction">
 <h2>Resource types and resource destruction<a class="headerlink" href="#resource-types-and-resource-destruction" title="Permalink to this headline">¶</a></h2>
 <p>Resources must register a destructor. When users use resources in PHP userland, they usually don&#8217;t bother cleaning
-those when they don&#8217;t make use of them anymore. For example, it is not uncommon to see an <code class="docutils literal"><span class="pre">fopen()</span></code> call, and not see
-the <code class="docutils literal"><span class="pre">fclose()</span></code> call. Using the C language, this would be at best a bad idea, at most a disaster. But using a high
+those when they don&#8217;t make use of them anymore. For example, it is not uncommon to see an <tt class="docutils literal"><span class="pre">fopen()</span></tt> call, and not see
+the <tt class="docutils literal"><span class="pre">fclose()</span></tt> call. Using the C language, this would be at best a bad idea, at most a disaster. But using a high
 level language like PHP, you ease things.</p>
 <p>You, as an internal developer, must be prepared to the fact that the user would create a lot of resources you&#8217;ll allow
 him to use, without properly cleaning them and releasing memory/OS resource. You hence must register a destructor that
@@ -110,10 +110,10 @@ You may find some inconsistencies into it, like talking about &#8220;lists&#8221
 <div class="section" id="creating-resources">
 <h3>Creating resources<a class="headerlink" href="#creating-resources" title="Permalink to this headline">¶</a></h3>
 <p>To create a resource, one must first register a destructor for it and associate it to a resource type name using
-<code class="docutils literal"><span class="pre">zend_register_list_destructors_ex()</span></code>. That call will return an integer that represents the type of resource you
+<tt class="docutils literal"><span class="pre">zend_register_list_destructors_ex()</span></tt>. That call will return an integer that represents the type of resource you
 register. You must remember that integer because you will need it later-on to fetch back your resource from the user.</p>
-<p>After that, you can register a new resource using <code class="docutils literal"><span class="pre">zend_register_resource()</span></code>. That one will return you a
-<code class="docutils literal"><span class="pre">zend_resource</span></code>. Let&#8217;s see together a simple use-case example:</p>
+<p>After that, you can register a new resource using <tt class="docutils literal"><span class="pre">zend_register_resource()</span></tt>. That one will return you a
+<tt class="docutils literal"><span class="pre">zend_resource</span></tt>. Let&#8217;s see together a simple use-case example:</p>
 <div class="highlight-c"><div class="highlight"><pre>#include &lt;stdio.h&gt;
 
 int res_num;
@@ -134,23 +134,23 @@ my_res  = zend_register_resource((void *)fp, res_num);
 ZVAL_RES(&amp;my_val, my_res);
 </pre></div>
 </div>
-<p>What we do in the code above, is that we open a file using libc&#8217;s <code class="docutils literal"><span class="pre">fopen()</span></code>, and store the returned pointer into a
-resource. Before that, we registered a destructor which will use libc&#8217;s <code class="docutils literal"><span class="pre">fclose()</span></code> on the pointer. Then, we register
-the resource against the engine, and we pass the resource into a <code class="docutils literal"><span class="pre">zval</span></code> container that could get returned to userland.</p>
+<p>What we do in the code above, is that we open a file using libc&#8217;s <tt class="docutils literal"><span class="pre">fopen()</span></tt>, and store the returned pointer into a
+resource. Before that, we registered a destructor which will use libc&#8217;s <tt class="docutils literal"><span class="pre">fclose()</span></tt> on the pointer. Then, we register
+the resource against the engine, and we pass the resource into a <tt class="docutils literal"><span class="pre">zval</span></tt> container that could get returned to userland.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Zvals chapter can be found <a class="reference internal" href="zvals.html"><em>here</em></a>.</p>
 </div>
 <p>What must be remembered is resource type. Here, we register a resource of type <em>&#8220;my_res&#8221;</em>. This is the type name. The
 engine does not really care about type name, but type identifier, the integer returned by
-<code class="docutils literal"><span class="pre">zend_register_list_destructors_ex()</span></code>. You should remember it somewhere, like we do in the <code class="docutils literal"><span class="pre">res_num</span></code> variable.</p>
+<tt class="docutils literal"><span class="pre">zend_register_list_destructors_ex()</span></tt>. You should remember it somewhere, like we do in the <tt class="docutils literal"><span class="pre">res_num</span></tt> variable.</p>
 </div>
 <div class="section" id="fetching-back-resources">
 <h3>Fetching back resources<a class="headerlink" href="#fetching-back-resources" title="Permalink to this headline">¶</a></h3>
-<p>Now that we registered a resource and put it in a <code class="docutils literal"><span class="pre">zval</span></code> for an example, we should learn how to fetch back that
-resource from the userland. Remember, the resource is stored into the <code class="docutils literal"><span class="pre">zval</span></code>. Into the resource is stored the resource
-type number (on the <code class="docutils literal"><span class="pre">type</span></code> field). Thus, to be given back our resource from the user, we must extract the
-<code class="docutils literal"><span class="pre">zend_resource</span></code> from the <code class="docutils literal"><span class="pre">zval</span></code>, and call <code class="docutils literal"><span class="pre">zend_fetch_resource()</span></code> to get back our <code class="docutils literal"><span class="pre">FILE</span> <span class="pre">*</span></code> pointer:</p>
+<p>Now that we registered a resource and put it in a <tt class="docutils literal"><span class="pre">zval</span></tt> for an example, we should learn how to fetch back that
+resource from the userland. Remember, the resource is stored into the <tt class="docutils literal"><span class="pre">zval</span></tt>. Into the resource is stored the resource
+type number (on the <tt class="docutils literal"><span class="pre">type</span></tt> field). Thus, to be given back our resource from the user, we must extract the
+<tt class="docutils literal"><span class="pre">zend_resource</span></tt> from the <tt class="docutils literal"><span class="pre">zval</span></tt>, and call <tt class="docutils literal"><span class="pre">zend_fetch_resource()</span></tt> to get back our <tt class="docutils literal"><span class="pre">FILE</span> <span class="pre">*</span></tt> pointer:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cm">/* ... later on ... */</span>
 
 <span class="n">zval</span> <span class="o">*</span><span class="n">user_zval</span> <span class="o">=</span> <span class="cm">/* fetch zval from userland, assume type IS_RESOURCE */</span>
@@ -160,27 +160,27 @@ type number (on the <code class="docutils literal"><span class="pre">type</span>
 <span class="n">fp</span> <span class="o">=</span> <span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="p">)</span><span class="n">zend_fetch_resource</span><span class="p">(</span><span class="n">Z_RESVAL_P</span><span class="p">(</span><span class="n">user_zval</span><span class="p">),</span> <span class="s">&quot;my_res&quot;</span><span class="p">,</span> <span class="n">res_num</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Like we said : get back a zval from the user (of type <code class="docutils literal"><span class="pre">IS_RESOURCE</span></code>), and fetch the resource pointer back from it by
-calling <code class="docutils literal"><span class="pre">zend_fetch_resource()</span></code>.</p>
-<p>That function will check if the type of the resource is of the type you pass as third parameter (<code class="docutils literal"><span class="pre">res_num</span></code> here).
-If yes, it extracts back the <code class="docutils literal"><span class="pre">void</span> <span class="pre">*</span></code> resource pointer you need and we are done. If not, then it throws a warning like
+<p>Like we said : get back a zval from the user (of type <tt class="docutils literal"><span class="pre">IS_RESOURCE</span></tt>), and fetch the resource pointer back from it by
+calling <tt class="docutils literal"><span class="pre">zend_fetch_resource()</span></tt>.</p>
+<p>That function will check if the type of the resource is of the type you pass as third parameter (<tt class="docutils literal"><span class="pre">res_num</span></tt> here).
+If yes, it extracts back the <tt class="docutils literal"><span class="pre">void</span> <span class="pre">*</span></tt> resource pointer you need and we are done. If not, then it throws a warning like
 <em>&#8220;supplied resource is not a valid {type name} resource&#8221;</em>.
 This could happen if for example you expect a resource of type &#8220;my_res&#8221;, and you are given a zval with a resource of
-type &#8220;gzip&#8221;, like one returned by <code class="docutils literal"><span class="pre">gzopen()</span></code> PHP function.</p>
+type &#8220;gzip&#8221;, like one returned by <tt class="docutils literal"><span class="pre">gzopen()</span></tt> PHP function.</p>
 <p>Resource types are just a way for the engine to mix different kind of resources (of type &#8220;file&#8221;, &#8220;gzip&#8221; or even &#8220;mysql
 connection&#8221;) into the same resource table. Resource types have names, so that those can be used in error messages or in
-debug statement (like a <code class="docutils literal"><span class="pre">var_dump($my_resource)</span></code>), and they also are represented as an integer used internaly to
+debug statement (like a <tt class="docutils literal"><span class="pre">var_dump($my_resource)</span></tt>), and they also are represented as an integer used internaly to
 fetch back the resource pointer from it, and to register a destructor with the resource type.</p>
 </div>
 </div>
 <div class="section" id="reference-counting-resources">
 <h2>Reference counting resources<a class="headerlink" href="#reference-counting-resources" title="Permalink to this headline">¶</a></h2>
-<p>Like many other types, <code class="docutils literal"><span class="pre">zend_resource</span></code> is reference counted. We can see its <code class="docutils literal"><span class="pre">zend_refcounted_h</span></code> header. Here is the
+<p>Like many other types, <tt class="docutils literal"><span class="pre">zend_resource</span></tt> is reference counted. We can see its <tt class="docutils literal"><span class="pre">zend_refcounted_h</span></tt> header. Here is the
 API to play with reference counting, if you need it (you shouldn&#8217;t really need it on an average):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">zend_list_delete(zend_resource</span> <span class="pre">*res)</span></code> decrements refcount and destroys resource if drops to zero</li>
-<li><code class="docutils literal"><span class="pre">zend_list_free(zend_resource</span> <span class="pre">*res)</span></code> checks if refcount is zero, and destroys the resource if true.</li>
-<li><code class="docutils literal"><span class="pre">zend_list_close(zend_resource</span> <span class="pre">*res)</span></code> calls the resource destructor whatever the conditions</li>
+<li><tt class="docutils literal"><span class="pre">zend_list_delete(zend_resource</span> <span class="pre">*res)</span></tt> decrements refcount and destroys resource if drops to zero</li>
+<li><tt class="docutils literal"><span class="pre">zend_list_free(zend_resource</span> <span class="pre">*res)</span></tt> checks if refcount is zero, and destroys the resource if true.</li>
+<li><tt class="docutils literal"><span class="pre">zend_list_close(zend_resource</span> <span class="pre">*res)</span></tt> calls the resource destructor whatever the conditions</li>
 </ul>
 </div>
 <div class="section" id="persistent-resources">
@@ -191,8 +191,8 @@ bring).</p>
 <p>Traditionnaly, you should not be using persistent resources, as one request will be different from the other. Reusing
 the same resource should really be thought about deeply before going this way.</p>
 <p>To register a persistent resource, use a persistent destructor instead of a classical one. This is done in the call
-to <code class="docutils literal"><span class="pre">zend_register_list_destructors_ex()</span></code>, which API is like:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">zend_register_list_destructors_ex</span><span class="p">(</span><span class="n">rsrc_dtor_func_t</span> <span class="n">destructor</span><span class="p">,</span> <span class="n">rsrc_dtor_func_t</span> <span class="n">persistent_destructor</span><span class="p">,</span>
+to <tt class="docutils literal"><span class="pre">zend_register_list_destructors_ex()</span></tt>, which API is like:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">zend_register_list_destructors_ex</span><span class="p">(</span><span class="kt">rsrc_dtor_func_t</span> <span class="n">destructor</span><span class="p">,</span> <span class="kt">rsrc_dtor_func_t</span> <span class="n">persistent_destructor</span><span class="p">,</span>
                                   <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">type_name</span><span class="p">,</span> <span class="kt">int</span> <span class="n">module_number</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -201,7 +201,7 @@ to <code class="docutils literal"><span class="pre">zend_register_list_destructo
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav">
       
         <p>
         «&#160;&#160;<a href="strings/printing_functions.html">PHP&#8217;s custom printf functions</a>
