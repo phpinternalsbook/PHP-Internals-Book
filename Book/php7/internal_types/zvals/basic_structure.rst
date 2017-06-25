@@ -331,7 +331,7 @@ Because of this we need to create a new zend_string using ``zend_string_init()``
 of the string on the heap. Because the zval "carries" its value, it will make sure to free this copy when the zval is
 destroyed, or at least to decrement its refcount. This also applies to any other "complex" value of the zval. E.g. 
 if you set the ``zend_array*`` for an array, the zval will carry that later and release it when the zval is destroyed.
-By "releasing", we mean weither decrement the reference counter, or free the structure if reference counter falls to
+By "releasing", we mean either decrement the reference counter, or free the structure if reference counter falls to
 zero. When using primitive types like integers or doubles you obviously don't need to care about this, as they are
 always copied.
 All those memory management steps, such as allocation, free or reference counting; are detailed in the 
