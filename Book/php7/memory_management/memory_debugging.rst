@@ -12,7 +12,7 @@ A quick note about valgrind
 
 Valgrind is a well-known tool used under many Unix environments to debug a lot of common memory problem scenarios in 
 any C/C++ written software.
-Valgrind is a multi-tool frontend about memory debugging. The most used provided tool is called 
+Valgrind is a multi-tool frontend about memory debugging. The most used underlying tool is called 
 `"memcheck" <http://valgrind.org/docs/manual/mc-manual.html>`_. It works by 
 replacing every libc's heap allocation by its own, and tracks what you do with them.
 You may find interest in the usage of `"massif" <http://valgrind.org/docs/manual/ms-manual.html>`_ as well: it is a 
@@ -21,15 +21,16 @@ memory tracker that can be useful to understand the general heap memory usage of
 .. note:: You should read `the Valgrind documentation <http://www.valgrind.org>`_ to go further. It is well written, 
           with tiny representative examples.
           
-For the memory allocation replacement to take place, you need to run the program you want to debug (PHP here) through 
+For the memory allocation replacement to take place, you need to run the program you want to analyze (PHP here) through 
 valgrind, aka the launched binary will be valgrind.
 
-As valgrind replaces and tracks all libc's heap allocations, it tends to slow down debugged programs a lot. You will 
+As valgrind replaces and tracks all libc's heap allocations, it tends to slow-down debugged programs a lot. You will 
 notice it in the case of PHP. Although the slow-down is not that dramatic with PHP, it can still be clearly 
 felt; just don't worry if you notice it, this is normal.
 
-Valgrind is not the only tool you may use, but the most common one. Dr.Memory, LeakSanitizer, Electric Fence, 
-AddressSanitizer are other common tools.
+Valgrind is not the only tool you may use, but the most common one. `Dr.Memory <http://www.drmemory.org/>`_, 
+`LeakSanitizer <https://clang.llvm.org/docs/LeakSanitizer.html>`_, `Electric Fence <http://elinux.org/Electric_Fence>`_, 
+`AddressSanitizer <https://clang.llvm.org/docs/AddressSanitizer.html>`_ are other common tools.
 
 Before starting
 ***************
@@ -58,6 +59,10 @@ debugging times:
   bad seems to show on surface, valgrind is the tool to point hidden flaws ready to blow at your face once or later. Use 
   it, even if you think everything seems all right about your code: you could get surprised.
 
+.. warning:: You **must** use valgrind (or any memory debugger) on your program. It is impossible to feel 100% 
+             confident in every strong C program, not to debug memory. Memory bugs lead to harmful security issues and 
+             program crashes, often randomly, depending on many parameters.
+
 Memory leak detection example
 *****************************
 
@@ -67,7 +72,7 @@ Starter
 Valgrind is a full heap memory debugger. It can also debug process memory maps and functions stacks. Please, get more 
 informations in its documentation.
 
-Let's go to detect a memory leak, and try with an easy one, the most-common ones you'll meet::
+Let's go to detect a dynamic-memory leak, and try with an easy one, the most-common ones you'll meet::
 
     PHP_RINIT_FUNCTION(pib)
     {
@@ -75,7 +80,7 @@ Let's go to detect a memory leak, and try with an easy one, the most-common ones
     }
 
 The code above leaks 128 bytes at each request, because it doesn't have an ``efree()`` related call for such a buffer.
-As it is a call to emalloc(), and thus goes through :doc:`Zend Memory Manager <zend_memory_manager>`, 
+As it is a call to ``emalloc()``, and thus goes through :doc:`Zend Memory Manager <zend_memory_manager>`, 
 that later will warn us about this leak like we saw in ZendMM chapter. Let's see as well if valgrind can notice the 
 leak::
 
@@ -106,6 +111,9 @@ At our level, "definitely lost" is what we must look at.
 .. note:: For details about the different fields output by memcheck, please 
           `have a look <http://valgrind.org/docs/manual/mc-manual.html#mc-manual.leaks>`_ at its documentation.
 
+.. note:: We used ``USE_ZEND_ALLOC=0`` to disable and fully bypass Zend Memory Manager. Every call to its API 
+          (f.e, ``emalloc()``), will lead directly to a libc call, like we can see on the calgrind output stack frames.
+
 Valgrind caught our leak.
 
 Easy enough, now we could generate a leak using a persistent allocation, aka a dynamic memory allocation bypassing 
@@ -134,7 +142,7 @@ Caught as well.
 More complex use-case
 ---------------------
 
-Here is a more complex setup. Can you spot the leaks in the code below?::
+Here is a more complex setup. Can you spot the leaks in the code below ? ::
 
     static zend_array ar;
 
@@ -190,15 +198,16 @@ Let's fix them now::
     }
 
 We destroy the persistent array at the end of PHP process, in :doc:`MSHUTDOWN <../extensions_design/php_lifecycle>`. 
-As when we created it, we passed it ZVAL_PTR_DTOR as a destructor, it will run that callback on any items we inserted. 
-This is the :doc:`zval<../internal_types/zvals>` destructor which will destroy zvals anaylizing their content. For 
-``IS_STRING`` types, the destructor will free the ``zend_string``. Done.
+As when we created it, we passed it ``ZVAL_PTR_DTOR`` as a destructor, it will run that callback on any items we 
+inserted. This is the :doc:`zval<../internal_types/zvals>` destructor which will destroy zvals analyzing their content. 
+For ``IS_STRING`` types, the destructor will release the ``zend_string`` and free it if necessary. Done.
 
-.. note:: As you can see, PHP- like any C program- is full of nested pointers. The ``zend_string`` is encapsulated into
-          a zval, itself being part as a ``zend_array``. Leaking the array will abviously leak both the ``zval`` and the 
-          ``zend_string``, but ``zvals`` are not heap allocated (we allocated on stack), and thus there is no leak to 
-          report about it. You should get used you the fact that forgetting one little ``free()`` leads to tons of 
-          leaks, as often, structures embeds structures embedind structures, etc...
+.. note:: As you can see, PHP - like any C strong program - is full of nested pointers. The ``zend_string`` is 
+          encapsulated into a ``zval``, itself being part as a ``zend_array``. Leaking the array will abviously leak 
+          both the ``zval`` and the ``zend_string``, but ``zvals`` are not heap allocated (we allocated on stack), and 
+          thus there is no leak to report about it. You should get used you the fact that forgetting to release/free a 
+          compound structure such as a ``zend_array`` leads to tons of leaks, as often, structures embeds structures 
+          embedding structures, etc...
 
 Buffer overflow/underflow detection
 ***********************************
@@ -206,10 +215,10 @@ Buffer overflow/underflow detection
 Leaking memory is bad. It will lead your program to trigger OOM once or later, and it will slow down the host machine 
 dramatically as that latter gets less and less memory available as time runs. This is the syndrom of memory leaks.
 
-But there is worse: buffer out of bound access. Accessing a pointer outside the allocation limits is the root of so 
+But there is worse: buffer out-of-bounds access. Accessing a pointer outside the allocation limits is the root of so 
 many evil operations (like getting a root shell on the machine) that you should absolutely prevent them.
-Lighter, out of bounds access also lead to program crash by memory corruption. However, this all depends on the 
-hardware target machine, the compiler used and options, the OS memory layout, the libc used, etc..
+Lighter, out-of-bounds access also frequently lead to program crash by memory corruption. However, this all depends on 
+the hardware target machine, the compiler used and options, the OS memory layout, the libc used, etc... Many factors.
 
 Thus, out-of-bounds access are very nasty, they are **bombs** that may or may not blow up, now, or in a minute or if you 
 get excessively lucky they'll never blow up.
@@ -229,6 +238,9 @@ Let's see an easy example::
 This code allocates a buffer, and on purpose writes one byte beyond and one byte after the bounds. Now if you run such 
 a code, you have something like one chance out of two for it to crash immediately, and then randomly. You may also have 
 created a security hole in PHP, but it may not be remotely exploitable (such a behavior stays uncommon).
+
+.. warning:: Out-of-bounds access lead to undefined behavior. It is not predictable what is going to happen, but be 
+             sure that it's bad (immediate crash), or terrifying (security issue). Remember.
 
 Let's ask valgrind, with the exact same command line to launch it as before, nothing changes, except the output::
 
@@ -290,8 +302,6 @@ in such a scenario that could lead to an immediate crash, or later, or never? Do
 
 Here is a second example about string concatenations::
 
-    PHP_MINIT_FUNCTION(pib)
-    {
 	char *foo = strdup("foo");
 	char *bar = strdup("bar");
 
@@ -305,10 +315,8 @@ Here is a second example about string concatenations::
 	free(foo);
 	free(bar);
 	free(foobar);
-	}
 
-That tiny code should not be part of MINIT() as it does nothing useful and writes to *stderr*, which could not be a very 
-cool thing to do so far. But let's assume, can you spot the problem?
+Can you spot the problem?
 
 Let's ask valgrind::
 
@@ -345,10 +353,14 @@ know where the next ``\0`` will be in memory, that is random.
 
 Solution::
 
-    /* note the +1 for \0 */
-    char *foobar = malloc(strlen("foo") + strlen("bar") + 1);
+    size_t len   = strlen("foo") + strlen("bar") + 1;   /* note the +1 for \0 */
+    char *foobar = malloc(len);
+    
+    /* ... ... same code ... ... */
+    
+    foobar[len - 1] = '\0'; /* terminate the string properly */
 
-.. note:: The error described above is one of the most common on in C. They are called 'off-by-one' mistakes: you 
+.. note:: The error described above is one of the most common on in C. They are called **off-by-one mistakes** : you 
           forget to allocate just one byte, but you will create tons of problems in the code just because of that.
 
 Finally here is a last example to show a use-after-free scenario. This is also a very common mistake in C programming, 

@@ -48,8 +48,8 @@ Resource types and resource destruction
 
 Resources must register a destructor. When users use resources in PHP userland, they usually don't bother cleaning 
 those when they don't make use of them anymore. For example, it is not uncommon to see an ``fopen()`` call, and not see 
-the ``fclose()`` call. Using the C language, this would be at best a bad idea, at most a disaster. But using a high 
-level language like PHP, you ease things.
+the matching ``fclose()`` call. Using the C language, this would be at best a bad idea, at most a disaster. But using a 
+high level language like PHP, you ease things.
 
 You, as an internal developer, must be prepared to the fact that the user would create a lot of resources you'll allow 
 him to use, without properly cleaning them and releasing memory/OS resource. You hence must register a destructor that 
@@ -63,6 +63,10 @@ There also exists two kinds of resources, here again differenciated about their 
 * Classical resources, the most used ones, do not persist across several requests, their destructor is called at 
   request shutdown
 * Persistent resources will persist across several requests and will only get destroyed when the PHP process dies.
+
+.. note:: You may be interested by :doc:`the PHP lifecycle <../extensions_design/php_lifecycle>` chapter that shows you 
+          the different steps occuring in PHP's process life.
+
 
 Playing with resources
 ----------------------
@@ -101,8 +105,9 @@ After that, you can register a new resource using ``zend_register_resource()``. 
     ZVAL_RES(&my_val, my_res);
 
 What we do in the code above, is that we open a file using libc's ``fopen()``, and store the returned pointer into a 
-resource. Before that, we registered a destructor which will use libc's ``fclose()`` on the pointer. Then, we register 
-the resource against the engine, and we pass the resource into a ``zval`` container that could get returned to userland.
+resource. Before that, we registered a destructor which when called will use libc's ``fclose()`` on the pointer. Then, 
+we register the resource against the engine, and we pass the resource into a ``zval`` container that could get returned 
+to userland.
 
 .. note:: Zvals chapter can be found :doc:`here <./zvals>`.
 
@@ -158,7 +163,7 @@ database connections. Those are connections that are recycled from request to re
 bring).
 
 Traditionnaly, you should not be using persistent resources, as one request will be different from the other. Reusing 
-the same resource should really be thought about deeply before going this way.
+the same resource should really be thoughtful before going this way.
 
 To register a persistent resource, use a persistent destructor instead of a classical one. This is done in the call 
 to ``zend_register_list_destructors_ex()``, which API is like::
