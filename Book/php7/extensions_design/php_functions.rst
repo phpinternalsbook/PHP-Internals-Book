@@ -231,15 +231,15 @@ Ok. Here is a PHP function like you use it and declare it with the PHP language 
 
     function fahrenheit_to_celsius($fahrenheit)
     {
-        return 9/5 * $fahrenheit + 32;
+        return 5/9 * ($fahrenheit - 32);
     }
 
 This is an easy function so that you understand things.
 Here is what it looks like when programmed in C::
 
-    PHP_FUNCTION(celsius_to_fahrenheit)
+    PHP_FUNCTION(fahrenheit_to_celsius)
     {
-        /* code to go here */	    
+        /* code to go here */
     }
 
 Macro expanded, that gives::
@@ -249,7 +249,7 @@ Macro expanded, that gives::
         /* code to go here */
     }
 
-Take a break and think about the majors differences.
+Take a break and think about the major differences.
 
 First strange thing, in C, the function is not expected to return anything. That's a ``void`` declared function, you 
 can't here in C return something. But we notice we receive an argument called ``return_value`` of type ``zval *``, 
@@ -289,18 +289,18 @@ float as an integer, and give it to you.
 
 Let's see that function::
 
-    PHP_FUNCTION(celsius_to_fahrenheit)
+    PHP_FUNCTION(fahrenheit_to_celsius)
     {
-	    double c;
+        double f;
 
-	    if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) == FAILURE) {
-		    return;
-	    }
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &f) == FAILURE) {
+            return;
+        }
 
-	    /* continue */
+        /* continue */
     }
 
-We want to be given a double on the c variable. We then call ``zend_parse_parameters()``.
+We want to be given a double on the f variable. We then call ``zend_parse_parameters()``.
 
 The first argument is the number of arguments the runtime have been given. ``ZEND_NUM_ARGS()`` is a macro that tells 
 us, we then use it to tell zpp() how many arguments to read.
@@ -330,18 +330,18 @@ So far so good, we received a double. Let's now perform the math operations and 
 
     static double php_fahrenheit_to_celsius(double f)
     {
-	    return ((double)5/9) * (double)(f - 32);
+        return ((double)5/9) * (double)(f - 32);
     }
 
     PHP_FUNCTION(fahrenheit_to_celsius)
     {
-	    double f;
+        double f;
 
-	    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "d", &f) == FAILURE) {
-		    return;
-	    }
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "d", &f) == FAILURE) {
+            return;
+        }
 
-	    RETURN_DOUBLE(php_fahrenheit_to_celsius(f));
+        RETURN_DOUBLE(php_fahrenheit_to_celsius(f));
     }
 
 Returning values should be easy to you, as you know :doc:`how zvals work <../internal_types/zvals>`. You must fill-in 
@@ -386,10 +386,10 @@ Let's add the opposite function: ``celsius_to_fahrenheit($celsius)``::
 
     PHP_FUNCTION(celsius_to_fahrenheit)
     {
-       double c;
+        double c;
 
         if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) == FAILURE) {
-    	    return;
+            return;
         }
 
         RETURN_DOUBLE(php_celsius_to_fahrenheit(c));
