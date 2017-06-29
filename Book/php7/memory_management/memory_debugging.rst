@@ -367,13 +367,10 @@ Finally here is a last example to show a use-after-free scenario. This is also a
 which is as bad as bad-memory-access: it creates security flaws that can lead to very nasty behaviors.
 Obviously, valgrind can detect use-after-free. Here is one::
 
-    PHP_MINIT_FUNCTION(pib)
-    {
-	char *foo = strdup("foo");
-	free(foo);
+    char *foo = strdup("foo");
+    free(foo);
 
-	memcpy(foo, "foo", sizeof("foo"));
-    }
+    memcpy(foo, "foo", sizeof("foo"));
 
 Here again, a PHP scenario that has nothing to do with PHP but still. We free a pointer, and reuse it after. This is a 
 big mistake. Let's ask valgrind::

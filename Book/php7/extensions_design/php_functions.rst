@@ -85,7 +85,7 @@ You'll pass to the function vector a declared vector of functions. Let's see tog
     static const zend_function_entry pib_functions[] =
     {
         PHP_FE(fahrenheit_to_celsius, NULL)
-    }
+    };
 
     zend_module_entry pib_module_entry = {
         STANDARD_MODULE_HEADER,
@@ -175,7 +175,7 @@ Fortunately, you are once more provided some macros to abstract the hard job for
 
     ZEND_BEGIN_ARG_INFO_EX(arginfo_fahrenheit_to_celsius, 0, 0, 1)
         ZEND_ARG_INFO(0, fahrenheit)
-    ZEND_END_ARG_INFO();
+    ZEND_END_ARG_INFO()
 
 The code above details how to create an argument, but when we expand macros, we can feel some difficulty::
 

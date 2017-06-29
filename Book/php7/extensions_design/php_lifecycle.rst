@@ -157,9 +157,10 @@ A request just showed in, and PHP is about to treat it here. In ``RINIT()``, you
 treat that precise request. PHP is a share-nothing architecture, and as-is, it provides 
 :doc:`memory management <../memory_management>` facilities.
 
-In ``RINIT()``, if you need to allocate dynamic memory, you'll use Zend Memory Manager. You will call for ``emalloc()``.
-Zend Memory Manager tracks the memory you allocate through it, and when the request shuts down, it will attempt to free 
-the request-bound memory if you forgot to do so (you should not).
+In ``RINIT()``, if you need to allocate dynamic memory, you'll use 
+:doc:`Zend Memory Manager <../memory_management/zend_memory_manager>`. You will call for ``emalloc()``.
+:doc:`Zend Memory Manager <../memory_management/zend_memory_manager>` tracks the memory you allocate through it, and 
+when the request shuts down, it will attempt to free the request-bound memory if you forgot to do so (you should not).
 
 You should not require persistent dynamic memory here, aka libc's ``malloc()`` or Zend's ``pemalloc()``. If you require 
 persistent memory here, and forgets to free it, you'll create leaks that will stack as PHP treats more and more 
@@ -265,18 +266,19 @@ Thoughts on PHP lifecycle
 
 As you may have spotted, ``RINIT()`` and ``RSHUTDOWN()`` are especially crucial as they could get triggered thousands 
 of times on your extension. If the PHP setup is about Web (not CLI), and has been configured so that it can treat an 
-infinite number of requests, thus your RINIT()/RSHUTDOWN() couple will be called an infinite amount of time.
+infinite number of requests, thus your ``RINIT()/RSHUTDOWN()`` couple will be called an infinite amount of time.
 
 We'd like to once more get your attention about memory management. The little tiny byte you'll eventually leak while 
 treating a request (between ``RINIT()`` and ``RSHUTDOWN()``) will have dramatic consequences on fully loaded servers.
+That's why you are advised to use :doc:`Zend Memory Manager <../memory_management/zend_memory_manager>` for such 
+allocations. PHP will forget and free the request memory at the end of every request as part of the share-nothing 
+architecture, that's PHP's internal design.
 
 Also, if you crash with a SIGSEGV signal (bad memory access), you crash the entire process. If the PHP setup was using 
 threads as multi-processing engine, then you crash every other thread with you, and could even crash the webserver.
 
 .. note:: The C language is not the PHP language. Using C, errors and mistakes in your program will highly probably 
           lead to a program crash and termination.
-
-.. todo: Add a chapter about debugging. Add a chapter about memory leak tracking.
 
 Hooking by overwritting function pointers
 *****************************************

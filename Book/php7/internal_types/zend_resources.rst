@@ -3,7 +3,7 @@ The Resource type: zend_resource
 
 Even though PHP could really get rid of the "resource" type, because 
 :doc:`custom object storage <./classes_objects/custom_object_storage>` allows to build a PHP representation of any 
-abstract kind of data, that resource type still exists in PHP, and you may need to deal with it.
+abstract kind of data, that resource type still exists in the current version of PHP, and you may need to deal with it.
 
 If you need to create resources, we really would like to push you not to, but instead use objects and their 
 :doc:`custom storage <./classes_objects/custom_object_storage>` management. Objects is the PHP type that can embed 
@@ -41,7 +41,7 @@ The ``type`` is used to regroup resources of the same type together. This is abo
 how they are fetched back from their handle.
 
 Finally, the ``ptr`` field in ``zend_resource`` is your abstract data. Remember resources are about storing an abstract 
-data that cannot fit in any data type PHP can represent natively.
+data that cannot fit in any data type PHP can represent natively (but objects could, like we said earlier).
 
 Resource types and resource destruction
 ---------------------------------------
@@ -61,12 +61,13 @@ Destructors are grouped by types, so are resources themselves. You won't apply t
 There also exists two kinds of resources, here again differenciated about their lifetime.
 
 * Classical resources, the most used ones, do not persist across several requests, their destructor is called at 
-  request shutdown
+  request shutdown.
 * Persistent resources will persist across several requests and will only get destroyed when the PHP process dies.
 
 .. note:: You may be interested by :doc:`the PHP lifecycle <../extensions_design/php_lifecycle>` chapter that shows you 
-          the different steps occuring in PHP's process life.
-
+          the different steps occuring in PHP's process life. Also, the 
+          :doc:`Zend Memory Manager chapter <../memory_management/zend_memory_manager>` may help in understanding 
+          concepts of persistent and request-bound memory allocations.
 
 Playing with resources
 ----------------------
@@ -144,6 +145,10 @@ Resource types are just a way for the engine to mix different kind of resources 
 connection") into the same resource table. Resource types have names, so that those can be used in error messages or in 
 debug statement (like a ``var_dump($my_resource)``), and they also are represented as an integer used internaly to 
 fetch back the resource pointer from it, and to register a destructor with the resource type.
+
+.. note:: Like you can see, if we would have used objects, those represent types by themselves, and there would'nt have 
+          to happen that step of fetching back a resource from its identifier verifying its type. Objects are 
+          self-describing types. But resources are still a valid data type for the current PHP version.
 
 Reference counting resources
 ----------------------------
