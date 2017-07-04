@@ -198,7 +198,7 @@ Let's zero our random value::
         PHP_MODULE_GLOBALS(pib),
         PHP_GINIT(pib),
         PHP_GSHUTDOWN(pib),
-        NULL, /* MINFO() */
+        NULL, /* PRSHUTDOWN() */
         STANDARD_MODULE_PROPERTIES_EX
     };
 
@@ -367,15 +367,20 @@ Here is the patched example introducing true globals, we just show the diff abou
     static zend_string *more, *less;
     static zend_ulong max = 100;
 
+    static void register_persistent_string(char *str, zend_string **result)
+    {
+        *result = zend_string_init(str, strlen(str), 1);
+        zend_string_hash_val(*result);
+        
+        GC_FLAGS(*result) |= IS_INTERNED;
+    }
+
     PHP_MINIT_FUNCTION(pib)
     {
         char *pib_max;
 
-        more = zend_string_init("more", strlen("more"), 1);
-        less = zend_string_init("less", strlen("less"), 1);
-
-        GC_FLAGS(more) |= IS_STR_INTERNED;
-        GC_FLAGS(less) |= IS_STR_INTERNED;
+        register_persistent_string("more", &more);
+        register_persistent_string("less", &less);
 
         if (pib_max = getenv("PIB_RAND_MAX")) {
             if (!strchr(pib_max, '-')) {
@@ -421,9 +426,10 @@ What happened here is that we created two :doc:`zend_string <../internal_types/s
 and ``less``. Those strings don't need to be created and destroyed anytime they are used like it was done before. Those 
 are immutable strings that can be allocated once and reused anytime needed, as soon as they stay immutable 
 (aka : read-only). We initialize those two strings in ``MINIT()`` using a persistent allocation in 
-``zend_string_init()``, and we tell the zval garbage collector those strings are interned so that it will never ever 
-try to destroy them (however it could need to copy them if they were used as part of a write operation, such as a 
-concatenation). Obviously we don't forget to destroy such strings in ``MSHUTDOWN()``.
+``zend_string_init()``, we precompute their hash now (instead of having the very first request doing it), and we tell 
+the zval garbage collector those strings are interned so that it will never ever try to destroy them (however it could 
+need to copy them if they were used as part of a write operation, such as a concatenation). Obviously we don't forget 
+to destroy such strings in ``MSHUTDOWN()``.
 
 Then in ``MINIT()`` we probe for a ``PIB_RAND_MAX`` environment and use it as the maximum range value for our random 
 number pick. As we use an unsigned integer and we know ``strtoull()`` won't complain about negative numbers (and thus 
