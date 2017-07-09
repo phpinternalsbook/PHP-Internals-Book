@@ -211,7 +211,7 @@ Especially, in Post-RSHUTDOWN:
 * PHP super-globals have been destroyed
 * The execution engine has been shut down
 
-This hook is very rare to use. It is triggered a little bit after ``RSHUTDOWN()``, by ``zend_deactivate_modules()`` in 
+This hook is very rare to use. It is triggered a little bit after ``RSHUTDOWN()``, by ``zend_post_deactivate_modules()`` in 
 `php_request_shutdown() <https://github.com/php/php-src/blob/3704947696fe0ee93e025fa85621d297ac7a1e4d/main/main.c#L1758>`_ 
 function.
 
