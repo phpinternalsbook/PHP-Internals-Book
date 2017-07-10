@@ -1,21 +1,21 @@
 Registering and using PHP functions
 ===================================
 
-The main goal of a PHP extension is to register new PHP functions for userland. PHP functions are complex to fully 
-understand their mechanics that hook very deep into the Zend Engine, but fortunately we don't need this knowledge 
+The main goal of a PHP extension is to register new PHP functions for userland. PHP functions are complex to fully
+understand their mechanics that hook very deep into the Zend Engine, but fortunately we don't need this knowledge
 for our chapter, as the PHP extension mechanism provides many ways to abstract a lot such a complexity.
 
-Registering and using new PHP functions in an extension is an easy step. Deeply understanding the big picture is 
-however pretty more complex. A first step :doc:`to the zend_function chapter<../internal_types/functions>` could help 
+Registering and using new PHP functions in an extension is an easy step. Deeply understanding the big picture is
+however pretty more complex. A first step :doc:`to the zend_function chapter<../internal_types/functions>` could help
 then.
 
-Obviously, you'll need to master :doc:`types<../internal_types>`, especially :doc:`zvals<../internal_types/zvals>` and 
+Obviously, you'll need to master :doc:`types<../internal_types>`, especially :doc:`zvals<../internal_types/zvals>` and
 :doc:`memory management<../memory_management>` here. Also, know your :doc:`hooks<../extensions_design/php_lifecycle>`.
 
 zend_function_entry structure
 *****************************
 
-Not to be confused with :doc:`the zend_function structure<../internal_types/functions>`, ``zend_function_entry`` is 
+Not to be confused with :doc:`the zend_function structure<../internal_types/functions>`, ``zend_function_entry`` is
 used to register functions against the engine while in an extension.
 Here it is::
 
@@ -44,7 +44,7 @@ return value is passed to our handler as a parameter.
 Arguments. The ``arg_info`` variable is about declaring the API arguments our function will accept. Here again, 
 that part can be tricky to deeply understand, but we don't need to get too deep and we'll once more use macros to 
 abstract and ease arguments declaration. What you should know is that you are not required to declare any arguments 
-here for the function to work, but it is highly recommanded. We'll get back to that. Arguments are an array of 
+here for the function to work, but it is highly recommanded. We'll get back to that. Arguments are an array of
 ``arg_info``, and thus its size is passed as ``num_args``.
 
 Then come ``flags``. We won't detail flags in this chapter. Those are used internally, you'll find some details in the 
@@ -53,9 +53,9 @@ dedicated :doc:`zend_function<../internal_types/functions>` chapter.
 Registering PHP functions
 *************************
 
-PHP functions are registered into the engine when the extension gets loaded. An extension may declare a function vector 
-into the extension structure. Functions declared by extensions are called "internal" functions, and at the opposite of 
-"user" functions (functions declared and used using PHP userland) they don't get unregistered at the end of the 
+PHP functions are registered into the engine when the extension gets loaded. An extension may declare a function vector
+into the extension structure. Functions declared by extensions are called "internal" functions, and at the opposite of
+"user" functions (functions declared and used using PHP userland) they don't get unregistered at the end of the
 current request: they are permanent.
 
 As a reminder, here is the PHP extension structure shorten for readability::
@@ -129,16 +129,16 @@ Here is the same code, but with the macros expanded, so that you can have a look
             (uint32_t) (sizeof(((void *)0))/sizeof(struct _zend_internal_arg_info)-1), 0 },
     }
 
-Notice how ``PHP_FUNCTION()`` expanded to a C symbol beginning by ``zif_``. *'zif'* stands for 
-*Zend Internal Function*, it is added to the name of your function to prevent symbol name collisions in the compilation 
-of PHP and its modules. Thus, our ``fahrenheit_to_celsius()`` PHP function uses a C handler named 
-``zif_fahrenheit_to_celsius()``. It is the same for nearly every PHP function. If you look for "zif_var_dump", you'll 
+Notice how ``PHP_FUNCTION()`` expanded to a C symbol beginning by ``zif_``. *'zif'* stands for
+*Zend Internal Function*, it is added to the name of your function to prevent symbol name collisions in the compilation
+of PHP and its modules. Thus, our ``fahrenheit_to_celsius()`` PHP function uses a C handler named
+``zif_fahrenheit_to_celsius()``. It is the same for nearly every PHP function. If you look for "zif_var_dump", you'll
 read the PHP ``var_dump()`` source code function, etc...
 
 Declaring function arguments
 ****************************
 
-So far so good, if :doc:`you compile<../build_system/building_extensions>` the extension and load it into PHP, you can 
+So far so good, if :doc:`you compile<../build_system/building_extensions>` the extension and load it into PHP, you can
 see with reflection that the function is present::
 
     > ~/php/bin/php -dextension=pib.so --re pib
@@ -149,10 +149,10 @@ see with reflection that the function is present::
         }
     }
 
-But its arguments are missing. If we want to publish a ``fahrenheit_to_celsius($fahrenheit)`` function signature, we 
+But its arguments are missing. If we want to publish a ``fahrenheit_to_celsius($fahrenheit)`` function signature, we
 need one mandatory argument.
 
-What you must know is that argument declaration has nothing to do with the function internal work. That means that this 
+What you must know is that argument declaration has nothing to do with the function internal work. That means that this
 function could have worked if we would have written its body now. Even with no declared arguments.
 
 .. note:: Declaring arguments is not mandatory but highly recommanded. Arguments are used by the reflection API to get 
@@ -207,7 +207,7 @@ This bunch of macros allow you to deal with every use-case.
           *'arginfo_[function name]'* pattern.
 
 So back to our ``fahrenheit_to_celsius()`` function, we declare a simple return by value function (very classical 
-use-case), with one argument called ``fahrenheit``, not passed by reference (here again, very traditionnal).
+use-case), with one argument called ``fahrenheit``, not passed by reference (here again, very traditional).
 
 That created the ``arginfo_fahrenheit_to_celsius`` symbol of type ``zend_internal_arg_info[]`` (a vector, or an array, 
 that is the same), and we must now use that back into our function declaration to attach it some args::
@@ -231,15 +231,15 @@ Ok. Here is a PHP function like you use it and declare it with the PHP language 
 
     function fahrenheit_to_celsius($fahrenheit)
     {
-        return 9/5 * $fahrenheit + 32;
+        return 5/9 * ($fahrenheit - 32);
     }
 
 This is an easy function so that you understand things.
 Here is what it looks like when programmed in C::
 
-    PHP_FUNCTION(celsius_to_fahrenheit)
+    PHP_FUNCTION(fahrenheit_to_celsius)
     {
-        /* code to go here */	    
+        /* code to go here */
     }
 
 Macro expanded, that gives::
@@ -249,7 +249,7 @@ Macro expanded, that gives::
         /* code to go here */
     }
 
-Take a break and think about the majors differences.
+Take a break and think about the major differences.
 
 First strange thing, in C, the function is not expected to return anything. That's a ``void`` declared function, you 
 can't here in C return something. But we notice we receive an argument called ``return_value`` of type ``zval *``, 
@@ -289,18 +289,18 @@ float as an integer, and give it to you.
 
 Let's see that function::
 
-    PHP_FUNCTION(celsius_to_fahrenheit)
+    PHP_FUNCTION(fahrenheit_to_celsius)
     {
-	    double c;
+        double f;
 
-	    if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) == FAILURE) {
-		    return;
-	    }
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &f) == FAILURE) {
+            return;
+        }
 
-	    /* continue */
+        /* continue */
     }
 
-We want to be given a double on the c variable. We then call ``zend_parse_parameters()``.
+We want to be given a double on the f variable. We then call ``zend_parse_parameters()``.
 
 The first argument is the number of arguments the runtime have been given. ``ZEND_NUM_ARGS()`` is a macro that tells 
 us, we then use it to tell zpp() how many arguments to read.
@@ -330,18 +330,18 @@ So far so good, we received a double. Let's now perform the math operations and 
 
     static double php_fahrenheit_to_celsius(double f)
     {
-	    return ((double)5/9) * (double)(f - 32);
+        return ((double)5/9) * (double)(f - 32);
     }
 
     PHP_FUNCTION(fahrenheit_to_celsius)
     {
-	    double f;
+        double f;
 
-	    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "d", &f) == FAILURE) {
-		    return;
-	    }
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "d", &f) == FAILURE) {
+            return;
+        }
 
-	    RETURN_DOUBLE(php_fahrenheit_to_celsius(f));
+        RETURN_DOUBLE(php_fahrenheit_to_celsius(f));
     }
 
 Returning values should be easy to you, as you know :doc:`how zvals work <../internal_types/zvals>`. You must fill-in 
@@ -386,10 +386,10 @@ Let's add the opposite function: ``celsius_to_fahrenheit($celsius)``::
 
     PHP_FUNCTION(celsius_to_fahrenheit)
     {
-       double c;
+        double c;
 
         if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) == FAILURE) {
-    	    return;
+            return;
         }
 
         RETURN_DOUBLE(php_celsius_to_fahrenheit(c));
@@ -427,7 +427,7 @@ Now a more complex use case, we show it in PHP before implementing it as a C ext
 That example helps us introduce **constants**.
 
 Constants are easy to manage in extensions, like they are in their userland counter-part. Constants are persistent, 
-most often, that means that they should persist their value accross requests. If you are aware of 
+most often, that means that they should persist their value across requests. If you are aware of
 :doc:`the PHP lifecycle<./php_lifecycle>`, you should have guessed that ``MINIT()`` is the right stage to register 
 constants against the engine.
 
@@ -465,7 +465,7 @@ API and macros are located into
 zend_constants.h>`_.
 
 The flags are mixed *OR* operation between ``CONST_CS`` (case-sensitive constant, what we want), and 
-``CONST_PERSISTENT`` (a persistent constant, accross requests, what we want as well).
+``CONST_PERSISTENT`` (a persistent constant, across requests, what we want as well).
 
 Now our ``temperature_converter($temp, $type = TEMP_CONVERTER_TO_CELSIUS)`` function in C::
 
@@ -515,9 +515,9 @@ Remember to well look at `README.PARAMETER_PARSING_API <https://github.com/php/p
 ef4b2fc283ddaf9bd692015f1db6dad52171c3ce/README.PARAMETER_PARSING_API>`_. It's not a hard API, you must familiarize 
 with it.
 
-We use *"d|l"* as arguments to ``zend_parse_parameters()``. One double and optionnaly (the pipe *"|"*) one long. Take 
-care, if the optionnal argument is not provided at runtime (what ``ZEND_NUM_ARGS()`` tells us about, as a reminder), 
-then the ``&mode`` variable won't be touched by zpp(). That's why we provide a default value of 
+We use *"d|l"* as arguments to ``zend_parse_parameters()``. One double and optionaly (the pipe *"|"*) one long. Take 
+care, if the optional argument is not provided at runtime (what ``ZEND_NUM_ARGS()`` tells us about, as a reminder), 
+then the ``&mode`` variable won't be touched by zpp(). That's why we provide a default value of
 ``TEMP_CONVERTER_TO_CELSIUS`` to that variable.
 
 Then we use ``strpprintf()`` to build a :doc:`zend_string <../internal_types/strings/zend_strings>`, and return it into 
@@ -590,14 +590,14 @@ remember one reason why we sometimes use the C language over PHP.
 Managing references
 *******************
 
-Now let's go to play with PHP references. You've learnt from :doc:`the zval chapter <../internal_types/zvals>` that 
-references are a special trick used into the engine. As a reminder, a reference (by that we mean a ``&$php_reference``) 
+Now let's go to play with PHP references. You've learnt from :doc:`the zval chapter <../internal_types/zvals>` that
+references are a special trick used into the engine. As a reminder, a reference (by that we mean a ``&$php_reference``)
 is a heap allocated ``zval`` stored into a ``zval`` container. Haha.
 
-So, it is not very hard to deal with those into PHP functions, as soon as you remember what references are, and what 
+So, it is not very hard to deal with those into PHP functions, as soon as you remember what references are, and what
 they're designed to.
 
-If your function accept a parameter as a reference, you must declare that in arguments signature and be passed a 
+If your function accept a parameter as a reference, you must declare that in arguments signature and be passed a
 reference from your ``zend_parse_parameter()`` call. Let's see that like always, with a PHP example first:
 
 .. code-block::php
@@ -616,9 +616,9 @@ So now in C, first we must change our ``arg_info``::
 *1*, passed in the ``ZEND_ARG_INFO()`` macro tells the engine that argument must be passed by reference.
 
 Then, when we receive the argument, we use the *"z"* argument type, to tell that we want to be given it as a ``zval *``.
-As we did hint the engine about the fact that it should pass us a reference, we'll be given a reference into that zval, 
-aka it will be of type ``IS_REFERENCE``. We just need to dereference it (that is to fetch the zval stored into the 
-zval), and modify it as-is, as the expected behavior of references is that you must modify the value carried by the 
+As we did hint the engine about the fact that it should pass us a reference, we'll be given a reference into that zval,
+aka it will be of type ``IS_REFERENCE``. We just need to dereference it (that is to fetch the zval stored into the
+zval), and modify it as-is, as the expected behavior of references is that you must modify the value carried by the
 reference::
 
     PHP_FUNCTION(fahrenheit_to_celsius)
