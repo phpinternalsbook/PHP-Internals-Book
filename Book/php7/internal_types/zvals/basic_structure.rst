@@ -13,7 +13,7 @@ the type can change during the life of a zval, so if the zval previously stored 
 later point in time.
 
 The type is stored as an integer tag (an unsigned int). It can be one of several values. Some values correspond to the eight
-types available in PHP, others are used for internal engine purpose only. These values are referred to using constants 
+types available in PHP, others are used for internal engine purpose only. These values are referred to using constants
 of the form ``IS_TYPE``. E.g. ``IS_NULL`` corresponds to the null type and ``IS_STRING`` corresponds to the string type.
 
 The actual value is stored in a union, which is defined as follows::
@@ -60,7 +60,7 @@ Secondly, ``zend_long`` represents an abstraction of the platform long, so whate
 ``zend_long`` weights 4 bytes on 32bit platforms and 8 bytes on 64bit ones.
 
 In addition to that, you may use macros related to longs, ``SIZEOF_ZEND_LONG`` or ``ZEND_LONG_MAX`` f.e.
-See 
+See
 `Zend/zend_long.h <https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_long.h>`_
 in source code for more informations.
 
@@ -68,8 +68,8 @@ The ``double`` type used to store floating point numbers is (typically) an 8-byt
 specification. The details of this format won't be discussed here, but you should at least be aware of the fact that
 this type has limited precision and commonly doesn't store the exact value you want.
 
-Booleans use weither the ``IS_TRUE`` or ``IS_FALSE`` flag and don't need to store any more info. There exists what's
-called a "fake type" flaggued as ``_IS_BOOL``, but you shouldn't make use of it as a zval type, this is incorrect. This
+Booleans use either the ``IS_TRUE`` or ``IS_FALSE`` flag and don't need to store any more info. There exists what's
+called a "fake type" flagged as ``_IS_BOOL``, but you shouldn't make use of it as a zval type, this is incorrect. This
 fake type is used in some rare uncommon internal situations (like type hints f.e).
 
 The remaining four types will only be mentioned here quickly and discussed in greater detail in their own chapters:
@@ -143,11 +143,11 @@ You will basically use this field when you want to store "something" into a zval
 represents "a pointer to some memory area of any size, containing (hopefully) anything".
 The ``IS_PTR`` flag type is then used in the zval.
 
-When you'll read the :doc:`/php7/classes_objects` chapter, you'll learn about ``zend_class_entry`` type. The zval 
+When you'll read the :doc:`/php7/classes_objects` chapter, you'll learn about ``zend_class_entry`` type. The zval
 ``zend_class_entry *ce`` field is used to carry a reference to a PHP class into a zval. Here again, there is no direct
 usage of such a situation into the PHP language itself (userland), but internally you'll need that.
 
-Finally, the ``zend_function *func`` field is used to embed a PHP function into a zval. The :doc:`/php7/functions` chapter 
+Finally, the ``zend_function *func`` field is used to embed a PHP function into a zval. The :doc:`/php7/functions` chapter
 details PHP functions.
 
 Access macros
@@ -186,7 +186,7 @@ Additionally the structure has a ``u2`` property. We'll ignore them for now and 
 
 ``u1`` is accessed using ``type_info``. ``type_info`` is shrinked into detailed ``type``, ``type_flags``,
 ``const_flags`` and ``reserved`` fields. Remember, we are in a union for ``u1`` here. So the four informations in the
-``u1.v`` field weigths the same as the information stored into the ``u1.type_info``. A clever memory alignement rule
+``u1.v`` field weighs the same as the information stored into the ``u1.type_info``. A clever memory alignment rule
 has been used here. ``u1`` is very used, as it embed informations about the type stored into the zval.
 
 ``u2`` has totally other meanings. We don't need to detail the ``u2`` field by now, simply ignore it,
@@ -220,8 +220,8 @@ use depends on whether you are working on a ``zval`` or a ``zval*`` ::
     Z_TYPE(zv);                 // = zv.type
     Z_TYPE_P(zv_ptr);           // = zv_ptr->type
 
-Basically the ``P`` stands for "pointer". This only works until ``zval*``, i.e. there are no special macros for working 
-with ``zval**`` or more, as this is rarely necessary in practice (you'll just have to dereference the value first 
+Basically the ``P`` stands for "pointer". This only works until ``zval*``, i.e. there are no special macros for working
+with ``zval**`` or more, as this is rarely necessary in practice (you'll just have to dereference the value first
 using the ``*`` operator).
 
 Similarly to ``Z_LVAL`` there are also macros for fetching values of all the other types. To demonstrate their usage
@@ -286,8 +286,8 @@ Lets try it out::
     dump(new stdClass);         // OBJECT: object=0x???
 
 The macros for accessing the values are pretty straightforward: ``Z_LVAL`` for longs, ``Z_DVAL``
-for doubles. For strings ``Z_STR`` returns the actual ``zend_string *`` string, ``ZSTR_VAL`` accesses the char * into 
-it whereas ``Z_STRLEN`` provides us with the length. The resource ID can be fetched using ``Z_RES_HANDLE`` and the 
+for doubles. For strings ``Z_STR`` returns the actual ``zend_string *`` string, ``ZSTR_VAL`` accesses the char * into
+it whereas ``Z_STRLEN`` provides us with the length. The resource ID can be fetched using ``Z_RES_HANDLE`` and the
 ``zend_array *`` of an array is accessed with ``Z_ARRVAL``.
 
 When you want to access the contents of a zval you should always go through these macros, rather than directly accessing
@@ -329,15 +329,15 @@ obvious, otherwise nobody could use the return value), so it can't make use of a
 
 Because of this we need to create a new zend_string using ``zend_string_init()``. This will create a separate copy
 of the string on the heap. Because the zval "carries" its value, it will make sure to free this copy when the zval is
-destroyed, or at least to decrement its refcount. This also applies to any other "complex" value of the zval. E.g. 
+destroyed, or at least to decrement its refcount. This also applies to any other "complex" value of the zval. E.g.
 if you set the ``zend_array*`` for an array, the zval will carry that later and release it when the zval is destroyed.
 By "releasing", we mean either decrement the reference counter, or free the structure if reference counter falls to
 zero. When using primitive types like integers or doubles you obviously don't need to care about this, as they are
 always copied.
-All those memory management steps, such as allocation, free or reference counting; are detailed in the 
+All those memory management steps, such as allocation, free or reference counting; are detailed in the
 :doc:`/php7/zvals/memory_management` chapter.
 
-Setting the zval value is such a common task, PHP provides another set of macros for this purpose. They allow you to 
+Setting the zval value is such a common task, PHP provides another set of macros for this purpose. They allow you to
 set the type tag and the value at the same time. Rewriting the previous example using such a macro yields::
 
     PHP_FUNCTION(hello_world) {
