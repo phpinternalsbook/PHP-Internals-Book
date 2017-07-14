@@ -87,7 +87,7 @@ macro resolves to `display_ini_entries()
 A note about the Reflection API
 -------------------------------
 
-The Reflection heavilly uses your ``zend_module_entry`` structure. For example, when you call 
+The Reflection heavily uses your ``zend_module_entry`` structure. For example, when you call 
 ``ReflectionExtension::getVersion()``, the API just reads the version field of your ``zend_module_entry`` structure.
 
 Same to discover functions, your ``zend_module_entry`` has got a ``const struct _zend_function_entry *functions`` member 

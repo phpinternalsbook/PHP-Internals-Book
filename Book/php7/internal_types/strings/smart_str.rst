@@ -30,7 +30,7 @@ Here are the two structures::
 Like you can see, one will work with traditional C strings (as ``char*/size_t``) and the other will make use of the
 PHP's specific ``zend_string`` structure.
 
-We will detail the later: ``smart_str``, that works with :doc:`zend_strings`. Both APIs are exactly the same, simply
+We will detail the latter: ``smart_str``, that works with :doc:`zend_strings`. Both APIs are exactly the same, simply
 note that one (the one we'll detail here) starts by ``smart_str_**()`` and the other by ``smart_string_***()``. Don't
 confuse !
 
@@ -95,7 +95,7 @@ smart_str specific tricks
 * ``smart_str`` embeds a ``zend_string``, and then allows you to share that later elsewhere playing with its reference
   counter. Please, visit the :doc:`zend_string dedicated chapter <zend_strings>` to know more about it.
 * You can play with ``smart_str`` allocations. Look at ``smart_str_alloc()`` and friends.
-* ``smart_str`` is heavilly used into PHP's heart. For example, PHP's
+* ``smart_str`` is heavily used into PHP's heart. For example, PHP's
   :doc:`specific printf() functions <printing_functions>` internally use a ``smart_str`` buffer.
 * ``smart_str`` is definitely an easy structure you need to master.
 
