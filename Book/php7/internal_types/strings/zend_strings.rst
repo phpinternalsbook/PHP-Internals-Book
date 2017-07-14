@@ -186,7 +186,7 @@ them. There is no concat operation available yet, but that is pretty easy to per
     FOO = zend_string_init("FOO", strlen("FOO"), 0);
     bar = zend_string_init("bar", strlen("bar"), 0);
 
-    /* Compares a zend_string against a C string litteral */
+    /* Compares a zend_string against a C string literal */
     if (!zend_string_equals_literal(FOO, "foobar")) {
     	foobar = zend_string_copy(FOO);
 
@@ -284,7 +284,7 @@ Interned strings are deduplicated strings. When used with OPCache, they also get
 Say you want to create the string "foo". What you tend to do is simply create a new string "foo"::
 
     zend_string *foo;
-    foo = zend_string-init("foo", strlen("foo"), 0);
+    foo = zend_string_init("foo", strlen("foo"), 0);
 
     /* ... */
 
