@@ -154,7 +154,7 @@ the argument parsing API which is easy to understand `from reading the source
 <https://github.com/php/php-src/blob/509f5097ab0b578adc311c720afcea8de266aadd/main/spprintf.c#L203>`_.
 
 What that means is that arguments parsing algo has been fully rewritten, and may differ from what you're used to in libc.
-F.e, the libc locale is note taken care of in most cases.
+F.e, the libc locale is not taken care of in most cases.
 
 Special formats may be used, like *"%I64"* to explicitely print to an int64, or *"%I32"*.
 You can also use *"%Z"* to make a zval printable (according to PHP cast rules to string), that one is a great addition.
@@ -174,7 +174,7 @@ Printf()ing into zend_strings
 As :doc:`zend_string <zend_strings>` are a very common structure into PHP source, you may need to ``printf()`` into a
 ``zend_string`` instead of a traditional C ``char *``.  For this, use ``strpprintf()``.
 
-Tha API is ``zend_string *strpprintf(size_t max_len, const char *format, ...)`` that means that the ``zend_string`` is
+The API is ``zend_string *strpprintf(size_t max_len, const char *format, ...)`` that means that the ``zend_string`` is
 returned to you, and not the number of printed chars as you may expect. You can limit that number though, using the
 first parameter (pass 0 to mean infinite); and you must remember that the ``zend_string`` will be allocated using the
 Zend Memory Manager, and thus bound to the current request.
