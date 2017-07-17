@@ -17,7 +17,8 @@ process. Everytime a new request shows in to be treated, PHP will run **a reques
 **RINIT**.
 
 The request is served, some content is (probably) generated, OK. Time to shutdown the request and get prepared to 
-eventually treat another one. Shutting down a request is called **the request shutdown step**.
+eventually treat another one. Shutting down a request is called **the request shutdown step**.  We call
+it the **RSHUTDOWN**.
 
 After having treated X requests (one, several dozens, thousands etc..), PHP will finally shut down itself, and die.
 Shutting down the PHP process is called **the module shutdown step**. We abbreviate it as **MSHUTDOWN**.
