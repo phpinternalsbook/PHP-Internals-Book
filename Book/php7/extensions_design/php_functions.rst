@@ -351,6 +351,54 @@ To do that, some ``RETURN_***()`` macros are dedicated as well as some ``RETVAL_
 Both just set the type and value of the ``return_value`` zval, but ``RETURN_***()`` ones will follow that by a C 
 ``return`` that will return from that current function.
 
+Alternatively, the API provides alternative macros to handle and parse parameters, It's more readable if you get 
+messed with the python style specifiers.
+
+You will need to starting & ending parsing the function parameters with the following macros::
+
+    ZEND_PARSE_PARAMETERS_START(min_argument_count, max_argument_count) /* takes two parameters */
+    /* here we will go with argument lists */
+    ZEND_PARSE_PARAMETERS_END();
+
+The available parameters macros could be listed as follows (more on the required arguments for those macros later)::
+
+    Z_PARAM_ARRAY()                /* old "a" */
+    Z_PARAM_ARRAY_OR_OBJECT()      /* old "A" */
+    Z_PARAM_BOOL()                 /* old "b" */
+    Z_PARAM_CLASS()                /* old "C" */
+    Z_PARAM_DOUBLE()               /* old "d" */
+    Z_PARAM_FUNC()                 /* old "f" */
+    Z_PARAM_ARRAY_HT()             /* old "h" */
+    Z_PARAM_ARRAY_OR_OBJECT_HT()   /* old "H" */
+    Z_PARAM_LONG()                 /* old "l" */
+    Z_PARAM_STRICT_LONG()          /* old "L" */
+    Z_PARAM_OBJECT()               /* old "o" */
+    Z_PARAM_OBJECT_OF_CLASS()      /* old "O" */
+    Z_PARAM_PATH()                 /* old "p" */
+    Z_PARAM_PATH_STR()             /* old "P" */
+    Z_PARAM_RESOURCE()             /* old "r" */
+    Z_PARAM_STRING()               /* old "s" */
+    Z_PARAM_STR()                  /* old "S" */
+    Z_PARAM_ZVAL()                 /* old "z" */
+    Z_PARAM_VARIADIC()             /* old "+" and "*" */
+
+And to add a parameter as an optional parameter we use the following macro::
+
+     Z_PARAM_OPTIONAL              /* old "|" */
+
+Here is our example with the new parameters parsing style::
+
+    PHP_FUNCTION(fahrenheit_to_celsius)
+    {
+        double f;
+
+        ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_DOUBLE(f);
+        ZEND_PARSE_PARAMETERS_END();
+
+        RETURN_DOUBLE(php_fahrenheit_to_celsius(f));
+    }
+
 Adding tests
 ************
 
