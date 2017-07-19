@@ -23,6 +23,9 @@ Here is a simple ``MINFO()`` example::
     #include "php/main/SAPI.h"
     #include "ext/standard/info.h"
 
+    #define PIB_TXT  "PHPInternalsBook Authors"
+    #define PIB_HTML "<h3>" PIB_TXT "</h3>"
+
     PHP_MINFO_FUNCTION(pib)
     {
         time_t t;

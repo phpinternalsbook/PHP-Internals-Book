@@ -142,7 +142,7 @@ configuration header file ``main/php_config.h``.
 
 Both utilities produce their results from the ``configure.in`` file (which specifies most of the PHP build process),
 the ``acinclude.m4`` file (which specifies a large number of PHP-specific M4 macros) and the ``config.m4`` files of
-individual extensions and SAPIs (as well as a bunch of other ``m4`` files).
+individual extensions and SAPIs (as well as a bunch of other `m4 files <http://www.gnu.org/software/m4/m4.html>`_).
 
 The good news is that writing extensions or even doing core modifications will not require much interaction with the
 build system. You will have to write small ``config.m4`` files later on, but those usually just use two or three of the
@@ -211,8 +211,8 @@ your PHP binary contains using the ``-m`` option. For a default PHP 7.0 build th
     xmlreader
     xmlwriter
 
-If you now wanted to stop compiling the CGI SAPI, as well as the tokenizer and sqlite3 extensions and instead enable
-opcache and gmp, the corresponding configure command would be::
+If you now wanted to stop compiling the CGI SAPI, as well as the *tokenizer* and *sqlite3* extensions and instead enable
+*opcache* and *gmp*, the corresponding configure command would be::
 
     ~/php-src> ./configure --disable-cgi --disable-tokenizer --without-sqlite3 \
                            --enable-opcache --with-gmp
@@ -254,14 +254,15 @@ structures, will be reported.
 
 ``--enable-maintainer-zts`` enables thread-safety. This switch will define the ``ZTS`` macro, which in turn will enable
 the whole TSRM (thread-safe resource manager) machinery used by PHP. Writing thread-safe extensions for PHP is very
-simple, but only if make sure to enable this switch.
+simple, but only if make sure to enable this switch. If you need more information about thread safety and global 
+memory management in PHP, you should read :doc:`the globals management chapter <../extensions_design/globals_management>`
 
 On the other hand you should not use either of these options if you want to perform performance benchmarks for your
 code, as both can cause significant and asymmetrical slowdowns.
 
 Note that ``--enable-debug`` and ``--enable-maintainer-zts`` change the ABI of the PHP binary, e.g. by adding additional
-arguments to many functions. As such shared extensions compiled in debug mode will not be compatible with a PHP binary
-built in release mode. Similarly a thread-safe extension is not compatible with a thread-unsafe PHP build.
+arguments to many functions. As such, shared extensions compiled in debug mode will not be compatible with a PHP binary
+built in release mode. Similarly a thread-safe extension (ZTS) is not compatible with a non-thread-safe PHP build (NTS).
 
 Due to the ABI incompatibility ``make install`` (and PECL install) will put shared extensions in different directories
 depending on these options:
@@ -472,7 +473,7 @@ be::
     ~/php-src> make test TESTS="Zend/ ext/reflection/ ext/standard/tests/array/"
 
 We will take a more detailed look at the ``run-tests.php`` system later, in particular also talk about how to write your
-own tests and how to debug test failures.
+own tests and how to debug test failures. :doc:`See the dedicated tests chapter <../../tests/introduction>`.
 
 Fixing compilation problems and ``make clean``
 ----------------------------------------------

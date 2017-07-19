@@ -15,7 +15,7 @@ shared objects can be created by explicitly passing ``--enable-EXTNAME=shared`` 
 ``./configure``.
 
 While static extensions will always be available, shared extensions need to be loaded using the ``extension`` or
-``zend_extension`` ini options [#]_. Both options take either an absolute path to the ``.so`` file or a path relative to
+``zend_extension`` ini options. Both options take either an absolute path to the ``.so`` file or a path relative to
 the ``extension_dir`` setting.
 
 As an example, consider a PHP build compiled using this configure line::
@@ -33,7 +33,7 @@ directory. You can load both either by changing the ``extension_dir`` or by pass
     ~/php-src> sapi/cli/php -dextension_dir=`pwd`/modules \
                             -dzend_extension=opcache.so -dextension=gmp.so
 
-During the ``make install`` step both ``.so`` files will be moved into the extension directory of your PHP installation,
+During the ``make install`` step, both ``.so`` files will be moved into the extension directory of your PHP installation,
 which you may find using the ``php-config --extension-dir`` command. For the above build options it will be
 ``/home/myuser/myphp/lib/php/extensions/no-debug-non-zts-MODULE_API``. This value will also be the default of the
 ``extension_dir`` ini option, so you won't have to specify it explicitly and can load the extensions directly::
@@ -49,9 +49,8 @@ As a rule of thumb, you'll use static linkage for the extensions bundled by PHP 
 everything else. The reason is simply that building external extensions as shared objects is easier (or at least less
 intrusive), as you will see in a moment. Another benefit is that you can update the extension without rebuilding PHP.
 
-.. [#] We'll explain the difference between a "normal" extension and a Zend extension later in the book. For now it
-       suffices to know that Zend extensions are more "low level" (e.g. opcache or xdebug) and hook into the workings of
-       the Zend Engine itself.
+.. note:: If you need informations about the difference between extensions and Zend extensions, you :doc:`may have a 
+          look at the dedicated chapter <../extensions_design/zend_extensions>`.
 
 Installing extensions from PECL
 -------------------------------
@@ -358,7 +357,7 @@ We authors, use something like this in extensions of ours::
     
 See?
 
-Or, simpler (so better) is to use PHP_VERSION_ID which you are probably much more familiar about::
+Or, simpler (so better) is to use ``PHP_VERSION_ID`` which you are probably much more familiar about::
     
     #if PHP_VERSION_ID >= 50600
     

@@ -1,8 +1,8 @@
 Introduction
 ============
 
-This book is a collaborative effort between several PHP developers to better document and describe how PHP works
-internally.
+This book is a collaborative effort between several developers of the PHP language to better document and describe how 
+PHP works internally.
 
 There are three primary goals of this book:
 
@@ -37,10 +37,8 @@ make it translate to efficient CPU instructions so that you can design strong/fa
 * Hackers Delight
 * Write Great Code (2 Volumes)
 
-.. note:: This book is Work-In-Progress and some chapters have not been written yet (in particular the ones on creating 
-   basic extensions and declaring functions), so if you're completely new to PHP extension development you'll have to 
-   wait until the remaining introductory chapters are published or start off with other
-   `resources on the topic <https://wiki.php.net/internals/references>`_.
+.. note:: This book is Work-In-Progress and some chapters have not been written yet. We d'ont pay attention to a 
+          specific order, but add content as we feel.
 
 The repository for this book is available on GitHub_. Please report issues and provide feedback on the `issue tracker`_.
 
