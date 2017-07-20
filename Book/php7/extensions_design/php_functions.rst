@@ -321,10 +321,10 @@ could mess things up and generate crashes. Always check your parameters, always 
 variable as you are expecting according to the format string you provided, and of the same type you asked for.
 Be logical.
 
-Please, note also the normal procedure of argument parsing. The function zend_parse_parameters() should return SUCCESS 
-on success or FAILURE on failure. Failure could mean you did not use the ZEND_NUM_ARGS() value but provided a value by 
-hand (bad idea), or you did something wrong in argument parsing. If it is the case, it's then time to return, abort the 
-current function (you should return ``void`` from your C function, so just ``return``).
+Please, note also the normal procedure of argument parsing. The function ``zend_parse_parameters()`` should return 
+``SUCCESS`` on success or ``FAILURE`` on failure. Failure could mean you did not use the ``ZEND_NUM_ARGS()`` value but 
+provided a value by hand (bad idea), or you did something wrong in argument parsing. If it is the case, it's then time 
+to return, abort the current function (you should return ``void`` from your C function, so just ``return``).
 
 So far so good, we received a double. Let's now perform the math operations and return a result::
 
@@ -351,16 +351,16 @@ To do that, some ``RETURN_***()`` macros are dedicated as well as some ``RETVAL_
 Both just set the type and value of the ``return_value`` zval, but ``RETURN_***()`` ones will follow that by a C 
 ``return`` that will return from that current function.
 
-Alternatively, the API provides alternative macros to handle and parse parameters, It's more readable if you get 
+Alternatively, the API provides a set of macros to handle and parse parameters. It's more readable if you get 
 messed with the python style specifiers.
 
-You will need to starting & ending parsing the function parameters with the following macros::
+You will need to start and end function parameters parsing with the following macros::
 
     ZEND_PARSE_PARAMETERS_START(min_argument_count, max_argument_count) /* takes two parameters */
     /* here we will go with argument lists */
     ZEND_PARSE_PARAMETERS_END();
 
-The available parameters macros could be listed as follows (more on the required arguments for those macros later)::
+The available parameters macros could be listed as follows::
 
     Z_PARAM_ARRAY()                /* old "a" */
     Z_PARAM_ARRAY_OR_OBJECT()      /* old "A" */
@@ -386,7 +386,7 @@ And to add a parameter as an optional parameter we use the following macro::
 
      Z_PARAM_OPTIONAL              /* old "|" */
 
-Here is our example with the new parameters parsing style::
+Here is our example with the macro-based parameters parsing style::
 
     PHP_FUNCTION(fahrenheit_to_celsius)
     {
