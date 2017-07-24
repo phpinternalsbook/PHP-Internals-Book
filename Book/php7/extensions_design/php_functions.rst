@@ -399,6 +399,46 @@ Here is our example with the macro-based parameters parsing style::
         RETURN_DOUBLE(php_fahrenheit_to_celsius(f));
     }
 
+
+Errors and Exception handling
+*****************************
+
+Error Handling is one of the most important aspects that any programmer should deal with daily, Internally you can deal
+with errors using the following macro::
+
+    php_error(int type, const char *format, ...);
+
+This macro take 2 required parameters and an optional``FORMAT controls`` parameters.
+
+* ``type`` is a constant that define the type of the error, the most common types are::
+
+    E_ERROR
+    E_WARNING
+    E_PARSE
+    E_NOTICE
+
+You can find the other available types in `Zend/zend_errors.h
+<https://github.com/php/php-src/blob/master/Zend/zend_errors.h>`_
+
+* ``format`` parameter is the error string.
+
+--------------
+
+Internally you can handle exceptions using the following function::
+
+    zend_throw_exception(zend_class_entry *exception_ce, const char *message, zend_long code);
+
+This function takes 3 required parameters.
+
+* ``exception_ce`` is the class entry for the exception, if ``NULL`` passed the  `Exception Class <http://php.net/class.exception>`_
+    will be used.
+
+* ``message`` is the exceptions message string, which is returned using the ``Exception::getMessage`` method.
+
+* ``code`` is the exception code, which is returned using the ``Exception::getCode`` method.
+
+
+
 Adding tests
 ************
 
