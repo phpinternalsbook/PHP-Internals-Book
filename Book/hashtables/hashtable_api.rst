@@ -187,8 +187,8 @@ The only caveat is what "string length" means in this context: In the hashtable 
 which do not include the NUL byte in the string length.
 
 What does this mean practically? When passing a literal string, the string length will be ``sizeof("foo")`` rather than
-``sizeof("foo")-1``. When passing a string from a zval, the string length will be ``Z_STRVAL_P(zv)+1`` rather than
-``Z_STRVAL_P(zv)``.
+``sizeof("foo")-1``. When passing a string from a zval, the string length will be ``Z_STRLEN_P(zv)+1`` rather than
+``Z_STRLEN_P(zv)``.
 
 Apart from this the functions are used in exactly the same way as the index functions::
 
