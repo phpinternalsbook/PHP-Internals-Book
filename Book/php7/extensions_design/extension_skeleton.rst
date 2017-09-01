@@ -199,6 +199,44 @@ macro.
 
 After that, there is nothing more to say as everything is commented out and should be clear to you.
 
+New age of the extension skeleton generator
+*******************************************
+
+Since `this commit <https://github.com/php/php-src/commit/f35f45906eac34498c7720326fb9da9fde960871>`_ and the
+extension skeleton generator had took a new style :
+
+
+    It will now run on Windows without Cygwin and other nonsense.
+    It no longer includes a way to generate XML documentation (the PHP documentation utilities already got tools for that
+    in svn under phpdoc/doc-base) and it no longer support function stubs.
+
+and here is the available options :
+
+.. code-block:: shell
+
+    php ext_skel.php --ext <name> [--experimental] [--author <name>]
+                     [--dir <path>] [--std] [--onlyunix]
+                     [--onlywindows] [--help]
+
+      --ext <name>		The name of the extension defined as <name>
+      --experimental	Passed if this extension is experimental, this creates
+                            the EXPERIMENTAL file in the root of the extension
+      --author <name>       Your name, this is used if --header is passed and
+                            for the CREDITS file
+      --dir <path>		Path to the directory for where extension should be
+                            created. Defaults to the directory of where this script
+     			lives
+      --std			If passed, the standard header and vim rules footer used
+     			in extensions that is included in the core, will be used
+      --onlyunix		Only generate configure scripts for Unix
+      --onlywindows		Only generate configure scripts for Windows
+      --help                This help
+
+The new extension skeleton generator will generate skeleton with three fixed functions,
+you may define any others functions and change the concrete body as you want.
+
+.. note:: Remember that the new ext_skel is no longer support proto files.
+
 Publishing API
 **************
 
