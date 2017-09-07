@@ -56,7 +56,9 @@ You can also specify multiple target folders or files to run.
 
     ~/php-src> sapi/cli/php run-tests.php -P Zend/ ext/reflection/ ext/standard/tests/array/
 
-Hopefully all the tests will have passed. If not... oops.
+If you run the full test suite, and there are failing tests, the script will ask if you want to send a report to the
+PHP QA team. This can be annoying sometimes. It is possible suppress this question by setting the ``-q`` flag, or by
+setting environment variable ``NO_INTERACTION=1``.
 
 .. _PHP 7's CSPRNG: http://php.net/csprng
 
