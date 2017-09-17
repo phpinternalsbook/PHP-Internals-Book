@@ -58,6 +58,7 @@ Then the main code follows: First a temporary class entry value ``tmp_ce`` is de
 ``INIT_CLASS_ENTRY``. After that the class is registered in the Zend Engine using ``zend_register_internal_class``. This
 function also returns the final class entry, so it can be stored in the global variable declared above.
 
+
 To test that the class was registered properly you can run ``php --rc Test``, which should give an output along the
 following lines:
 
@@ -77,6 +78,39 @@ following lines:
     }
 
 As expected what you get is a totally empty class.
+
+
+Register a class with a specific namespace:
+--------------------------------------------
+to register your class under a specific namespace you will need to use ``INIT_NS_CLASS_ENTRY`` instead of ``INIT_CLASS_ENTRY``
+
+the ``INIT_NS_CLASS_ENTRY`` macro takes additional parameter -as a second parameter- to specify the namespace string.
+
+so our ``Test`` example would be as follows::
+
+    zend_class_entry *test_ce;
+
+    const zend_function_entry test_functions[] = {
+        PHP_FE_END
+    };
+
+    PHP_MINIT_FUNCTION(test)
+    {
+        zend_class_entry tmp_ce;
+        INIT_NS_CLASS_ENTRY(tmp_ce, "TestNamespace", "Test", test_functions);
+
+        test_ce = zend_register_internal_class(&tmp_ce TSRMLS_CC);
+
+        return SUCCESS;
+    }
+
+Underneath the hood there are no big difference between the both ``INIT_CLASS_ENTRY`` and ``INIT_NS_CLASS_ENTRY`` macros, actually
+``INIT_NS_CLASS_ENTRY`` uses ``INIT_CLASS_ENTRY`` macro with concatenating the two parameters namespace && classname::
+
+    #define INIT_NS_CLASS_ENTRY(class_container, ns, class_name, functions) \
+        INIT_CLASS_ENTRY(class_container, ZEND_NS_NAME(ns, class_name), functions)
+
+
 
 Method definition and declaration
 ---------------------------------
