@@ -93,8 +93,19 @@ You can't.
 More options
 ------------
 
+Tests that passed are usually not that interesting. You can filter what tests to show with the ``-g`` flag. Possible
+values are ``PASS``, ``FAIL``, ``XFAIL``, ``SKIP``, ``BORK``, ``WARN``, ``LEAK``, ``REDIRECT`` For example to only
+show failing tests:
+
+.. code-block:: bash
+
+    ~/php-src> run-tests.php -g FAIL
+
 For a full list of supported options that run-tests supports, just run it with ``--help``.
 
 .. code-block:: bash
 
     ~/php-src> sapi/cli/php run-tests.php --help
+
+For example ``-x`` to skip slow tests, ``--offline`` to skip online tests or ``-m`` for testing memory leaks with
+Valgrind can be very useful.
