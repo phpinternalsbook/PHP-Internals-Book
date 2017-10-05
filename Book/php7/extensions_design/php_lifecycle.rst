@@ -204,7 +204,7 @@ function.
 Request Post termination: PRSHUTDOWN()
 --------------------------------------
 
-This hook is rarely used. It is called after ``RSHUTDOWN()``, but some additional engine code hash run in-between.
+This hook is rarely used. It is called after ``RSHUTDOWN()``, but some additional engine code runs in-between.
 
 Especially, in Post-RSHUTDOWN:
 
