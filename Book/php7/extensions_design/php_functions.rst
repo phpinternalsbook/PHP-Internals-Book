@@ -109,6 +109,23 @@ Then, we gather that function symbol and add it to the ``pib_functions`` vector.
 functions using the ``PHP_FE`` macro. That latter needs the PHP function name, and an argument vector which we passed 
 NULL for the moment.
 
+You can register your function under a specific namespace using the `ZEND_NS_NAMED_FE` macro, this macro
+takes four parameters :
+
+    * the namespace string, e.g: "Pib\\Book".
+    * the function name, this will be the final function name under the new namespace, for example lets call it : `f2c`.
+    * the function handler, from our example: `fahrenheit_to_celsius`.
+    * the arg info which will be covered in this chapter.
+
+So the final `zend_function_entry` would be something like::
+
+    static const zend_function_entry pib_functions[] =
+    {
+        ZEND_NS_NAMED_FE("Pib\\Book", f2c, fahrenheit_to_celsius, NULL)
+    };
+
+Note that your new function will take a new name here which will be `f2c`.
+
 Into our *php_pib.h* header file, we should here declare our function, like the C language tells us to do so::
 
     /* pib.h */
