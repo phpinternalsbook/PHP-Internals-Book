@@ -78,7 +78,7 @@ have the first three installed by default):
 * ``gcc`` or some other compiler suite.
 * ``libc-dev``, which provides the C standard library, including headers.
 * ``make``, which is the build-management tool PHP uses.
-* ``autoconf`` (2.59 or higher), which is used to generate the ``configure`` script.
+* ``autoconf`` (2.64 or higher), which is used to generate the ``configure`` script.
 * ``automake`` (1.4 or higher), which generates ``Makefile.in`` files.
 * ``libtool``, which helps manage shared libraries.
 * ``bison`` (2.4 or higher), which is used to generate the PHP parser.
@@ -254,7 +254,7 @@ structures, will be reported.
 
 ``--enable-maintainer-zts`` enables thread-safety. This switch will define the ``ZTS`` macro, which in turn will enable
 the whole TSRM (thread-safe resource manager) machinery used by PHP. Writing thread-safe extensions for PHP is very
-simple, but only if make sure to enable this switch. If you need more information about thread safety and global 
+simple, but only if make sure to enable this switch. If you need more information about thread safety and global
 memory management in PHP, you should read :doc:`the globals management chapter <../extensions_design/globals_management>`
 
 On the other hand you should not use either of these options if you want to perform performance benchmarks for your
