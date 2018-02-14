@@ -29,12 +29,12 @@
     <link rel="next" title="Strings management: zend_string" href="strings/zend_strings.html" />
     <link rel="prev" title="Basic structure" href="zvals/basic_structure.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="../../index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Strings management</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
         «&#160;&#160;<a href="zvals/basic_structure.html">Basic structure</a>
@@ -52,10 +52,10 @@
 <h1>Strings management<a class="headerlink" href="#strings-management" title="Permalink to this headline">¶</a></h1>
 <p>Any program needs to manage strings. Managing is like allocating, searching, concatenating, extending, shrinking etc..</p>
 <p>Many operations are needed with strings. Although the C standard library provides many functions for such a goal,
-C classical strings, aka <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></tt> (or <tt class="docutils literal"><span class="pre">char</span> <span class="pre">[]</span></tt>) are usually a little bit weak to use as-is in a strong program
+C classical strings, aka <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code> (or <code class="docutils literal"><span class="pre">char</span> <span class="pre">[]</span></code>) are usually a little bit weak to use as-is in a strong program
 like PHP is.</p>
-<p>Thus, PHP designed a layer on top of C strings: <tt class="docutils literal"><span class="pre">zend_strings</span></tt>. Also, anoter API exists that implements common string
-operations both for C classical strings, or for <tt class="docutils literal"><span class="pre">zend_strings</span></tt>: <tt class="docutils literal"><span class="pre">smart_str</span></tt> API.</p>
+<p>Thus, PHP designed a layer on top of C strings: <code class="docutils literal"><span class="pre">zend_strings</span></code>. Also, another API exists that implements common string
+operations both for C classical strings, or for <code class="docutils literal"><span class="pre">zend_strings</span></code>: <code class="docutils literal"><span class="pre">smart_str</span></code> API.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="strings/zend_strings.html">Strings management: zend_string</a><ul>
@@ -70,7 +70,7 @@ operations both for C classical strings, or for <tt class="docutils literal"><sp
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="strings/printing_functions.html">PHP&#8217;s custom printf functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="strings/printing_functions.html#traditionnal-use">Traditionnal use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strings/printing_functions.html#traditional-use">Traditional use</a></li>
 </ul>
 </li>
 </ul>
@@ -79,7 +79,7 @@ operations both for C classical strings, or for <tt class="docutils literal"><sp
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
         «&#160;&#160;<a href="zvals/basic_structure.html">Basic structure</a>

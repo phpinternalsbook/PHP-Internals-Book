@@ -26,17 +26,17 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="PHP Internals Book" href="../index.html" />
     <link rel="next" title="Testing overview" href="overview.html" />
-    <link rel="prev" title="Zend OPCache" href="../php7/zend_engine/zend_opcache.html" /> 
+    <link rel="prev" title="Debugging with GDB" href="../php7/debugging.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="../index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Testing with .phpt files</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="../php7/zend_engine/zend_opcache.html">Zend OPCache</a>
+        «&#160;&#160;<a href="../php7/debugging.html">Debugging with GDB</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -48,16 +48,15 @@
         
         
   <div class="section" id="testing-with-phpt-files">
-<span id="tests-introduction"></span><h1>Testing with <tt class="docutils literal"><span class="pre">.phpt</span></tt> files<a class="headerlink" href="#testing-with-phpt-files" title="Permalink to this headline">¶</a></h1>
+<span id="tests-introduction"></span><h1>Testing with <code class="docutils literal"><span class="pre">.phpt</span></code> files<a class="headerlink" href="#testing-with-phpt-files" title="Permalink to this headline">¶</a></h1>
 <p>Tests are a great way to get your foot in the door of PHP internals. You don&#8217;t even need to know C in order to get
 started because all the tests are written in PHP.</p>
 <p>In this chapter we&#8217;ll explore the test suite that covers the internal functionality of PHP. We&#8217;ll cover everything from
-running the test suite with PHP&#8217;s custom black-box testing tool called <tt class="docutils literal"><span class="pre">run-tests.php</span></tt> to creating new tests.</p>
+running the test suite with PHP&#8217;s custom black-box testing tool called <code class="docutils literal"><span class="pre">run-tests.php</span></code> to creating new tests.</p>
 <div class="section" id="todo">
 <h2>&#64;TODO<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h2>
 <p>The following sections still need to be written:</p>
 <ul class="simple">
-<li>Examining failed test output (examining_failed_test_output)</li>
 <li>Finding untested code (finding_untested_code)</li>
 <li>Environment variables (advanced/environment_variables)</li>
 <li>Redirect Tests (advanced/redirect_tests)</li>
@@ -68,10 +67,10 @@ running the test suite with PHP&#8217;s custom black-box testing tool called <tt
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="../php7/zend_engine/zend_opcache.html">Zend OPCache</a>
+        «&#160;&#160;<a href="../php7/debugging.html">Debugging with GDB</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;

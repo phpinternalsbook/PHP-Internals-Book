@@ -28,15 +28,15 @@
     <link rel="next" title="Running the test suite" href="running_the_test_suite.html" />
     <link rel="prev" title="Testing with .phpt files" href="introduction.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="../index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Testing overview</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="introduction.html">Testing with <tt class="docutils literal"><span class="pre">.phpt</span></tt> files</a>
+        «&#160;&#160;<a href="introduction.html">Testing with <code class="docutils literal"><span class="pre">.phpt</span></code> files</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -53,34 +53,34 @@
 testing tool called <a class="reference external" href="https://github.com/php/php-src/blob/master/run-tests.php">run-tests.php</a> which can be found in the root directory of the php source code.</p>
 <p>&#8220;But wait!&#8221; you say, &#8220;I heard that PHP source doesn&#8217;t have any unit tests.&#8221; You are correct. The PHP source code has
 zero unit tests. But it does have <a class="reference external" href="https://en.wikipedia.org/wiki/Functional_testing">functional tests</a> and lucky for us, these particular functional tests are written in
-PHP. The test files have a <tt class="docutils literal"><span class="pre">.phpt</span></tt> file extension and can be run just like any normal PHP file.</p>
+PHP. The test files have a <code class="docutils literal"><span class="pre">.phpt</span></code> file extension and can be run just like any normal PHP file.</p>
 <p>The official documentation for writing phpt tests lives at <a class="reference external" href="http://qa.php.net/write-test.php">qa.php.net</a>.</p>
 <div class="section" id="black-box-testing">
 <h2>Black-box testing<a class="headerlink" href="#black-box-testing" title="Permalink to this headline">¶</a></h2>
 <p>In a nutshell, <a class="reference external" href="https://en.wikipedia.org/wiki/Black-box_testing">black-box testing</a> sends input to some function and examines the output after the function has finished
 execution. If the output matches what we were expecting, then the test has passed. Black-box testing doesn&#8217;t care <em>how</em>
-something is done, it only cares about the end result. This is exactly how <tt class="docutils literal"><span class="pre">run-tests.php</span></tt> works; it takes a set of
+something is done, it only cares about the end result. This is exactly how <code class="docutils literal"><span class="pre">run-tests.php</span></code> works; it takes a set of
 inputs, runs some PHP code and then examines the output. If the output matches what is expected, then the test passes.</p>
 </div>
 <div class="section" id="where-the-test-files-live">
 <h2>Where the test files live<a class="headerlink" href="#where-the-test-files-live" title="Permalink to this headline">¶</a></h2>
-<p>The test files live in several different places throughout the codebase in folders named <tt class="docutils literal"><span class="pre">tests</span></tt>. Each test folder
-contains <tt class="docutils literal"><span class="pre">.phpt</span></tt> files pertaining to its containing folder&#8217;s code.</p>
+<p>The test files live in several different places throughout the codebase in folders named <code class="docutils literal"><span class="pre">tests</span></code>. Each test folder
+contains <code class="docutils literal"><span class="pre">.phpt</span></code> files pertaining to its containing folder&#8217;s code.</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">ext/{extension-name}/tests/</span></tt> Extension tests</li>
-<li><tt class="docutils literal"><span class="pre">sapi/{sapi-name}/tests/</span></tt> SAPI tests</li>
-<li><tt class="docutils literal"><span class="pre">Zend/tests/</span></tt> Zend engine tests</li>
-<li><tt class="docutils literal"><span class="pre">tests/</span></tt> More Zend engine tests</li>
+<li><code class="docutils literal"><span class="pre">ext/{extension-name}/tests/</span></code> Extension tests</li>
+<li><code class="docutils literal"><span class="pre">sapi/{sapi-name}/tests/</span></code> SAPI tests</li>
+<li><code class="docutils literal"><span class="pre">Zend/tests/</span></code> Zend engine tests</li>
+<li><code class="docutils literal"><span class="pre">tests/</span></code> More Zend engine tests</li>
 </ul>
 </div>
 </div>
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="introduction.html">Testing with <tt class="docutils literal"><span class="pre">.phpt</span></tt> files</a>
+        «&#160;&#160;<a href="introduction.html">Testing with <code class="docutils literal"><span class="pre">.phpt</span></code> files</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;

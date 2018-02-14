@@ -29,12 +29,12 @@
     <link rel="next" title="Zend engine" href="../zend_engine.html" />
     <link rel="prev" title="Zend Memory Manager" href="zend_memory_manager.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="../../index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Debugging memory</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
         «&#160;&#160;<a href="zend_memory_manager.html">Zend Memory Manager</a>
@@ -59,7 +59,7 @@ issues.</p>
 <h2>A quick note about valgrind<a class="headerlink" href="#a-quick-note-about-valgrind" title="Permalink to this headline">¶</a></h2>
 <p>Valgrind is a well-known tool used under many Unix environments to debug a lot of common memory problem scenarios in
 any C/C++ written software.
-Valgrind is a multi-tool frontend about memory debugging. The most used provided tool is called
+Valgrind is a multi-tool frontend about memory debugging. The most used underlying tool is called
 <a class="reference external" href="http://valgrind.org/docs/manual/mc-manual.html">&#8220;memcheck&#8221;</a>. It works by
 replacing every libc&#8217;s heap allocation by its own, and tracks what you do with them.
 You may find interest in the usage of <a class="reference external" href="http://valgrind.org/docs/manual/ms-manual.html">&#8220;massif&#8221;</a> as well: it is a
@@ -69,13 +69,14 @@ memory tracker that can be useful to understand the general heap memory usage of
 <p class="last">You should read <a class="reference external" href="http://www.valgrind.org">the Valgrind documentation</a> to go further. It is well written,
 with tiny representative examples.</p>
 </div>
-<p>For the memory allocation replacement to take place, you need to run the program you want to debug (PHP here) through
+<p>For the memory allocation replacement to take place, you need to run the program you want to analyze (PHP here) through
 valgrind, aka the launched binary will be valgrind.</p>
-<p>As valgrind replaces and tracks all libc&#8217;s heap allocations, it tends to slow down debugged programs a lot. You will
+<p>As valgrind replaces and tracks all libc&#8217;s heap allocations, it tends to slow-down debugged programs a lot. You will
 notice it in the case of PHP. Although the slow-down is not that dramatic with PHP, it can still be clearly
 felt; just don&#8217;t worry if you notice it, this is normal.</p>
-<p>Valgrind is not the only tool you may use, but the most common one. Dr.Memory, LeakSanitizer, Electric Fence,
-AddressSanitizer are other common tools.</p>
+<p>Valgrind is not the only tool you may use, but the most common one. <a class="reference external" href="http://www.drmemory.org/">Dr.Memory</a>,
+<a class="reference external" href="https://clang.llvm.org/docs/LeakSanitizer.html">LeakSanitizer</a>, <a class="reference external" href="http://elinux.org/Electric_Fence">Electric Fence</a>,
+<a class="reference external" href="https://clang.llvm.org/docs/AddressSanitizer.html">AddressSanitizer</a> are other common tools.</p>
 </div>
 <div class="section" id="before-starting">
 <h2>Before starting<a class="headerlink" href="#before-starting" title="Permalink to this headline">¶</a></h2>
@@ -103,6 +104,12 @@ programmer. You run it wether because you get a crash and want to find and debug
 bad seems to show on surface, valgrind is the tool to point hidden flaws ready to blow at your face once or later. Use
 it, even if you think everything seems all right about your code: you could get surprised.</li>
 </ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">You <strong>must</strong> use valgrind (or any memory debugger) on your program. It is impossible to feel 100%
+confident in every strong C program, not to debug memory. Memory bugs lead to harmful security issues and
+program crashes, often randomly, depending on many parameters.</p>
+</div>
 </div>
 <div class="section" id="memory-leak-detection-example">
 <h2>Memory leak detection example<a class="headerlink" href="#memory-leak-detection-example" title="Permalink to this headline">¶</a></h2>
@@ -110,15 +117,15 @@ it, even if you think everything seems all right about your code: you could get 
 <h3>Starter<a class="headerlink" href="#starter" title="Permalink to this headline">¶</a></h3>
 <p>Valgrind is a full heap memory debugger. It can also debug process memory maps and functions stacks. Please, get more
 informations in its documentation.</p>
-<p>Let&#8217;s go to detect a memory leak, and try with an easy one, the most-common ones you&#8217;ll meet:</p>
+<p>Let&#8217;s go to detect a dynamic-memory leak, and try with an easy one, the most-common ones you&#8217;ll meet:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="kt">void</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">emalloc</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The code above leaks 128 bytes at each request, because it doesn&#8217;t have an <tt class="docutils literal"><span class="pre">efree()</span></tt> related call for such a buffer.
-As it is a call to emalloc(), and thus goes through <a class="reference internal" href="zend_memory_manager.html"><em>Zend Memory Manager</em></a>,
+<p>The code above leaks 128 bytes at each request, because it doesn&#8217;t have an <code class="docutils literal"><span class="pre">efree()</span></code> related call for such a buffer.
+As it is a call to <code class="docutils literal"><span class="pre">emalloc()</span></code>, and thus goes through <a class="reference internal" href="zend_memory_manager.html"><em>Zend Memory Manager</em></a>,
 that later will warn us about this leak like we saw in ZendMM chapter. Let&#8217;s see as well if valgrind can notice the
 leak:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="o">&gt;</span> <span class="n">ZEND_DONT_UNLOAD_MODULES</span><span class="o">=</span><span class="mi">1</span> <span class="n">USE_ZEND_ALLOC</span><span class="o">=</span><span class="mi">0</span> <span class="n">valgrind</span> <span class="o">--</span><span class="n">leak</span><span class="o">-</span><span class="n">check</span><span class="o">=</span><span class="n">full</span> <span class="o">--</span><span class="n">suppressions</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">suppresion</span>
@@ -128,20 +135,20 @@ leak:</p>
 <p>We launch a PHP-CLI process using valgrind. We suppose an extension named &#8220;pib&#8221; here. Here is the output:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="o">==</span><span class="mi">28104</span><span class="o">==</span> <span class="mi">128</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">1</span> <span class="n">blocks</span> <span class="n">are</span> <span class="n">definitely</span> <span class="n">lost</span> <span class="n">in</span> <span class="n">loss</span> <span class="n">record</span> <span class="mi">1</span> <span class="n">of</span> <span class="mi">1</span>
 <span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">at</span> <span class="mh">0x4C2DB8F</span><span class="o">:</span> <span class="n">malloc</span> <span class="p">(</span><span class="n">in</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">valgrind</span><span class="o">/</span><span class="n">vgpreload_memcheck</span><span class="o">-</span><span class="n">amd64</span><span class="o">-</span><span class="n">linux</span><span class="p">.</span><span class="n">so</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA3701E</span><span class="o">:</span> <span class="n">__zend_malloc</span> <span class="p">(</span><span class="n">zend_alloc</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">2820</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA362E7</span><span class="o">:</span> <span class="n">_emalloc</span> <span class="p">(</span><span class="n">zend_alloc</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">2413</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE896F99</span><span class="o">:</span> <span class="n">zm_activate_pib</span> <span class="p">(</span><span class="n">pib</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1880</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA79F1B</span><span class="o">:</span> <span class="n">zend_activate_modules</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">2537</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0x9D31D3</span><span class="o">:</span> <span class="n">php_request_startup</span> <span class="p">(</span><span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1673</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5909A</span><span class="o">:</span> <span class="n">do_cli</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">964</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5A423</span><span class="o">:</span> <span class="n">main</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1381</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA3701E</span><span class="o">:</span> <span class="n">__zend_malloc</span> <span class="p">(</span><span class="n">zend_alloc</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">2820</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA362E7</span><span class="o">:</span> <span class="n">_emalloc</span> <span class="p">(</span><span class="n">zend_alloc</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">2413</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE896F99</span><span class="o">:</span> <span class="n">zm_activate_pib</span> <span class="p">(</span><span class="n">pib</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1880</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA79F1B</span><span class="o">:</span> <span class="n">zend_activate_modules</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">2537</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0x9D31D3</span><span class="o">:</span> <span class="n">php_request_startup</span> <span class="p">(</span><span class="n">main</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1673</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5909A</span><span class="o">:</span> <span class="n">do_cli</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">964</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5A423</span><span class="o">:</span> <span class="n">main</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1381</span><span class="p">)</span>
 
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span> <span class="n">LEAK</span> <span class="n">SUMMARY</span><span class="o">:</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">definitely</span> <span class="n">lost</span><span class="o">:</span> <span class="mi">128</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">1</span> <span class="n">blocks</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">indirectly</span> <span class="n">lost</span><span class="o">:</span> <span class="mi">0</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">0</span> <span class="n">blocks</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">possibly</span> <span class="n">lost</span><span class="o">:</span> <span class="mi">0</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">0</span> <span class="n">blocks</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">still</span> <span class="n">reachable</span><span class="o">:</span> <span class="mi">0</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">0</span> <span class="n">blocks</span>
-<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">suppressed</span><span class="o">:</span> <span class="mi">7</span><span class="p">,</span><span class="mi">883</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">40</span> <span class="n">blocks</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span> <span class="n">LEAK</span> <span class="nl">SUMMARY</span><span class="p">:</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">definitely</span> <span class="nl">lost</span><span class="p">:</span> <span class="mi">128</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">1</span> <span class="n">blocks</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">indirectly</span> <span class="nl">lost</span><span class="p">:</span> <span class="mi">0</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">0</span> <span class="n">blocks</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">possibly</span> <span class="nl">lost</span><span class="p">:</span> <span class="mi">0</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">0</span> <span class="n">blocks</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="n">still</span> <span class="nl">reachable</span><span class="p">:</span> <span class="mi">0</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">0</span> <span class="n">blocks</span>
+<span class="o">==</span><span class="mi">28104</span><span class="o">==</span>    <span class="nl">suppressed</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span><span class="mi">883</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">40</span> <span class="n">blocks</span>
 </pre></div>
 </div>
 <p>At our level, &#8220;definitely lost&#8221; is what we must look at.</p>
@@ -149,6 +156,11 @@ leak:</p>
 <p class="first admonition-title">Note</p>
 <p class="last">For details about the different fields output by memcheck, please
 <a class="reference external" href="http://valgrind.org/docs/manual/mc-manual.html#mc-manual.leaks">have a look</a> at its documentation.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We used <code class="docutils literal"><span class="pre">USE_ZEND_ALLOC=0</span></code> to disable and fully bypass Zend Memory Manager. Every call to its API
+(f.e, <code class="docutils literal"><span class="pre">emalloc()</span></code>), will lead directly to a libc call, like we can see on the calgrind output stack frames.</p>
 </div>
 <p>Valgrind caught our leak.</p>
 <p>Easy enough, now we could generate a leak using a persistent allocation, aka a dynamic memory allocation bypassing
@@ -162,11 +174,11 @@ ZendMM and using traditionnal libc. Go:</p>
 <p>Here is the report:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="mi">128</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">1</span> <span class="n">blocks</span> <span class="n">are</span> <span class="n">definitely</span> <span class="n">lost</span> <span class="n">in</span> <span class="n">loss</span> <span class="n">record</span> <span class="mi">1</span> <span class="n">of</span> <span class="mi">1</span>
 <span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">at</span> <span class="mh">0x4C2DB8F</span><span class="o">:</span> <span class="n">malloc</span> <span class="p">(</span><span class="n">in</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">valgrind</span><span class="o">/</span><span class="n">vgpreload_memcheck</span><span class="o">-</span><span class="n">amd64</span><span class="o">-</span><span class="n">linux</span><span class="p">.</span><span class="n">so</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE896F82</span><span class="o">:</span> <span class="n">zm_activate_pib</span> <span class="p">(</span><span class="n">pib</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1880</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA79F1B</span><span class="o">:</span> <span class="n">zend_activate_modules</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">2537</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0x9D31D3</span><span class="o">:</span> <span class="n">php_request_startup</span> <span class="p">(</span><span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1673</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5909A</span><span class="o">:</span> <span class="n">do_cli</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">964</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5A423</span><span class="o">:</span> <span class="n">main</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1381</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE896F82</span><span class="o">:</span> <span class="n">zm_activate_pib</span> <span class="p">(</span><span class="n">pib</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1880</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA79F1B</span><span class="o">:</span> <span class="n">zend_activate_modules</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">2537</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0x9D31D3</span><span class="o">:</span> <span class="n">php_request_startup</span> <span class="p">(</span><span class="n">main</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1673</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5909A</span><span class="o">:</span> <span class="n">do_cli</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">964</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">28758</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5A423</span><span class="o">:</span> <span class="n">main</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1381</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Caught as well.</p>
@@ -178,7 +190,7 @@ memory map will get reported by valgrind eyes. You can&#8217;t pass through.</p>
 </div>
 <div class="section" id="more-complex-use-case">
 <h3>More complex use-case<a class="headerlink" href="#more-complex-use-case" title="Permalink to this headline">¶</a></h3>
-<p>Here is a more complex setup. Can you spot the leaks in the code below?:</p>
+<p>Here is a more complex setup. Can you spot the leaks in the code below ?</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="n">zend_array</span> <span class="n">ar</span><span class="p">;</span>
 
 <span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
@@ -199,29 +211,29 @@ free it.
 Second, we allocate a new <a class="reference internal" href="../internal_types/hashtables.html"><em>zend_hash</em></a> but as well, we don&#8217;t free it.
 Let&#8217;s launch that with valgrind, and see the result:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="o">==</span><span class="mi">31316</span><span class="o">==</span> <span class="mi">296</span> <span class="p">(</span><span class="mi">264</span> <span class="n">direct</span><span class="p">,</span> <span class="mi">32</span> <span class="n">indirect</span><span class="p">)</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">1</span> <span class="n">blocks</span> <span class="n">are</span> <span class="n">definitely</span> <span class="n">lost</span> <span class="n">in</span> <span class="n">loss</span> <span class="n">record</span> <span class="mi">1</span> <span class="n">of</span> <span class="mi">2</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA3701E</span><span class="o">:</span> <span class="n">__zend_malloc</span> <span class="p">(</span><span class="n">zend_alloc</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">2820</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA814B2</span><span class="o">:</span> <span class="n">zend_hash_real_init_ex</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">133</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA816D2</span><span class="o">:</span> <span class="n">zend_hash_check_init</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">161</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA83552</span><span class="o">:</span> <span class="n">_zend_hash_index_add_or_update_i</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">714</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA83D58</span><span class="o">:</span> <span class="n">_zend_hash_next_index_insert</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">841</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE896AF4</span><span class="o">:</span> <span class="n">zm_startup_pib</span> <span class="p">(</span><span class="n">pib</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1781</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA774F7</span><span class="o">:</span> <span class="n">zend_startup_module_ex</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1843</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA77559</span><span class="o">:</span> <span class="n">zend_startup_module_zval</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1858</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA85AF5</span><span class="o">:</span> <span class="n">zend_hash_apply</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1508</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA77B25</span><span class="o">:</span> <span class="n">zend_startup_modules</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1969</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA3701E</span><span class="o">:</span> <span class="n">__zend_malloc</span> <span class="p">(</span><span class="n">zend_alloc</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">2820</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA814B2</span><span class="o">:</span> <span class="n">zend_hash_real_init_ex</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">133</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA816D2</span><span class="o">:</span> <span class="n">zend_hash_check_init</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">161</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA83552</span><span class="o">:</span> <span class="n">_zend_hash_index_add_or_update_i</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">714</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA83D58</span><span class="o">:</span> <span class="n">_zend_hash_next_index_insert</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">841</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE896AF4</span><span class="o">:</span> <span class="n">zm_startup_pib</span> <span class="p">(</span><span class="n">pib</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1781</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA774F7</span><span class="o">:</span> <span class="n">zend_startup_module_ex</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1843</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA77559</span><span class="o">:</span> <span class="n">zend_startup_module_zval</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1858</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA85AF5</span><span class="o">:</span> <span class="n">zend_hash_apply</span> <span class="p">(</span><span class="n">zend_hash</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1508</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">32006</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA77B25</span><span class="o">:</span> <span class="n">zend_startup_modules</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1969</span><span class="p">)</span>
 
 <span class="o">==</span><span class="mi">31316</span><span class="o">==</span> <span class="mi">32</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">1</span> <span class="n">blocks</span> <span class="n">are</span> <span class="n">indirectly</span> <span class="n">lost</span> <span class="n">in</span> <span class="n">loss</span> <span class="n">record</span> <span class="mi">2</span> <span class="n">of</span> <span class="mi">2</span>
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA3701E</span><span class="o">:</span> <span class="n">__zend_malloc</span> <span class="p">(</span><span class="n">zend_alloc</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">2820</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE880B0D</span><span class="o">:</span> <span class="n">zend_string_alloc</span> <span class="p">(</span><span class="n">zend_string</span><span class="p">.</span><span class="n">h</span><span class="o">:</span><span class="mi">122</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE880B76</span><span class="o">:</span> <span class="n">zend_string_init</span> <span class="p">(</span><span class="n">zend_string</span><span class="p">.</span><span class="n">h</span><span class="o">:</span><span class="mi">158</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE896F9D</span><span class="o">:</span> <span class="n">zm_activate_pib</span> <span class="p">(</span><span class="n">pib</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1781</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA79F1B</span><span class="o">:</span> <span class="n">zend_activate_modules</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">2537</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0x9D31D3</span><span class="o">:</span> <span class="n">php_request_startup</span> <span class="p">(</span><span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1673</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5909A</span><span class="o">:</span> <span class="n">do_cli</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">964</span><span class="p">)</span>
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5A423</span><span class="o">:</span> <span class="n">main</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">1381</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA3701E</span><span class="o">:</span> <span class="n">__zend_malloc</span> <span class="p">(</span><span class="n">zend_alloc</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">2820</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE880B0D</span><span class="o">:</span> <span class="n">zend_string_alloc</span> <span class="p">(</span><span class="n">zend_string</span><span class="p">.</span><span class="nl">h</span><span class="p">:</span><span class="mi">122</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE880B76</span><span class="o">:</span> <span class="n">zend_string_init</span> <span class="p">(</span><span class="n">zend_string</span><span class="p">.</span><span class="nl">h</span><span class="p">:</span><span class="mi">158</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xE896F9D</span><span class="o">:</span> <span class="n">zm_activate_pib</span> <span class="p">(</span><span class="n">pib</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1781</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xA79F1B</span><span class="o">:</span> <span class="n">zend_activate_modules</span> <span class="p">(</span><span class="n">zend_API</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">2537</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0x9D31D3</span><span class="o">:</span> <span class="n">php_request_startup</span> <span class="p">(</span><span class="n">main</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1673</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5909A</span><span class="o">:</span> <span class="n">do_cli</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">964</span><span class="p">)</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span>    <span class="n">by</span> <span class="mh">0xB5A423</span><span class="o">:</span> <span class="n">main</span> <span class="p">(</span><span class="n">php_cli</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">1381</span><span class="p">)</span>
 
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span> <span class="n">LEAK</span> <span class="n">SUMMARY</span><span class="o">:</span>
-<span class="o">==</span><span class="mi">31316</span><span class="o">==</span> <span class="n">definitely</span> <span class="n">lost</span><span class="o">:</span> <span class="mi">328</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">2</span> <span class="n">blocks</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span> <span class="n">LEAK</span> <span class="nl">SUMMARY</span><span class="p">:</span>
+<span class="o">==</span><span class="mi">31316</span><span class="o">==</span> <span class="n">definitely</span> <span class="nl">lost</span><span class="p">:</span> <span class="mi">328</span> <span class="n">bytes</span> <span class="n">in</span> <span class="mi">2</span> <span class="n">blocks</span>
 </pre></div>
 </div>
 <p>Like expected, both leaks are reported. As you can see, valgrind is accurate, it puts your eyes where they need to be.</p>
@@ -233,16 +245,17 @@ Let&#8217;s launch that with valgrind, and see the result:</p>
 </pre></div>
 </div>
 <p>We destroy the persistent array at the end of PHP process, in <a class="reference internal" href="../extensions_design/php_lifecycle.html"><em>MSHUTDOWN</em></a>.
-As when we created it, we passed it ZVAL_PTR_DTOR as a destructor, it will run that callback on any items we inserted.
-This is the <a class="reference internal" href="../internal_types/zvals.html"><em>zval</em></a> destructor which will destroy zvals anaylizing their content. For
-<tt class="docutils literal"><span class="pre">IS_STRING</span></tt> types, the destructor will free the <tt class="docutils literal"><span class="pre">zend_string</span></tt>. Done.</p>
+As when we created it, we passed it <code class="docutils literal"><span class="pre">ZVAL_PTR_DTOR</span></code> as a destructor, it will run that callback on any items we
+inserted. This is the <a class="reference internal" href="../internal_types/zvals.html"><em>zval</em></a> destructor which will destroy zvals analyzing their content.
+For <code class="docutils literal"><span class="pre">IS_STRING</span></code> types, the destructor will release the <code class="docutils literal"><span class="pre">zend_string</span></code> and free it if necessary. Done.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">As you can see, PHP- like any C program- is full of nested pointers. The <tt class="docutils literal"><span class="pre">zend_string</span></tt> is encapsulated into
-a zval, itself being part as a <tt class="docutils literal"><span class="pre">zend_array</span></tt>. Leaking the array will abviously leak both the <tt class="docutils literal"><span class="pre">zval</span></tt> and the
-<tt class="docutils literal"><span class="pre">zend_string</span></tt>, but <tt class="docutils literal"><span class="pre">zvals</span></tt> are not heap allocated (we allocated on stack), and thus there is no leak to
-report about it. You should get used you the fact that forgetting one little <tt class="docutils literal"><span class="pre">free()</span></tt> leads to tons of
-leaks, as often, structures embeds structures embedind structures, etc...</p>
+<p class="last">As you can see, PHP - like any C strong program - is full of nested pointers. The <code class="docutils literal"><span class="pre">zend_string</span></code> is
+encapsulated into a <code class="docutils literal"><span class="pre">zval</span></code>, itself being part as a <code class="docutils literal"><span class="pre">zend_array</span></code>. Leaking the array will abviously leak
+both the <code class="docutils literal"><span class="pre">zval</span></code> and the <code class="docutils literal"><span class="pre">zend_string</span></code>, but <code class="docutils literal"><span class="pre">zvals</span></code> are not heap allocated (we allocated on stack), and
+thus there is no leak to report about it. You should get used you the fact that forgetting to release/free a
+compound structure such as a <code class="docutils literal"><span class="pre">zend_array</span></code> leads to tons of leaks, as often, structures embeds structures
+embedding structures, etc...</p>
 </div>
 </div>
 </div>
@@ -250,10 +263,10 @@ leaks, as often, structures embeds structures embedind structures, etc...</p>
 <h2>Buffer overflow/underflow detection<a class="headerlink" href="#buffer-overflow-underflow-detection" title="Permalink to this headline">¶</a></h2>
 <p>Leaking memory is bad. It will lead your program to trigger OOM once or later, and it will slow down the host machine
 dramatically as that latter gets less and less memory available as time runs. This is the syndrom of memory leaks.</p>
-<p>But there is worse: buffer out of bound access. Accessing a pointer outside the allocation limits is the root of so
+<p>But there is worse: buffer out-of-bounds access. Accessing a pointer outside the allocation limits is the root of so
 many evil operations (like getting a root shell on the machine) that you should absolutely prevent them.
-Lighter, out of bounds access also lead to program crash by memory corruption. However, this all depends on the
-hardware target machine, the compiler used and options, the OS memory layout, the libc used, etc..</p>
+Lighter, out-of-bounds access also frequently lead to program crash by memory corruption. However, this all depends on
+the hardware target machine, the compiler used and options, the OS memory layout, the libc used, etc... Many factors.</p>
 <p>Thus, out-of-bounds access are very nasty, they are <strong>bombs</strong> that may or may not blow up, now, or in a minute or if you
 get excessively lucky they&#8217;ll never blow up.</p>
 <p><em>Valgrind</em> is a memory debugger, and hence is able to detect any out-of-bound access from any memory area
@@ -270,6 +283,11 @@ get excessively lucky they&#8217;ll never blow up.</p>
 <p>This code allocates a buffer, and on purpose writes one byte beyond and one byte after the bounds. Now if you run such
 a code, you have something like one chance out of two for it to crash immediately, and then randomly. You may also have
 created a security hole in PHP, but it may not be remotely exploitable (such a behavior stays uncommon).</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Out-of-bounds access lead to undefined behavior. It is not predictable what is going to happen, but be
+sure that it&#8217;s bad (immediate crash), or terrifying (security issue). Remember.</p>
+</div>
 <p>Let&#8217;s ask valgrind, with the exact same command line to launch it as before, nothing changes, except the output:</p>
 <div class="highlight-c"><div class="highlight"><pre>==12802== Invalid write of size 1
 ==12802==    at 0xE896A98: zm_startup_pib (pib.c:1772)
@@ -315,7 +333,7 @@ created a security hole in PHP, but it may not be remotely exploitable (such a b
 <p>Both invalid writes have been detected, and now your goal is to track them and fix them.</p>
 <p>Here, we used an example where we write memory out of bounds, this is the worst scenario as your write operation, if it
 succeeds (it could lead immediately to a SIGSEGV) will overwrite some critical areas next to that pointer. As we
-allocated using libc&#8217;s <tt class="docutils literal"><span class="pre">malloc()</span></tt>, we&#8217;re going to overwrite critical head and tail blocks libc uses to manage and
+allocated using libc&#8217;s <code class="docutils literal"><span class="pre">malloc()</span></code>, we&#8217;re going to overwrite critical head and tail blocks libc uses to manage and
 track its allocations. Depending on many things (platform, libc used, how it got compiled, etc...), that will lead to
 a crash.</p>
 <p>Valgrind could also report invalid reads. That means you perform a memory read operation out of the bounds of an
@@ -328,26 +346,22 @@ read or write, you have a problem in your code, and you should consider this pro
 now, really.</p>
 </div>
 <p>Here is a second example about string concatenations:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">char</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">strdup</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">);</span>
-    <span class="kt">char</span> <span class="o">*</span><span class="n">bar</span> <span class="o">=</span> <span class="n">strdup</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">);</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">char</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">strdup</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">);</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">bar</span> <span class="o">=</span> <span class="n">strdup</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">);</span>
 
-    <span class="kt">char</span> <span class="o">*</span><span class="n">foobar</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">));</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">foobar</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">));</span>
 
-    <span class="n">memcpy</span><span class="p">(</span><span class="n">foobar</span><span class="p">,</span> <span class="n">foo</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">foo</span><span class="p">));</span>
-    <span class="n">memcpy</span><span class="p">(</span><span class="n">foobar</span> <span class="o">+</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="n">bar</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">bar</span><span class="p">));</span>
+<span class="n">memcpy</span><span class="p">(</span><span class="n">foobar</span><span class="p">,</span> <span class="n">foo</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">foo</span><span class="p">));</span>
+<span class="n">memcpy</span><span class="p">(</span><span class="n">foobar</span> <span class="o">+</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="n">bar</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">bar</span><span class="p">));</span>
 
-    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;%s&quot;</span><span class="p">,</span> <span class="n">foobar</span><span class="p">);</span>
+<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;%s&quot;</span><span class="p">,</span> <span class="n">foobar</span><span class="p">);</span>
 
-    <span class="n">free</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
-    <span class="n">free</span><span class="p">(</span><span class="n">bar</span><span class="p">);</span>
-    <span class="n">free</span><span class="p">(</span><span class="n">foobar</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="n">free</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
+<span class="n">free</span><span class="p">(</span><span class="n">bar</span><span class="p">);</span>
+<span class="n">free</span><span class="p">(</span><span class="n">foobar</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>That tiny code should not be part of MINIT() as it does nothing useful and writes to <em>stderr</em>, which could not be a very
-cool thing to do so far. But let&#8217;s assume, can you spot the problem?</p>
+<p>Can you spot the problem?</p>
 <p>Let&#8217;s ask valgrind:</p>
 <div class="highlight-c"><div class="highlight"><pre>==13935== Invalid read of size 1
 ==13935==    at 0x4C30F74: strlen (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
@@ -372,33 +386,34 @@ cool thing to do so far. But let&#8217;s assume, can you spot the problem?</p>
 ==13935==    by 0xB5A367: main (php_cli.c:1348)
 </pre></div>
 </div>
-<p>Line 1779 points to the <tt class="docutils literal"><span class="pre">fprintf()</span></tt> call. That call did call for <tt class="docutils literal"><span class="pre">fputs()</span></tt> which itself called <tt class="docutils literal"><span class="pre">strlen()</span></tt>
-(both from libc), and here <tt class="docutils literal"><span class="pre">strlen()</span></tt> reads 1 byte invalid.</p>
-<p>We simply forgot the <tt class="docutils literal"><span class="pre">\0</span></tt> to terminate our string. We pass <tt class="docutils literal"><span class="pre">fprintf()</span></tt> a string that is not valid. It first tries to
-compute the length of that string calling <tt class="docutils literal"><span class="pre">strlen()</span></tt>. <tt class="docutils literal"><span class="pre">strlen()</span></tt> will then scan the buffer until it finds <tt class="docutils literal"><span class="pre">\0</span></tt>,
-and it will scan pass the bound of the buffer as we forgot to zero-terminate it. We are lucky here, <tt class="docutils literal"><span class="pre">strlen()</span></tt> only
+<p>Line 1779 points to the <code class="docutils literal"><span class="pre">fprintf()</span></code> call. That call did call for <code class="docutils literal"><span class="pre">fputs()</span></code> which itself called <code class="docutils literal"><span class="pre">strlen()</span></code>
+(both from libc), and here <code class="docutils literal"><span class="pre">strlen()</span></code> reads 1 byte invalid.</p>
+<p>We simply forgot the <code class="docutils literal"><span class="pre">\0</span></code> to terminate our string. We pass <code class="docutils literal"><span class="pre">fprintf()</span></code> a string that is not valid. It first tries to
+compute the length of that string calling <code class="docutils literal"><span class="pre">strlen()</span></code>. <code class="docutils literal"><span class="pre">strlen()</span></code> will then scan the buffer until it finds <code class="docutils literal"><span class="pre">\0</span></code>,
+and it will scan pass the bound of the buffer as we forgot to zero-terminate it. We are lucky here, <code class="docutils literal"><span class="pre">strlen()</span></code> only
 passes one byte off of the end. That could have been way more, and that could have crashed because we don&#8217;t really
-know where the next <tt class="docutils literal"><span class="pre">\0</span></tt> will be in memory, that is random.</p>
+know where the next <code class="docutils literal"><span class="pre">\0</span></code> will be in memory, that is random.</p>
 <p>Solution:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* note the +1 for \0 */</span>
-<span class="kt">char</span> <span class="o">*</span><span class="n">foobar</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">size_t</span> <span class="n">len</span>   <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>   <span class="cm">/* note the +1 for \0 */</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">foobar</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">len</span><span class="p">);</span>
+
+<span class="cm">/* ... ... same code ... ... */</span>
+
+<span class="n">foobar</span><span class="p">[</span><span class="n">len</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span> <span class="cm">/* terminate the string properly */</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The error described above is one of the most common on in C. They are called &#8216;off-by-one&#8217; mistakes: you
+<p class="last">The error described above is one of the most common on in C. They are called <strong>off-by-one mistakes</strong> : you
 forget to allocate just one byte, but you will create tons of problems in the code just because of that.</p>
 </div>
 <p>Finally here is a last example to show a use-after-free scenario. This is also a very common mistake in C programming,
 which is as bad as bad-memory-access: it creates security flaws that can lead to very nasty behaviors.
 Obviously, valgrind can detect use-after-free. Here is one:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">char</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">strdup</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">);</span>
-    <span class="n">free</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">char</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">strdup</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">);</span>
+<span class="n">free</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
 
-    <span class="n">memcpy</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">));</span>
-<span class="p">}</span>
+<span class="n">memcpy</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>Here again, a PHP scenario that has nothing to do with PHP but still. We free a pointer, and reuse it after. This is a
@@ -453,7 +468,7 @@ breach in the program that happens to be remotely exploitable...</p>
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
         «&#160;&#160;<a href="zend_memory_manager.html">Zend Memory Manager</a>

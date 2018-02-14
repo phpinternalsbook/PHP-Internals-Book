@@ -29,12 +29,12 @@
     <link rel="next" title="Hash algorithm and collisions" href="hash_algorithm.html" />
     <link rel="prev" title="Hashtable API" href="hashtable_api.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="../index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Symtable and array API</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
         «&#160;&#160;<a href="hashtable_api.html">Hashtable API</a>
@@ -51,18 +51,18 @@
   <div class="section" id="symtable-and-array-api">
 <h1>Symtable and array API<a class="headerlink" href="#symtable-and-array-api" title="Permalink to this headline">¶</a></h1>
 <p>The hashtable API allows you to work with values of any type, but in the vast majority of cases the values will be
-zvals. Using the <tt class="docutils literal"><span class="pre">zend_hash</span></tt> API with zvals can often be somewhat cumbersome, as you need to handle zval allocation
+zvals. Using the <code class="docutils literal"><span class="pre">zend_hash</span></code> API with zvals can often be somewhat cumbersome, as you need to handle zval allocation
 and initialization yourself. This is why PHP provides a second set of APIs specifically aimed at this use case. Before
 introducing these simplified APIs we will have a look at a special kind of hashtable that PHP arrays make use of.</p>
 <div class="section" id="symtables">
 <h2>Symtables<a class="headerlink" href="#symtables" title="Permalink to this headline">¶</a></h2>
 <p>One of the core concepts behind the design of PHP is that integers and strings containing integers should be
-interchangeable. This also applies to arrays where the keys <tt class="docutils literal"><span class="pre">42</span></tt> and <tt class="docutils literal"><span class="pre">&quot;42&quot;</span></tt> should be considered the same. This is
+interchangeable. This also applies to arrays where the keys <code class="docutils literal"><span class="pre">42</span></code> and <code class="docutils literal"><span class="pre">&quot;42&quot;</span></code> should be considered the same. This is
 not the case though with ordinary hashtables: They strictly distinguish the key types and it&#8217;s okay to have both the
-key <tt class="docutils literal"><span class="pre">42</span></tt> and <tt class="docutils literal"><span class="pre">&quot;42&quot;</span></tt> in the same table (with different values).</p>
+key <code class="docutils literal"><span class="pre">42</span></code> and <code class="docutils literal"><span class="pre">&quot;42&quot;</span></code> in the same table (with different values).</p>
 <p>This is why there is an additional <em>symtable</em> (symbol table) API, which is a thin wrapper around some hashtable
 functions which converts integral string keys to actual integer keys. For example, this is how the
-<tt class="docutils literal"><span class="pre">zend_symtable_find()</span></tt> function is defined:</p>
+<code class="docutils literal"><span class="pre">zend_symtable_find()</span></code> function is defined:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_find</span><span class="p">(</span>
     <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span><span class="n">pData</span>
 <span class="p">)</span> <span class="p">{</span>
@@ -71,11 +71,11 @@ functions which converts integral string keys to actual integer keys. For exampl
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The implementation of the <tt class="docutils literal"><span class="pre">ZEND_HANDLE_NUMERIC()</span></tt> macro will not be considered in detail here, only the functionality
-behind it is important: If <tt class="docutils literal"><span class="pre">arKey</span></tt> contains a decimal integer between <tt class="docutils literal"><span class="pre">LONG_MIN</span></tt> and <tt class="docutils literal"><span class="pre">LONG_MAX</span></tt>, then that
-integer is written into <tt class="docutils literal"><span class="pre">idx</span></tt> and <tt class="docutils literal"><span class="pre">zend_hash_index_find()</span></tt> is called with it. In all other cases the code will
-continue to the next line, where <tt class="docutils literal"><span class="pre">zend_hash_find()</span></tt> will be invoked.</p>
-<p>Apart from <tt class="docutils literal"><span class="pre">zend_symtable_find()</span></tt> the following functions are part of the symtable API, again with the same behavior
+<p>The implementation of the <code class="docutils literal"><span class="pre">ZEND_HANDLE_NUMERIC()</span></code> macro will not be considered in detail here, only the functionality
+behind it is important: If <code class="docutils literal"><span class="pre">arKey</span></code> contains a decimal integer between <code class="docutils literal"><span class="pre">LONG_MIN</span></code> and <code class="docutils literal"><span class="pre">LONG_MAX</span></code>, then that
+integer is written into <code class="docutils literal"><span class="pre">idx</span></code> and <code class="docutils literal"><span class="pre">zend_hash_index_find()</span></code> is called with it. In all other cases the code will
+continue to the next line, where <code class="docutils literal"><span class="pre">zend_hash_find()</span></code> will be invoked.</p>
+<p>Apart from <code class="docutils literal"><span class="pre">zend_symtable_find()</span></code> the following functions are part of the symtable API, again with the same behavior
 as their hashtable counterparts, but including string to integer normalization:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_exists</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">);</span>
 <span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_del</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">);</span>
@@ -95,7 +95,7 @@ as their hashtable counterparts, but including string to integer normalization:<
 <span class="cp">    ZEND_INIT_SYMTABLE_EX(ht, 2, 0)</span>
 </pre></div>
 </div>
-<p>As you can see these macros are just <tt class="docutils literal"><span class="pre">zend_hash_init()</span></tt> calls using <tt class="docutils literal"><span class="pre">ZVAL_PTR_DTOR</span></tt> as the destructor. As such
+<p>As you can see these macros are just <code class="docutils literal"><span class="pre">zend_hash_init()</span></code> calls using <code class="docutils literal"><span class="pre">ZVAL_PTR_DTOR</span></code> as the destructor. As such
 these macros are not directly related to the string to integer casting behavior described above.</p>
 <p>Let&#8217;s give this new set of functions a try:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
@@ -131,14 +131,14 @@ these macros are not directly related to the string to integer casting behavior 
 Value at key &quot;42&quot; is zv2
 </pre></div>
 </div>
-<p>Thus both <tt class="docutils literal"><span class="pre">update</span></tt> calls wrote to the same element (the second one overwriting the first one) and both <tt class="docutils literal"><span class="pre">find</span></tt> calls
+<p>Thus both <code class="docutils literal"><span class="pre">update</span></code> calls wrote to the same element (the second one overwriting the first one) and both <code class="docutils literal"><span class="pre">find</span></code> calls
 also found the same element.</p>
 </div>
 <div class="section" id="array-api">
 <h2>Array API<a class="headerlink" href="#array-api" title="Permalink to this headline">¶</a></h2>
 <p>Now we have all the prerequisites to look at the array API. This API no longer works directly on hashtables, but rather
-accepts zvals from which the hashtable is extracted using <tt class="docutils literal"><span class="pre">Z_ARRVAL_P()</span></tt>.</p>
-<p>The first two functions from this API are <tt class="docutils literal"><span class="pre">array_init()</span></tt> and <tt class="docutils literal"><span class="pre">array_init_size()</span></tt>, which initialize a hashtable
+accepts zvals from which the hashtable is extracted using <code class="docutils literal"><span class="pre">Z_ARRVAL_P()</span></code>.</p>
+<p>The first two functions from this API are <code class="docutils literal"><span class="pre">array_init()</span></code> and <code class="docutils literal"><span class="pre">array_init_size()</span></code>, which initialize a hashtable
 into a zval. The former function takes only the target zval, whereas the latter takes an additional size hint:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="cm">/* Create empty array into return_value */</span>
 <span class="n">array_init</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
@@ -159,7 +159,7 @@ which look as follows:</p>
 <span class="kt">int</span> <span class="n">add_assoc_</span><span class="o">*</span><span class="nf">_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span> <span class="n">uint</span> <span class="n">key_len</span><span class="p">,</span> <span class="p">...);</span>
 </pre></div>
 </div>
-<p>Here <tt class="docutils literal"><span class="pre">*</span></tt> is a placeholder for a type and <tt class="docutils literal"><span class="pre">...</span></tt> a placeholder for the type-specific arguments. The valid values for
+<p>Here <code class="docutils literal"><span class="pre">*</span></code> is a placeholder for a type and <code class="docutils literal"><span class="pre">...</span></code> a placeholder for the type-specific arguments. The valid values for
 them are listed in the following table:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -172,29 +172,29 @@ them are listed in the following table:</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">null</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">null</span></code></td>
 <td>none</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">bool</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">int</span> <span class="pre">b</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">bool</span></code></td>
+<td><code class="docutils literal"><span class="pre">int</span> <span class="pre">b</span></code></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">long</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">long</span> <span class="pre">n</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">long</span></code></td>
+<td><code class="docutils literal"><span class="pre">long</span> <span class="pre">n</span></code></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">double</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">double</span> <span class="pre">d</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">double</span></code></td>
+<td><code class="docutils literal"><span class="pre">double</span> <span class="pre">d</span></code></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">string</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*str,</span> <span class="pre">int</span> <span class="pre">duplicate</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">string</span></code></td>
+<td><code class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*str,</span> <span class="pre">int</span> <span class="pre">duplicate</span></code></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">stringl</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*str,</span> <span class="pre">uint</span> <span class="pre">length,</span> <span class="pre">int</span> <span class="pre">duplicate</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">stringl</span></code></td>
+<td><code class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*str,</span> <span class="pre">uint</span> <span class="pre">length,</span> <span class="pre">int</span> <span class="pre">duplicate</span></code></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">resource</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">int</span> <span class="pre">r</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">resource</span></code></td>
+<td><code class="docutils literal"><span class="pre">int</span> <span class="pre">r</span></code></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">zval</span></tt></td>
-<td><tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*value</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">zval</span></code></td>
+<td><code class="docutils literal"><span class="pre">zval</span> <span class="pre">*value</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -223,7 +223,7 @@ them are listed in the following table:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <tt class="docutils literal"><span class="pre">var_dump()</span></tt> output of this array looks as follows (with NUL-bytes replaced by <tt class="docutils literal"><span class="pre">\0</span></tt>):</p>
+<p>The <code class="docutils literal"><span class="pre">var_dump()</span></code> output of this array looks as follows (with NUL-bytes replaced by <code class="docutils literal"><span class="pre">\0</span></code>):</p>
 <div class="highlight-none"><div class="highlight"><pre>array(9) {
   [10]=&gt;
   int(100)
@@ -248,12 +248,12 @@ them are listed in the following table:</p>
 </pre></div>
 </div>
 <p>Looking at the above code you may notice that the array API is even more inconsistent in regard to string lengths: The
-key length passed to the <tt class="docutils literal"><span class="pre">_ex</span></tt> functions <em>includes</em> the terminating NUL-byte, whereas the string length passed to the
-<tt class="docutils literal"><span class="pre">stringl</span></tt> functions <em>excludes</em> the NUL-byte.</p>
-<p>Furthermore it should be noted that while these functions start with <tt class="docutils literal"><span class="pre">add</span></tt> they behave like <tt class="docutils literal"><span class="pre">update</span></tt> functions in
+key length passed to the <code class="docutils literal"><span class="pre">_ex</span></code> functions <em>includes</em> the terminating NUL-byte, whereas the string length passed to the
+<code class="docutils literal"><span class="pre">stringl</span></code> functions <em>excludes</em> the NUL-byte.</p>
+<p>Furthermore it should be noted that while these functions start with <code class="docutils literal"><span class="pre">add</span></code> they behave like <code class="docutils literal"><span class="pre">update</span></code> functions in
 that they overwrite previously existing keys.</p>
-<p>There are several additional <tt class="docutils literal"><span class="pre">add_get</span></tt> functions which both insert a value and fetch it again (analogous to the last
-parameter of the <tt class="docutils literal"><span class="pre">zend_hash_update</span></tt> functions). As they are virtually never used they will not be discussed here and
+<p>There are several additional <code class="docutils literal"><span class="pre">add_get</span></code> functions which both insert a value and fetch it again (analogous to the last
+parameter of the <code class="docutils literal"><span class="pre">zend_hash_update</span></code> functions). As they are virtually never used they will not be discussed here and
 are mentioned only for the sake of completeness.</p>
 <p>This concludes our walk through the hashtable, symtable and array APIs.</p>
 </div>
@@ -261,7 +261,7 @@ are mentioned only for the sake of completeness.</p>
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
         «&#160;&#160;<a href="hashtable_api.html">Hashtable API</a>

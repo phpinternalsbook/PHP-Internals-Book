@@ -28,12 +28,12 @@
     <link rel="next" title="Learning the PHP lifecycle" href="extensions_design/php_lifecycle.html" />
     <link rel="prev" title="Functions: zend_function" href="internal_types/functions.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="../index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Extensions design</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
         «&#160;&#160;<a href="internal_types/functions.html">Functions: zend_function</a>
@@ -66,7 +66,37 @@ with INI settings.</p>
 <li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_skeleton.html#how-the-engine-loads-extensions">How the engine loads extensions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_skeleton.html#what-is-a-php-extension">What is a PHP extension ?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_skeleton.html#generating-extension-skeleton-with-scripts">Generating extension skeleton with scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_skeleton.html#new-age-of-the-extension-skeleton-generator">New age of the extension skeleton generator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_skeleton.html#publishing-api">Publishing API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/php_functions.html">Registering and using PHP functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#zend-function-entry-structure">zend_function_entry structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#registering-php-functions">Registering PHP functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#declaring-function-arguments">Declaring function arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#the-php-function-structure-and-api-in-c">The PHP function structure and API, in C</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#adding-tests">Adding tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#playing-with-constants">Playing with constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#a-go-with-hashtables-php-arrays">A go with Hashtables (PHP arrays)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#managing-references">Managing references</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/globals_management.html">Managing global state</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/globals_management.html#managing-request-globals">Managing request globals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/globals_management.html#using-true-globals">Using true globals</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/extension_infos.html">Publishing extension informations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_infos.html#minfo-hook">MINFO() hook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_infos.html#a-note-about-the-reflection-api">A note about the Reflection API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/ini_settings.html">Declaring and using INI settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/ini_settings.html#reminders-on-ini-settings">Reminders on INI settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/ini_settings.html#zoom-on-ini-settings">Zoom on INI settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/ini_settings.html#registering-and-using-ini-entries">Registering and using INI entries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/ini_settings.html#validators-and-globals-memory-bridge">Validators and globals memory bridge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions_design/ini_settings.html#using-a-displayer">Using a displayer</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="extensions_design/zend_extensions.html">Zend Extensions</a><ul>
@@ -79,26 +109,13 @@ with INI settings.</p>
 <li class="toctree-l2"><a class="reference internal" href="extensions_design/zend_extensions.html#hybrid-extensions">Hybrid extensions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="extensions_design/globals_management.html">Managing global state</a></li>
-<li class="toctree-l1"><a class="reference internal" href="extensions_design/ini_settings.html">Declaring and using INI settings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="extensions_design/php_functions.html">Registering and using PHP functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#zend-function-entry-structure">zend_function_entry structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#registering-php-functions">Registering PHP functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#declaring-function-arguments">Declaring function arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#the-php-function-structure-and-api-in-c">The PHP function structure and API, in C</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#adding-tests">Adding tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#playing-with-constants">Playing with constants</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#a-go-with-hashtables-php-arrays">A go with Hashtables (PHP arrays)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extensions_design/php_functions.html#managing-references">Managing references</a></li>
-</ul>
-</li>
 </ul>
 </div>
 </div>
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
         «&#160;&#160;<a href="internal_types/functions.html">Functions: zend_function</a>

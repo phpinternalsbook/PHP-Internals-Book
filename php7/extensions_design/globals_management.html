@@ -26,22 +26,22 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="PHP Internals Book" href="../../index.html" />
     <link rel="up" title="Extensions design" href="../extensions_design.html" />
-    <link rel="next" title="Declaring and using INI settings" href="ini_settings.html" />
-    <link rel="prev" title="Zend Extensions" href="zend_extensions.html" /> 
+    <link rel="next" title="Publishing extension informations" href="extension_infos.html" />
+    <link rel="prev" title="Registering and using PHP functions" href="php_functions.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="../../index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Managing global state</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="zend_extensions.html">Zend Extensions</a>
+        «&#160;&#160;<a href="php_functions.html">Registering and using PHP functions</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="ini_settings.html">Declaring and using INI settings</a>&#160;&#160;»
+        <a href="extension_infos.html">Publishing extension informations</a>&#160;&#160;»
         </p>
 
       </div>
@@ -50,18 +50,444 @@
         
   <div class="section" id="managing-global-state">
 <h1>Managing global state<a class="headerlink" href="#managing-global-state" title="Permalink to this headline">¶</a></h1>
+<p>There is always a need of some global space in imperative languages. While programming PHP or extensions, we will make
+a clear distinction between what we call request-bound globals, and true globals.</p>
+<p>Request globals are global variables you need to carry-and-memorize informations as you are in the process of treating a
+request. A simple example is that you ask the user to provide a value in a function argument, and you want to be able to
+use it back in other functions. Beside the fact that this piece of information &#8220;keeps its value&#8221; accross several PHP
+function calls, it only keeps that value for the current request. The next-to-come request should know nothing about it.
+PHP provides a mechanism to manage requests globals whatever the multi-processing model that were chosen, and we will
+detail that later in this chapter.</p>
+<p>True globals are piece of informations that remain accross requests. Those informations are usually read-only. If you
+need to write to such globals as part of request treatment then PHP can&#8217;t help you.
+If you use <a class="reference internal" href="php_lifecycle.html"><em>threads as multi-processing model</em></a>, you&#8217;ll need to perform memory locks on your side.
+If you use <a class="reference internal" href="php_lifecycle.html"><em>processes as multi-processing model</em></a>, you&#8217;ll need to use your own IPC (Inter Process
+Communication) on your side.
+Such cases should however never happen in PHP extensions programming.</p>
+<div class="section" id="managing-request-globals">
+<h2>Managing request globals<a class="headerlink" href="#managing-request-globals" title="Permalink to this headline">¶</a></h2>
+<p>Here is a simple example of a simple extension using a request global:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* true C global */</span>
+<span class="k">static</span> <span class="n">zend_long</span> <span class="n">rnd</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* Pick a number to guess between 0 and 100 */</span>
+    <span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rnd</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">pib_rnd_init</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_long</span> <span class="n">r</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;l&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">==</span> <span class="n">rnd</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/* Reset the number to guess */</span>
+        <span class="n">pib_rnd_init</span><span class="p">();</span>
+        <span class="n">RETVAL_TRUE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="n">rnd</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_reset</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">pib_rnd_init</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Like you can see, this extension picks a random integer when a request starts, and then the user - through
+<code class="docutils literal"><span class="pre">pib_guess()</span></code> - can try to guess the number. Once guessed, the number resets. If the user wants to, he could also
+call <code class="docutils literal"><span class="pre">pib_reset()</span></code> to reset the number himself by hand.</p>
+<p>That random number has been implemented as <strong>a true C global variable</strong>. While this is not a problem if PHP is used in
+processes as part of the <a class="reference internal" href="php_lifecycle.html"><em>multi-processing model</em></a>; <strong>this is a no-go</strong> if that later uses threads.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference internal" href="php_lifecycle.html"><em>As a reminder</em></a>, you don&#8217;t master what multi-processing model will be used. You must be
+prepared to both models when you design extensions.</p>
+</div>
+<p>When threads are used, such a true C global is shared against every thread of the server. For our above example, what
+will happen is that every parallel user of the webserver will share the same number. Some could reset the number
+in-a-go as others would try to guess it. In short, you clearly understand here the crucial problem with threads.</p>
+<p>We need to persist one piece of data into the same request, but we need to have it <strong>bound</strong> to the current request,
+even if the multi-processing model PHP is run into makes use of threads.</p>
+<div class="section" id="using-tsrm-macros-to-protect-global-space">
+<h3>Using TSRM macros to protect global space<a class="headerlink" href="#using-tsrm-macros-to-protect-global-space" title="Permalink to this headline">¶</a></h3>
+<p>PHP designed a layer that helps the extension and Core developers to deal with request-globals. That layer is called
+<strong>TSRM</strong> (Thread Safe Resource Manager) and is exposed as a set of macros you must use any-time you need to access a
+request-bound global (read and write access).</p>
+<p>Behind the scene, those macros will resolve to something like the code we showed above in the case that the
+multi-processing model uses processes. Like we saw, the above code is perfectly valid if no threads are used. So, when
+processes will be used, the macros we&#8217;ll see in a minute will expand to something similar.</p>
+<p>What you need to do first is to declare a structure that will be the root of all your globals:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+    <span class="n">zend_long</span> <span class="n">rnd</span><span class="p">;</span>
+<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+
+<span class="cm">/* Resolved as :</span>
+<span class="cm">*</span>
+<span class="cm">* typedef struct _zend_pib_globals {</span>
+<span class="cm">*    zend_long rnd;</span>
+<span class="cm">* } zend_pib_globals;</span>
+<span class="cm">*/</span>
+</pre></div>
+</div>
+<p>Then, you create a true global variable of such a type:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+
+<span class="cm">/* Resolved as zend_pib_globals pib_globals; */</span>
+</pre></div>
+</div>
+<p>Now, you may access your data using global macro accessor. This later macro has been created by the
+<a class="reference internal" href="extension_skeleton.html"><em>skeleton</em></a>, it should be defined in your <em>php_pib.h</em> header file. Here is what it looks like:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#ifdef ZTS</span>
+<span class="cp">#define PIB_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(pib, v)</span>
+<span class="cp">#else</span>
+<span class="cp">#define PIB_G(v) (pib_globals.v)</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>Like you can see, if ZTS mode is not enabled, that is if you
+<a class="reference internal" href="../build_system/building_php.html"><em>compiled PHP and the extension with no Thread safety</em></a> (we call that mode <em>NTS</em> :
+Non-Thread-Safe), the macro simply resolves to the data declared into your structure. Hence the following changes:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_long</span> <span class="n">r</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;l&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">==</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">pib_rnd_init</span><span class="p">();</span>
+        <span class="n">RETVAL_TRUE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When using a process model, the <em>TSRM</em> macros simply resolve to an access to a true C global variable.</p>
+</div>
+<p>Things get a lot more complicated when threads are used, that is when you
+<a class="reference internal" href="../build_system/building_php.html"><em>compile PHP with ZTS</em></a>. All the macros we saw then resolve to something totaly
+different and a bit hard to explain here. Basically, what happens is that <em>TSRM</em> does a hard job using TLS
+(Thread Local Storage) when compiled with ZTS.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In a word, when compiled in ZTS, the globals will be bound to the current thread, whereas when compiled in
+NTS, the globals will be bound to the current process. The TSRM macros take care of the hard job.
+You may be interested in how things work, <a class="reference external" href="https://github.com/php/php-src/tree/d0b7eed0c9d873a0606dbbc7e33f14492f1a3dd6/TSRM">then browse the /TSRM directory</a> of PHP source code to learn more about Thread Safety
+into PHP.</p>
+</div>
+</div>
+<div class="section" id="using-globals-hooks-in-extensions">
+<h3>Using globals hooks in extensions<a class="headerlink" href="#using-globals-hooks-in-extensions" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes, it may happen that you need your globals to be initialized to some default value, usually zero. The TSRM
+system helped by the engine provides a hook to give your globals default values, we call it <strong>GINIT</strong>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For a full view of PHP hooks, refer to the <a class="reference internal" href="php_lifecycle.html"><em>PHP lifecycle chapter</em></a>.</p>
+</div>
+<p>Let&#8217;s zero our random value:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_GSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span> <span class="p">}</span>
+
+<span class="n">PHP_GINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">pib_globals</span><span class="o">-&gt;</span><span class="n">rnd</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">zend_module_entry</span> <span class="n">pib_module_entry</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span>
+    <span class="s">&quot;pib&quot;</span><span class="p">,</span>
+    <span class="nb">NULL</span><span class="p">,</span>
+    <span class="nb">NULL</span><span class="p">,</span>
+    <span class="nb">NULL</span><span class="p">,</span>
+    <span class="nb">NULL</span><span class="p">,</span>
+    <span class="nb">NULL</span><span class="p">,</span>
+    <span class="nb">NULL</span><span class="p">,</span>
+    <span class="s">&quot;0.1&quot;</span><span class="p">,</span>
+    <span class="n">PHP_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+    <span class="n">PHP_GINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+    <span class="n">PHP_GSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+    <span class="nb">NULL</span><span class="p">,</span> <span class="cm">/* PRSHUTDOWN() */</span>
+    <span class="n">STANDARD_MODULE_PROPERTIES_EX</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>We chose to show only the relevant part of <code class="docutils literal"><span class="pre">zend_module_entry</span></code> (and <code class="docutils literal"><span class="pre">NULL</span></code> others). Like you can see, globals
+management hooks take place in the middle of the structure. The first <code class="docutils literal"><span class="pre">PHP_MODULE_GLOBALS()</span></code> figures out the size of
+the globals, then both our <code class="docutils literal"><span class="pre">GINIT</span></code> and <code class="docutils literal"><span class="pre">GSHUTDOWN</span></code> hooks. Then, to close the structure we used
+<code class="docutils literal"><span class="pre">STANDARD_MODULE_PROPERTIES_EX</span></code> instead of <code class="docutils literal"><span class="pre">STANDARD_MODULE_PROPERTIES</span></code>. Just a matter of finishing the structure
+the right way, see ?:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#define STANDARD_MODULE_PROPERTIES \</span>
+<span class="cp">    NO_MODULE_GLOBALS, NULL, STANDARD_MODULE_PROPERTIES_EX</span>
+</pre></div>
+</div>
+<p>In the <code class="docutils literal"><span class="pre">GINIT</span></code> function, you are passed a pointer to the current memory location of your globals. You use it to
+initialize your globals. Here, we put zero into our random value (not really useful, but let&#8217;s accept it).</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Don&#8217;t use <code class="docutils literal"><span class="pre">PIB_G()</span></code> macro in GINIT. Use the pointer you are given.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">GINIT()</span></code> is launched before <code class="docutils literal"><span class="pre">MINIT()</span></code> for the current process. In case of NTS, that&#8217;s all. In case of
+ZTS, <code class="docutils literal"><span class="pre">GINIT()</span></code> will be called additionnaly for every new thread spawned by the thread library.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><code class="docutils literal"><span class="pre">GINIT()</span></code> is not called as part of <code class="docutils literal"><span class="pre">RINIT()</span></code>. If you need to clear your globals at every new request,
+you need to do that by hand, like we did in the example shown throughout the chapter.</p>
+</div>
+</div>
+<div class="section" id="full-example">
+<h3>Full example<a class="headerlink" href="#full-example" title="Permalink to this headline">¶</a></h3>
+<p>Here is a more advanced full example. If the player wins, its score (numbers of tries) is added to a score array that
+can be fetched from userland. Nothing really hard, the score array is initialized at request startup, then used
+anytime the player wins, and cleared at the end of the current request:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+    <span class="n">zend_long</span> <span class="n">rnd</span><span class="p">;</span>
+    <span class="n">zend_ulong</span> <span class="n">cur_score</span><span class="p">;</span>
+    <span class="n">zval</span> <span class="n">scores</span><span class="p">;</span>
+<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+
+<span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="n">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* reset current score as well */</span>
+    <span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">PHP_GINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* ZEND_SECURE_ZERO is a memset(0). Could resolve to bzero() as well */</span>
+    <span class="n">ZEND_SECURE_ZERO</span><span class="p">(</span><span class="n">pib_globals</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">pib_globals</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_guess</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+
+<span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">array_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">));</span>
+    <span class="n">pib_rnd_init</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PHP_RSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">));</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_long</span> <span class="n">r</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;l&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">==</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">add_next_index_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">));</span>
+        <span class="n">pib_rnd_init</span><span class="p">();</span>
+        <span class="n">RETVAL_TRUE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_get_scores</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">RETVAL_ZVAL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_reset</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">pib_rnd_init</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">func</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">pib_reset</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span>
+    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">pib_get_scores</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span>
+    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">,</span> <span class="n">arginfo_guess</span><span class="p">)</span>
+    <span class="n">PHP_FE_END</span>
+<span class="p">};</span>
+
+<span class="n">zend_module_entry</span> <span class="n">pib_module_entry</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span>
+    <span class="s">&quot;pib&quot;</span><span class="p">,</span>
+    <span class="n">func</span><span class="p">,</span> <span class="cm">/* Function entries */</span>
+    <span class="nb">NULL</span><span class="p">,</span> <span class="cm">/* Module init */</span>
+    <span class="nb">NULL</span><span class="p">,</span> <span class="cm">/* Module shutdown */</span>
+    <span class="n">PHP_RINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span> <span class="cm">/* Request init */</span>
+    <span class="n">PHP_RSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span> <span class="cm">/* Request shutdown */</span>
+    <span class="nb">NULL</span><span class="p">,</span> <span class="cm">/* Module information */</span>
+    <span class="s">&quot;0.1&quot;</span><span class="p">,</span> <span class="cm">/* Replace with version number for your extension */</span>
+    <span class="n">PHP_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+    <span class="n">PHP_GINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+    <span class="nb">NULL</span><span class="p">,</span>
+    <span class="nb">NULL</span><span class="p">,</span>
+    <span class="n">STANDARD_MODULE_PROPERTIES_EX</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>What must be noted here, is that PHP provides no facility if you would have wanted to persist the scores accross
+requests. That would have needed a persistent shared storage, such as a file, a database, some memory area, etc...
+PHP has not been designed to persist informations accross requests in its heart, so it provides nothing to do so, but
+provides utilities to access request-bound global space like we showed.</p>
+<p>Then, easy enough we initialize an array in <code class="docutils literal"><span class="pre">RINIT()</span></code>, and we destroy it in <code class="docutils literal"><span class="pre">RSHUTDOWN()</span></code>. Remember that
+<code class="docutils literal"><span class="pre">array_init()</span></code> creates a <a class="reference internal" href="../internal_types/hashtables.html"><em>zend_array</em></a> and puts it into a
+<a class="reference internal" href="../internal_types/zvals.html"><em>zval</em></a>. But this is allocation-free, do not fear to allocate an array the user could not
+make use of (thus a waste in allocation), <code class="docutils literal"><span class="pre">array_init()</span></code> is very cheap (<a class="reference external" href="https://github.com/php/php-src/blob/d0b7eed0c9d873a0606dbbc7e33f14492f1a3dd6/Zend/zend_API.c#L1057">read the source</a>).</p>
+<p>When we return such an array to the user, we don&#8217;t forget to increment its refcount (in <code class="docutils literal"><span class="pre">RETVAL_ZVAL</span></code>) as we keep a
+reference to such an array into our extension.</p>
+</div>
+</div>
+<div class="section" id="using-true-globals">
+<h2>Using true globals<a class="headerlink" href="#using-true-globals" title="Permalink to this headline">¶</a></h2>
+<p>True globals are non-thread-protected-true-C-globals. It may happen sometimes that you need some of them. Remember
+however the main rule : you cannot safely write to such globals as you are treating a request. So usually with PHP, we
+need such variables and use them as read-only variable.</p>
+<p>Remember it is perfectly safe to write to true-globals as you are in the <code class="docutils literal"><span class="pre">MINIT()</span></code> or <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code> steps of PHP
+lifecycle. But you can&#8217;t write to them while treating a request (but reading from them is OK).</p>
+<p>So, a simple example is that you want to read an environment value to do something with it. Also, it is not uncomon to
+initialize persistent <a class="reference internal" href="../internal_types/strings/zend_strings.html"><em>zend_string</em></a> to make use of them later as you&#8217;ll
+treat some requests.</p>
+<p>Here is the patched example introducing true globals, we just show the diff about preceding code and not the full code:</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="n">zend_string</span> <span class="o">*</span><span class="n">more</span><span class="p">,</span> <span class="o">*</span><span class="n">less</span><span class="p">;</span>
+<span class="k">static</span> <span class="n">zend_ulong</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">register_persistent_string</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span> <span class="n">zend_string</span> <span class="o">**</span><span class="n">result</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="o">*</span><span class="n">result</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">),</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="n">zend_string_hash_val</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">);</span>
+
+    <span class="n">GC_FLAGS</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span> <span class="o">|=</span> <span class="n">IS_INTERNED</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">pib_max</span><span class="p">;</span>
+
+    <span class="n">register_persistent_string</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">more</span><span class="p">);</span>
+    <span class="n">register_persistent_string</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">less</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">pib_max</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s">&quot;PIB_RAND_MAX&quot;</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">strchr</span><span class="p">(</span><span class="n">pib_max</span><span class="p">,</span> <span class="sc">&#39;-&#39;</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">max</span> <span class="o">=</span> <span class="n">ZEND_STRTOUL</span><span class="p">(</span><span class="n">pib_max</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_string_release</span><span class="p">(</span><span class="n">more</span><span class="p">);</span>
+    <span class="n">zend_string_release</span><span class="p">(</span><span class="n">less</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_long</span> <span class="n">r</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;l&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">==</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">add_next_index_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">));</span>
+        <span class="n">pib_rnd_init</span><span class="p">();</span>
+        <span class="n">RETVAL_TRUE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">RETURN_STR</span><span class="p">(</span><span class="n">more</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">RETURN_STR</span><span class="p">(</span><span class="n">less</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>What happened here is that we created two <a class="reference internal" href="../internal_types/strings/zend_strings.html"><em>zend_string</em></a> variables <code class="docutils literal"><span class="pre">more</span></code>
+and <code class="docutils literal"><span class="pre">less</span></code>. Those strings don&#8217;t need to be created and destroyed anytime they are used like it was done before. Those
+are immutable strings that can be allocated once and reused anytime needed, as soon as they stay immutable
+(aka : read-only). We initialize those two strings in <code class="docutils literal"><span class="pre">MINIT()</span></code> using a persistent allocation in
+<code class="docutils literal"><span class="pre">zend_string_init()</span></code>, we precompute their hash now (instead of having the very first request doing it), and we tell
+the zval garbage collector those strings are interned so that it will never ever try to destroy them (however it could
+need to copy them if they were used as part of a write operation, such as a concatenation). Obviously we don&#8217;t forget
+to destroy such strings in <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code>.</p>
+<p>Then in <code class="docutils literal"><span class="pre">MINIT()</span></code> we probe for a <code class="docutils literal"><span class="pre">PIB_RAND_MAX</span></code> environment and use it as the maximum range value for our random
+number pick. As we use an unsigned integer and we know <code class="docutils literal"><span class="pre">strtoull()</span></code> won&#8217;t complain about negative numbers (and thus
+wrap around integer bounds as sign mismatch), we just avoid using negative (classic libc workarounds).</p>
+</div>
 </div>
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="zend_extensions.html">Zend Extensions</a>
+        «&#160;&#160;<a href="php_functions.html">Registering and using PHP functions</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="ini_settings.html">Declaring and using INI settings</a>&#160;&#160;»
+        <a href="extension_infos.html">Publishing extension informations</a>&#160;&#160;»
         </p>
 
       </div>

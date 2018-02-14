@@ -14,7 +14,6 @@ running the test suite with PHP's custom black-box testing tool called ``run-tes
 
 The following sections still need to be written:
 
-* Examining failed test output (examining_failed_test_output)
 * Finding untested code (finding_untested_code)
 * Environment variables (advanced/environment_variables)
 * Redirect Tests (advanced/redirect_tests)

@@ -29,12 +29,12 @@
     <link rel="next" title="smart_str API" href="smart_str.html" />
     <link rel="prev" title="Strings management" href="../strings.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="../../../index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Strings management: zend_string</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
         «&#160;&#160;<a href="../strings.html">Strings management</a>
@@ -50,16 +50,16 @@
         
   <div class="section" id="strings-management-zend-string">
 <h1>Strings management: zend_string<a class="headerlink" href="#strings-management-zend-string" title="Permalink to this headline">¶</a></h1>
-<p>Any program needs to manage strings. Here, we&#8217;ll detail a custom solution that fits PHP needs : <tt class="docutils literal"><span class="pre">zend_string</span></tt>.
-Every time PHP needs to work with a string, a <tt class="docutils literal"><span class="pre">zend_string</span></tt> structure will be used. This structure is just a simple
-thin wrapper over the <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></tt> string type of the C language.</p>
+<p>Any program needs to manage strings. Here, we&#8217;ll detail a custom solution that fits PHP needs : <code class="docutils literal"><span class="pre">zend_string</span></code>.
+Every time PHP needs to work with a string, a <code class="docutils literal"><span class="pre">zend_string</span></code> structure will be used. This structure is just a simple
+thin wrapper over the <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code> string type of the C language.</p>
 <p>It adds memory management facilities, so that a same string can be shared in several places without the need to
 duplicate it. Also, some strings are &#8220;interned&#8221;, that is they are &#8220;persistent&#8221; allocated and specialy managed by the
 memory manager so that they don&#8217;t get destroyed across several requests. Those later get a permanent allocation from
 <a class="reference internal" href="../../memory_management/zend_memory_manager.html"><em>Zend Memory Manager</em></a>.</p>
 <div class="section" id="structure-and-access-macros">
 <h2>Structure and access macros<a class="headerlink" href="#structure-and-access-macros" title="Permalink to this headline">¶</a></h2>
-<p>Here is the simple <tt class="docutils literal"><span class="pre">zend_string</span></tt> structure explosed:</p>
+<p>Here is the simple <code class="docutils literal"><span class="pre">zend_string</span></code> structure exposed:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">struct</span> <span class="n">_zend_string</span> <span class="p">{</span>
         <span class="n">zend_refcounted_h</span> <span class="n">gc</span><span class="p">;</span>
         <span class="n">zend_ulong</span>        <span class="n">h</span><span class="p">;</span>
@@ -68,31 +68,31 @@ memory manager so that they don&#8217;t get destroyed across several requests. T
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>Like you can see, the structure embeds a <tt class="docutils literal"><span class="pre">zend_refcounted_h</span></tt> header. This is done for memory management and reference
-As the string is very likely to be used as the key of a HashTable probe, it embeds its hash in the <tt class="docutils literal"><span class="pre">h</span></tt> field. This is
-an unsigned long <tt class="docutils literal"><span class="pre">zend_ulong</span></tt>. This number is only used when the <tt class="docutils literal"><span class="pre">zend_string</span></tt> needs to be hashed, aka especially
+<p>Like you can see, the structure embeds a <code class="docutils literal"><span class="pre">zend_refcounted_h</span></code> header. This is done for memory management and reference.
+As the string is very likely to be used as the key of a HashTable probe, it embeds its hash in the <code class="docutils literal"><span class="pre">h</span></code> field. This is
+an unsigned long <code class="docutils literal"><span class="pre">zend_ulong</span></code>. This number is only used when the <code class="docutils literal"><span class="pre">zend_string</span></code> needs to be hashed, especially
 when used together with <a class="reference internal" href="../hashtables.html"><em>HashTables: zend_array</em></a>; this is very likely though.</p>
-<p>As you know, the string knows its length as the <tt class="docutils literal"><span class="pre">len</span></tt> field, to support &#8220;binary strings&#8221;. Binary strings are
-strings that embed one or several <tt class="docutils literal"><span class="pre">NUL</span></tt> characters (\0). When passed to libc functions, those strings will get
-truncated or their length won&#8217;t be computed the right way. So in <tt class="docutils literal"><span class="pre">zend_string</span></tt>, the length of the string is always
-known. Please, note that the length computes the number of ASCII chars (bytes) not counting the terminating <tt class="docutils literal"><span class="pre">NUL</span></tt>, but
-counting the eventual middle NULs. For example, the string &#8220;foo&#8221; is stored as &#8220;foo\0&#8221; in a <tt class="docutils literal"><span class="pre">zend_string</span></tt> and its
+<p>As you know, the string knows its length as the <code class="docutils literal"><span class="pre">len</span></code> field, to support &#8220;binary strings&#8221;. Binary strings are
+strings that embed one or several <code class="docutils literal"><span class="pre">NUL</span></code> characters (\0). When passed to libc functions, those strings will get
+truncated or their length won&#8217;t be computed the right way. So in <code class="docutils literal"><span class="pre">zend_string</span></code>, the length of the string is always
+known. Please, note that the length computes the number of ASCII chars (bytes) not counting the terminating <code class="docutils literal"><span class="pre">NUL</span></code>, but
+counting the eventual middle NULs. For example, the string &#8220;foo&#8221; is stored as &#8220;foo\0&#8221; in a <code class="docutils literal"><span class="pre">zend_string</span></code> and its
 length is then 3. Also, the string &#8220;foo\0bar&#8221; will be stored as &#8220;foo\0bar\0&#8221; and the length will be 7.</p>
-<p>Finally, the characters are stored into the <tt class="docutils literal"><span class="pre">char[1]</span></tt> field. This is not a <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></tt>, but a <tt class="docutils literal"><span class="pre">char[1]</span></tt>. Why that?
+<p>Finally, the characters are stored into the <code class="docutils literal"><span class="pre">char[1]</span></code> field. This is not a <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>, but a <code class="docutils literal"><span class="pre">char[1]</span></code>. Why that?
 This is a memory optimization known as &#8220;C struct hack&#8221; (you may use a search engine with these terms). Basically, that
-allows the engine to allocate space for the <tt class="docutils literal"><span class="pre">zend_string</span></tt> structure and the characters to be stored, as one solo C
+allows the engine to allocate space for the <code class="docutils literal"><span class="pre">zend_string</span></code> structure and the characters to be stored, as one solo C
 pointer. This optimizes memory accesses as memory will be a contiguous allocated block, and not two blocks sparsed in
-memory (one for <tt class="docutils literal"><span class="pre">zend_string</span> <span class="pre">*</span></tt>, and one for the <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></tt> to store into it).</p>
-<p>This struct hack must be remembered, as the memory layout looks like with the C chars at the end of the C <tt class="docutils literal"><span class="pre">zend_string</span></tt>
+memory (one for <code class="docutils literal"><span class="pre">zend_string</span> <span class="pre">*</span></code>, and one for the <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code> to store into it).</p>
+<p>This struct hack must be remembered, as the memory layout looks like with the C chars at the end of the C <code class="docutils literal"><span class="pre">zend_string</span></code>
 structure, and may be felt/seen when using a C debugger (or when debugging strings). This hack is entirely managed by
-the API you&#8217;ll use when manipulating <tt class="docutils literal"><span class="pre">zend_string</span></tt> structures.</p>
+the API you&#8217;ll use when manipulating <code class="docutils literal"><span class="pre">zend_string</span></code> structures.</p>
 <img alt="../../../_images/zend_string_memory_layout.png" class="align-center" src="../../../_images/zend_string_memory_layout.png" />
 </div>
 <div class="section" id="using-zend-string-api">
 <h2>Using zend_string API<a class="headerlink" href="#using-zend-string-api" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="simple-use-case">
 <h3>Simple use case<a class="headerlink" href="#simple-use-case" title="Permalink to this headline">¶</a></h3>
-<p>Like with <a class="reference internal" href="../zvals.html"><em>Zvals</em></a>, you dont manipulate the <tt class="docutils literal"><span class="pre">zend_string</span></tt> internals fields by hand, but always use macros
+<p>Like with <a class="reference internal" href="../zvals.html"><em>Zvals</em></a>, you dont manipulate the <code class="docutils literal"><span class="pre">zend_string</span></code> internals fields by hand, but always use macros
 for that. There also exists macros to trigger actions on strings. Those are not functions but macros, all stored into
 the required <a class="reference external" href="https://github.com/php/php-src/blob/PHP-7.0/Zend/zend_string.h">Zend/zend_string.h</a> header:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span><span class="p">;</span>
@@ -104,45 +104,45 @@ the required <a class="reference external" href="https://github.com/php/php-src/
 <span class="n">zend_string_release</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>The above simple example show you basic string management. The <tt class="docutils literal"><span class="pre">zend_string_init()</span></tt> function (which in fact is a macro,
-but let&#8217;s pass such details) should be given your full C string as a <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></tt>, and its length. The last parameter- of
+<p>The above simple example show you basic string management. The <code class="docutils literal"><span class="pre">zend_string_init()</span></code> function (which in fact is a macro,
+but let&#8217;s pass such details) should be given your full C string as a <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>, and its length. The last parameter- of
 type int- should be 0 or 1.
 If you pass 0, you ask the engine to use a request-bound heap allocation using the Zend Memory Manager. Such allocation
 will be destroyed at the end of the current request. If you don&#8217;t do it yourself, on a debug build, the engine will
 shout at you about a memory leak you just created.
-If you pass 1, you ask for what we called a &#8220;persistent&#8221; allocation, that is the engine will use a traditionnal C
-<tt class="docutils literal"><span class="pre">malloc()</span></tt> call and will not track the memory allocation in any way.</p>
+If you pass 1, you ask for what we called a &#8220;persistent&#8221; allocation, that is the engine will use a traditional C
+<code class="docutils literal"><span class="pre">malloc()</span></code> call and will not track the memory allocation in any way.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">If you need more information about memory management, you may read the <a class="reference internal" href="../../memory_management.html"><em>dedicated chapter</em></a>.</p>
 </div>
-<p>Then, we display the string. We access the character array by using the <tt class="docutils literal"><span class="pre">ZSTR_VAL()</span></tt> macro. <tt class="docutils literal"><span class="pre">ZSTR_LEN()</span></tt> allows
-access to the length information. <tt class="docutils literal"><span class="pre">zend_string</span></tt> related macros all start with <tt class="docutils literal"><span class="pre">ZSTR_**()</span></tt>, beware that is not the
-same as <tt class="docutils literal"><span class="pre">Z_STR**()</span></tt> macros.</p>
+<p>Then, we display the string. We access the character array by using the <code class="docutils literal"><span class="pre">ZSTR_VAL()</span></code> macro. <code class="docutils literal"><span class="pre">ZSTR_LEN()</span></code> allows
+access to the length information. <code class="docutils literal"><span class="pre">zend_string</span></code> related macros all start with <code class="docutils literal"><span class="pre">ZSTR_**()</span></code>, beware that is not the
+same as <code class="docutils literal"><span class="pre">Z_STR**()</span></code> macros.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The length is stored using a <tt class="docutils literal"><span class="pre">size_t</span></tt> type. Hence, to display it, <em>&#8220;%zd&#8221;</em> is necessary for <tt class="docutils literal"><span class="pre">printf()</span></tt>. You
-should always use the right <tt class="docutils literal"><span class="pre">printf()</span></tt> formats. Failing to do that can crash the application or create
-security issues. For a nice recall on <tt class="docutils literal"><span class="pre">printf()</span></tt> formats, please visit
+<p class="last">The length is stored using a <code class="docutils literal"><span class="pre">size_t</span></code> type. Hence, to display it, <em>&#8220;%zd&#8221;</em> is necessary for <code class="docutils literal"><span class="pre">printf()</span></code>. You
+should always use the right <code class="docutils literal"><span class="pre">printf()</span></code> formats. Failing to do that can crash the application or create
+security issues. For a nice recall on <code class="docutils literal"><span class="pre">printf()</span></code> formats, please visit
 <a class="reference external" href="http://www.cplusplus.com/reference/cstdio/printf/">this link</a></p>
 </div>
-<p>Finally, we release the string using <tt class="docutils literal"><span class="pre">zend_string_release()</span></tt>. This release is mandatory. This is about memory management.
+<p>Finally, we release the string using <code class="docutils literal"><span class="pre">zend_string_release()</span></code>. This release is mandatory. This is about memory management.
 The &#8220;releasing&#8221; is a simple operation : decrement the reference counter of the string, if it falls to zero, the API will
 free the string for you. If you forget to release a string, you will very likely create a memory leak.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">You must always think about memory management in C. If you allocate - whether directly using <tt class="docutils literal"><span class="pre">malloc()</span></tt>, or
-using an API that will do it for you - you must <tt class="docutils literal"><span class="pre">free()</span></tt> at some point. Failing to do that will create memory
+<p class="last">You must always think about memory management in C. If you allocate - whether directly using <code class="docutils literal"><span class="pre">malloc()</span></code>, or
+using an API that will do it for you - you must <code class="docutils literal"><span class="pre">free()</span></code> at some point. Failing to do that will create memory
 leaks and translate into a badly designed program that nobody will be able to use safely.</p>
 </div>
 </div>
 <div class="section" id="playing-with-the-hash">
 <h3>Playing with the hash<a class="headerlink" href="#playing-with-the-hash" title="Permalink to this headline">¶</a></h3>
-<p>If you need to access the hash, use <tt class="docutils literal"><span class="pre">ZSTR_H()</span></tt>. However, the hash is not computed automatically when you create your
-<tt class="docutils literal"><span class="pre">zend_string</span></tt>. It will be done for you however when using that string with the HashTable API.
-If you want to force the hash to get computed now, use <tt class="docutils literal"><span class="pre">ZSTR_HASH()</span></tt> or <tt class="docutils literal"><span class="pre">zend_string_hash_val()</span></tt>.
+<p>If you need to access the hash, use <code class="docutils literal"><span class="pre">ZSTR_H()</span></code>. However, the hash is not computed automatically when you create your
+<code class="docutils literal"><span class="pre">zend_string</span></code>. It will be done for you however when using that string with the HashTable API.
+If you want to force the hash to get computed now, use <code class="docutils literal"><span class="pre">ZSTR_HASH()</span></code> or <code class="docutils literal"><span class="pre">zend_string_hash_val()</span></code>.
 Once the hash is computed, it is saved and never computed again. If for any reason, you need to recompute it - f.e
-because you changed the value of the string - use <tt class="docutils literal"><span class="pre">zend_string_forget_hash_val()</span></tt>:</p>
+because you changed the value of the string - use <code class="docutils literal"><span class="pre">zend_string_forget_hash_val()</span></code>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span><span class="p">;</span>
 
 <span class="n">str</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
@@ -161,10 +161,10 @@ because you changed the value of the string - use <tt class="docutils literal"><
 </div>
 <div class="section" id="string-copy-and-memory-management">
 <h3>String copy and memory management<a class="headerlink" href="#string-copy-and-memory-management" title="Permalink to this headline">¶</a></h3>
-<p>One very nice feature of <tt class="docutils literal"><span class="pre">zend_string</span></tt> API is that it allows one part to &#8220;own&#8221; a string by simply declaring interest
+<p>One very nice feature of <code class="docutils literal"><span class="pre">zend_string</span></code> API is that it allows one part to &#8220;own&#8221; a string by simply declaring interest
 with it. The engine will then not duplicate the string in memory, but simply increment its refcount
-(as part of its <tt class="docutils literal"><span class="pre">zend_refcounted_h</span></tt>). This allows sharing a single piece of memory in many places into the code.</p>
-<p>That way, when we talk about &#8220;copying&#8221; a <tt class="docutils literal"><span class="pre">zend_string</span></tt>, in fact we don&#8217;t copy anything in memory. If needed- that is
+(as part of its <code class="docutils literal"><span class="pre">zend_refcounted_h</span></code>). This allows sharing a single piece of memory in many places into the code.</p>
+<p>That way, when we talk about &#8220;copying&#8221; a <code class="docutils literal"><span class="pre">zend_string</span></code>, in fact we don&#8217;t copy anything in memory. If needed- that is
 still a possible operation- we then talk about &#8220;duplicating&#8221; the string. Here we go:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span><span class="p">,</span> <span class="o">*</span><span class="n">bar</span><span class="p">,</span> <span class="o">*</span><span class="n">bar2</span><span class="p">,</span> <span class="o">*</span><span class="n">baz</span><span class="p">;</span>
 
@@ -201,28 +201,28 @@ still a possible operation- we then talk about &#8220;duplicating&#8221; the str
 <span class="n">zend_string_release</span><span class="p">(</span><span class="n">baz</span><span class="p">);</span>  <span class="cm">/* destroys (frees) the &quot;baz&quot; string */</span>
 </pre></div>
 </div>
-<p>We start by just allocating &#8220;foo&#8221; and &#8220;bar&#8221;. Then we create the <tt class="docutils literal"><span class="pre">bar2</span></tt> string as being a copy of <tt class="docutils literal"><span class="pre">bar</span></tt>. Here, everybody
-must remember : <tt class="docutils literal"><span class="pre">bar</span></tt> and <tt class="docutils literal"><span class="pre">bar2</span></tt> point to <em>the same</em> C string in memory, and changing one will change the second
-one. This is <tt class="docutils literal"><span class="pre">zend_string_copy()</span></tt> behavior : it just increments the refcount of the owned C string.</p>
+<p>We start by just allocating &#8220;foo&#8221; and &#8220;bar&#8221;. Then we create the <code class="docutils literal"><span class="pre">bar2</span></code> string as being a copy of <code class="docutils literal"><span class="pre">bar</span></code>. Here, everybody
+must remember : <code class="docutils literal"><span class="pre">bar</span></code> and <code class="docutils literal"><span class="pre">bar2</span></code> point to <em>the same</em> C string in memory, and changing one will change the second
+one. This is <code class="docutils literal"><span class="pre">zend_string_copy()</span></code> behavior : it just increments the refcount of the owned C string.</p>
 <p>If we want to separate the strings- aka we want to have two different copies of that string in memory -we need to
-duplicate using <tt class="docutils literal"><span class="pre">zend_string_dup()</span></tt>. We then duplicate <tt class="docutils literal"><span class="pre">bar2</span></tt> variable string into the <tt class="docutils literal"><span class="pre">baz</span></tt> variable. Now, the
-<tt class="docutils literal"><span class="pre">baz</span></tt> variable embeds its own copy of the string, and can change it without impacting <tt class="docutils literal"><span class="pre">bar2</span></tt>. That is what we do :
+duplicate using <code class="docutils literal"><span class="pre">zend_string_dup()</span></code>. We then duplicate <code class="docutils literal"><span class="pre">bar2</span></code> variable string into the <code class="docutils literal"><span class="pre">baz</span></code> variable. Now, the
+<code class="docutils literal"><span class="pre">baz</span></code> variable embeds its own copy of the string, and can change it without impacting <code class="docutils literal"><span class="pre">bar2</span></code>. That is what we do :
 we change the final &#8216;r&#8217; in &#8216;bar&#8217; with a &#8216;z&#8217;, for &#8216;baz&#8217;. And then we display it, and free memory of every string.</p>
 <p>Note that we forgot the hash value (if it were computed before, no need to think about that detail). This is a good
-practice to remember about. Like we already said, the hash is used if the <tt class="docutils literal"><span class="pre">zend_string</span></tt> is used as part of HashTables.
+practice to remember about. Like we already said, the hash is used if the <code class="docutils literal"><span class="pre">zend_string</span></code> is used as part of HashTables.
 This is a very common operation in development, and changing a string value requires to recompute the hash value as
 well. Forgetting such a step will lead to bugs that could cost some time to track.</p>
 </div>
 <div class="section" id="string-operations">
 <h3>String operations<a class="headerlink" href="#string-operations" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">zend_string</span></tt> API allows other operations, such as extending or shrinking strings, changing their case or comparing
+<p>The <code class="docutils literal"><span class="pre">zend_string</span></code> API allows other operations, such as extending or shrinking strings, changing their case or comparing
 them. There is no concat operation available yet, but that is pretty easy to perform:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_string</span> <span class="o">*</span><span class="n">FOO</span><span class="p">,</span> <span class="o">*</span><span class="n">bar</span><span class="p">,</span> <span class="o">*</span><span class="n">foobar</span><span class="p">,</span> <span class="o">*</span><span class="n">foo_lc</span><span class="p">;</span>
 
 <span class="n">FOO</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
 <span class="n">bar</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
 
-<span class="cm">/* Compares a zend_string against a C string litteral */</span>
+<span class="cm">/* Compares a zend_string against a C string literal */</span>
 <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">zend_string_equals_literal</span><span class="p">(</span><span class="n">FOO</span><span class="p">,</span> <span class="s">&quot;foobar&quot;</span><span class="p">))</span> <span class="p">{</span>
     <span class="n">foobar</span> <span class="o">=</span> <span class="n">zend_string_copy</span><span class="p">(</span><span class="n">FOO</span><span class="p">);</span>
 
@@ -253,13 +253,13 @@ them. There is no concat operation available yet, but that is pretty easy to per
 </div>
 <div class="section" id="zend-string-access-with-zvals">
 <h3>zend_string access with zvals<a class="headerlink" href="#zend-string-access-with-zvals" title="Permalink to this headline">¶</a></h3>
-<p>Now that you know how to manage and manipulate <tt class="docutils literal"><span class="pre">zend_string</span></tt>, let&#8217;s see the interaction they got with the <tt class="docutils literal"><span class="pre">zval</span></tt>
+<p>Now that you know how to manage and manipulate <code class="docutils literal"><span class="pre">zend_string</span></code>, let&#8217;s see the interaction they got with the <code class="docutils literal"><span class="pre">zval</span></code>
 container.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">You need to be familiar with zvals, if not, read the <a class="reference internal" href="../zvals.html"><em>Zvals</em></a> dedicated chapter.</p>
 </div>
-<p>The macros will allow you to store a <tt class="docutils literal"><span class="pre">zend_string</span></tt> into a <tt class="docutils literal"><span class="pre">zval</span></tt>, or to read the <tt class="docutils literal"><span class="pre">zend_string</span></tt> from a <tt class="docutils literal"><span class="pre">zval</span></tt>:</p>
+<p>The macros will allow you to store a <code class="docutils literal"><span class="pre">zend_string</span></code> into a <code class="docutils literal"><span class="pre">zval</span></code>, or to read the <code class="docutils literal"><span class="pre">zend_string</span></code> from a <code class="docutils literal"><span class="pre">zval</span></code>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="n">myval</span><span class="p">;</span>
 <span class="n">zend_string</span> <span class="o">*</span><span class="n">hello</span><span class="p">,</span> <span class="o">*</span><span class="n">world</span><span class="p">;</span>
 
@@ -279,33 +279,33 @@ container.</p>
 <span class="cm">/* ... */</span>
 </pre></div>
 </div>
-<p>What you must memorize is that every macro beginning by <tt class="docutils literal"><span class="pre">ZSTR_***(s)</span></tt> will act on a <tt class="docutils literal"><span class="pre">zend_string</span></tt>.</p>
+<p>What you must memorize is that every macro beginning by <code class="docutils literal"><span class="pre">ZSTR_***(s)</span></code> will act on a <code class="docutils literal"><span class="pre">zend_string</span></code>.</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">ZSTR_VAL()</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">ZSTR_LEN()</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">ZSTR_HASH()</span></tt></li>
+<li><code class="docutils literal"><span class="pre">ZSTR_VAL()</span></code></li>
+<li><code class="docutils literal"><span class="pre">ZSTR_LEN()</span></code></li>
+<li><code class="docutils literal"><span class="pre">ZSTR_HASH()</span></code></li>
 <li>...</li>
 </ul>
-<p>Every macro beginning by <tt class="docutils literal"><span class="pre">Z_STR**(z)</span></tt> will act on a <tt class="docutils literal"><span class="pre">zend_string</span></tt> itself embeded into a <tt class="docutils literal"><span class="pre">zval</span></tt></p>
+<p>Every macro beginning by <code class="docutils literal"><span class="pre">Z_STR**(z)</span></code> will act on a <code class="docutils literal"><span class="pre">zend_string</span></code> itself embeded into a <code class="docutils literal"><span class="pre">zval</span></code></p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">Z_STRVAL()</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">Z_STRLEN()</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">Z_STRHASH()</span></tt></li>
+<li><code class="docutils literal"><span class="pre">Z_STRVAL()</span></code></li>
+<li><code class="docutils literal"><span class="pre">Z_STRLEN()</span></code></li>
+<li><code class="docutils literal"><span class="pre">Z_STRHASH()</span></code></li>
 <li>...</li>
 </ul>
 <p>A few other that you won&#8217;t probably need also exist.</p>
 </div>
 <div class="section" id="php-s-history-and-classical-c-strings">
 <h3>PHP&#8217;s history and classical C strings<a class="headerlink" href="#php-s-history-and-classical-c-strings" title="Permalink to this headline">¶</a></h3>
-<p>Just a quick note about classical C strings. In C, strings are character arrays (<tt class="docutils literal"><span class="pre">char</span> <span class="pre">foo[]</span></tt>), or pointers to
-characters (<tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></tt>). They don&#8217;t know anything about their length, that&#8217;s why they are NUL terminated (knowing the
+<p>Just a quick note about classical C strings. In C, strings are character arrays (<code class="docutils literal"><span class="pre">char</span> <span class="pre">foo[]</span></code>), or pointers to
+characters (<code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>). They don&#8217;t know anything about their length, that&#8217;s why they are NUL terminated (knowing the
 beginning of the string and its end, you know its length).</p>
-<p>Before PHP 7, <tt class="docutils literal"><span class="pre">zend_string</span></tt> structure simply did not exist. A traditionnal <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span> <span class="pre">/</span> <span class="pre">int</span></tt> couple were used back in
-that time. You may still find rare places into PHP source where <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span> <span class="pre">/</span> <span class="pre">int</span></tt> couple is used instead of
-<tt class="docutils literal"><span class="pre">zend_string</span></tt>. You may also find API facilities to interact between a <tt class="docutils literal"><span class="pre">zend_string</span></tt> on one side, and a
-<tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span> <span class="pre">/</span> <span class="pre">int</span></tt> couple on the other side.</p>
-<p>Whereever it is possible : make use of <tt class="docutils literal"><span class="pre">zend_string</span></tt>. Some rare places don&#8217;t make use of <tt class="docutils literal"><span class="pre">zend_string</span></tt> because it
-is not relevant at that place to use them, but you&#8217;ll find lots of reference to <tt class="docutils literal"><span class="pre">zend_string</span></tt> anyway in PHP source
+<p>Before PHP 7, <code class="docutils literal"><span class="pre">zend_string</span></code> structure simply did not exist. A traditional <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span> <span class="pre">/</span> <span class="pre">int</span></code> couple were used back in
+that time. You may still find rare places into PHP source where <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span> <span class="pre">/</span> <span class="pre">int</span></code> couple is used instead of
+<code class="docutils literal"><span class="pre">zend_string</span></code>. You may also find API facilities to interact between a <code class="docutils literal"><span class="pre">zend_string</span></code> on one side, and a
+<code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span> <span class="pre">/</span> <span class="pre">int</span></code> couple on the other side.</p>
+<p>Whereever it is possible : make use of <code class="docutils literal"><span class="pre">zend_string</span></code>. Some rare places don&#8217;t make use of <code class="docutils literal"><span class="pre">zend_string</span></code> because it
+is not relevant at that place to use them, but you&#8217;ll find lots of reference to <code class="docutils literal"><span class="pre">zend_string</span></code> anyway in PHP source
 code.</p>
 </div>
 <div class="section" id="interned-zend-string">
@@ -315,7 +315,7 @@ Interned strings also interact with OPCache extension.</p>
 <p>Interned strings are deduplicated strings. When used with OPCache, they also get recycled from request to request.</p>
 <p>Say you want to create the string &#8220;foo&#8221;. What you tend to do is simply create a new string &#8220;foo&#8221;:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span><span class="p">;</span>
-<span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string</span><span class="o">-</span><span class="n">init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+<span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
 
 <span class="cm">/* ... */</span>
 </pre></div>
@@ -337,8 +337,8 @@ of PHP source code (other extensions, the engine itself, etc...).</p>
 <span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>What we do in the code above, is we create a new <tt class="docutils literal"><span class="pre">zend_string</span></tt> very classicaly. Then, we pass that created
-<tt class="docutils literal"><span class="pre">zend_string</span></tt> to <tt class="docutils literal"><span class="pre">zend_new_interned_string()</span></tt>. This function looks for the same piece of string (&#8220;foo&#8221; here) into
+<p>What we do in the code above, is we create a new <code class="docutils literal"><span class="pre">zend_string</span></code> very classicaly. Then, we pass that created
+<code class="docutils literal"><span class="pre">zend_string</span></code> to <code class="docutils literal"><span class="pre">zend_new_interned_string()</span></code>. This function looks for the same piece of string (&#8220;foo&#8221; here) into
 the engine interned string buffer. If it finds it (meaning someone already created such a string), it then releases
 your string (probably freeing it) and replaces it by the string from the interned string buffer. If it does not find it:
 it adds it to the interned string buffer and so makes it available for future usage or other parts of PHP.</p>
@@ -364,8 +364,8 @@ to be refcounted, as they will get shared with the interned string buffer, and t
 <span class="cm">  string buffer, and thus free() our &quot;foo&quot; string itself */</span>
 </pre></div>
 </div>
-<p>It&#8217;s all about garbage collection you&#8217;ve learnt about in the <tt class="xref doc docutils literal"><span class="pre">../zvals/memory_management</span></tt> chapter.</p>
-<p>When a string is interned, its GC flags are changed to add the <tt class="docutils literal"><span class="pre">IS_STR_INTERNED</span></tt> flag, whatever the memory allocation
+<p>It&#8217;s all about garbage collection you&#8217;ve learnt about in the <code class="xref doc docutils literal"><span class="pre">../zvals/memory_management</span></code> chapter.</p>
+<p>When a string is interned, its GC flags are changed to add the <code class="docutils literal"><span class="pre">IS_STR_INTERNED</span></code> flag, whatever the memory allocation
 class they use (permanent or request based).
 This flag is probed when you want to copy or release a string. If the string is interned, the engine does not increment
 its refcount as you copy the string. But it doesn&#8217;t decrement it nor free it if you release the string. It shadowly
@@ -393,7 +393,7 @@ use an interned string.</li>
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
         «&#160;&#160;<a href="../strings.html">Strings management</a>

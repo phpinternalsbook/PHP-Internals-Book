@@ -29,12 +29,12 @@
     <link rel="next" title="Hashtable API" href="hashtable_api.html" />
     <link rel="prev" title="Hashtables" href="../hashtables.html" /> 
   </head>
-  <body>
-      <div class="header"><h1 class="heading"><a href="../index.html">
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Basic structure</span></h2>
       </div>
-      <div class="topnav">
+      <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
         «&#160;&#160;<a href="../hashtables.html">Hashtables</a>
@@ -57,12 +57,12 @@ need to be continuous. For example, if you have the keys 0, 1 and 2, then the ne
 214678462. PHP arrays are very different: They support both string keys and non-continuous integer keys and even allow
 mixing both.</p>
 <p>To implement such a structure in C there are two approaches: The first is using a binary search tree, where both lookup
-and insert have complexity <tt class="docutils literal"><span class="pre">O(log</span> <span class="pre">n)</span></tt> (where <tt class="docutils literal"><span class="pre">n</span></tt> is the number of elements in the table). The second is a hashtable,
-which has an average lookup/insert complexity of <tt class="docutils literal"><span class="pre">O(1)</span></tt>, i.e. elements can be inserted and retrieved in constant time.
+and insert have complexity <code class="docutils literal"><span class="pre">O(log</span> <span class="pre">n)</span></code> (where <code class="docutils literal"><span class="pre">n</span></code> is the number of elements in the table). The second is a hashtable,
+which has an average lookup/insert complexity of <code class="docutils literal"><span class="pre">O(1)</span></code>, i.e. elements can be inserted and retrieved in constant time.
 As such hashtables are preferable in most cases and are also the technique that PHP uses.</p>
 <p>The idea behind a hashtable is very simple: A complex key value (like a string) is converted into an integer using a
 hash function. This integer can then be used as an offset into a normal C array. The issue is that the number of
-integers (<tt class="docutils literal"><span class="pre">2^32</span></tt> or <tt class="docutils literal"><span class="pre">2^64</span></tt>) is much smaller than the number of strings (of which there are infinitely many). As such
+integers (<code class="docutils literal"><span class="pre">2^32</span></code> or <code class="docutils literal"><span class="pre">2^64</span></code>) is much smaller than the number of strings (of which there are infinitely many). As such
 the hash function will have collisions, i.e. cases where two strings have the same hash value.</p>
 <p>As such some kind of collision resolution has to take place. There are basically two solutions to this problem, the
 first being <em>open addressing</em> (which is not covered here). The second one is <em>chaining</em> and is employed by PHP. This
@@ -71,28 +71,28 @@ hash and then go through the linked list of &#8220;possible&#8221; values until 
 illustration of chaining collision resolution:</p>
 <a class="reference internal image-reference" href="../_images/basic_hashtable.svg"><div align="center" class="align-center"><img height="265px" src="../_images/basic_hashtable.svg" /></div>
 </a>
-<p>The elements of the linked list are called <tt class="docutils literal"><span class="pre">Bucket</span></tt>s and the C array containing the heads of the linked lists is
-called <tt class="docutils literal"><span class="pre">arBuckets</span></tt>.</p>
-<p>Consider how you would delete an element from such a structure: Say you have a pointer to the bucket of <tt class="docutils literal"><span class="pre">&quot;c&quot;</span></tt> and want
-to remove it. To do this you&#8217;d have to set the pointer coming from <tt class="docutils literal"><span class="pre">&quot;a&quot;</span></tt> to <tt class="docutils literal"><span class="pre">NULL</span></tt>. Thus you need to retrieve the
-bucket of <tt class="docutils literal"><span class="pre">&quot;a&quot;</span></tt> which you can do either by traversing the linked list for the hash value or by additionally storing
+<p>The elements of the linked list are called <code class="docutils literal"><span class="pre">Bucket</span></code>s and the C array containing the heads of the linked lists is
+called <code class="docutils literal"><span class="pre">arBuckets</span></code>.</p>
+<p>Consider how you would delete an element from such a structure: Say you have a pointer to the bucket of <code class="docutils literal"><span class="pre">&quot;c&quot;</span></code> and want
+to remove it. To do this you&#8217;d have to set the pointer coming from <code class="docutils literal"><span class="pre">&quot;a&quot;</span></code> to <code class="docutils literal"><span class="pre">NULL</span></code>. Thus you need to retrieve the
+bucket of <code class="docutils literal"><span class="pre">&quot;a&quot;</span></code> which you can do either by traversing the linked list for the hash value or by additionally storing
 pointers in the reverse direction. The latter is what PHP does: Every bucket contains both a pointer to the next bucket
-(<tt class="docutils literal"><span class="pre">pNext</span></tt>) and the previous bucket (<tt class="docutils literal"><span class="pre">pLast</span></tt>). This is illustrated in the following graphic:</p>
+(<code class="docutils literal"><span class="pre">pNext</span></code>) and the previous bucket (<code class="docutils literal"><span class="pre">pLast</span></code>). This is illustrated in the following graphic:</p>
 <a class="reference internal image-reference" href="../_images/doubly_linked_hashtable.svg"><div align="center" class="align-center"><img height="250px" src="../_images/doubly_linked_hashtable.svg" /></div>
 </a>
 <p>Furthermore PHP hashtables are <em>ordered</em>: If you traverse an array you&#8217;ll get the elements in same order in which you
 inserted them. To support this the buckets have to be part of another linked list which specifies the order. This is
 once again a doubly linked list, for the same reasons as outlined above (and to support traversation in reverse order).
-The forward pointers are stored in <tt class="docutils literal"><span class="pre">pListNext</span></tt>, the backward pointers in <tt class="docutils literal"><span class="pre">pListLast</span></tt>. Additionally the hashtable
-structure has a pointer to the start of the list (<tt class="docutils literal"><span class="pre">pListHead</span></tt>) and the end of the list (<tt class="docutils literal"><span class="pre">pListLast</span></tt>). Here is an
-example of how this linked list could look like for the elements <tt class="docutils literal"><span class="pre">&quot;a&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;b&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;c&quot;</span></tt> (in that order):</p>
+The forward pointers are stored in <code class="docutils literal"><span class="pre">pListNext</span></code>, the backward pointers in <code class="docutils literal"><span class="pre">pListLast</span></code>. Additionally the hashtable
+structure has a pointer to the start of the list (<code class="docutils literal"><span class="pre">pListHead</span></code>) and the end of the list (<code class="docutils literal"><span class="pre">pListLast</span></code>). Here is an
+example of how this linked list could look like for the elements <code class="docutils literal"><span class="pre">&quot;a&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;b&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;c&quot;</span></code> (in that order):</p>
 <a class="reference internal image-reference" href="../_images/ordered_hashtable.svg"><div align="center" class="align-center"><img height="250px" src="../_images/ordered_hashtable.svg" /></div>
 </a>
 </div>
 <div class="section" id="the-hashtable-and-bucket-structures">
 <h2>The HashTable and Bucket structures<a class="headerlink" href="#the-hashtable-and-bucket-structures" title="Permalink to this headline">¶</a></h2>
-<p>To implement hashtables PHP uses two structures, which can be found in the <tt class="docutils literal"><span class="pre">zend_hash.h</span></tt> file. We&#8217;ll first have a look
-at the <tt class="docutils literal"><span class="pre">Bucket</span></tt> struct:</p>
+<p>To implement hashtables PHP uses two structures, which can be found in the <code class="docutils literal"><span class="pre">zend_hash.h</span></code> file. We&#8217;ll first have a look
+at the <code class="docutils literal"><span class="pre">Bucket</span></code> struct:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">bucket</span> <span class="p">{</span>
     <span class="n">ulong</span> <span class="n">h</span><span class="p">;</span>
     <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">;</span>
@@ -106,16 +106,16 @@ at the <tt class="docutils literal"><span class="pre">Bucket</span></tt> struct:
 <span class="p">}</span> <span class="n">Bucket</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>You already know what the <tt class="docutils literal"><span class="pre">pNext</span></tt>, <tt class="docutils literal"><span class="pre">pLast</span></tt>, <tt class="docutils literal"><span class="pre">pListNext</span></tt> and <tt class="docutils literal"><span class="pre">pListLast</span></tt> pointers are for. Let&#8217;s quickly go
+<p>You already know what the <code class="docutils literal"><span class="pre">pNext</span></code>, <code class="docutils literal"><span class="pre">pLast</span></code>, <code class="docutils literal"><span class="pre">pListNext</span></code> and <code class="docutils literal"><span class="pre">pListLast</span></code> pointers are for. Let&#8217;s quickly go
 through the remaining members:</p>
-<p><tt class="docutils literal"><span class="pre">h</span></tt> is the hash of the key. If the key is an integer, then <tt class="docutils literal"><span class="pre">h</span></tt> will be that integer (for integers the hash function
-doesn&#8217;t do anything) and <tt class="docutils literal"><span class="pre">nKeyLength</span></tt> will be 0. For string keys <tt class="docutils literal"><span class="pre">h</span></tt> will be the result of <tt class="docutils literal"><span class="pre">zend_hash_func()</span></tt>,
-<tt class="docutils literal"><span class="pre">arKey</span></tt> will hold the string and <tt class="docutils literal"><span class="pre">nKeyLength</span></tt> its length.</p>
-<p><tt class="docutils literal"><span class="pre">pData</span></tt> is a pointer to the stored value. The stored value will not be the same as the one passed to the insertion
+<p><code class="docutils literal"><span class="pre">h</span></code> is the hash of the key. If the key is an integer, then <code class="docutils literal"><span class="pre">h</span></code> will be that integer (for integers the hash function
+doesn&#8217;t do anything) and <code class="docutils literal"><span class="pre">nKeyLength</span></code> will be 0. For string keys <code class="docutils literal"><span class="pre">h</span></code> will be the result of <code class="docutils literal"><span class="pre">zend_hash_func()</span></code>,
+<code class="docutils literal"><span class="pre">arKey</span></code> will hold the string and <code class="docutils literal"><span class="pre">nKeyLength</span></code> its length.</p>
+<p><code class="docutils literal"><span class="pre">pData</span></code> is a pointer to the stored value. The stored value will not be the same as the one passed to the insertion
 function, rather it will be a copy of it (which is allocated separately from the bucket). As this would be very
 inefficient when the stored value is a pointer PHP employs a small trick: Instead of storing the pointer in a separate
-allocation it is put into the <tt class="docutils literal"><span class="pre">pDataPtr</span></tt> member. <tt class="docutils literal"><span class="pre">pData</span></tt> then points to that member (<tt class="docutils literal"><span class="pre">pData</span> <span class="pre">=</span> <span class="pre">&amp;pDataPtr</span></tt>).</p>
-<p>Let&#8217;s have a look at the main <tt class="docutils literal"><span class="pre">HashTable</span></tt> struct now:</p>
+allocation it is put into the <code class="docutils literal"><span class="pre">pDataPtr</span></code> member. <code class="docutils literal"><span class="pre">pData</span></code> then points to that member (<code class="docutils literal"><span class="pre">pData</span> <span class="pre">=</span> <span class="pre">&amp;pDataPtr</span></code>).</p>
+<p>Let&#8217;s have a look at the main <code class="docutils literal"><span class="pre">HashTable</span></code> struct now:</p>
 <div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_hashtable</span> <span class="p">{</span>
     <span class="n">uint</span> <span class="n">nTableSize</span><span class="p">;</span>
     <span class="n">uint</span> <span class="n">nTableMask</span><span class="p">;</span>
@@ -125,7 +125,7 @@ allocation it is put into the <tt class="docutils literal"><span class="pre">pDa
     <span class="n">Bucket</span> <span class="o">*</span><span class="n">pListHead</span><span class="p">;</span>
     <span class="n">Bucket</span> <span class="o">*</span><span class="n">pListTail</span><span class="p">;</span>
     <span class="n">Bucket</span> <span class="o">**</span><span class="n">arBuckets</span><span class="p">;</span>
-    <span class="kt">dtor_func_t</span> <span class="n">pDestructor</span><span class="p">;</span>
+    <span class="n">dtor_func_t</span> <span class="n">pDestructor</span><span class="p">;</span>
     <span class="n">zend_bool</span> <span class="n">persistent</span><span class="p">;</span>
     <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">nApplyCount</span><span class="p">;</span>
     <span class="n">zend_bool</span> <span class="n">bApplyProtection</span><span class="p">;</span>
@@ -135,40 +135,40 @@ allocation it is put into the <tt class="docutils literal"><span class="pre">pDa
 <span class="p">}</span> <span class="n">HashTable</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>You already know that <tt class="docutils literal"><span class="pre">arBuckets</span></tt> is the C array that contains the linked bucket lists and is indexed by the hash of
-the key. As PHP arrays don&#8217;t have a fixed size <tt class="docutils literal"><span class="pre">arBuckets</span></tt> has to be dynamically resized when the number of elements
-in the table (<tt class="docutils literal"><span class="pre">nNumOfElements</span></tt>) surpasses the current size of the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> allocation (<tt class="docutils literal"><span class="pre">nTableSize</span></tt>). We could
-of course store more than <tt class="docutils literal"><span class="pre">nTableSize</span></tt> elements in the hashtable, but this would increase the number of collisions
+<p>You already know that <code class="docutils literal"><span class="pre">arBuckets</span></code> is the C array that contains the linked bucket lists and is indexed by the hash of
+the key. As PHP arrays don&#8217;t have a fixed size <code class="docutils literal"><span class="pre">arBuckets</span></code> has to be dynamically resized when the number of elements
+in the table (<code class="docutils literal"><span class="pre">nNumOfElements</span></code>) surpasses the current size of the <code class="docutils literal"><span class="pre">arBuckets</span></code> allocation (<code class="docutils literal"><span class="pre">nTableSize</span></code>). We could
+of course store more than <code class="docutils literal"><span class="pre">nTableSize</span></code> elements in the hashtable, but this would increase the number of collisions
 and thus degrade performance.</p>
-<p><tt class="docutils literal"><span class="pre">nTableSize</span></tt> is always a power of two, so if you have 12 elements in a hashtable the actual table size will be 16.
-Note though that while the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> array automatically grows, it will <em>not</em> shrink when you remove elements. If
-you first insert 1000000 elements into the hashtable and then remove all of them again the <tt class="docutils literal"><span class="pre">nTableSize</span></tt> will still
+<p><code class="docutils literal"><span class="pre">nTableSize</span></code> is always a power of two, so if you have 12 elements in a hashtable the actual table size will be 16.
+Note though that while the <code class="docutils literal"><span class="pre">arBuckets</span></code> array automatically grows, it will <em>not</em> shrink when you remove elements. If
+you first insert 1000000 elements into the hashtable and then remove all of them again the <code class="docutils literal"><span class="pre">nTableSize</span></code> will still
 be 1048576.</p>
-<p>The result of the hash function is a <tt class="docutils literal"><span class="pre">ulong</span></tt>, but the <tt class="docutils literal"><span class="pre">nTableSize</span></tt> will usually be a lot smaller than that. Thus
-the hash can not be directly used to index into the <tt class="docutils literal"><span class="pre">arBuckets</span></tt> array. Instead <tt class="docutils literal"><span class="pre">nIndex</span> <span class="pre">=</span> <span class="pre">h</span> <span class="pre">%</span> <span class="pre">nTableSize</span></tt> is used.
-As the table size is always a power of two this expression is equivalent to <tt class="docutils literal"><span class="pre">nIndex</span> <span class="pre">=</span> <span class="pre">h</span> <span class="pre">&amp;</span> <span class="pre">(nTableSize</span> <span class="pre">-</span> <span class="pre">1)</span></tt>. To see
-why let&#8217;s see how <tt class="docutils literal"><span class="pre">nTableSize</span> <span class="pre">-</span> <span class="pre">1</span></tt> changes the value:</p>
+<p>The result of the hash function is a <code class="docutils literal"><span class="pre">ulong</span></code>, but the <code class="docutils literal"><span class="pre">nTableSize</span></code> will usually be a lot smaller than that. Thus
+the hash can not be directly used to index into the <code class="docutils literal"><span class="pre">arBuckets</span></code> array. Instead <code class="docutils literal"><span class="pre">nIndex</span> <span class="pre">=</span> <span class="pre">h</span> <span class="pre">%</span> <span class="pre">nTableSize</span></code> is used.
+As the table size is always a power of two this expression is equivalent to <code class="docutils literal"><span class="pre">nIndex</span> <span class="pre">=</span> <span class="pre">h</span> <span class="pre">&amp;</span> <span class="pre">(nTableSize</span> <span class="pre">-</span> <span class="pre">1)</span></code>. To see
+why let&#8217;s see how <code class="docutils literal"><span class="pre">nTableSize</span> <span class="pre">-</span> <span class="pre">1</span></code> changes the value:</p>
 <div class="highlight-none"><div class="highlight"><pre>nTableSize     = 128 = 0b00000000.00000000.00000000.10000000
 nTableSize - 1 = 127 = 0b00000000.00000000.00000000.01111111
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">nTableSize</span> <span class="pre">-</span> <span class="pre">1</span></tt> has all bits below the table size set. Thus doing <tt class="docutils literal"><span class="pre">h</span> <span class="pre">&amp;</span> <span class="pre">(nTableSize</span> <span class="pre">-</span> <span class="pre">1)</span></tt> will only keep the bits
-of the hash that are lower than <tt class="docutils literal"><span class="pre">nTableSize</span></tt>, which is the same thing <tt class="docutils literal"><span class="pre">h</span> <span class="pre">%</span> <span class="pre">nTableSize</span></tt> does.</p>
-<p>The value <tt class="docutils literal"><span class="pre">nTableSize</span> <span class="pre">-</span> <span class="pre">1</span></tt> is called the table mask and stored in the <tt class="docutils literal"><span class="pre">nTableMask</span></tt> member. Using a masking operation
+<p><code class="docutils literal"><span class="pre">nTableSize</span> <span class="pre">-</span> <span class="pre">1</span></code> has all bits below the table size set. Thus doing <code class="docutils literal"><span class="pre">h</span> <span class="pre">&amp;</span> <span class="pre">(nTableSize</span> <span class="pre">-</span> <span class="pre">1)</span></code> will only keep the bits
+of the hash that are lower than <code class="docutils literal"><span class="pre">nTableSize</span></code>, which is the same thing <code class="docutils literal"><span class="pre">h</span> <span class="pre">%</span> <span class="pre">nTableSize</span></code> does.</p>
+<p>The value <code class="docutils literal"><span class="pre">nTableSize</span> <span class="pre">-</span> <span class="pre">1</span></code> is called the table mask and stored in the <code class="docutils literal"><span class="pre">nTableMask</span></code> member. Using a masking operation
 instead of a modulus is just a performance optimization.</p>
-<p>The <tt class="docutils literal"><span class="pre">nNextFreeElement</span></tt> member specifies the next integer key that will be used when you insert an element using
-<tt class="docutils literal"><span class="pre">$array[]</span> <span class="pre">=</span> <span class="pre">$value</span></tt>. It will be one larger than the largest integer key that was ever used in this hashtable.</p>
-<p>You already know the role of the <tt class="docutils literal"><span class="pre">pListHead</span></tt> and <tt class="docutils literal"><span class="pre">pListTail</span></tt> pointers (they are the head/tail of the doubly linked
-list specifying the order). The <tt class="docutils literal"><span class="pre">pInternalPointer</span></tt> is used for iteration and points to the &#8220;current&#8221; bucket.</p>
+<p>The <code class="docutils literal"><span class="pre">nNextFreeElement</span></code> member specifies the next integer key that will be used when you insert an element using
+<code class="docutils literal"><span class="pre">$array[]</span> <span class="pre">=</span> <span class="pre">$value</span></code>. It will be one larger than the largest integer key that was ever used in this hashtable.</p>
+<p>You already know the role of the <code class="docutils literal"><span class="pre">pListHead</span></code> and <code class="docutils literal"><span class="pre">pListTail</span></code> pointers (they are the head/tail of the doubly linked
+list specifying the order). The <code class="docutils literal"><span class="pre">pInternalPointer</span></code> is used for iteration and points to the &#8220;current&#8221; bucket.</p>
 <p>When an item is deleted from the hashtable a destruction function can be called for it, which is stored in the
-<tt class="docutils literal"><span class="pre">pDestructor</span></tt> member. For example, if you are storing <tt class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></tt> items in the hashtable, you will probably want
-<tt class="docutils literal"><span class="pre">zval_ptr_dtor</span></tt> to be called when an element is removed.</p>
-<p>The <tt class="docutils literal"><span class="pre">persistent</span></tt> flag specified whether the buckets (and their values) should use persistent allocation. For most
-use cases this will be <tt class="docutils literal"><span class="pre">0</span></tt> as the hashtable is not supposed to live longer than one request. The <tt class="docutils literal"><span class="pre">bApplyProtection</span></tt>
+<code class="docutils literal"><span class="pre">pDestructor</span></code> member. For example, if you are storing <code class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></code> items in the hashtable, you will probably want
+<code class="docutils literal"><span class="pre">zval_ptr_dtor</span></code> to be called when an element is removed.</p>
+<p>The <code class="docutils literal"><span class="pre">persistent</span></code> flag specified whether the buckets (and their values) should use persistent allocation. For most
+use cases this will be <code class="docutils literal"><span class="pre">0</span></code> as the hashtable is not supposed to live longer than one request. The <code class="docutils literal"><span class="pre">bApplyProtection</span></code>
 flag specifies whether the hashtable should use recursion protection (defaults to 1). Recursion protection will throw
-an error if the recursion depth (stored in <tt class="docutils literal"><span class="pre">nApplyCount</span></tt>) reaches a certain level. The protection is used for
-hashtable comparisons and for the <tt class="docutils literal"><span class="pre">zend_hash_apply</span></tt> functions.</p>
-<p>The last member <tt class="docutils literal"><span class="pre">inconsistent</span></tt> is only used in debug builds and stores information on the current state of the
+an error if the recursion depth (stored in <code class="docutils literal"><span class="pre">nApplyCount</span></code>) reaches a certain level. The protection is used for
+hashtable comparisons and for the <code class="docutils literal"><span class="pre">zend_hash_apply</span></code> functions.</p>
+<p>The last member <code class="docutils literal"><span class="pre">inconsistent</span></code> is only used in debug builds and stores information on the current state of the
 hashtable. This is used to throw errors for some incorrect usages of the hashtable, e.g. if you access a hashtable that
 is in the process of being destroyed.</p>
 </div>
@@ -176,7 +176,7 @@ is in the process of being destroyed.</p>
 
 
       </div>
-      <div class="bottomnav">
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
         «&#160;&#160;<a href="../hashtables.html">Hashtables</a>
