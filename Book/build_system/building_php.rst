@@ -189,7 +189,6 @@ your PHP binary contains using the ``-m`` option. For a default PHP 5.5 build th
     ctype
     date
     dom
-    ereg
     fileinfo
     filter
     hash
@@ -236,7 +235,6 @@ extensions use the ``--disable-all`` option::
     [PHP Modules]
     Core
     date
-    ereg
     pcre
     Reflection
     SPL
