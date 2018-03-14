@@ -400,23 +400,23 @@ Let's continue then ?::
             /* Fetch the next OPline. We use pointer arithmetic for that */
             zend_op n = execute_data->func->op_array.opcodes[(execute_data->opline - execute_data->func->op_array.opcodes) + 1];
             if (n.extended_value == ZEND_EVAL) {
-                php_printf("Begining of a code eval() in %s:%u", ZSTR_VAL(execute_data->func->op_array.filename), n.lineno);
+                php_printf("Beginning of a code eval() in %s:%u", ZSTR_VAL(execute_data->func->op_array.filename), n.lineno);
             } else {
                 /* The file to be include()ed is stored into the operand 1 of the OPLine */
                 zend_string *file = zval_get_string(EX_CONSTANT(n.op1));
-                php_printf("Begining of an include of file '%s'", ZSTR_VAL(file));
+                php_printf("Beginning of an include of file '%s'", ZSTR_VAL(file));
                 zend_string_release(file);
             }
         } else if (execute_data->call->func->common.fn_flags & ZEND_ACC_STATIC) {
-            php_printf("Begining of a new static method call : '%s::%s'",
+            php_printf("Beginning of a new static method call : '%s::%s'",
                         ZSTR_VAL(Z_CE(execute_data->call->This)->name),
                         ZSTR_VAL(execute_data->call->func->common.function_name));
         } else if (Z_TYPE(execute_data->call->This) == IS_OBJECT) {
-            php_printf("Begining of a new method call : %s->%s",
+            php_printf("Beginning of a new method call : %s->%s",
                         ZSTR_VAL(Z_OBJCE(execute_data->call->This)->name),
                         ZSTR_VAL(execute_data->call->func->common.function_name));
         } else {
-            php_printf("Begining of a new function call : %s", ZSTR_VAL(execute_data->call->func->common.function_name));
+            php_printf("Beginning of a new function call : %s", ZSTR_VAL(execute_data->call->func->common.function_name));
         }
         PHPWRITE("\n", 1);
     }

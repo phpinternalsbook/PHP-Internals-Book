@@ -248,7 +248,7 @@ What you must memorize is that every macro beginning by ``ZSTR_***(s)`` will act
 * ``ZSTR_HASH()``
 * ...
 
-Every macro beginning by ``Z_STR**(z)`` will act on a ``zend_string`` itself embeded into a ``zval``
+Every macro beginning by ``Z_STR**(z)`` will act on a ``zend_string`` itself embedded into a ``zval``
 
 * ``Z_STRVAL()``
 * ``Z_STRLEN()``
@@ -349,7 +349,7 @@ This process is in fact a little bit more complex than this if OPCache fires in.
 interned strings are used. Without OPCache, if you create an interned zend_string during the process of a request, that
 string will get cleared at the end of the current request and won't be reused for the next request.
 However, if you use OPCache, interned strings are stored into a shared memory segment and shared between every PHP
-process of the same pool. Also, interned strings get reused accross several requests.
+process of the same pool. Also, interned strings get reused across several requests.
 
 Interned strings save memory, because the same string is never stored more than once in memory. But it could waste some
 CPU time as it often needs to lookup the interned string store, even if that process is well optimized yet.

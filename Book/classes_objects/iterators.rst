@@ -201,7 +201,7 @@ How the ``get_current_key`` handler looks like depends on the PHP version: With 
 key into the passed ``key`` variable using one of the ``ZVAL_*`` macros.
 
 On older versions of PHP the ``get_current_key`` handler takes three parameters that can be set depending on which key
-type is returned. If you return ``HASH_KEY_NON_EXISTANT`` the resulting key will be ``null`` and you don't have to set
+type is returned. If you return ``HASH_KEY_NON_EXISTENT`` the resulting key will be ``null`` and you don't have to set
 any of them. For ``HASH_KEY_IS_LONG`` you set the ``int_key`` argument. For ``HASH_KEY_IS_STRING`` you have to set
 ``str_key`` and ``str_key_len``. Note that here ``str_key_len`` is the string length plus one (similar to how it is done
 in the ``zend_hash`` APIs).

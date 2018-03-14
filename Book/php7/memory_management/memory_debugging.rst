@@ -55,7 +55,7 @@ debugging times:
   your own file based on such an example.
 * Valgrind is clearly a better tool than :doc:`Zend Memory Manager <zend_memory_manager>` to find leaks and other 
   memory-related issues. You should always run valgrind on your code, it is really a must-do step for every C 
-  programmer. You run it wether because you get a crash and want to find and debug it, or as a quality tool like nothing 
+  programmer. You run it whether because you get a crash and want to find and debug it, or as a quality tool like nothing 
   bad seems to show on surface, valgrind is the tool to point hidden flaws ready to blow at your face once or later. Use 
   it, even if you think everything seems all right about your code: you could get surprised.
 

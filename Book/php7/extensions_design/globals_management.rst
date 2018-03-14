@@ -6,12 +6,12 @@ a clear distinction between what we call request-bound globals, and true globals
 
 Request globals are global variables you need to carry-and-memorize informations as you are in the process of treating a 
 request. A simple example is that you ask the user to provide a value in a function argument, and you want to be able to 
-use it back in other functions. Beside the fact that this piece of information "keeps its value" accross several PHP 
+use it back in other functions. Beside the fact that this piece of information "keeps its value" across several PHP 
 function calls, it only keeps that value for the current request. The next-to-come request should know nothing about it.
 PHP provides a mechanism to manage requests globals whatever the multi-processing model that were chosen, and we will 
 detail that later in this chapter.
 
-True globals are piece of informations that remain accross requests. Those informations are usually read-only. If you 
+True globals are piece of informations that remain across requests. Those informations are usually read-only. If you 
 need to write to such globals as part of request treatment then PHP can't help you.
 If you use :doc:`threads as multi-processing model <php_lifecycle>`, you'll need to perform memory locks on your side.
 If you use :doc:`processes as multi-processing model <php_lifecycle>`, you'll need to use your own IPC (Inter Process 
@@ -334,9 +334,9 @@ anytime the player wins, and cleared at the end of the current request::
         STANDARD_MODULE_PROPERTIES_EX
     };
 
-What must be noted here, is that PHP provides no facility if you would have wanted to persist the scores accross 
+What must be noted here, is that PHP provides no facility if you would have wanted to persist the scores across 
 requests. That would have needed a persistent shared storage, such as a file, a database, some memory area, etc...
-PHP has not been designed to persist informations accross requests in its heart, so it provides nothing to do so, but 
+PHP has not been designed to persist informations across requests in its heart, so it provides nothing to do so, but 
 provides utilities to access request-bound global space like we showed.
 
 Then, easy enough we initialize an array in ``RINIT()``, and we destroy it in ``RSHUTDOWN()``. Remember that 

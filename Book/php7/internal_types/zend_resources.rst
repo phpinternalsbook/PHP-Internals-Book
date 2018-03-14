@@ -65,7 +65,7 @@ There also exists two kinds of resources, here again differenciated about their 
 * Persistent resources will persist across several requests and will only get destroyed when the PHP process dies.
 
 .. note:: You may be interested by :doc:`the PHP lifecycle <../extensions_design/php_lifecycle>` chapter that shows you
-          the different steps occuring in PHP's process life. Also, the
+          the different steps occurring in PHP's process life. Also, the
           :doc:`Zend Memory Manager chapter <../memory_management/zend_memory_manager>` may help in understanding
           concepts of persistent and request-bound memory allocations.
 

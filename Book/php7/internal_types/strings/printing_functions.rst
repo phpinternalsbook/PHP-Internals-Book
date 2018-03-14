@@ -75,7 +75,7 @@ With ``slprintf()``, the result buffer ``foo`` contains the exact same string, b
 less than the 11 chars from the *"Hello world"* string, thus you can detect that it got truncated::
 
     if (slprintf(foo, sizeof(foo), "%s", str) < strlen(str)) {
-        /* A string truncation occured */
+        /* A string truncation occurred */
     }
 
 Remember:
@@ -156,7 +156,7 @@ the argument parsing API which is easy to understand `from reading the source
 What that means is that arguments parsing algo has been fully rewritten, and may differ from what you're used to in libc.
 F.e, the libc locale is not taken care of in most cases.
 
-Special formats may be used, like *"%I64"* to explicitely print to an int64, or *"%I32"*.
+Special formats may be used, like *"%I64"* to explicitly print to an int64, or *"%I32"*.
 You can also use *"%Z"* to make a zval printable (according to PHP cast rules to string), that one is a great addition.
 
 The formatter will also recognize infinite numbers and print "INF", or "NAN" for not-a-number.
