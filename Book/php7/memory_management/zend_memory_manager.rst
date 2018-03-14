@@ -211,7 +211,7 @@ Beware however:
   cleans memory to fire-in. Thus, many leaks get reported. This happens especially after a call to PHP's exit()/die(), 
   or if a fatal error gets triggered in some critical parts of PHP.
 * If you use a non-debug build of PHP, nothing shows on *stderr*, ZendMM is dumb but will still clean any allocated 
-  request-bound buffer that's not been explicitely freed by the programmer
+  request-bound buffer that's not been explicitly freed by the programmer
 
 What you must remember is that ZendMM leak tracking is a nice bonus tool to have, but it does not replace a 
 :doc:`true C memory debugger <./memory_debugging>`.

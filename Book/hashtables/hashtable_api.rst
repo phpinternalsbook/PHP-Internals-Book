@@ -538,7 +538,7 @@ The return value of this function is the type of the key, which is one of the fo
   The key is a string, which will be written into ``str_index``. The ``duplicate`` parameter specifies whether the key
   should be written directly or a copy should be made first. Finally the length of the string (once again including the
   NUL byte) is written into ``str_length``.
-``HASH_KEY_NON_EXISTANT``:
+``HASH_KEY_NON_EXISTENT``:
   This means that we already iterated past the end of the hashtable and there are no more elements. With the loops used
   above this case cannot occur.
 

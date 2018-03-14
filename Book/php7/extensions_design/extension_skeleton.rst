@@ -115,7 +115,7 @@ The ``ini_entry`` vector is actually unused. You :doc:`register INI entries <ini
 
 Then you may declare dependencies, that means that your extension could need another extension to be loaded before it,
 or could declare a conflict with another extensions. This is done using the ``deps`` field. In reality, this is very
-ucommonly used, and more generally it is a bad pactice to create dependencies accross PHP extensions. Also, note that
+ucommonly used, and more generally it is a bad practice to create dependencies across PHP extensions. Also, note that
 dependencies are
 
 After that you declare a ``name``. Nothing to say, this name is the name of your extension (which can be different from
