@@ -50,7 +50,7 @@ Here is a simple example of a simple extension using a request global::
         if (r == rnd) {
             /* Reset the number to guess */
             pib_rnd_init();
-            RETVAL_TRUE;
+            RETURN_TRUE;
         }
 
         if (r < rnd) {
@@ -144,7 +144,7 @@ Non-Thread-Safe), the macro simply resolves to the data declared into your struc
 
         if (r == PIB_G(rnd)) {
             pib_rnd_init();
-            RETVAL_TRUE;
+            RETURN_TRUE;
         }
 
         if (r < PIB_G(rnd)) {
@@ -280,7 +280,7 @@ anytime the player wins, and cleared at the end of the current request::
         if (r == PIB_G(rnd)) {
             add_next_index_long(&PIB_G(scores), PIB_G(cur_score));
             pib_rnd_init();
-            RETVAL_TRUE;
+            RETURN_TRUE;
         }
 
         PIB_G(cur_score)++;
@@ -374,6 +374,13 @@ Here is the patched example introducing true globals, we just show the diff abou
         
         GC_FLAGS(*result) |= IS_INTERNED;
     }
+    
+    static void pib_rnd_init(void)
+    {
+        /* reset current score as well */
+        PIB_G(cur_score) = 0;
+        php_random_int(0, max, &PIB_G(rnd), 0);
+    }
 
     PHP_MINIT_FUNCTION(pib)
     {
@@ -410,7 +417,7 @@ Here is the patched example introducing true globals, we just show the diff abou
         if (r == PIB_G(rnd)) {
             add_next_index_long(&PIB_G(scores), PIB_G(cur_score));
             pib_rnd_init();
-            RETVAL_TRUE;
+            RETURN_TRUE;
         }
 
         PIB_G(cur_score)++;
