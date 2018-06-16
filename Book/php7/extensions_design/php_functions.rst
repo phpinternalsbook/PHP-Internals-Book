@@ -337,7 +337,7 @@ So far so good, we received a double. Let's now perform the math operations and 
     {
         double f;
 
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "d", &f) == FAILURE) {
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &f) == FAILURE) {
             return;
         }
 
