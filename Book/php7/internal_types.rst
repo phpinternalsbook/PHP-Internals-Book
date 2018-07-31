@@ -1,8 +1,8 @@
 Internal types
 ==============
 
-In this chapter we will detail the special types used internally by PHP. Some of those types are directly bound to 
-userland PHP, like the "zval" data structure. Other structures/types, like the "zend_string" one, is not really visible 
+In this chapter we will detail the special types used internally by PHP. Some of those types are directly bound to
+userland PHP, like the "zval" data structure. Other structures/types, like the "zend_string" one, is not really visible
 from userland point of view, but is a detail to know if you plan to program PHP from inside.
 
 Contents:
@@ -16,4 +16,4 @@ Contents:
     internal_types/hashtables.rst
     internal_types/functions.rst
 ..
-    internal_types/objects/classes_and_objects.rst  
+    internal_types/objects/classes_and_objects.rst

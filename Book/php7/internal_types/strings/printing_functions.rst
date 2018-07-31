@@ -89,7 +89,7 @@ Those two functions are defined in
 You don't know your buffer size
 -------------------------------
 
-Now if you don't know your result buffer size, you need a dynamicaly allocated one, and then you'll use ``spprintf()``.
+Now if you don't know your result buffer size, you need a dynamically allocated one, and then you'll use ``spprintf()``.
 Remember that **you'll have to free** the buffer by yourself !
 
 Here is an example::

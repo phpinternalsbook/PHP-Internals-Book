@@ -166,7 +166,7 @@ Those abilities to force things against the engine are rarely used in practice.
 .. note:: You see how more complex Zend extensions are compared to PHP extensions ? The engine is less restrictive, and
           it supposes that you know what you're doing, for the best or the worst.
 
-.. warning:: Zend extensions should really be developped by experienced and advanced programmers, as the engine is
+.. warning:: Zend extensions should really be developed by experienced and advanced programmers, as the engine is
              weaker about its checks. It clearly supposes that you master what you're doing.
 
 To sum things up about API compatibility, well, every step is detailed in
@@ -300,7 +300,7 @@ That's all for now. Let's fill-in those empty-body functions now::
     }
 
 Like said before, ``message_handler()`` is a special hook that Zend extensions may declare to be noticed when another
-Zend extension get loaded. Be carefull however of the order. You must register our "pib" Zend extension first, then
+Zend extension get loaded. But be careful of the order. You must register our "pib" Zend extension first, then
 another Zend extension (like OPCache) after that, as the ``message_handler()`` is only called when a Zend extension is
 loaded you obviously need to be loaded before to declare it. Chicken and egg.
 
@@ -426,7 +426,7 @@ The flag for that is ``ZEND_COMPILE_EXTENDED_INFO``. Extended informations are V
 will generate a special OPCode before every function is called, and after every function call is finished. Those are
 ``FCALL_BEGIN`` and ``FCALL_END`` OPCodes.
 
-Here is an exemple of a simple PHP function call OPCodes, with the 'foo' string as first solo argument:
+Here is an example of a simple PHP function call OPCodes, with the 'foo' string as first solo argument:
 
 .. code-block:: text
 
