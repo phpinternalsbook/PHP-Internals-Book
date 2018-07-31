@@ -49,7 +49,7 @@ As a rule of thumb, you'll use static linkage for the extensions bundled by PHP 
 everything else. The reason is simply that building external extensions as shared objects is easier (or at least less
 intrusive), as you will see in a moment. Another benefit is that you can update the extension without rebuilding PHP.
 
-.. note:: If you need informations about the difference between extensions and Zend extensions, you :doc:`may have a 
+.. note:: If you need informations about the difference between extensions and Zend extensions, you :doc:`may have a
           look at the dedicated chapter <../extensions_design/zend_extensions>`.
 
 Installing extensions from PECL
@@ -227,7 +227,7 @@ though.
 Extensions API compatibility
 ----------------------------
 
-Extensions are very sensitive to 5 major factors. If they dont fit, the extension wont load into PHP and will be 
+Extensions are very sensitive to 5 major factors. If they dont fit, the extension wont load into PHP and will be
 useless:
 
     * PHP Api Version
@@ -279,11 +279,11 @@ So by default, PHP tries to help you navigating with extensions.
 
 .. note::
 
-    Usually, when you become an internal developper or an extension developper, you will have to play with 
-    the debug parameter, and if you have to deal with the Windows platform, threads will show up as well. You can 
+    Usually, when you become an internal developper or an extension developper, you will have to play with
+    the debug parameter, and if you have to deal with the Windows platform, threads will show up as well. You can
     end with compiling the same extension several times against several cases of those parameters.
 
-Remember that every new major/minor version of PHP change parameters such as the PHP Api Version, that's why you need 
+Remember that every new major/minor version of PHP change parameters such as the PHP Api Version, that's why you need
 to recompile extensions against a newer PHP version.
 
 .. code-block:: none
@@ -308,23 +308,23 @@ to recompile extensions against a newer PHP version.
 
 .. note::
 
-    *Zend Module Api No* is itself built with a date using the *year.month.day* format. This is the date of the day the 
+    *Zend Module Api No* is itself built with a date using the *year.month.day* format. This is the date of the day the
     API changed and was tagged.
     *Zend Extension Api No* is the Zend version followed by *Zend Module Api No*.
-    
+
 .. note::
-    
-    Too many numbers? Yes. One API number, bound to one PHP version, would really be enough for anybody and would ease 
-    the understanding of PHP versionning. Unfortunately, we got 3 different API numbers in addition to the PHP version 
+
+    Too many numbers? Yes. One API number, bound to one PHP version, would really be enough for anybody and would ease
+    the understanding of PHP versionning. Unfortunately, we got 3 different API numbers in addition to the PHP version
     itself. Which one should you look for? The answer is any : they all-three-of-them evolve when PHP version evolve.
     For historical reasons, we got 3 different numbers.
-    
+
 But, you are a C developper anren't you? Why not build a "compatibility" header on your side, based on such number?
 We authors, use something like this in extensions of ours::
 
     #include "php.h"
     #include "Zend/zend_extensions.h"
-    
+
     #define PHP_5_5_X_API_NO		220121212
     #define PHP_5_6_X_API_NO		220131226
 
@@ -354,10 +354,10 @@ We authors, use something like this in extensions of ours::
     #define IS_PHP_7 0
     #define IS_PHP_5 1
     #endif
-    
+
 See?
 
 Or, simpler (so better) is to use ``PHP_VERSION_ID`` which you are probably much more familiar about::
-    
+
     #if PHP_VERSION_ID >= 50600
-    
+

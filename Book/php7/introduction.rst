@@ -1,7 +1,7 @@
 Introduction
 ============
 
-This book is a collaborative effort between several developers of the PHP language to better document and describe how 
+This book is a collaborative effort between several developers of the PHP language to better document and describe how
 PHP works internally.
 
 There are three primary goals of this book:
@@ -14,8 +14,8 @@ This book is primarily targeted at developers who have experience in the C progr
 possible we will attempt to distill the information and summarize it so that developers who don't know C well, will
 still be able to understand the content.
 
-However, let us insist. You won't be able to achieve something productive, stable (crash free under any platform), 
-performant and useful, if you don't know the C language. Here are some pretty nice online resources about the C 
+However, let us insist. You won't be able to achieve something productive, stable (crash free under any platform),
+performant and useful, if you don't know the C language. Here are some pretty nice online resources about the C
 language itself, its ecosystem and build tools, and Operating System APIs:
 
 * http://www.tenouk.com/
@@ -37,7 +37,7 @@ make it translate to efficient CPU instructions so that you can design strong/fa
 * Hackers Delight
 * Write Great Code (2 Volumes)
 
-.. note:: This book is Work-In-Progress and some chapters have not been written yet. We d'ont pay attention to a 
+.. note:: This book is Work-In-Progress and some chapters have not been written yet. We d'ont pay attention to a
           specific order, but add content as we feel.
 
 The repository for this book is available on GitHub_. Please report issues and provide feedback on the `issue tracker`_.
