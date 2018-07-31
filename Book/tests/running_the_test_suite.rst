@@ -1,4 +1,4 @@
-.. _runing_the_test_suite:
+.. _running_the_test_suite:
 
 Running the test suite
 ======================

@@ -184,7 +184,7 @@ As already mentioned, the zval has members to store a ``value`` and its ``type_i
 ``zvalue_value`` union discussed above and the type tag is held in a ``zend_uchar`` itself part of the ``u1`` union.
 Additionally the structure has a ``u2`` property. We'll ignore them for now and discuss their function later.
 
-``u1`` is accessed using ``type_info``. ``type_info`` is shrinked into detailed ``type``, ``type_flags``,
+``u1`` is accessed using ``type_info``. ``type_info`` is shrunk into detailed ``type``, ``type_flags``,
 ``const_flags`` and ``reserved`` fields. Remember, we are in a union for ``u1`` here. So the four informations in the
 ``u1.v`` field weighs the same as the information stored into the ``u1.type_info``. A clever memory alignment rule
 has been used here. ``u1`` is very used, as it embed informations about the type stored into the zval.

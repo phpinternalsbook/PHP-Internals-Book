@@ -15,7 +15,7 @@ That will lead for sure to a crash, or worse an exploitable security issue. Ther
 auto-resizeable areas with the C language. You must clearly tell the machine (and the CPU) what you want it to do. No
 guess, no magic, no automation of any kind (like garbage collection).
 
-PHP's got a very specific memory model, and provides its own layer over the traditionnal libc's dynamic memory
+PHP's got a very specific memory model, and provides its own layer over the traditional libc's dynamic memory
 allocator. This layer is called **Zend Memory Manager**.
 
 This chapter explains you what Zend Memory Manager is, how you must use it, and what you must/must not do with it.

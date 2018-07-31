@@ -84,7 +84,7 @@ As it is a call to ``emalloc()``, and thus goes through :doc:`Zend Memory Manage
 that later will warn us about this leak like we saw in ZendMM chapter. Let's see as well if valgrind can notice the
 leak::
 
-    > ZEND_DONT_UNLOAD_MODULES=1 USE_ZEND_ALLOC=0 valgrind --leak-check=full --suppressions=/path/to/suppresion
+    > ZEND_DONT_UNLOAD_MODULES=1 USE_ZEND_ALLOC=0 valgrind --leak-check=full --suppressions=/path/to/suppression
     --show-reachable=yes --track-origins=yes ~/myphp/bin/php -dextension=pib.so /tmp/foo.php
 
 We launch a PHP-CLI process using valgrind. We suppose an extension named "pib" here. Here is the output::
@@ -117,7 +117,7 @@ At our level, "definitely lost" is what we must look at.
 Valgrind caught our leak.
 
 Easy enough, now we could generate a leak using a persistent allocation, aka a dynamic memory allocation bypassing
-ZendMM and using traditionnal libc. Go::
+ZendMM and using traditional libc. Go::
 
     PHP_RINIT_FUNCTION(pib)
     {

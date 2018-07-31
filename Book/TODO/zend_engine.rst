@@ -2,7 +2,7 @@ Zend Engine
 ===========
 
 The big part, Zend Engine is PHP's heart. It's composed of many different pieces
-, each one having a responsability. They all play together to make PHP alive.
+, each one having a responsibility. They all play together to make PHP alive.
 Here you'll mainly dive into the virtual machine, and learn how PHP
 understands its own code, how it executes it on the fly and how it makes a
 response to your request.

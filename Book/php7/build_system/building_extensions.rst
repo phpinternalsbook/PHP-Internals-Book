@@ -237,13 +237,13 @@ useless:
     * Thread safety
 
 The *phpize* tool recall you some of those informations.
-So if you have built a PHP with debug mode, and try to make it load and use an extension which's been built without
+So if you have built a PHP with debug mode, and try to make it load and use an extension which has been built without
 debug mode, it simply wont work. Same for the other checks.
 
 *PHP Api Version* is the number of the version of the internal API. *Zend Module Api No* and *Zend Extension Api No*
 are respectively about PHP extensions and Zend extensions API.
 
-Those numbers are later passed as C macros to the extension beeing built, so that it can itself check against those
+Those numbers are later passed as C macros to the extension being built, so that it can itself check against those
 parameters and take different code paths based on C preprocessor ``#ifdef``\s. As those numbers are passed to the
 extension code as macros, they are written in the extension structure, so that anytime you try to load this extension in
 a PHP binary, they will be checked against the PHP binary's own numbers.

@@ -6,7 +6,7 @@ Every time PHP needs to work with a string, a ``zend_string`` structure will be 
 thin wrapper over the ``char *`` string type of the C language.
 
 It adds memory management facilities, so that a same string can be shared in several places without the need to
-duplicate it. Also, some strings are "interned", that is they are "persistent" allocated and specialy managed by the
+duplicate it. Also, some strings are "interned", that is they are "persistent" allocated and specially managed by the
 memory manager so that they don't get destroyed across several requests. Those later get a permanent allocation from
 :doc:`Zend Memory Manager <../../memory_management/zend_memory_manager>`.
 
@@ -269,7 +269,7 @@ that time. You may still find rare places into PHP source where ``char * / int``
 ``zend_string``. You may also find API facilities to interact between a ``zend_string`` on one side, and a
 ``char * / int`` couple on the other side.
 
-Whereever it is possible : make use of ``zend_string``. Some rare places don't make use of ``zend_string`` because it
+Wherever it is possible : make use of ``zend_string``. Some rare places don't make use of ``zend_string`` because it
 is not relevant at that place to use them, but you'll find lots of reference to ``zend_string`` anyway in PHP source
 code.
 

@@ -77,7 +77,7 @@ in a "text" one, like *php-cli*.
 What will trigger your ``MINFO()`` hook are :
 
 * Calls to userland ``phpinfo()`` function
-* ``php -i``, ``php-cgi -i``, ``php-fpm -i``. More generaly ``<SAPI_binary> - i``
+* ``php -i``, ``php-cgi -i``, ``php-fpm -i``. More generally ``<SAPI_binary> - i``
 * ``php --ri`` or userland ``ReflectionExtension::info()``
 
 .. note:: Take care of the output formating. Probe for ``sapi_module.phpinfo_as_text`` if you need to change between

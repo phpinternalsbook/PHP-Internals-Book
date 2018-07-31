@@ -22,7 +22,7 @@ PHP can treat several hundreds or thousands of requests into the same process. B
 knows of the current request, when that later finishes.
 
 "Forgetting" things translates to freeing any dynamic buffer that got allocated while treating a request. That means
-that when in the process of treating a request, one must not allocate dynamic memory using traditionnal libc calls.
+that when in the process of treating a request, one must not allocate dynamic memory using traditional libc calls.
 Doing that is perfectly valid, but you give a chance to forget to free such a buffer.
 
 ZendMM comes with an API that substitute to libc's dynamic allocator, by copying its API. When in the process of
@@ -37,7 +37,7 @@ There exists however some pretty rare informations you need to persist across se
 
 What could be kept unchanged through requests ? What we call **persistent** objects. Once more let us insist : those
 are rare cases. For example, the current PHP executable path won't change from requests to requests. That latter
-information is allocated permanently, that means it is allocated with a traditionnal libc's ``malloc()`` call.
+information is allocated permanently, that means it is allocated with a traditional libc's ``malloc()`` call.
 
 What else? Some strings. For example, the *"_SERVER"* string will be reused from request to request, as every request
 will create the ``$_SERVER`` PHP array. So the *"_SERVER"* string itself can be permanently allocated, because it will
@@ -62,7 +62,7 @@ What you must remember:
 
 Also, keep in mind that all PHP source code has been based on such a memory level. Thus, many internal structures get
 allocated using the Zend Memory Manager. Most of them got a "persistent" API call, which when used, lead to
-traditionnal libc allocation.
+traditional libc allocation.
 
 Here is a request-bound allocated :doc:`zend_string <../internal_types/strings/zend_strings>`::
 
@@ -84,7 +84,7 @@ Persistent allocated one::
 
 It is always the same in all the different Zend APIs. Usually, it is whether a *"0"* to pass as last parameter to mean
 "I want this structure to be allocated using ZendMM, so request-bound", or *"1"* meaning "I want this structure to get
-allocated bypassing ZendMM and using a traditionnal libc's ``malloc()`` call".
+allocated bypassing ZendMM and using a traditional libc's ``malloc()`` call".
 
 Obviously, those structures provide an API that remembers how it did allocate the structure, to use the right
 deallocation function when destroyed. Hence in such a code::
@@ -156,7 +156,7 @@ You must be prepared to that.
 That means that in theory, ZendMM cannot return a NULL pointer to you. If the allocation fails from the OS, or if the
 allocation generates a memory limit error, the code will run into a catch block and won't return to you allocation call.
 
-If for any reason you need to bypass that protection, you must then use a traditionnal libc call, like ``malloc()``.
+If for any reason you need to bypass that protection, you must then use a traditional libc call, like ``malloc()``.
 Take care however and know what you do. It may happen that you need to allocate lots of memory and could blow up the PHP
 *memory_limit* if using ZendMM. Thus use another allocator (like libc) but take care: your extension will grow the
 current process heap size. That cannot be seen using ``memory_get_usage()`` in PHP, but by analyzing the current heap
@@ -203,7 +203,7 @@ Those lines are generated when the Zend Memory Manager shuts down, that is at th
 Beware however:
 
 * Obviously ZendMM doesn't know anything about persistent allocations, or allocations that were performed in another way
-  than using it. Hence, ZendMM can only warn you about allocations it is aware of, every traditionnal libc allocation
+  than using it. Hence, ZendMM can only warn you about allocations it is aware of, every traditional libc allocation
   won't be reported in here, f.e.
 * If PHP shuts down in an incorrect maner (what we call an unclean shutdown), ZendMM will report tons of leaks. This is
   because when incorrectly shutdown, the engine uses a
