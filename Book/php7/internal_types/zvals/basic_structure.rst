@@ -62,7 +62,7 @@ Secondly, ``zend_long`` represents an abstraction of the platform long, so whate
 In addition to that, you may use macros related to longs, ``SIZEOF_ZEND_LONG`` or ``ZEND_LONG_MAX`` f.e.
 See
 `Zend/zend_long.h <https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_long.h>`_
-in source code for more informations.
+in source code for more information.
 
 The ``double`` type used to store floating point numbers is (typically) an 8-byte value following the IEEE-754
 specification. The details of this format won't be discussed here, but you should at least be aware of the fact that
@@ -75,7 +75,7 @@ fake type is used in some rare uncommon internal situations (like type hints f.e
 The remaining four types will only be mentioned here quickly and discussed in greater detail in their own chapters:
 
 Strings (``IS_STRING``) are stored in a ``zend_string`` structure, i.e. they consist of a ``char *`` string
-and an ``size_t`` length. You will find more informations about the ``zend_string`` structure and its dedicated API
+and an ``size_t`` length. You will find more information about the ``zend_string`` structure and its dedicated API
 into the :doc:`string <../strings>` chapter.
 
 Arrays use the ``IS_ARRAY`` type tag and are stored in the ``zend_array *arr`` member. How the ``HashTable`` structure
@@ -185,9 +185,9 @@ As already mentioned, the zval has members to store a ``value`` and its ``type_i
 Additionally the structure has a ``u2`` property. We'll ignore them for now and discuss their function later.
 
 ``u1`` is accessed using ``type_info``. ``type_info`` is shrunk into detailed ``type``, ``type_flags``,
-``const_flags`` and ``reserved`` fields. Remember, we are in a union for ``u1`` here. So the four informations in the
+``const_flags`` and ``reserved`` fields. Remember, we are in a union for ``u1`` here. So the four information in the
 ``u1.v`` field weighs the same as the information stored into the ``u1.type_info``. A clever memory alignment rule
-has been used here. ``u1`` is very used, as it embed informations about the type stored into the zval.
+has been used here. ``u1`` is very used, as it embed information about the type stored into the zval.
 
 ``u2`` has totally other meanings. We don't need to detail the ``u2`` field by now, simply ignore it,
 we'll get back to it later.

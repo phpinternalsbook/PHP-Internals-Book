@@ -288,7 +288,7 @@ For example you can use ``CC`` to use a different compiler and ``CFLAGS`` to cha
 In this configuration the build will make use of clang (instead of gcc) and use a very high optimization level
 (``-O3 -march=native``).
 
-You may use additionnal compiler warning flags that could help you spot some bugs.
+You may use additional compiler warning flags that could help you spot some bugs.
 For GCC, you may read them `in the GCC manual`_
 
 .. _in the GCC manual: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#Warning-Options

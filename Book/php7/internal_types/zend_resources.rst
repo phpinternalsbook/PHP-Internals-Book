@@ -58,7 +58,7 @@ will be called anytime the engine is about to destroy a resource of that type.
 Destructors are grouped by types, so are resources themselves. You won't apply the destructor for a resource of type
 'database' than for a resource of type 'file'.
 
-There also exists two kinds of resources, here again differenciated about their lifetime.
+There also exists two kinds of resources, here again differentiated about their lifetime.
 
 * Classical resources, the most used ones, do not persist across several requests, their destructor is called at
   request shutdown.
@@ -143,10 +143,10 @@ type "gzip", like one returned by ``gzopen()`` PHP function.
 
 Resource types are just a way for the engine to mix different kind of resources (of type "file", "gzip" or even "mysql
 connection") into the same resource table. Resource types have names, so that those can be used in error messages or in
-debug statement (like a ``var_dump($my_resource)``), and they also are represented as an integer used internaly to
+debug statement (like a ``var_dump($my_resource)``), and they also are represented as an integer used internally to
 fetch back the resource pointer from it, and to register a destructor with the resource type.
 
-.. note:: Like you can see, if we would have used objects, those represent types by themselves, and there would'nt have
+.. note:: Like you can see, if we would have used objects, those represent types by themselves, and there wouldn't have
           to happen that step of fetching back a resource from its identifier verifying its type. Objects are
           self-describing types. But resources are still a valid data type for the current PHP version.
 

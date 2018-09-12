@@ -235,7 +235,7 @@ though.
     Extensions API compatibility
     ****************************
 
-    Extensions are very sensitive to 5 major factors. If they dont fit, the extension wont load into PHP and will be useless :
+    Extensions are very sensitive to 5 major factors. If they don't fit, the extension won't load into PHP and will be useless :
 
         * PHP Api Version
         * Zend Module Api No
@@ -243,9 +243,9 @@ though.
         * Debug mode
         * Thread safety
 
-    The *phpize* tool recall you some of those informations.
+    The *phpize* tool recall you some of those information.
     So if you have built a PHP with debug mode, and try to make it load and use an extension which has been built without
-    debug mode, it simply wont work. Same for the other checks.
+    debug mode, it simply won't work. Same for the other checks.
 
     *PHP Api Version* is the number of the version of the internal API. *Zend Module Api No* and *Zend Extension Api No*
     are respectively about PHP extensions and Zend extensions API.
@@ -286,7 +286,7 @@ though.
 
     .. note::
 
-        Usually, when you become an internal developper or an extension developper, you will usually have to play with the debug parameter, and if you have to deal with the Windows platform, threads will show up as well. You can end with compiling the same extension several times against several cases of those parameters.
+        Usually, when you become an internal developer or an extension developer, you will usually have to play with the debug parameter, and if you have to deal with the Windows platform, threads will show up as well. You can end with compiling the same extension several times against several cases of those parameters.
 
     Remember that every new major/minor version of PHP change parameters such as the PHP Api Version, that's why you need to recompile extensions against a newer PHP version.
 
