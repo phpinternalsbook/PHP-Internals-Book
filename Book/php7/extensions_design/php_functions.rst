@@ -44,7 +44,7 @@ return value is passed to our handler as a parameter.
 Arguments. The ``arg_info`` variable is about declaring the API arguments our function will accept. Here again,
 that part can be tricky to deeply understand, but we don't need to get too deep and we'll once more use macros to
 abstract and ease arguments declaration. What you should know is that you are not required to declare any arguments
-here for the function to work, but it is highly recommanded. We'll get back to that. Arguments are an array of
+here for the function to work, but it is highly recommended. We'll get back to that. Arguments are an array of
 ``arg_info``, and thus its size is passed as ``num_args``.
 
 Then come ``flags``. We won't detail flags in this chapter. Those are used internally, you'll find some details in the
@@ -155,8 +155,8 @@ need one mandatory argument.
 What you must know is that argument declaration has nothing to do with the function internal work. That means that this
 function could have worked if we would have written its body now. Even with no declared arguments.
 
-.. note:: Declaring arguments is not mandatory but highly recommanded. Arguments are used by the reflection API to get
-          informations about the function. Arguments are also used by the engine, especially when we talk about
+.. note:: Declaring arguments is not mandatory but highly recommended. Arguments are used by the reflection API to get
+          information about the function. Arguments are also used by the engine, especially when we talk about
           arguments passed by reference, or functions returning references.
 
 To declare arguments, we need to familiarize with the ``zend_internal_arg_info`` structure::
@@ -563,7 +563,7 @@ Remember to well look at `README.PARAMETER_PARSING_API <https://github.com/php/p
 ef4b2fc283ddaf9bd692015f1db6dad52171c3ce/README.PARAMETER_PARSING_API>`_. It's not a hard API, you must familiarize
 with it.
 
-We use *"d|l"* as arguments to ``zend_parse_parameters()``. One double and optionaly (the pipe *"|"*) one long. Take
+We use *"d|l"* as arguments to ``zend_parse_parameters()``. One double and optionally (the pipe *"|"*) one long. Take
 care, if the optional argument is not provided at runtime (what ``ZEND_NUM_ARGS()`` tells us about, as a reminder),
 then the ``&mode`` variable won't be touched by zpp(). That's why we provide a default value of
 ``TEMP_CONVERTER_TO_CELSIUS`` to that variable.

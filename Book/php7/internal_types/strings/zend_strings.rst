@@ -53,7 +53,7 @@ Using zend_string API
 Simple use case
 ***************
 
-Like with :doc:`../zvals`, you dont manipulate the ``zend_string`` internals fields by hand, but always use macros
+Like with :doc:`../zvals`, you don't manipulate the ``zend_string`` internals fields by hand, but always use macros
 for that. There also exists macros to trigger actions on strings. Those are not functions but macros, all stored into
 the required `Zend/zend_string.h <https://github.com/php/php-src/blob/PHP-7.0/Zend/zend_string.h>`_ header::
 

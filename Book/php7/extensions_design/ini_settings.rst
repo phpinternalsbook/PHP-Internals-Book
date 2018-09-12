@@ -35,8 +35,8 @@ output, right ?
 
 The master value cannot change. If during a request, the user wants to change the configuration, f.e using
 ``ini_set()``, and if he's allowed to, then the changed value will be the **"local value"** , that is the current value
-for the current request. The engine will automaticaly restore the local value to the master value at the end of
-the request, thus reseting it and forgetting about request-live changes.
+for the current request. The engine will automatically restore the local value to the master value at the end of
+the request, thus resetting it and forgetting about request-live changes.
 
 ``ini_get()`` reads the current request-bound local value, whereas ``get_cfg_var()`` will read the master value
 whatever happens.
@@ -160,15 +160,15 @@ In ``MINIT`` hook , we use the ``REGISTER_INI_ENTRIES`` macro which does its des
 Now, the new *"pib.rnd_max"* INI setting is declared - as ``PHP_INI_ALL`` - that means that the user may modify its
 value using ``ini_set()`` (and read it back with ``ini_get()``).
 
-We did not forget to display those INI settings as part of our extension informations, using ``DISPLAY_INI_ENTRIES()``.
+We did not forget to display those INI settings as part of our extension information, using ``DISPLAY_INI_ENTRIES()``.
 Forgetting this in the declaration of the ``MINFO()`` hook will lead to our INI settings being hidden from the user in
-the information page (``phpinfo()``). Have a look at the :doc:`extension informations chapter <extension_infos>` if
+the information page (``phpinfo()``). Have a look at the :doc:`extension information chapter <extension_infos>` if
 you need.
 
 Usage
 *****
 
-On your part as extension developper, we may now need to read INI settings values by yourself. The simplest way to do
+On your part as extension developer, we may now need to read INI settings values by yourself. The simplest way to do
 this into your extension is to use macros that will look for the value into the main array retaining all the INI
 settings, find it, and return it as the type you'll ask for. We are provided several macros depending on what C type
 we want to be given back.
@@ -178,7 +178,7 @@ value from the INI settings array and return it (if found) with a cast to the ty
 
 .. note:: Remember that into ``zend_ini_entry``, the value is a ``zend_string`` type. For our example, we registered an
           INI setting of type 'long', our ``pib.rnd_max`` which default value is 100. But that one's value is registered
-          as a ``zend_string`` into the INI settings array, and thus needs to be casted to a 'long' everytime we want
+          as a ``zend_string`` into the INI settings array, and thus needs to be casted to a 'long' every time we want
           to read its value back. ``INI_INT()`` does such a job.
 
 Example::
@@ -200,14 +200,14 @@ previous above lines is far from being optimal.
 
 There are two problems that will get solved at the same time by using the 'advanced' INI settings API :
 
-* Everytime we want to read our value, a lookup into the main INI settings table is needed, as well as a cast to the
+* Every time we want to read our value, a lookup into the main INI settings table is needed, as well as a cast to the
   right type (often). Those operations cost some CPU cycles.
 * We did not provide any validator, thus the user could alter our setting and put anything he wants to as a value.
 
 The solution is to use an ``on_modify()`` validator and a memory bridge to update a global variable.
 
 By using the advanced INI settings management API, we can tell the engine to register our settings just normally, but
-we can also instruct it to update a global of our taste everytime the INI setting value is changed. Hence, whenever we
+we can also instruct it to update a global of our taste every time the INI setting value is changed. Hence, whenever we
 will want to read back our value, we'll just need to read our global. This will provide a boost in performance in the
 case we need to read the INI setting value often, as a hashtable lookup and a cast operation won't be needed anymore.
 
@@ -307,7 +307,7 @@ validator.
 
 ``mh_arg2`` is a pointer to the memory area representing the beginning of your global structure memory, in our case, the
 beginning of the ``pib_globals`` allocated memory. Note that as we talk about request-global variable memory, that latter
-is accessed differently if you are using ZTS mode or not. More informations about ZTS
+is accessed differently if you are using ZTS mode or not. More information about ZTS
 :doc:`can be found here <globals_management>`.
 
 ``mh_arg1`` is passed the computed offset of your global member (``max_rnd`` for us), and you must slice the memory

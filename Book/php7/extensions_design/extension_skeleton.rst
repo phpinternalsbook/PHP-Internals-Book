@@ -128,7 +128,7 @@ the engine. We talked about that :doc:`in a dedicated chapter <php_functions>`.
 Keeping-on come the 5 lifetime hooks. :doc:`See their dedicated chapter <php_lifecycle>`.
 
 Your extension may publish a version number, as a ``char *``, using the ``version`` field. This field is only read as
-part of your extension informations, that is by phpinfo() or by the reflection API as
+part of your extension information, that is by phpinfo() or by the reflection API as
 ``ReflectionExtension::getVersion()``.
 
 We next see a lot of fields about globals. Globals management :doc:`has a dedicated chapter <globals_management>`.
@@ -264,7 +264,7 @@ other parts of the final ELF file.
 
 .. note:: Remember that you can read published and hidden symbol of an ELF using ``nm`` under Unix.
 
-We can't explain thoses concepts in deep here, perhaps such links could help you ?
+We can't explain those concepts in deep here, perhaps such links could help you ?
 
 * https://gcc.gnu.org/wiki/Visibility
 * http://www.iecc.com/linker/linker10.html

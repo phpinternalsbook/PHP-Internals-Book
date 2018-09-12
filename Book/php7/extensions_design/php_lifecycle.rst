@@ -13,7 +13,7 @@ Once started, PHP waits to treat one/several requests. When we talk about PHP CL
 current script to run. However, when we talk about a web environment- should it be PHP-FPM or webserver
 module- PHP could serve several requests one after the other. It all depends on how you did configure you webserver:
 you may tell it to serve an infinite number of requests, or a specific number before shutting down and recycling the
-process. Everytime a new request shows in to be treated, PHP will run **a request startup step**. We call it the
+process. Every time a new request shows in to be treated, PHP will run **a request startup step**. We call it the
 **RINIT**.
 
 The request is served, some content is (probably) generated, OK. Time to shutdown the request and get prepared to
@@ -219,7 +219,7 @@ function.
 Globals initialization: GINIT()
 -------------------------------
 
-This hook is called everytime a thread is popped by the Threading library. If you use processes as multi-processing
+This hook is called every time a thread is popped by the Threading library. If you use processes as multi-processing
 facility, this function is called only once, while PHP is starting up, just before ``MINIT()`` gets triggered.
 
 Not providing too many details here, you simply should initialize your globals here, usually to the value zero.
@@ -233,7 +233,7 @@ then you need to put such a procedure into ``RINIT()``.
 Globals termination: GSHUTDOWN()
 --------------------------------
 
-This hook is called everytime a thread dies from the Threading library. If you use processes as multi-processing
+This hook is called every time a thread dies from the Threading library. If you use processes as multi-processing
 facility, this function is called only once, as part of PHP shutdown (during ``MSHUTDOWN()``).
 
 Not providing too many details here, you simply should de-initialize your globals here, usually you have nothing to do,
@@ -248,11 +248,11 @@ Remember that globals are not cleared after every request; aka ``GSHUTDOWN()`` i
 Information gathering: MINFO()
 ------------------------------
 
-That hook is special as it is never triggered automatically by the engine, but only when you ask it informations about
+That hook is special as it is never triggered automatically by the engine, but only when you ask it information about
 an extension. The typical use case is a call to ``phpinfo()``. This function is then run, and it is expected to print
-into a stream special informations about the current extension.
+into a stream special information about the current extension.
 
-The ``phpinfo()`` panel informations, in short.
+The ``phpinfo()`` panel information, in short.
 
 This function can also be called through the CLI, using one of the reflection switch such as ``php --ri pib`` or via
 userland with a call to ``ini_get_all()`` f.e
@@ -333,5 +333,5 @@ Those of interest are:
 Other exists but the above ones are the most important ones you could need while designing PHP extensions.
 As their names are self explanatory, there is no need to detail every of them.
 
-If you need some more informations, you can look for them into PHP source code, and discover when and how they get
+If you need some more information, you can look for them into PHP source code, and discover when and how they get
 triggered.

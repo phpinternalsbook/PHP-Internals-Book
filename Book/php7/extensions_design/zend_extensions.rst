@@ -37,7 +37,7 @@ First of all, Zend extensions are compiled and loaded the same way as PHP extens
 :doc:`building PHP extensions <../build_system/building_extensions>` chapter, you should have a look as it is valid
 also for Zend extensions.
 
-.. note:: If not done, :doc:`get some informations about PHP extensions <../extensions_design>` as we will compare
+.. note:: If not done, :doc:`get some information about PHP extensions <../extensions_design>` as we will compare
           against them here. Zend extensions share a very big part of concepts with PHP extensions.
 
 Here is a Zend extension. Note that you need to publish not one but two structures for the engine to load your Zend
@@ -141,7 +141,7 @@ version you try to load them on. This has been detailed into
 For Zend extension, the same rules apply, but a little bit differently : it will use the
 ``zend_extension_version_info`` structure you published to know what to do.
 
-The ``zend_extension_version_info`` structure you declare contain only two informations that the engine will use when
+The ``zend_extension_version_info`` structure you declare contain only two information that the engine will use when
 it starts loading your Zend extension :
 
 * ``ZEND_EXTENSION_API_NO``
@@ -176,7 +176,7 @@ zend_extensions.c#L67>`_.
 Then comes the problem of Zend extensions conflicts. One may be incompatible with an other, and to master that, every
 Zend extension has got a hook called ``message_handler``. If declared, this hook is triggered on every already loaded
 extension when another Zend extension gets loaded. You are passed a pointer to its ``zend_extension`` structure, and you
-may then detect which one it is, and abort if you think you'll confict with it. This is something rarely used in
+may then detect which one it is, and abort if you think you'll conflict with it. This is something rarely used in
 practice as well.
 
 Zend extensions lifetime hooks
@@ -290,7 +290,7 @@ The first lines in the ``zend_extension`` structure appear in the ``phpinfo()``:
         with pib-zend-extension v1.0, Our Copyright, by PHPInternalsBook Authors
 
 This is mandatory, the engine reacts like this : it prints the first ``zend_extension`` fields into engine
-informations, for every loaded Zend extension.
+information, for every loaded Zend extension.
 
 That's all for now. Let's fill-in those empty-body functions now::
 
@@ -363,7 +363,7 @@ Then we'll start to dive into the engine, with our ``op_array_handler`` hook::
         smart_str_free(&out);
     }
 
-.. note:: Get some informations :doc:`about the Zend Engine <../zend_engine>` if you need.
+.. note:: Get some information :doc:`about the Zend Engine <../zend_engine>` if you need.
 
 This hook is triggered by the pass two of the compiler. When the Zend compiler fires in, it compiles a script or a
 function. Just before ending, it launches a second compiling pass which goal is to resolve unresolved pointers (which
@@ -373,8 +373,8 @@ zend_opcode.c#L577>`_ you can analyze.
 
 In the ``pass_two()`` source code, you can see that it triggers the ``op_array_handler()`` of every registered Zend
 extension so far, and it passes it as argument the current not-fully-resolved-yet OPArray. This is what we get as
-argument in our function. We then analyze it, and try to pull out some informations about it, like the
-currently-being-compiled function, its arguments informations etc...  Something very close to what the Reflection API
+argument in our function. We then analyze it, and try to pull out some information about it, like the
+currently-being-compiled function, its arguments information etc...  Something very close to what the Reflection API
 does, we are just a little bit less accurate here, as the OPArray is not fully resolved, we are still part of the
 compilation step here. We could have gathered the default argument values f.e (which is not done here), but that would
 have added so much complexity to the example that we decided not to show such a part.
@@ -421,8 +421,8 @@ Let's continue then ?::
         PHPWRITE("\n", 1);
     }
 
-On request startup, we tell the compiler to generate some extended informations into the OPArray it's going to create.
-The flag for that is ``ZEND_COMPILE_EXTENDED_INFO``. Extended informations are VM OPCode hooks, that is the compiler
+On request startup, we tell the compiler to generate some extended information into the OPArray it's going to create.
+The flag for that is ``ZEND_COMPILE_EXTENDED_INFO``. Extended information are VM OPCode hooks, that is the compiler
 will generate a special OPCode before every function is called, and after every function call is finished. Those are
 ``FCALL_BEGIN`` and ``FCALL_END`` OPCodes.
 
@@ -435,7 +435,7 @@ Here is an example of a simple PHP function call OPCodes, with the 'foo' string 
      L9    #3     DO_FCALL
      L11   #4     RETURN                  1
 
-Now the same once we told the compiler to generate additionnal OPCodes:
+Now the same once we told the compiler to generate additional OPCodes:
 
 .. code-block:: text
 
@@ -479,7 +479,7 @@ How is that possible ? And what for ?.
 Well there are several answers to such a question :
 
 * To :doc:`register new PHP functions <php_functions>`, a PHP extension is better than a Zend extension, as it already
-  knows how to do and has been designed for that specific purpose first. That would be pitty not to use it. OPCache
+  knows how to do and has been designed for that specific purpose first. That would be pity not to use it. OPCache
   does that.
 * If you need to register about all the hooks in the full lifecycle, you'll obviously need both sides
 * If you need to master the order Zend extensions are loaded, f.e to get loaded after OPCache, you will need to be
@@ -501,7 +501,7 @@ into your brain :
    :align: center
 
 Remember however, whatever schema you choose to go with, you'll have to register the slave part and trigger it by hand,
-as the engine obviously won't do it. The engine triggers automaticaly the master part.
+as the engine obviously won't do it. The engine triggers automatically the master part.
 
 Hybrid Zend extension master, PHP extension slave
 -------------------------------------------------
@@ -781,7 +781,7 @@ Here, we are loaded as a PHP extension. Look at the hooks. When hitting ``MSHUTD
 `look at the source code <https://github.com/php/php-src/blob/4d6100569b7611ef66086bec96fe8b5046e30ef7/Zend/
 zend_API.c#L2527>`_, the solution is as often located in there.
 
-So what happens is easy, just after trigerring our ``RSHUTDOWN()``, the engine unloads our *pib.so* ; when it comes to
+So what happens is easy, just after triggering our ``RSHUTDOWN()``, the engine unloads our *pib.so* ; when it comes to
 call our Zend extension part ``shutdown()``, we are not part of the process address space anymore, thus we badly crash
 the entire PHP process.
 
@@ -801,11 +801,11 @@ but won't close it until the last reference (us) does so.
 But ``dlopen()`` takes a full path to the object to open, and we don't know our own location path (where will be located
 our *pib.so* on the runtime environment ?). To get that path, we'll have to call for
 `dladdr() <https://linux.die.net/man/3/dlopen>`_ , but ``dladdr()`` is glibc only. We are less portable here, but we are
-clearly safe. If you run on a system which doesn't use glibc (very unlikely), get some informations about it to know if
+clearly safe. If you run on a system which doesn't use glibc (very unlikely), get some information about it to know if
 it supports ``dladdr()`` call or an alternative.
 
 .. note:: That is one drawback of the C language : the lack of definition when it was born back in 1970 makes its usage
-          often platform dependant. You have to master the platforms you target.
+          often platform dependent. You have to master the platforms you target.
 
 The closing part, will be part of the unload of the Zend extension, and for that we'll have to share the libdl handle
 between the ``zend_module_entry``, and the ``zend_extension``.

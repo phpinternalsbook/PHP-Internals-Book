@@ -15,7 +15,7 @@ The two main kind of dynamic memory pools in PHP
 PHP is a share-nothing architecture. Well, not at 100%. Let us explain.
 
 .. note:: You may need to read :doc:`the PHP lifecycle chapter <../extensions_design/php_lifecycle>` before continuing
-          here, you'll get additionnal informations about the different steps and cycles that can be drawn from PHP
+          here, you'll get additional information about the different steps and cycles that can be drawn from PHP
           lifetime.
 
 PHP can treat several hundreds or thousands of requests into the same process. By default, PHP will forget anything it
@@ -31,9 +31,9 @@ treating a request, the programmer must use that API instead of libc's allocator
 For example, when PHP treats a request, it will parse PHP files. Those ones will lead to functions and classes
 declarations, for example. When the compiler comes to compile the PHP files, it will allocate some dynamic memory to
 store classes and functions it discovers. But, at the end of the request, PHP will forget about those latter. By
-default, PHP forgets *a very huge number* of informations from one request to another.
+default, PHP forgets *a very huge number* of information from one request to another.
 
-There exists however some pretty rare informations you need to persist across several requests. But that's uncommon.
+There exists however some pretty rare information you need to persist across several requests. But that's uncommon.
 
 What could be kept unchanged through requests ? What we call **persistent** objects. Once more let us insist : those
 are rare cases. For example, the current PHP executable path won't change from requests to requests. That latter
@@ -147,7 +147,7 @@ is counted and added. When the INI's *memory_limit* is reached, you know what ha
 That also mean that any allocation you perform via ZendMM is reflected in the ``memory_get_usage()`` call from PHP
 userland.
 
-As an extension developper, this is a good thing, because it helps mastering the PHP process' heap size.
+As an extension developer, this is a good thing, because it helps mastering the PHP process' heap size.
 
 If a memory limit error is launched, the engine will bail out from the current code position to a catch block, and will
 terminate smoothly. But there is no chance it goes back to the location in your code where the limit blew up.
@@ -235,7 +235,7 @@ silently cleared by ZendMM before treating the first request, and you'll probabl
 
 2. Buffer overflow and underflows.
 
-Use a :doc:`memory debugger <memory_debugging>`. If you write bellow or past a memory area returned by ZendMM, you will
+Use a :doc:`memory debugger <memory_debugging>`. If you write below or past a memory area returned by ZendMM, you will
 overwrite crucial ZendMM structures and trigger a crash. It may happen that the *"zend_mm_heap corrupted"* message gets
 display in case ZendMM was able to detect the mess for you. The stack trace will show a crash from some code, to some
 ZendMM code. ZendMM code does not crash itself. If you get crashed in the middle of ZendMM code, that highly probably
