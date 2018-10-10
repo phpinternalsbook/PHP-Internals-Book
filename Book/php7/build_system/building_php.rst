@@ -78,7 +78,11 @@ have the first three installed by default):
 * ``gcc`` or some other compiler suite.
 * ``libc-dev``, which provides the C standard library, including headers.
 * ``make``, which is the build-management tool PHP uses.
-* ``autoconf`` (2.64 or higher), which is used to generate the ``configure`` script.
+* ``autoconf``, which is used to generate the ``configure`` script.
+
+  * 2.59 or higher (for PHP 7.0-7.1)
+  * 2.64 or higher (for PHP 7.2)
+  * 2.68 or higher (for PHP 7.3)
 * ``automake`` (1.4 or higher), which generates ``Makefile.in`` files.
 * ``libtool``, which helps manage shared libraries.
 * ``bison`` (2.4 or higher), which is used to generate the PHP parser.
