@@ -79,13 +79,13 @@ and an ``size_t`` length. You will find more information about the ``zend_string
 into the :doc:`string <../strings>` chapter.
 
 Arrays use the ``IS_ARRAY`` type tag and are stored in the ``zend_array *arr`` member. How the ``HashTable`` structure
-works will be discussed in the :doc:`/hashtables` chapter.
+works will be discussed in the :doc:`Hashtables <../hashtables>` chapter.
 
 Objects (``IS_OBJECT``) use the ``zend_object *obj`` member. PHP's class and object system will be described in the
-:doc:`/classes_objects` chapter.
+:doc:`objects <../objects>` chapter.
 
 Resources (``IS_RESOURCE``) are a special type using the ``zend_resource *res`` member. Resources are covered in the
-Resources chapter.
+:doc:`Resources <../zend_resources>` chapter.
 
 .. todo:: Update ref once resources chapter is written.
 
@@ -122,17 +122,17 @@ internal use-case only. The zval structure has been thought to be very flexible,
 virtually any type of data of interest, and not only the PHP specific types we just reviewed above.
 
 The special ``IS_UNDEF`` type has a special meaning. That means "This zval contains no data of interest, do not access
-any data field from it". This is used for :doc:`zvals/memory_management` purposes. If you see an ``IS_UNDEF`` zval,
-that means that it is of no special type and contains no valid information.
+any data field from it". This is used for :doc:`memory management <memory_and_gc>` purposes. If you see an ``IS_UNDEF``
+zval, that means that it is of no special type and contains no valid information.
 
 The ``zend_refcounted *counted`` field is very tricky to understand. Basically, that field serve as a header for any
-other reference-countable type. This part is detailed into the :doc:`zvals/memory_management` chapter.
+other reference-countable type. This part is detailed into the :doc:`memory_and_gc` chapter.
 
 The ``zend_reference *ref`` is used to represent a PHP reference. The ``IS_REFERENCE`` type flag is then used.
-Here as well, we dedicated a chapter to such a concept, have a look at the :doc:`zvals/memory_management` chapter.
+Here as well, we dedicated a chapter to such a concept, have a look at the :doc:`memory_and_gc` chapter.
 
 The ``zend_ast_ref *ast`` is used when you manipulate the AST from the compiler. The PHP compilation is detailed into
-the :doc:`/php7/compiler` chapter.
+the :doc:`../../zend_engine/zend_compiler` chapter.
 
 The ``zval *zv`` is used internally only. You should not have to manipulate it. This works together with the
 ``IS_INDIRECT,`` and that allows one to embed a ``zval *`` into a ``zval``. Very specific dark usage of such a field is used
@@ -143,12 +143,12 @@ You will basically use this field when you want to store "something" into a zval
 represents "a pointer to some memory area of any size, containing (hopefully) anything".
 The ``IS_PTR`` flag type is then used in the zval.
 
-When you'll read the :doc:`/php7/classes_objects` chapter, you'll learn about ``zend_class_entry`` type. The zval
+When you'll read the :doc:`objects <../objects>` chapter, you'll learn about ``zend_class_entry`` type. The zval
 ``zend_class_entry *ce`` field is used to carry a reference to a PHP class into a zval. Here again, there is no direct
 usage of such a situation into the PHP language itself (userland), but internally you'll need that.
 
-Finally, the ``zend_function *func`` field is used to embed a PHP function into a zval. The :doc:`/php7/functions` chapter
-details PHP functions.
+Finally, the ``zend_function *func`` field is used to embed a PHP function into a zval. The 
+:doc:`functions <../functions>` chapter details PHP functions.
 
 Access macros
 -------------
@@ -335,7 +335,7 @@ By "releasing", we mean either decrement the reference counter, or free the stru
 zero. When using primitive types like integers or doubles you obviously don't need to care about this, as they are
 always copied.
 All those memory management steps, such as allocation, free or reference counting; are detailed in the
-:doc:`/php7/zvals/memory_management` chapter.
+:doc:`memory_and_gc` chapter.
 
 Setting the zval value is such a common task, PHP provides another set of macros for this purpose. They allow you to
 set the type tag and the value at the same time. Rewriting the previous example using such a macro yields::

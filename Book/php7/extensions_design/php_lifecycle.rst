@@ -121,7 +121,8 @@ special care.
 
 If you need to register INI entries for your extension, ``MINIT()`` is the right step to do that.
 
-If you need to register read-only ``zend_strings`` for further usage, it is time to do so here (with persistent alloc).
+If you need to register read-only :doc:`zend_strings <../internal_types/strings>` for further usage, it is time to do so 
+here (with persistent alloc).
 
 If you need to allocate objects that well be written to while serving a request, then you'll need to duplicate their
 memory allocation to a thread-specific pool for the request. Remember that you can only write safely to global space
@@ -272,8 +273,9 @@ infinite number of requests, thus your ``RINIT()/RSHUTDOWN()`` couple will be ca
 We'd like to once more get your attention about memory management. The little tiny byte you'll eventually leak while
 treating a request (between ``RINIT()`` and ``RSHUTDOWN()``) will have dramatic consequences on fully loaded servers.
 That's why you are advised to use :doc:`Zend Memory Manager <../memory_management/zend_memory_manager>` for such
-allocations. PHP will forget and free the request memory at the end of every request as part of the share-nothing
-architecture, that's PHP's internal design.
+allocations and be ready to :doc:`debug your memory layout <../memory_management/memory_debugging>`. PHP will forget 
+and free the request memory at the end of every request as part of the share-nothing architecture, that's PHP's 
+internal design.
 
 Also, if you crash with a SIGSEGV signal (bad memory access), you crash the entire process. If the PHP setup was using
 threads as multi-processing engine, then you crash every other thread with you, and could even crash the webserver.

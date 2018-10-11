@@ -10,6 +10,5 @@ Contents:
     :maxdepth: 2
 
     zvals/basic_structure.rst
-..
-    zvals/memory_management.rst
+    zvals/memory_and_gc.rst
     zvals/casts_and_operations.rst
