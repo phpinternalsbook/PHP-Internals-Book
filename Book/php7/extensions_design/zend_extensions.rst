@@ -380,7 +380,7 @@ compilation step here. We could have gathered the default argument values f.e (w
 have added so much complexity to the example that we decided not to show such a part.
 
 .. note:: Remember that :doc:`smart_str are detailed here <../internal_types/strings/smart_str>`,
-          :doc:`zvals here <../internal_types/zvals>`, :doc:`OPArrays here <../zend_engine/main_structures>`, etc...
+          :doc:`zvals here <../internal_types/zvals>`, :doc:`OPArrays here <../zend_engine>`, etc...
 
 Let's continue then ?::
 

@@ -467,7 +467,9 @@ If we invoke it with::
 
     > php -dextension=pib.so /tmp/file.php
 
-Then it displays::
+Then it displays:
+
+.. code-block:: text
 
     pib
 
@@ -479,7 +481,9 @@ And if we invoke it with::
 
     > php -dextension=pib.so -dpib.rnd_max=10 /tmp/file.php
 
-Then it displays::
+Then it displays:
+
+.. code-block:: text
 
     pib
 

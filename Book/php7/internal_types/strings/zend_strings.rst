@@ -336,7 +336,7 @@ Example::
     /* At the end of the process, PHP will purge its interned
       string buffer, and thus free() our "foo" string itself */
 
-It's all about garbage collection you've learnt about in the :doc:`../zvals/memory_management` chapter.
+It's all about garbage collection.
 
 When a string is interned, its GC flags are changed to add the ``IS_STR_INTERNED`` flag, whatever the memory allocation
 class they use (permanent or request based).

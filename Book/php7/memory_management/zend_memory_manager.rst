@@ -192,7 +192,9 @@ Here is an example of a simple leak into an extension::
         void *foo = emalloc(128);
     }
 
-When launching PHP with that extension activated, on a debug build, that generates on stderr::
+When launching PHP with that extension activated, on a debug build, that generates on stderr:
+
+.. code-block:: text
 
     [Fri Jun 9 16:04:59 2017]  Script:  '/tmp/foobar.php'
     /path/to/extension/file.c(123) : Freeing 0x00007fffeee65000 (128 bytes), script=/tmp/foobar.php

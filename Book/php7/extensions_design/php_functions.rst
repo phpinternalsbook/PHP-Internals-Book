@@ -139,7 +139,9 @@ Declaring function arguments
 ****************************
 
 So far so good, if :doc:`you compile<../build_system/building_extensions>` the extension and load it into PHP, you can
-see with reflection that the function is present::
+see with reflection that the function is present:
+
+.. code-block:: text
 
     > ~/php/bin/php -dextension=pib.so --re pib
     Extension [ <persistent> extension #37 pib version 0.1 ] {

@@ -30,9 +30,9 @@ Here are the two structures::
 Like you can see, one will work with traditional C strings (as ``char*/size_t``) and the other will make use of the
 PHP's specific ``zend_string`` structure.
 
-We will detail the latter: ``smart_str``, that works with :doc:`zend_strings`. Both APIs are exactly the same, simply
-note that one (the one we'll detail here) starts by ``smart_str_**()`` and the other by ``smart_string_***()``. Don't
-confuse !
+We will detail the latter: ``smart_str``, that works with :doc:`zend_strings <zend_strings>`. Both APIs are exactly the
+same, simply note that one (the one we'll detail here) starts by ``smart_str_**()`` and the other by 
+``smart_string_***()``. Don't confuse !
 
 The ``smart_str`` API is detailed into `Zend/zend_smart_str.h
 <https://github.com/php/php-src/blob/509f5097ab0b578adc311c720afcea8de266aadd/Zend/zend_smart_str.h>`_ (also the .c

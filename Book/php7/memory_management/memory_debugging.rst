@@ -242,7 +242,9 @@ created a security hole in PHP, but it may not be remotely exploitable (such a b
 .. warning:: Out-of-bounds access lead to undefined behavior. It is not predictable what is going to happen, but be
              sure that it's bad (immediate crash), or terrifying (security issue). Remember.
 
-Let's ask valgrind, with the exact same command line to launch it as before, nothing changes, except the output::
+Let's ask valgrind, with the exact same command line to launch it as before, nothing changes, except the output:
+
+.. code-block:: text
 
     ==12802== Invalid write of size 1
     ==12802==    at 0xE896A98: zm_startup_pib (pib.c:1772)
@@ -318,7 +320,9 @@ Here is a second example about string concatenations::
 
 Can you spot the problem?
 
-Let's ask valgrind::
+Let's ask valgrind:
+
+.. code-block:: text
 
     ==13935== Invalid read of size 1
     ==13935==    at 0x4C30F74: strlen (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
@@ -373,7 +377,9 @@ Obviously, valgrind can detect use-after-free. Here is one::
     memcpy(foo, "foo", sizeof("foo"));
 
 Here again, a PHP scenario that has nothing to do with PHP but still. We free a pointer, and reuse it after. This is a
-big mistake. Let's ask valgrind::
+big mistake. Let's ask valgrind:
+
+.. code-block:: text
 
     ==14594== Invalid write of size 1
     ==14594==    at 0x4C3245C: memcpy@GLIBC_2.2.5 (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)

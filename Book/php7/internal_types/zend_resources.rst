@@ -1,12 +1,12 @@
 The Resource type: zend_resource
 ================================
 
-Even though PHP could really get rid of the "resource" type, because
-:doc:`custom object storage <./classes_objects/custom_object_storage>` allows to build a PHP representation of any
-abstract kind of data, that resource type still exists in the current version of PHP, and you may need to deal with it.
+Even though PHP could really get rid of the "resource" type, because custom object storage allows to build a PHP 
+representation of any abstract kind of data, that resource type still exists in the current version of PHP, and you may 
+need to deal with it.
 
 If you need to create resources, we really would like to push you not to, but instead use objects and their
-:doc:`custom storage <./classes_objects/custom_object_storage>` management. Objects is the PHP type that can embed
+custom storage management. Objects is the PHP type that can embed
 anything of any type. However, for historical reasons, PHP still knows about that special type "Resource", and still
 makes use of it in its heart or in some extensions. Let's see that type together. Beware however, it is really cryptic
 and suffers from a long past history, so don't be surprised about its design especially when reading the source code
@@ -31,8 +31,7 @@ Internally, a resource is bound to the ``zend_resource`` structure type::
 	    void             *ptr;
     };
 
-We find the traditional ``zend_refcounted_h`` header, meaning that resources are reference countable. If you feel lost
-with reference counting and memory tracking, you may refer to the :doc:`./zvals/memory_management` chapter.
+We find the traditional ``zend_refcounted_h`` header, meaning that resources are reference countable.
 
 The ``handle`` is an integer that is used internally by the engine to locate the resource into an internal resource
 table. It is used as the key for such a table.
@@ -87,7 +86,7 @@ After that, you can register a new resource using ``zend_register_resource()``. 
 ``zend_resource``. Let's see together a simple use-case example::
 
     #include <stdio.h>
-
+    
     int res_num;
     FILE *fp;
     zend_resource *my_res;
@@ -100,7 +99,7 @@ After that, you can register a new resource using ``zend_register_resource()``. 
 
     /* module_number should be your PHP extension number here */
     res_num = zend_register_list_destructors_ex(my_res_dtor, NULL, "my_res", module_number);
-    fp      = fopen('/proc/cpuinfo', "r");
+    fp      = fopen("/proc/cpuinfo", "r");
     my_res  = zend_register_resource((void *)fp, res_num);
 
     ZVAL_RES(&my_val, my_res);
