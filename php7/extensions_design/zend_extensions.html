@@ -1,35 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Zend Extensions &mdash; PHP Internals Book</title>
-    
+    <title>Zend Extensions &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="PHP Internals Book" href="../../index.html" />
-    <link rel="up" title="Extensions design" href="../extensions_design.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Memory management" href="../memory_management.html" />
     <link rel="prev" title="Declaring and using INI settings" href="ini_settings.html" /> 
   </head>
-  <body role="document">
+  <body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Zend Extensions</span></h2>
@@ -60,32 +58,32 @@ one instead of the other, and how to build hybrid extensions, aka extensions bei
 (and why do that).</p>
 <div class="section" id="on-differences-between-php-and-zend-extensions">
 <h2>On differences between PHP and Zend extensions<a class="headerlink" href="#on-differences-between-php-and-zend-extensions" title="Permalink to this headline">¶</a></h2>
-<p>Just to say. Into PHP&#8217;s source code, PHP extensions are named as <strong>&#8220;PHP modules&#8221;</strong>, whereas Zend extensions are called
-<strong>&#8220;Zend extensions&#8221;</strong>.</p>
-<p>So into PHP&#8217;s heart, if you read the &#8220;extension&#8221; keyword, you should first think about a Zend extension. And if you
-read the &#8220;module&#8221; keyword, you may think about a PHP extension.</p>
-<p>In traditional life, we talk about <em>&#8220;PHP extensions&#8221;</em> versus <em>&#8220;Zend extensions&#8221;</em>.</p>
+<p>Just to say. Into PHP’s source code, PHP extensions are named as <strong>“PHP modules”</strong>, whereas Zend extensions are called
+<strong>“Zend extensions”</strong>.</p>
+<p>So into PHP’s heart, if you read the “extension” keyword, you should first think about a Zend extension. And if you
+read the “module” keyword, you may think about a PHP extension.</p>
+<p>In traditional life, we talk about <em>“PHP extensions”</em> versus <em>“Zend extensions”</em>.</p>
 <p>The thing that differentiate them is the way they are loaded :</p>
 <ul class="simple">
-<li>PHP extensions (aka PHP &#8220;modules&#8221;) are loaded in INI files as a <em>&#8220;extension=pib.so&#8221;</em> line</li>
-<li>Zend extensions are loaded in INI files as a <em>&#8220;zend_extension=pib.so&#8221;</em> line</li>
+<li>PHP extensions (aka PHP “modules”) are loaded in INI files as a <em>“extension=pib.so”</em> line</li>
+<li>Zend extensions are loaded in INI files as a <em>“zend_extension=pib.so”</em> line</li>
 </ul>
-<p>That&#8217;s the only visible difference we see from PHP userland.</p>
-<p>But that&#8217;s a different story from internal point of view.</p>
+<p>That’s the only visible difference we see from PHP userland.</p>
+<p>But that’s a different story from internal point of view.</p>
 </div>
 <div class="section" id="what-is-a-zend-extension">
 <h2>What is a Zend extension ?<a class="headerlink" href="#what-is-a-zend-extension" title="Permalink to this headline">¶</a></h2>
-<p>First of all, Zend extensions are compiled and loaded the same way as PHP extensions. Thus, if you haven&#8217;t yet read the
-<a class="reference internal" href="../build_system/building_extensions.html"><em>building PHP extensions</em></a> chapter, you should have a look as it is valid
+<p>First of all, Zend extensions are compiled and loaded the same way as PHP extensions. Thus, if you haven’t yet read the
+<a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">building PHP extensions</span></a> chapter, you should have a look as it is valid
 also for Zend extensions.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If not done, <a class="reference internal" href="../extensions_design.html"><em>get some informations about PHP extensions</em></a> as we will compare
+<p class="last">If not done, <a class="reference internal" href="../extensions_design.html"><span class="doc">get some information about PHP extensions</span></a> as we will compare
 against them here. Zend extensions share a very big part of concepts with PHP extensions.</p>
 </div>
 <p>Here is a Zend extension. Note that you need to publish not one but two structures for the engine to load your Zend
 extension:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* Main Zend extension structure */</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cm">/* Main Zend extension structure */</span>
 <span class="k">struct</span> <span class="n">_zend_extension</span> <span class="p">{</span>
     <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>                                           <span class="cm">/*</span>
 <span class="cm">    char *version;                                         * Some infos</span>
@@ -138,15 +136,15 @@ extension:</p>
 <a class="reference external" href="https://github.com/php/php-src/blob/57dba0e2f5e39f6b05031317048e39d463243cc3/Zend/zend_extensions.c">Zend/zend_extension.c</a> (and .h)</p>
 </div>
 <p>Like you can notice, Zend extensions are more complex than PHP extensions, as they got more hooks, and those are much
-closer to the <a class="reference internal" href="../zend_engine.html"><em>Zend engine and its Virtual Machine</em></a> (The most complex parts of the whole PHP
+closer to the <a class="reference internal" href="../zend_engine.html"><span class="doc">Zend engine and its Virtual Machine</span></a> (The most complex parts of the whole PHP
 source code).</p>
 </div>
 <div class="section" id="why-need-a-zend-extension">
 <h2>Why need a Zend extension ?<a class="headerlink" href="#why-need-a-zend-extension" title="Permalink to this headline">¶</a></h2>
-<p>Let us warn you : until you have <strong>very advanced</strong> knowledge on PHP internal&#8217;s Vritual Machine, and until you need to
-hook deep into it, you shouldn&#8217;t need a Zend extension, but a PHP extension will be enough.</p>
-<p>Today&#8217;s most commonly known Zend extensions into PHP&#8217;s world are OPCache, XDebug, phpdbg and Blackfire. But you know
-dozens of PHP extensions next to that don&#8217;t you ?! That&#8217;s a clear sign that :</p>
+<p>Let us warn you : until you have <strong>very advanced</strong> knowledge on PHP internal’s Vritual Machine, and until you need to
+hook deep into it, you shouldn’t need a Zend extension, but a PHP extension will be enough.</p>
+<p>Today’s most commonly known Zend extensions into PHP’s world are OPCache, XDebug, phpdbg and Blackfire. But you know
+dozens of PHP extensions next to that don’t you ?! That’s a clear sign that :</p>
 <ul class="simple">
 <li>You should not need a Zend extension for a very big part of your problematics</li>
 <li>Zend extensions can also be used as PHP extensions (more on that later)</li>
@@ -155,70 +153,70 @@ dozens of PHP extensions next to that don&#8217;t you ?! That&#8217;s a clear si
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">There is no <a class="reference internal" href="extension_skeleton.html"><em>skeleton generator</em></a> for Zend extensions, like for PHP extensions.</p>
+<p class="last">There is no <a class="reference internal" href="extension_skeleton.html"><span class="doc">skeleton generator</span></a> for Zend extensions, like for PHP extensions.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">With Zend extensions, no generator, no help. Zend extensions are reserved to <strong>advanced programmers</strong>,
 they are more complex to understand, they got deeper-engine behaviors and usually require an advanced
-knowledge of PHP&#8217;s internal machinery.</p>
+knowledge of PHP’s internal machinery.</p>
 </div>
-<p>Basically, if you need to create a debugger, you&#8217;ll need a Zend extension. For profilers, you can make some as
+<p>Basically, if you need to create a debugger, you’ll need a Zend extension. For profilers, you can make some as
 traditional PHP extensions, that can work and that depends on your needs.</p>
-<p>Also, if you need to master extensions loading order, Zend extensions will help (we&#8217;ll see that).</p>
-<p>Finally, if your goal is &#8220;just&#8221; to <em>add</em> some new concepts (functions, classes, constants, etc...) to PHP, you&#8217;ll use a
+<p>Also, if you need to master extensions loading order, Zend extensions will help (we’ll see that).</p>
+<p>Finally, if your goal is “just” to <em>add</em> some new concepts (functions, classes, constants, etc…) to PHP, you’ll use a
 PHP extension, but if you need to <em>change</em> a current behavior of PHP, probably a Zend extension will be better.</p>
-<p>We can&#8217;t give rules here, but we can explain how all that stuff works, so that you get your own idea of the
+<p>We can’t give rules here, but we can explain how all that stuff works, so that you get your own idea of the
 capabilities brought by Zend extensions against PHP extensions.</p>
 <p>Also, you may create an <em>hybrid</em> extension, which is both a Zend extension <em>and</em> a PHP extension (this is tricky but
-perfectly valid and allows you to program in both &#8220;worlds&#8221; at the same time).</p>
+perfectly valid and allows you to program in both “worlds” at the same time).</p>
 </div>
 <div class="section" id="api-versions-and-conflicts-management">
 <h2>API versions and conflicts management<a class="headerlink" href="#api-versions-and-conflicts-management" title="Permalink to this headline">¶</a></h2>
 <p>You know that PHP extensions check against several rules before loading, to know if they are compatible with the PHP
 version you try to load them on. This has been detailed into
-<a class="reference internal" href="../build_system/building_extensions.html"><em>the chapter about building PHP extensions</em></a>.</p>
+<a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">the chapter about building PHP extensions</span></a>.</p>
 <p>For Zend extension, the same rules apply, but a little bit differently : it will use the
 <code class="docutils literal"><span class="pre">zend_extension_version_info</span></code> structure you published to know what to do.</p>
-<p>The <code class="docutils literal"><span class="pre">zend_extension_version_info</span></code> structure you declare contain only two informations that the engine will use when
+<p>The <code class="docutils literal"><span class="pre">zend_extension_version_info</span></code> structure you declare contain only two information that the engine will use when
 it starts loading your Zend extension :</p>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">ZEND_EXTENSION_API_NO</span></code></li>
 <li><code class="docutils literal"><span class="pre">ZEND_EXTENSION_BUILD_ID</span></code></li>
 </ul>
 <p>The <code class="docutils literal"><span class="pre">ZEND_EXTENSION_API_NO</span></code> is checked when your Zend extension is loaded. But the difference is that if this number
-doesn&#8217;t match your Zend extension&#8217;s, you still have a chance to get loaded. The engine will call for your
+doesn’t match your Zend extension’s, you still have a chance to get loaded. The engine will call for your
 <code class="docutils literal"><span class="pre">api_no_check()</span></code> hook, if you declared one, and will pass it the current PHP runtime <code class="docutils literal"><span class="pre">ZEND_EXTENSION_API_NO</span></code>. Here,
-you must tell if you support that API number, or not, simply by returning that info to the engine. If you don&#8217;t support,
-the engine won&#8217;t load your extension and print a warning message about that.</p>
+you must tell if you support that API number, or not, simply by returning that info to the engine. If you don’t support,
+the engine won’t load your extension and print a warning message about that.</p>
 <p>The same applies to the other ABI settings, such as <code class="docutils literal"><span class="pre">ZEND_DEBUG</span></code>, or <code class="docutils literal"><span class="pre">ZTS</span></code>. Where PHP extensions will refuse to
 load if there is a mismatch, Zend extensions are given a chance to load as the engine checks against
 <code class="docutils literal"><span class="pre">build_id_check()</span></code> hook and pass it the <code class="docutils literal"><span class="pre">ZEND_EXTENSION_BUILD_ID</span></code>. Here again, you say if you are compatible or not.
-Here again, if you say &#8220;no&#8221;, the engine won&#8217;t load your extension and print a warning message about that.</p>
+Here again, if you say “no”, the engine won’t load your extension and print a warning message about that.</p>
 <p>Remember that we detail how API and ABI is numbered,
-<a class="reference internal" href="../build_system/building_extensions.html"><em>in the chapter about building PHP extensions</em></a>.</p>
+<a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">in the chapter about building PHP extensions</span></a>.</p>
 <p>Those abilities to force things against the engine are rarely used in practice.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">You see how more complex Zend extensions are compared to PHP extensions ? The engine is less restrictive, and
-it supposes that you know what you&#8217;re doing, for the best or the worst.</p>
+it supposes that you know what you’re doing, for the best or the worst.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Zend extensions should really be developped by experienced and advanced programmers, as the engine is
-weaker about its checks. It clearly supposes that you master what you&#8217;re doing.</p>
+<p class="last">Zend extensions should really be developed by experienced and advanced programmers, as the engine is
+weaker about its checks. It clearly supposes that you master what you’re doing.</p>
 </div>
 <p>To sum things up about API compatibility, well, every step is detailed in
 <a class="reference external" href="https://github.com/php/php-src/blob/57dba0e2f5e39f6b05031317048e39d463243cc3/Zend/zend_extensions.c#L67">zend_load_extension()</a>.</p>
 <p>Then comes the problem of Zend extensions conflicts. One may be incompatible with an other, and to master that, every
 Zend extension has got a hook called <code class="docutils literal"><span class="pre">message_handler</span></code>. If declared, this hook is triggered on every already loaded
 extension when another Zend extension gets loaded. You are passed a pointer to its <code class="docutils literal"><span class="pre">zend_extension</span></code> structure, and you
-may then detect which one it is, and abort if you think you&#8217;ll confict with it. This is something rarely used in
+may then detect which one it is, and abort if you think you’ll conflict with it. This is something rarely used in
 practice as well.</p>
 </div>
 <div class="section" id="zend-extensions-lifetime-hooks">
 <h2>Zend extensions lifetime hooks<a class="headerlink" href="#zend-extensions-lifetime-hooks" title="Permalink to this headline">¶</a></h2>
-<p>If you remember about <a class="reference internal" href="php_lifecycle.html"><em>the PHP lifecycle</em></a> (you should read the dedicated chapter), well, Zend
+<p>If you remember about <a class="reference internal" href="php_lifecycle.html"><span class="doc">the PHP lifecycle</span></a> (you should read the dedicated chapter), well, Zend
 extensions plug into that lifecycle this way:</p>
 <img alt="../../_images/php_extensions_lifecycle_full.png" class="align-center" src="../../_images/php_extensions_lifecycle_full.png" />
 <p>We can notice that our <code class="docutils literal"><span class="pre">api_no_check()</span></code>, <code class="docutils literal"><span class="pre">build_id_check()</span></code> and <code class="docutils literal"><span class="pre">message_handler()</span></code> check hooks are only triggered
@@ -243,9 +241,9 @@ is already loaded when they start. They are then able to replace-and-hook into P
 to replace the <code class="docutils literal"><span class="pre">session_start()</span></code> function handler by yours, it will be easier to do so in a Zend extension. If you do
 it in a PHP extension, you must be sure you get loaded after the session extension, and that can be tricky to check and
 to master (You still can specify a dependency using a <a class="reference external" href="https://github.com/php/php-src/blob/c18ba686cdf2d937475eb3d5c239e4ef8e733fa6/Zend/zend_modules.h#L118">zend_module_dep</a>).
-However, <a class="reference internal" href="extension_skeleton.html"><em>remember</em></a> that statically compiled extensions are always started before
+However, <a class="reference internal" href="extension_skeleton.html"><span class="doc">remember</span></a> that statically compiled extensions are always started before
 dynamically compiled ones. Thus, for the session use-case, this is not a problem as <em>ext/session</em> is loaded as static.
-Until some distributions (FreeBSD hear us) change that ...</li>
+Until some distributions (FreeBSD hear us) change that …</li>
 <li>Zend extensions are triggered <strong>before</strong> PHP extensions when a request shows in. That means they got a chance to modify
 the engine about the current request to come, so that PHP extensions use that modified context. OPCache uses such a
 trick so that it can perform its complex tasks before any extension had a chance to prevent it to.</li>
@@ -254,23 +252,23 @@ trick so that it can perform its complex tasks before any extension had a chance
 </div>
 <div class="section" id="practice-my-first-example-zend-extension">
 <h2>Practice : my first example Zend extension<a class="headerlink" href="#practice-my-first-example-zend-extension" title="Permalink to this headline">¶</a></h2>
-<p>Here we&#8217;ll detail in practice some hooks Zend extensions can use, and what to do with them, in some very simple scenario.</p>
+<p>Here we’ll detail in practice some hooks Zend extensions can use, and what to do with them, in some very simple scenario.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">Remember that Zend extensions design usually require that you master the
-<a class="reference internal" href="../zend_engine.html"><em>Zend engine</em></a> deeply.</p>
+<a class="reference internal" href="../zend_engine.html"><span class="doc">Zend engine</span></a> deeply.</p>
 </div>
-<p>For our example here, we&#8217;re gonna design a Zend extension that uses those hooks :</p>
+<p>For our example here, we’re gonna design a Zend extension that uses those hooks :</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">fcall_begin_handler</span></code> : We&#8217;ll detect what instructions are currently being executed by the VM, and print a message.
+<li><code class="docutils literal"><span class="pre">fcall_begin_handler</span></code> : We’ll detect what instructions are currently being executed by the VM, and print a message.
 The hook catches two things : a call to require/include/eval or a call to any function/method.</li>
-<li><code class="docutils literal"><span class="pre">op_array_handler</span></code> : We&#8217;ll detect what PHP function is currently being compiled, and print a message.</li>
-<li><code class="docutils literal"><span class="pre">message_handler</span></code> : We&#8217;ll detect other Zend extensions loaded, and print a message.</li>
+<li><code class="docutils literal"><span class="pre">op_array_handler</span></code> : We’ll detect what PHP function is currently being compiled, and print a message.</li>
+<li><code class="docutils literal"><span class="pre">message_handler</span></code> : We’ll detect other Zend extensions loaded, and print a message.</li>
 </ul>
 <p>Here is then our skeleton, that we must write ourselves as for Zend extensions, there is no skeleton generator like for
 PHP extensions. The files are called <em>pib.c</em> and <em>php_pib.h</em> , the structure of the files stays the same as for PHP
-extensions, simply we won&#8217;t declare in there the same things:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include</span> <span class="cpf">&quot;php.h&quot;</span><span class="cp"></span>
+extensions, simply we won’t declare in there the same things:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;php.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;Zend/zend_extensions.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;php_pib.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;Zend/zend_smart_str.h&quot;</span><span class="cp"></span>
@@ -316,26 +314,26 @@ extensions, simply we won&#8217;t declare in there the same things:</p>
 </div>
 <p>So far so good, this extension compiles as a Zend extension, but does nothing. Not really nothing.
 The first lines in the <code class="docutils literal"><span class="pre">zend_extension</span></code> structure appear in the <code class="docutils literal"><span class="pre">phpinfo()</span></code>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">This</span> <span class="n">program</span> <span class="n">makes</span> <span class="n">use</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Zend</span> <span class="n">Scripting</span> <span class="n">Language</span> <span class="nl">Engine</span><span class="p">:</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">This</span> <span class="n">program</span> <span class="n">makes</span> <span class="n">use</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Zend</span> <span class="n">Scripting</span> <span class="n">Language</span> <span class="nl">Engine</span><span class="p">:</span>
 <span class="n">Zend</span> <span class="n">Engine</span> <span class="n">v3</span><span class="mf">.1.0</span><span class="p">,</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">1998</span><span class="o">-</span><span class="mi">2017</span> <span class="n">Zend</span> <span class="n">Technologies</span>
     <span class="n">with</span> <span class="n">pib</span><span class="o">-</span><span class="n">zend</span><span class="o">-</span><span class="n">extension</span> <span class="n">v1</span><span class="mf">.0</span><span class="p">,</span> <span class="n">Our</span> <span class="n">Copyright</span><span class="p">,</span> <span class="n">by</span> <span class="n">PHPInternalsBook</span> <span class="n">Authors</span>
 </pre></div>
 </div>
 <p>This is mandatory, the engine reacts like this : it prints the first <code class="docutils literal"><span class="pre">zend_extension</span></code> fields into engine
-informations, for every loaded Zend extension.</p>
-<p>That&#8217;s all for now. Let&#8217;s fill-in those empty-body functions now:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_zend_extension_message_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">code</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">ext</span><span class="p">)</span>
+information, for every loaded Zend extension.</p>
+<p>That’s all for now. Let’s fill-in those empty-body functions now:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_zend_extension_message_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">code</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">ext</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;We just detected that zend_extension &#39;%s&#39; is trying to load</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="p">((</span><span class="n">zend_extension</span> <span class="o">*</span><span class="p">)</span><span class="n">ext</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>Like said before, <code class="docutils literal"><span class="pre">message_handler()</span></code> is a special hook that Zend extensions may declare to be noticed when another
-Zend extension get loaded. Be carefull however of the order. You must register our &#8220;pib&#8221; Zend extension first, then
+Zend extension get loaded. But be careful of the order. You must register our “pib” Zend extension first, then
 another Zend extension (like OPCache) after that, as the <code class="docutils literal"><span class="pre">message_handler()</span></code> is only called when a Zend extension is
 loaded you obviously need to be loaded before to declare it. Chicken and egg.</p>
-<p>Then we&#8217;ll start to dive into the engine, with our <code class="docutils literal"><span class="pre">op_array_handler</span></code> hook:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_zend_extension_op_array_handler</span><span class="p">(</span><span class="n">zend_op_array</span> <span class="o">*</span><span class="n">op_array</span><span class="p">)</span>
+<p>Then we’ll start to dive into the engine, with our <code class="docutils literal"><span class="pre">op_array_handler</span></code> hook:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_zend_extension_op_array_handler</span><span class="p">(</span><span class="n">zend_op_array</span> <span class="o">*</span><span class="n">op_array</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">smart_str</span> <span class="n">out</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 
@@ -395,26 +393,26 @@ loaded you obviously need to be loaded before to declare it. Chicken and egg.</p
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Get some informations <a class="reference internal" href="../zend_engine.html"><em>about the Zend Engine</em></a> if you need.</p>
+<p class="last">Get some information <a class="reference internal" href="../zend_engine.html"><span class="doc">about the Zend Engine</span></a> if you need.</p>
 </div>
 <p>This hook is triggered by the pass two of the compiler. When the Zend compiler fires in, it compiles a script or a
 function. Just before ending, it launches a second compiling pass which goal is to resolve unresolved pointers (which
-value couldn&#8217;t be known while compiling the script). This is the <code class="docutils literal"><span class="pre">pass_two()</span></code> function
+value couldn’t be known while compiling the script). This is the <code class="docutils literal"><span class="pre">pass_two()</span></code> function
 <a class="reference external" href="https://github.com/php/php-src/blob/81c2a4b9ba0816a0bda4f004aeca634ad8b58970/Zend/zend_opcode.c#L577">which source code</a> you can analyze.</p>
 <p>In the <code class="docutils literal"><span class="pre">pass_two()</span></code> source code, you can see that it triggers the <code class="docutils literal"><span class="pre">op_array_handler()</span></code> of every registered Zend
 extension so far, and it passes it as argument the current not-fully-resolved-yet OPArray. This is what we get as
-argument in our function. We then analyze it, and try to pull out some informations about it, like the
-currently-being-compiled function, its arguments informations etc...  Something very close to what the Reflection API
+argument in our function. We then analyze it, and try to pull out some information about it, like the
+currently-being-compiled function, its arguments information etc…  Something very close to what the Reflection API
 does, we are just a little bit less accurate here, as the OPArray is not fully resolved, we are still part of the
 compilation step here. We could have gathered the default argument values f.e (which is not done here), but that would
 have added so much complexity to the example that we decided not to show such a part.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Remember that <a class="reference internal" href="../internal_types/strings/smart_str.html"><em>smart_str are detailed here</em></a>,
-<a class="reference internal" href="../internal_types/zvals.html"><em>zvals here</em></a>, <code class="xref doc docutils literal"><span class="pre">OPArrays</span> <span class="pre">here</span></code>, etc...</p>
+<p class="last">Remember that <a class="reference internal" href="../internal_types/strings/smart_str.html"><span class="doc">smart_str are detailed here</span></a>,
+<a class="reference internal" href="../internal_types/zvals.html"><span class="doc">zvals here</span></a>, <a class="reference internal" href="../zend_engine.html"><span class="doc">OPArrays here</span></a>, etc…</p>
 </div>
-<p>Let&#8217;s continue then ?:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<p>Let’s continue then ?:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">CG</span><span class="p">(</span><span class="n">compiler_options</span><span class="p">)</span> <span class="o">|=</span> <span class="n">ZEND_COMPILE_EXTENDED_INFO</span><span class="p">;</span>
 <span class="p">}</span>
@@ -430,41 +428,41 @@ have added so much complexity to the example that we decided not to show such a 
         <span class="cm">/* Fetch the next OPline. We use pointer arithmetic for that */</span>
         <span class="n">zend_op</span> <span class="n">n</span> <span class="o">=</span> <span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">opcodes</span><span class="p">[(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">opline</span> <span class="o">-</span> <span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">opcodes</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">extended_value</span> <span class="o">==</span> <span class="n">ZEND_EVAL</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Begining of a code eval() in %s:%u&quot;</span><span class="p">,</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">filename</span><span class="p">),</span> <span class="n">n</span><span class="p">.</span><span class="n">lineno</span><span class="p">);</span>
+            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a code eval() in %s:%u&quot;</span><span class="p">,</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">filename</span><span class="p">),</span> <span class="n">n</span><span class="p">.</span><span class="n">lineno</span><span class="p">);</span>
         <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
             <span class="cm">/* The file to be include()ed is stored into the operand 1 of the OPLine */</span>
             <span class="n">zend_string</span> <span class="o">*</span><span class="n">file</span> <span class="o">=</span> <span class="n">zval_get_string</span><span class="p">(</span><span class="n">EX_CONSTANT</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">op1</span><span class="p">));</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Begining of an include of file &#39;%s&#39;&quot;</span><span class="p">,</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">file</span><span class="p">));</span>
+            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of an include of file &#39;%s&#39;&quot;</span><span class="p">,</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">file</span><span class="p">));</span>
             <span class="n">zend_string_release</span><span class="p">(</span><span class="n">file</span><span class="p">);</span>
         <span class="p">}</span>
     <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">fn_flags</span> <span class="o">&amp;</span> <span class="n">ZEND_ACC_STATIC</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Begining of a new static method call : &#39;%s::%s&#39;&quot;</span><span class="p">,</span>
+        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a new static method call : &#39;%s::%s&#39;&quot;</span><span class="p">,</span>
                     <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">Z_CE</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">This</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">),</span>
                     <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span>
     <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">Z_TYPE</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">This</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_OBJECT</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Begining of a new method call : %s-&gt;%s&quot;</span><span class="p">,</span>
+        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a new method call : %s-&gt;%s&quot;</span><span class="p">,</span>
                     <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">Z_OBJCE</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">This</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">),</span>
                     <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Begining of a new function call : %s&quot;</span><span class="p">,</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span>
+        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a new function call : %s&quot;</span><span class="p">,</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span>
     <span class="p">}</span>
     <span class="n">PHPWRITE</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>On request startup, we tell the compiler to generate some extended informations into the OPArray it&#8217;s going to create.
-The flag for that is <code class="docutils literal"><span class="pre">ZEND_COMPILE_EXTENDED_INFO</span></code>. Extended informations are VM OPCode hooks, that is the compiler
+<p>On request startup, we tell the compiler to generate some extended information into the OPArray it’s going to create.
+The flag for that is <code class="docutils literal"><span class="pre">ZEND_COMPILE_EXTENDED_INFO</span></code>. Extended information are VM OPCode hooks, that is the compiler
 will generate a special OPCode before every function is called, and after every function call is finished. Those are
 <code class="docutils literal"><span class="pre">FCALL_BEGIN</span></code> and <code class="docutils literal"><span class="pre">FCALL_END</span></code> OPCodes.</p>
-<p>Here is an exemple of a simple PHP function call OPCodes, with the &#8216;foo&#8217; string as first solo argument:</p>
-<div class="highlight-text"><div class="highlight"><pre>L9    #1     INIT_FCALL              112                  &quot;foo&quot;
+<p>Here is an example of a simple PHP function call OPCodes, with the ‘foo’ string as first solo argument:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>L9    #1     INIT_FCALL              112                  &quot;foo&quot;
 L9    #2     SEND_VAL                &quot;foo&quot;                1
 L9    #3     DO_FCALL
 L11   #4     RETURN                  1
 </pre></div>
 </div>
-<p>Now the same once we told the compiler to generate additionnal OPCodes:</p>
-<div class="highlight-text"><div class="highlight"><pre>L9    #3     INIT_FCALL              112                  &quot;foo&quot;
+<p>Now the same once we told the compiler to generate additional OPCodes:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>L9    #3     INIT_FCALL              112                  &quot;foo&quot;
 L9    #4     EXT_FCALL_BEGIN
 L9    #5     SEND_VAL                &quot;foo&quot;                1
 L9    #6     DO_FCALL
@@ -477,14 +475,14 @@ L11   #8     RETURN                  1
 handlers of every declared Zend extensions, like ours.</p>
 <p>Remember that a function call, into the engine, is whether a true function call, or the execution of a new included PHP
 file, or the execution of a new <code class="docutils literal"><span class="pre">eval()</span></code> block. Look at the <code class="docutils literal"><span class="pre">require()</span></code> disassembled:</p>
-<div class="highlight-text"><div class="highlight"><pre>L9    #3     EXT_FCALL_BEGIN
+<div class="highlight-text"><div class="highlight"><pre><span></span>L9    #3     EXT_FCALL_BEGIN
 L9    #4     INCLUDE_OR_EVAL         &quot;foo.php&quot;
 L9    #5     EXT_FCALL_END
 L11   #6     RETURN                  1
 </pre></div>
 </div>
-<p>Once those &#8220;marker&#8221; OPCodes have been generated, when the VM runs the OPArray OPCodes, it will run our <code class="docutils literal"><span class="pre">fcall_begin()</span></code>
-handler we declared. That&#8217;s for us a way to detect what function/file/eval is going to be executed just next. We
+<p>Once those “marker” OPCodes have been generated, when the VM runs the OPArray OPCodes, it will run our <code class="docutils literal"><span class="pre">fcall_begin()</span></code>
+handler we declared. That’s for us a way to detect what function/file/eval is going to be executed just next. We
 simply print such information.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -500,10 +498,10 @@ every fcall/include/eval.</p>
 <p>How is that possible ? And what for ?.</p>
 <p>Well there are several answers to such a question :</p>
 <ul class="simple">
-<li>To <a class="reference internal" href="php_functions.html"><em>register new PHP functions</em></a>, a PHP extension is better than a Zend extension, as it already
-knows how to do and has been designed for that specific purpose first. That would be pitty not to use it. OPCache
+<li>To <a class="reference internal" href="php_functions.html"><span class="doc">register new PHP functions</span></a>, a PHP extension is better than a Zend extension, as it already
+knows how to do and has been designed for that specific purpose first. That would be pity not to use it. OPCache
 does that.</li>
-<li>If you need to register about all the hooks in the full lifecycle, you&#8217;ll obviously need both sides</li>
+<li>If you need to register about all the hooks in the full lifecycle, you’ll obviously need both sides</li>
 <li>If you need to master the order Zend extensions are loaded, f.e to get loaded after OPCache, you will need to be
 hybrid</li>
 </ul>
@@ -518,17 +516,17 @@ register yourself as a PHP Extension (slave).</li>
 <p>As for the trick to be fully understood, we repeat here the full lifecycle of PHP and Zend extensions. Picture-print it
 into your brain :</p>
 <img alt="../../_images/php_extensions_lifecycle_full.png" class="align-center" src="../../_images/php_extensions_lifecycle_full.png" />
-<p>Remember however, whatever schema you choose to go with, you&#8217;ll have to register the slave part and trigger it by hand,
-as the engine obviously won&#8217;t do it. The engine triggers automaticaly the master part.</p>
+<p>Remember however, whatever schema you choose to go with, you’ll have to register the slave part and trigger it by hand,
+as the engine obviously won’t do it. The engine triggers automatically the master part.</p>
 <div class="section" id="hybrid-zend-extension-master-php-extension-slave">
 <h3>Hybrid Zend extension master, PHP extension slave<a class="headerlink" href="#hybrid-zend-extension-master-php-extension-slave" title="Permalink to this headline">¶</a></h3>
-<p>Ok that is easy. We don&#8217;t want to be loaded as a PHP extension, but exclusively as a Zend extension. To force things,
-we won&#8217;t publish the mandatory symbol <code class="docutils literal"><span class="pre">get_module</span></code> that the engine looks for when it tried to register a PHP
+<p>Ok that is easy. We don’t want to be loaded as a PHP extension, but exclusively as a Zend extension. To force things,
+we won’t publish the mandatory symbol <code class="docutils literal"><span class="pre">get_module</span></code> that the engine looks for when it tried to register a PHP
 extension from reading the INI file.</p>
 <p>Thus, we will only be able to be registered as a <em>zend_extension=pib.so</em>. Registering as <em>extension=pib.so</em> will fail,
 as the engine will fail to find our not-exported <code class="docutils literal"><span class="pre">get_module</span></code> symbol.</p>
 <p>But, in our startup hook of Zend extension, nothing prevents us from registering ourselves as a PHP extension:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include</span> <span class="cpf">&quot;php.h&quot;</span><span class="cp"></span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;php.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;Zend/zend_extensions.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;php_pib.h&quot;</span><span class="cp"></span>
 
@@ -632,7 +630,7 @@ as the engine will fail to find our not-exported <code class="docutils literal">
 </pre></div>
 </div>
 <p>We are done. Starting PHP with such a Zend extension activated will print the following on stderr:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">Zend</span> <span class="n">extension</span> <span class="n">is</span> <span class="n">starting</span> <span class="n">up</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">Zend</span> <span class="n">extension</span> <span class="n">is</span> <span class="n">starting</span> <span class="n">up</span>
 <span class="n">PHP</span> <span class="n">extension</span> <span class="n">is</span> <span class="n">starting</span> <span class="n">up</span>
 <span class="n">Zend</span> <span class="n">extension</span> <span class="n">new</span> <span class="n">request</span> <span class="n">starting</span> <span class="n">up</span>
 <span class="n">PHP</span> <span class="n">extension</span> <span class="n">new</span> <span class="n">request</span> <span class="n">starting</span> <span class="n">up</span>
@@ -646,11 +644,11 @@ as the engine will fail to find our not-exported <code class="docutils literal">
 should startup before Zend extensions, but as we got registered as a Zend extension, when the engine runs our Zend
 extension hook, it knows nothing about our PHP extension module startup part (<code class="docutils literal"><span class="pre">MINIT()</span></code>) yet. We tell it to start our
 PHP extension up, and then as part of Zend extension <code class="docutils literal"><span class="pre">startup()</span></code> hook, we make it trigger the PHP extension startup
-hook by hand, by callling for <code class="docutils literal"><span class="pre">zend_startup_module()</span></code>. Obviously you&#8217;ll have to take care not to create a circular
+hook by hand, by callling for <code class="docutils literal"><span class="pre">zend_startup_module()</span></code>. Obviously you’ll have to take care not to create a circular
 loop and not to make the engine crazy about what you will concretely do in such hooks.</p>
 <p>It is perfectly both easy and logical.</p>
 <p>From now, we are both a PHP extension and a Zend extension. Look at that:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="o">&gt;</span> <span class="n">php</span> <span class="o">-</span><span class="n">dzend_extension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span> <span class="o">-</span><span class="n">m</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">php</span> <span class="o">-</span><span class="n">dzend_extension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span> <span class="o">-</span><span class="n">m</span>
 <span class="p">[</span><span class="n">PHP</span> <span class="n">modules</span><span class="p">]</span>
 <span class="n">Core</span>
 <span class="n">date</span>
@@ -664,8 +662,8 @@ loop and not to make the engine crazy about what you will concretely do in such 
 <span class="n">pib</span><span class="o">-</span><span class="n">zend</span><span class="o">-</span><span class="n">extension</span>
 </pre></div>
 </div>
-<p>Our PHP extension is effectively called &#8220;pib&#8221; and shows up, and our Zend extension is effectively called
-&#8220;pib-zend-extension&#8221; and shows up as well. We chose two different names for both parts, we could have chosen the same
+<p>Our PHP extension is effectively called “pib” and shows up, and our Zend extension is effectively called
+“pib-zend-extension” and shows up as well. We chose two different names for both parts, we could have chosen the same
 name.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -675,13 +673,13 @@ functions and thus they are also PHP extensions to do so.</p>
 </div>
 <div class="section" id="hybrid-php-extension-master-zend-extension-slave">
 <h3>Hybrid PHP extension master, Zend extension slave<a class="headerlink" href="#hybrid-php-extension-master-zend-extension-slave" title="Permalink to this headline">¶</a></h3>
-<p>Now let&#8217;s go for the other way around : we want to be registered by the engine as a PHP extension, and not as a
+<p>Now let’s go for the other way around : we want to be registered by the engine as a PHP extension, and not as a
 Zend extension, but still want to be hybrid.</p>
-<p>Well, we&#8217;ll do the opposite : we won&#8217;t publish our <code class="docutils literal"><span class="pre">zend_extension_version_info</span></code> symbol, this way it will be
-impossible to load us as a Zend extension : the engine will deny that. But obviously this time, we&#8217;ll declare a
-<code class="docutils literal"><span class="pre">get_module</span></code> symbol to be able to get loaded as a PHP extension. And, in our <code class="docutils literal"><span class="pre">MINIT()</span></code>, we&#8217;ll register ourselves as
+<p>Well, we’ll do the opposite : we won’t publish our <code class="docutils literal"><span class="pre">zend_extension_version_info</span></code> symbol, this way it will be
+impossible to load us as a Zend extension : the engine will deny that. But obviously this time, we’ll declare a
+<code class="docutils literal"><span class="pre">get_module</span></code> symbol to be able to get loaded as a PHP extension. And, in our <code class="docutils literal"><span class="pre">MINIT()</span></code>, we’ll register ourselves as
 a Zend extension</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include</span> <span class="cpf">&quot;php.h&quot;</span><span class="cp"></span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;php.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;Zend/zend_extensions.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;php_pib.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;Zend/zend_smart_str.h&quot;</span><span class="cp"></span>
@@ -790,34 +788,34 @@ know why.</p>
 <p>Here, we are loaded as a PHP extension. Look at the hooks. When hitting <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code>, the engine runs our
 <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code>, but <strong>it unloads us</strong> just after that ! It calls for <code class="docutils literal"><span class="pre">dlclose()</span></code> on our extension,
 <a class="reference external" href="https://github.com/php/php-src/blob/4d6100569b7611ef66086bec96fe8b5046e30ef7/Zend/zend_API.c#L2527">look at the source code</a>, the solution is as often located in there.</p>
-<p>So what happens is easy, just after trigerring our <code class="docutils literal"><span class="pre">RSHUTDOWN()</span></code>, the engine unloads our <em>pib.so</em> ; when it comes to
+<p>So what happens is easy, just after triggering our <code class="docutils literal"><span class="pre">RSHUTDOWN()</span></code>, the engine unloads our <em>pib.so</em> ; when it comes to
 call our Zend extension part <code class="docutils literal"><span class="pre">shutdown()</span></code>, we are not part of the process address space anymore, thus we badly crash
 the entire PHP process.</p>
 <p>What is the solution ? Well if you read the source, and if you read the other chapters of this book, you should know
-that if we pass an env <code class="docutils literal"><span class="pre">ZEND_DONT_UNLOAD_MODULES</span></code> and put it to 1 , the engine won&#8217;t unload us. We could then write
+that if we pass an env <code class="docutils literal"><span class="pre">ZEND_DONT_UNLOAD_MODULES</span></code> and put it to 1 , the engine won’t unload us. We could then write
 such an env in <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code>, and unwrite it in <code class="docutils literal"><span class="pre">shutdown()</span></code>.
-<a class="reference external" href="http://man7.org/linux/man-pages/man3/putenv.3.html">putenv()</a> will do the job. That&#8217;s fine even if that&#8217;s tricky.
+<a class="reference external" href="http://man7.org/linux/man-pages/man3/putenv.3.html">putenv()</a> will do the job. That’s fine even if that’s tricky.
 Also, if another extension between us plays with that, that will smell for us.</p>
 <p>The second solution is less portable but safer/stronger, and calls for your knowledge of how libdl works.
-<a class="reference external" href="https://linux.die.net/man/3/dlopen">Read libdl manual</a>, and you&#8217;ll find a
+<a class="reference external" href="https://linux.die.net/man/3/dlopen">Read libdl manual</a>, and you’ll find a
 <a class="reference external" href="https://www.gnu.org/software/libc/">glibc</a>-only solution.</p>
 <p>That solution is to increment the refcount of the libdl handle, by calling <code class="docutils literal"><span class="pre">dlopen()</span></code> one more time for our extension.
 That way, when the engine will <code class="docutils literal"><span class="pre">dlclose()</span></code> us, libdl will simply decrement the refcount of the shared object (ourselves),
-but won&#8217;t close it until the last reference (us) does so.
-But <code class="docutils literal"><span class="pre">dlopen()</span></code> takes a full path to the object to open, and we don&#8217;t know our own location path (where will be located
-our <em>pib.so</em> on the runtime environment ?). To get that path, we&#8217;ll have to call for
+but won’t close it until the last reference (us) does so.
+But <code class="docutils literal"><span class="pre">dlopen()</span></code> takes a full path to the object to open, and we don’t know our own location path (where will be located
+our <em>pib.so</em> on the runtime environment ?). To get that path, we’ll have to call for
 <a class="reference external" href="https://linux.die.net/man/3/dlopen">dladdr()</a> , but <code class="docutils literal"><span class="pre">dladdr()</span></code> is glibc only. We are less portable here, but we are
-clearly safe. If you run on a system which doesn&#8217;t use glibc (very unlikely), get some informations about it to know if
+clearly safe. If you run on a system which doesn’t use glibc (very unlikely), get some information about it to know if
 it supports <code class="docutils literal"><span class="pre">dladdr()</span></code> call or an alternative.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">That is one drawback of the C language : the lack of definition when it was born back in 1970 makes its usage
-often platform dependant. You have to master the platforms you target.</p>
+often platform dependent. You have to master the platforms you target.</p>
 </div>
-<p>The closing part, will be part of the unload of the Zend extension, and for that we&#8217;ll have to share the libdl handle
+<p>The closing part, will be part of the unload of the Zend extension, and for that we’ll have to share the libdl handle
 between the <code class="docutils literal"><span class="pre">zend_module_entry</span></code>, and the <code class="docutils literal"><span class="pre">zend_extension</span></code>.</p>
 <p>Code patched:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="nf">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="nf">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">Dl_info</span> <span class="n">infos</span><span class="p">;</span>
 
@@ -837,8 +835,8 @@ between the <code class="docutils literal"><span class="pre">zend_module_entry</
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>If you launch it now, you&#8217;ll get the expected result:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">PHP</span> <span class="n">extension</span> <span class="n">is</span> <span class="n">starting</span> <span class="n">up</span>
+<p>If you launch it now, you’ll get the expected result:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP</span> <span class="n">extension</span> <span class="n">is</span> <span class="n">starting</span> <span class="n">up</span>
 <span class="n">Zend</span> <span class="n">extension</span> <span class="n">is</span> <span class="n">starting</span> <span class="n">up</span>
 <span class="n">Zend</span> <span class="n">extension</span> <span class="n">new</span> <span class="n">request</span> <span class="n">starting</span> <span class="n">up</span>
 <span class="n">PHP</span> <span class="n">extension</span> <span class="n">new</span> <span class="n">request</span> <span class="n">starting</span> <span class="n">up</span>
@@ -850,17 +848,17 @@ between the <code class="docutils literal"><span class="pre">zend_module_entry</
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Blackfire uses such an hybrid model but hasn&#8217;t got a Zend extension shutdown() hook and thus doesn&#8217;t need the
+<p class="last">Blackfire uses such an hybrid model but hasn’t got a Zend extension shutdown() hook and thus doesn’t need the
 patch about module unload.</p>
 </div>
 </div>
 <div class="section" id="hybrid-hybrid">
 <h3>Hybrid hybrid<a class="headerlink" href="#hybrid-hybrid" title="Permalink to this headline">¶</a></h3>
 <p>Hybrid hybrid is simply a model where you allow the user to load you whether as Zend extension or PHP extension.</p>
-<p>What you have to do, is remember how you&#8217;ve been loaded, using a global for example, so that you can take care of both
+<p>What you have to do, is remember how you’ve been loaded, using a global for example, so that you can take care of both
 modes.</p>
-<p>Let&#8217;s write just the diff parts:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">static</span> <span class="kt">char</span> <span class="n">started</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<p>Let’s write just the diff parts:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">char</span> <span class="n">started</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
 <span class="k">static</span> <span class="kt">int</span> <span class="nf">pib_zend_extension_startup</span><span class="p">(</span><span class="n">zend_extension</span> <span class="o">*</span><span class="n">ext</span><span class="p">)</span>
 <span class="p">{</span>
@@ -892,7 +890,7 @@ modes.</p>
 </pre></div>
 </div>
 <p>Obviously every symbol must be public. With the code above, you can get loaded as PHP extension (extension=pib.so) or
-as Zend extension (zend_extension=pib.so) ; end-user will have choice, that&#8217;s the advantage of such a model, even if
+as Zend extension (zend_extension=pib.so) ; end-user will have choice, that’s the advantage of such a model, even if
 we authors are not aware of its usage.</p>
 </div>
 </div>

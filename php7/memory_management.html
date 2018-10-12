@@ -1,34 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Memory management &mdash; PHP Internals Book</title>
-    
+    <title>Memory management &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Zend Memory Manager" href="memory_management/zend_memory_manager.html" />
     <link rel="prev" title="Zend Extensions" href="extensions_design/zend_extensions.html" /> 
   </head>
-  <body role="document">
+  <body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Memory management</span></h2>
@@ -50,7 +49,7 @@
   <div class="section" id="memory-management">
 <h1>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h1>
 <p>C programmers usually have to deal with memory by hand. With dynamic memory, the programmer allocates memory when
-needing and frees it when finished. Failing to free dynamic memory leads to a &#8220;memory leak&#8221;, which may or may not be a
+needing and frees it when finished. Failing to free dynamic memory leads to a “memory leak”, which may or may not be a
 bad thing. In the case of PHP, as the process could live for a virtually infinite amount of time, creating a memory leak
 will be dramatic. In any situation, leaking memory really translates to poorly and badly designed programs that cannot
 be trusted.
@@ -61,14 +60,14 @@ memory, and the OS itself as well.</p>
 That will lead for sure to a crash, or worse an exploitable security issue. There are no magical things like
 auto-resizeable areas with the C language. You must clearly tell the machine (and the CPU) what you want it to do. No
 guess, no magic, no automation of any kind (like garbage collection).</p>
-<p>PHP&#8217;s got a very specific memory model, and provides its own layer over the traditionnal libc&#8217;s dynamic memory
+<p>PHP’s got a very specific memory model, and provides its own layer over the traditional libc’s dynamic memory
 allocator. This layer is called <strong>Zend Memory Manager</strong>.</p>
 <p>This chapter explains you what Zend Memory Manager is, how you must use it, and what you must/must not do with it.
-After that, we&#8217;ll quickly introduce you to specific tools used in the C area to debug dynamic memory.</p>
+After that, we’ll quickly introduce you to specific tools used in the C area to debug dynamic memory.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">If you need, please get some (possibly strong) knowledge about C memory allocation classes (static vs
-dynamic memory), and about libc&#8217;s allocator.</p>
+dynamic memory), and about libc’s allocator.</p>
 </div>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">

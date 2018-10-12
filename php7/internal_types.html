@@ -1,34 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Internal types &mdash; PHP Internals Book</title>
-    
+    <title>Internal types &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Zvals" href="internal_types/zvals.html" />
     <link rel="prev" title="Building PHP extensions" href="build_system/building_extensions.html" /> 
   </head>
-  <body role="document">
+  <body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Internal types</span></h2>
@@ -50,23 +49,25 @@
   <div class="section" id="internal-types">
 <h1>Internal types<a class="headerlink" href="#internal-types" title="Permalink to this headline">¶</a></h1>
 <p>In this chapter we will detail the special types used internally by PHP. Some of those types are directly bound to
-userland PHP, like the &#8220;zval&#8221; data structure. Other structures/types, like the &#8220;zend_string&#8221; one, is not really visible
+userland PHP, like the “zval” data structure. Other structures/types, like the “zend_string” one, is not really visible
 from userland point of view, but is a detail to know if you plan to program PHP from inside.</p>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="internal_types/zvals.html">Zvals</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="internal_types/zvals/basic_structure.html">Basic structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal_types/zvals/memory_and_gc.html">Zval memory management and garbage collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal_types/zvals/casts_and_operations.html">Casts and operations on zvals</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="internal_types/strings.html">Strings management</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="internal_types/strings/zend_strings.html">Strings management: zend_string</a></li>
 <li class="toctree-l2"><a class="reference internal" href="internal_types/strings/smart_str.html">smart_str API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="internal_types/strings/printing_functions.html">PHP&#8217;s custom printf functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal_types/strings/printing_functions.html">PHP’s custom printf functions</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="internal_types/zend_resources.html">The Resource type: zend_resource</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="internal_types/zend_resources.html#what-is-the-resource-type">What is the &#8220;Resource&#8221; type?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="internal_types/zend_resources.html#what-is-the-resource-type">What is the “Resource” type?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="internal_types/zend_resources.html#resource-types-and-resource-destruction">Resource types and resource destruction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="internal_types/zend_resources.html#playing-with-resources">Playing with resources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="internal_types/zend_resources.html#reference-counting-resources">Reference counting resources</a></li>
@@ -75,6 +76,7 @@ from userland point of view, but is a detail to know if you plan to program PHP 
 </li>
 <li class="toctree-l1"><a class="reference internal" href="internal_types/hashtables.html">HashTables: zend_array</a></li>
 <li class="toctree-l1"><a class="reference internal" href="internal_types/functions.html">Functions: zend_function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="internal_types/objects.html">Objects and classes</a></li>
 </ul>
 </div>
 </div>

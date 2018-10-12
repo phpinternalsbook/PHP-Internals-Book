@@ -1,35 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Basic structure &mdash; PHP Internals Book</title>
-    
+    <title>Basic structure &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/style.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="PHP Internals Book" href="../../../index.html" />
-    <link rel="up" title="Zvals" href="../zvals.html" />
-    <link rel="next" title="Strings management" href="../strings.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Zval memory management and garbage collection" href="memory_and_gc.html" />
     <link rel="prev" title="Zvals" href="../zvals.html" /> 
   </head>
-  <body role="document">
+  <body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Basic structure</span></h2>
@@ -41,7 +39,7 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="../strings.html">Strings management</a>&#160;&#160;»
+        <a href="memory_and_gc.html">Zval memory management and garbage collection</a>&#160;&#160;»
         </p>
 
       </div>
@@ -50,8 +48,8 @@
         
   <div class="section" id="basic-structure">
 <h1>Basic structure<a class="headerlink" href="#basic-structure" title="Permalink to this headline">¶</a></h1>
-<p>A zval (short for &#8220;Zend value&#8221;) represents an arbitrary PHP value. As such it is likely the most important structure in
-all of PHP and you&#8217;ll be working with it a lot. This section describes the basic concepts behind zvals and their use.</p>
+<p>A zval (short for “Zend value”) represents an arbitrary PHP value. As such it is likely the most important structure in
+all of PHP and you’ll be working with it a lot. This section describes the basic concepts behind zvals and their use.</p>
 <div class="section" id="types-and-values">
 <h2>Types and values<a class="headerlink" href="#types-and-values" title="Permalink to this headline">¶</a></h2>
 <p>Among other things, every zval stores some value and the type this value has. This is necessary because PHP is a
@@ -62,7 +60,7 @@ later point in time.</p>
 types available in PHP, others are used for internal engine purpose only. These values are referred to using constants
 of the form <code class="docutils literal"><span class="pre">IS_TYPE</span></code>. E.g. <code class="docutils literal"><span class="pre">IS_NULL</span></code> corresponds to the null type and <code class="docutils literal"><span class="pre">IS_STRING</span></code> corresponds to the string type.</p>
 <p>The actual value is stored in a union, which is defined as follows:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">union</span> <span class="n">_zend_value</span> <span class="p">{</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">union</span> <span class="n">_zend_value</span> <span class="p">{</span>
     <span class="n">zend_long</span>         <span class="n">lval</span><span class="p">;</span>
     <span class="kt">double</span>            <span class="n">dval</span><span class="p">;</span>
     <span class="n">zend_refcounted</span>  <span class="o">*</span><span class="n">counted</span><span class="p">;</span>
@@ -85,41 +83,41 @@ of the form <code class="docutils literal"><span class="pre">IS_TYPE</span></cod
 </div>
 <p>To those not familiar with the concept of unions: A union defines multiple members of different types, but only one of
 them can ever be used at a time. E.g. if the <code class="docutils literal"><span class="pre">value.lval</span></code> member was set, then you also need to look up the value
-using <code class="docutils literal"><span class="pre">value.lval</span></code> and not one of the other members (doing so would violate &#8220;strict aliasing&#8221; guarantees and lead to
+using <code class="docutils literal"><span class="pre">value.lval</span></code> and not one of the other members (doing so would violate “strict aliasing” guarantees and lead to
 undefined behaviour). The reason is that unions store all their members at the same memory location and just interpret
 the value located there differently depending on which member you access. The size of the union is the size of its
 largest member.</p>
-<p>When working with zvals the type tag is used to find out which of the union&#8217;s member is currently in use. Before having
-a look at the APIs used to do so, let&#8217;s walk through the different types PHP supports and how they are stored:</p>
-<p>The simplest type is <code class="docutils literal"><span class="pre">IS_NULL</span></code>: It doesn&#8217;t need to actually store any value, because there is just one <code class="docutils literal"><span class="pre">null</span></code> value.</p>
+<p>When working with zvals the type tag is used to find out which of the union’s member is currently in use. Before having
+a look at the APIs used to do so, let’s walk through the different types PHP supports and how they are stored:</p>
+<p>The simplest type is <code class="docutils literal"><span class="pre">IS_NULL</span></code>: It doesn’t need to actually store any value, because there is just one <code class="docutils literal"><span class="pre">null</span></code> value.</p>
 <p>For storing numbers PHP provides the types <code class="docutils literal"><span class="pre">IS_LONG</span></code> and <code class="docutils literal"><span class="pre">IS_DOUBLE</span></code>, which make use of the <code class="docutils literal"><span class="pre">zend_long</span> <span class="pre">lval</span></code> and
 <code class="docutils literal"><span class="pre">double</span> <span class="pre">dval</span></code> members respectively. The former is used to store integers, whereas the latter stores floating point
 numbers.</p>
 <p>There are some things that one should be aware of about the <code class="docutils literal"><span class="pre">zend_long</span></code> type: Firstly, this is a signed integer type,
 i.e. it can store both positive and negative integers, but is commonly not well suited for doing bitwise operations.
-Secondly, <code class="docutils literal"><span class="pre">zend_long</span></code> represents an abstraction of the platform long, so whatever the platform you&#8217;re using,
+Secondly, <code class="docutils literal"><span class="pre">zend_long</span></code> represents an abstraction of the platform long, so whatever the platform you’re using,
 <code class="docutils literal"><span class="pre">zend_long</span></code> weights 4 bytes on 32bit platforms and 8 bytes on 64bit ones.</p>
 <p>In addition to that, you may use macros related to longs, <code class="docutils literal"><span class="pre">SIZEOF_ZEND_LONG</span></code> or <code class="docutils literal"><span class="pre">ZEND_LONG_MAX</span></code> f.e.
 See
 <a class="reference external" href="https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_long.h">Zend/zend_long.h</a>
-in source code for more informations.</p>
+in source code for more information.</p>
 <p>The <code class="docutils literal"><span class="pre">double</span></code> type used to store floating point numbers is (typically) an 8-byte value following the IEEE-754
-specification. The details of this format won&#8217;t be discussed here, but you should at least be aware of the fact that
-this type has limited precision and commonly doesn&#8217;t store the exact value you want.</p>
-<p>Booleans use either the <code class="docutils literal"><span class="pre">IS_TRUE</span></code> or <code class="docutils literal"><span class="pre">IS_FALSE</span></code> flag and don&#8217;t need to store any more info. There exists what&#8217;s
-called a &#8220;fake type&#8221; flagged as <code class="docutils literal"><span class="pre">_IS_BOOL</span></code>, but you shouldn&#8217;t make use of it as a zval type, this is incorrect. This
+specification. The details of this format won’t be discussed here, but you should at least be aware of the fact that
+this type has limited precision and commonly doesn’t store the exact value you want.</p>
+<p>Booleans use either the <code class="docutils literal"><span class="pre">IS_TRUE</span></code> or <code class="docutils literal"><span class="pre">IS_FALSE</span></code> flag and don’t need to store any more info. There exists what’s
+called a “fake type” flagged as <code class="docutils literal"><span class="pre">_IS_BOOL</span></code>, but you shouldn’t make use of it as a zval type, this is incorrect. This
 fake type is used in some rare uncommon internal situations (like type hints f.e).</p>
 <p>The remaining four types will only be mentioned here quickly and discussed in greater detail in their own chapters:</p>
 <p>Strings (<code class="docutils literal"><span class="pre">IS_STRING</span></code>) are stored in a <code class="docutils literal"><span class="pre">zend_string</span></code> structure, i.e. they consist of a <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code> string
-and an <code class="docutils literal"><span class="pre">size_t</span></code> length. You will find more informations about the <code class="docutils literal"><span class="pre">zend_string</span></code> structure and its dedicated API
-into the <a class="reference internal" href="../strings.html"><em>string</em></a> chapter.</p>
+and an <code class="docutils literal"><span class="pre">size_t</span></code> length. You will find more information about the <code class="docutils literal"><span class="pre">zend_string</span></code> structure and its dedicated API
+into the <a class="reference internal" href="../strings.html"><span class="doc">string</span></a> chapter.</p>
 <p>Arrays use the <code class="docutils literal"><span class="pre">IS_ARRAY</span></code> type tag and are stored in the <code class="docutils literal"><span class="pre">zend_array</span> <span class="pre">*arr</span></code> member. How the <code class="docutils literal"><span class="pre">HashTable</span></code> structure
-works will be discussed in the <a class="reference internal" href="../../../hashtables.html"><em>Hashtables</em></a> chapter.</p>
-<p>Objects (<code class="docutils literal"><span class="pre">IS_OBJECT</span></code>) use the <code class="docutils literal"><span class="pre">zend_object</span> <span class="pre">*obj</span></code> member. PHP&#8217;s class and object system will be described in the
-<a class="reference internal" href="../../../classes_objects.html"><em>Classes and objects</em></a> chapter.</p>
+works will be discussed in the <a class="reference internal" href="../hashtables.html"><span class="doc">Hashtables</span></a> chapter.</p>
+<p>Objects (<code class="docutils literal"><span class="pre">IS_OBJECT</span></code>) use the <code class="docutils literal"><span class="pre">zend_object</span> <span class="pre">*obj</span></code> member. PHP’s class and object system will be described in the
+<a class="reference internal" href="../objects.html"><span class="doc">objects</span></a> chapter.</p>
 <p>Resources (<code class="docutils literal"><span class="pre">IS_RESOURCE</span></code>) are a special type using the <code class="docutils literal"><span class="pre">zend_resource</span> <span class="pre">*res</span></code> member. Resources are covered in the
-Resources chapter.</p>
-<p>To summarize, here&#8217;s a table with all the available type tags and the corresponding storage location for their values:</p>
+<a class="reference internal" href="../zend_resources.html"><span class="doc">Resources</span></a> chapter.</p>
+<p>To summarize, here’s a table with all the available type tags and the corresponding storage location for their values:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="50%" />
@@ -163,33 +161,33 @@ Resources chapter.</p>
 Those types are special types that do not exist as-is in the PHP language userland, but are used into the engine for
 internal use-case only. The zval structure has been thought to be very flexible, and is used internally to carry
 virtually any type of data of interest, and not only the PHP specific types we just reviewed above.</p>
-<p>The special <code class="docutils literal"><span class="pre">IS_UNDEF</span></code> type has a special meaning. That means &#8220;This zval contains no data of interest, do not access
-any data field from it&#8221;. This is used for <code class="xref doc docutils literal"><span class="pre">zvals/memory_management</span></code> purposes. If you see an <code class="docutils literal"><span class="pre">IS_UNDEF</span></code> zval,
-that means that it is of no special type and contains no valid information.</p>
+<p>The special <code class="docutils literal"><span class="pre">IS_UNDEF</span></code> type has a special meaning. That means “This zval contains no data of interest, do not access
+any data field from it”. This is used for <a class="reference internal" href="memory_and_gc.html"><span class="doc">memory management</span></a> purposes. If you see an <code class="docutils literal"><span class="pre">IS_UNDEF</span></code>
+zval, that means that it is of no special type and contains no valid information.</p>
 <p>The <code class="docutils literal"><span class="pre">zend_refcounted</span> <span class="pre">*counted</span></code> field is very tricky to understand. Basically, that field serve as a header for any
-other reference-countable type. This part is detailed into the <code class="xref doc docutils literal"><span class="pre">zvals/memory_management</span></code> chapter.</p>
+other reference-countable type. This part is detailed into the <a class="reference internal" href="memory_and_gc.html"><span class="doc">Zval memory management and garbage collection</span></a> chapter.</p>
 <p>The <code class="docutils literal"><span class="pre">zend_reference</span> <span class="pre">*ref</span></code> is used to represent a PHP reference. The <code class="docutils literal"><span class="pre">IS_REFERENCE</span></code> type flag is then used.
-Here as well, we dedicated a chapter to such a concept, have a look at the <code class="xref doc docutils literal"><span class="pre">zvals/memory_management</span></code> chapter.</p>
+Here as well, we dedicated a chapter to such a concept, have a look at the <a class="reference internal" href="memory_and_gc.html"><span class="doc">Zval memory management and garbage collection</span></a> chapter.</p>
 <p>The <code class="docutils literal"><span class="pre">zend_ast_ref</span> <span class="pre">*ast</span></code> is used when you manipulate the AST from the compiler. The PHP compilation is detailed into
-the <code class="xref doc docutils literal"><span class="pre">/php7/compiler</span></code> chapter.</p>
+the <a class="reference internal" href="../../zend_engine/zend_compiler.html"><span class="doc">Zend Compiler</span></a> chapter.</p>
 <p>The <code class="docutils literal"><span class="pre">zval</span> <span class="pre">*zv</span></code> is used internally only. You should not have to manipulate it. This works together with the
 <code class="docutils literal"><span class="pre">IS_INDIRECT,</span></code> and that allows one to embed a <code class="docutils literal"><span class="pre">zval</span> <span class="pre">*</span></code> into a <code class="docutils literal"><span class="pre">zval</span></code>. Very specific dark usage of such a field is used
 f.e to represent <code class="docutils literal"><span class="pre">$GLOBALS[]</span></code> PHP superglobal.</p>
 <p>Something very useful is the <code class="docutils literal"><span class="pre">void</span> <span class="pre">*ptr</span></code> field. Same here : no PHP userland usage but internal only.
-You will basically use this field when you want to store &#8220;something&#8221; into a zval. Yep, that&#8217;s a <code class="docutils literal"><span class="pre">void</span> <span class="pre">*</span></code>, which in C
-represents &#8220;a pointer to some memory area of any size, containing (hopefully) anything&#8221;.
+You will basically use this field when you want to store “something” into a zval. Yep, that’s a <code class="docutils literal"><span class="pre">void</span> <span class="pre">*</span></code>, which in C
+represents “a pointer to some memory area of any size, containing (hopefully) anything”.
 The <code class="docutils literal"><span class="pre">IS_PTR</span></code> flag type is then used in the zval.</p>
-<p>When you&#8217;ll read the <code class="xref doc docutils literal"><span class="pre">/php7/classes_objects</span></code> chapter, you&#8217;ll learn about <code class="docutils literal"><span class="pre">zend_class_entry</span></code> type. The zval
+<p>When you’ll read the <a class="reference internal" href="../objects.html"><span class="doc">objects</span></a> chapter, you’ll learn about <code class="docutils literal"><span class="pre">zend_class_entry</span></code> type. The zval
 <code class="docutils literal"><span class="pre">zend_class_entry</span> <span class="pre">*ce</span></code> field is used to carry a reference to a PHP class into a zval. Here again, there is no direct
-usage of such a situation into the PHP language itself (userland), but internally you&#8217;ll need that.</p>
-<p>Finally, the <code class="docutils literal"><span class="pre">zend_function</span> <span class="pre">*func</span></code> field is used to embed a PHP function into a zval. The <code class="xref doc docutils literal"><span class="pre">/php7/functions</span></code> chapter
-details PHP functions.</p>
+usage of such a situation into the PHP language itself (userland), but internally you’ll need that.</p>
+<p>Finally, the <code class="docutils literal"><span class="pre">zend_function</span> <span class="pre">*func</span></code> field is used to embed a PHP function into a zval. The
+<a class="reference internal" href="../functions.html"><span class="doc">functions</span></a> chapter details PHP functions.</p>
 </div>
 </div>
 <div class="section" id="access-macros">
 <h2>Access macros<a class="headerlink" href="#access-macros" title="Permalink to this headline">¶</a></h2>
 <p>Lets now have a look at how the <code class="docutils literal"><span class="pre">zval</span></code> struct actually looks like:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">struct</span> <span class="n">_zval_struct</span> <span class="p">{</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">_zval_struct</span> <span class="p">{</span>
         <span class="n">zend_value</span>        <span class="n">value</span><span class="p">;</span>                    <span class="cm">/* value */</span>
         <span class="k">union</span> <span class="p">{</span>
                 <span class="k">struct</span> <span class="p">{</span>
@@ -217,15 +215,15 @@ details PHP functions.</p>
 </div>
 <p>As already mentioned, the zval has members to store a <code class="docutils literal"><span class="pre">value</span></code> and its <code class="docutils literal"><span class="pre">type_info</span></code>. The value is stored in the
 <code class="docutils literal"><span class="pre">zvalue_value</span></code> union discussed above and the type tag is held in a <code class="docutils literal"><span class="pre">zend_uchar</span></code> itself part of the <code class="docutils literal"><span class="pre">u1</span></code> union.
-Additionally the structure has a <code class="docutils literal"><span class="pre">u2</span></code> property. We&#8217;ll ignore them for now and discuss their function later.</p>
-<p><code class="docutils literal"><span class="pre">u1</span></code> is accessed using <code class="docutils literal"><span class="pre">type_info</span></code>. <code class="docutils literal"><span class="pre">type_info</span></code> is shrinked into detailed <code class="docutils literal"><span class="pre">type</span></code>, <code class="docutils literal"><span class="pre">type_flags</span></code>,
-<code class="docutils literal"><span class="pre">const_flags</span></code> and <code class="docutils literal"><span class="pre">reserved</span></code> fields. Remember, we are in a union for <code class="docutils literal"><span class="pre">u1</span></code> here. So the four informations in the
+Additionally the structure has a <code class="docutils literal"><span class="pre">u2</span></code> property. We’ll ignore them for now and discuss their function later.</p>
+<p><code class="docutils literal"><span class="pre">u1</span></code> is accessed using <code class="docutils literal"><span class="pre">type_info</span></code>. <code class="docutils literal"><span class="pre">type_info</span></code> is shrunk into detailed <code class="docutils literal"><span class="pre">type</span></code>, <code class="docutils literal"><span class="pre">type_flags</span></code>,
+<code class="docutils literal"><span class="pre">const_flags</span></code> and <code class="docutils literal"><span class="pre">reserved</span></code> fields. Remember, we are in a union for <code class="docutils literal"><span class="pre">u1</span></code> here. So the four information in the
 <code class="docutils literal"><span class="pre">u1.v</span></code> field weighs the same as the information stored into the <code class="docutils literal"><span class="pre">u1.type_info</span></code>. A clever memory alignment rule
-has been used here. <code class="docutils literal"><span class="pre">u1</span></code> is very used, as it embed informations about the type stored into the zval.</p>
-<p><code class="docutils literal"><span class="pre">u2</span></code> has totally other meanings. We don&#8217;t need to detail the <code class="docutils literal"><span class="pre">u2</span></code> field by now, simply ignore it,
-we&#8217;ll get back to it later.</p>
+has been used here. <code class="docutils literal"><span class="pre">u1</span></code> is very used, as it embed information about the type stored into the zval.</p>
+<p><code class="docutils literal"><span class="pre">u2</span></code> has totally other meanings. We don’t need to detail the <code class="docutils literal"><span class="pre">u2</span></code> field by now, simply ignore it,
+we’ll get back to it later.</p>
 <p>Knowing the zval structure you can now write code making use of it:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... get zval from somewhere */</span><span class="p">;</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... get zval from somewhere */</span><span class="p">;</span>
 
 <span class="k">if</span> <span class="p">(</span><span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">==</span> <span class="n">IS_LONG</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">lval</span><span class="p">);</span>
@@ -234,7 +232,7 @@ we&#8217;ll get back to it later.</p>
 </div>
 <p>While the above code works, this is not the idiomatic way to write it. It directly accesses the zval members rather than
 using a special set of access macros for this purpose:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... */</span><span class="p">;</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... */</span><span class="p">;</span>
 
 <span class="k">if</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_LONG</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
@@ -244,7 +242,7 @@ using a special set of access macros for this purpose:</p>
 <p>The above code uses the <code class="docutils literal"><span class="pre">Z_TYPE_P()</span></code> macro for retrieving the type tag and <code class="docutils literal"><span class="pre">Z_LVAL_P()</span></code> to get the long (integer)
 value. All the access macros have variants with a <code class="docutils literal"><span class="pre">_P</span></code> suffix or no suffix at all. Which one you
 use depends on whether you are working on a <code class="docutils literal"><span class="pre">zval</span></code> or a <code class="docutils literal"><span class="pre">zval*</span></code></p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">zval</span> <span class="n">zv</span><span class="p">;</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">zv</span><span class="p">;</span>
 <span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
 <span class="n">zval</span> <span class="o">**</span><span class="n">zv_ptr_ptr</span><span class="p">;</span> <span class="cm">/* very rare */</span>
 
@@ -252,12 +250,12 @@ use depends on whether you are working on a <code class="docutils literal"><span
 <span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>           <span class="c1">// = zv_ptr-&gt;type</span>
 </pre></div>
 </div>
-<p>Basically the <code class="docutils literal"><span class="pre">P</span></code> stands for &#8220;pointer&#8221;. This only works until <code class="docutils literal"><span class="pre">zval*</span></code>, i.e. there are no special macros for working
-with <code class="docutils literal"><span class="pre">zval**</span></code> or more, as this is rarely necessary in practice (you&#8217;ll just have to dereference the value first
+<p>Basically the <code class="docutils literal"><span class="pre">P</span></code> stands for “pointer”. This only works until <code class="docutils literal"><span class="pre">zval*</span></code>, i.e. there are no special macros for working
+with <code class="docutils literal"><span class="pre">zval**</span></code> or more, as this is rarely necessary in practice (you’ll just have to dereference the value first
 using the <code class="docutils literal"><span class="pre">*</span></code> operator).</p>
 <p>Similarly to <code class="docutils literal"><span class="pre">Z_LVAL</span></code> there are also macros for fetching values of all the other types. To demonstrate their usage
-we&#8217;ll create a simple function for dumping a zval:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span>
+we’ll create a simple function for dumping a zval:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
 
@@ -305,7 +303,7 @@ we&#8217;ll create a simple function for dumping a zval:</p>
 </pre></div>
 </div>
 <p>Lets try it out:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">dump</span><span class="p">(</span><span class="n">null</span><span class="p">);</span>                 <span class="c1">// NULL: null</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">dump</span><span class="p">(</span><span class="n">null</span><span class="p">);</span>                 <span class="c1">// NULL: null</span>
 <span class="n">dump</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>                 <span class="c1">// BOOL: true</span>
 <span class="n">dump</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>                <span class="c1">// BOOL: false</span>
 <span class="n">dump</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>                   <span class="c1">// LONG: 42</span>
@@ -328,8 +326,8 @@ protection against changes to the internal zval representation in future PHP ver
 <h2>Setting the value<a class="headerlink" href="#setting-the-value" title="Permalink to this headline">¶</a></h2>
 <p>Most of the macros introduced above just access some member of the zval structure and as such you can use them both to
 read and to write the respective values. As an example consider the following function, which simply returns the string
-&#8220;hello world!&#8221;:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
+“hello world!”:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span> <span class="o">=</span> <span class="n">IS_STRING</span><span class="p">;</span>
     <span class="n">Z_STR_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
 <span class="p">};</span>
@@ -341,45 +339,45 @@ read and to write the respective values. As an example consider the following fu
 </div>
 <p>Running <code class="docutils literal"><span class="pre">php</span> <span class="pre">-r</span> <span class="pre">&quot;echo</span> <span class="pre">hello_world();&quot;</span></code> should now print <code class="docutils literal"><span class="pre">hello</span> <span class="pre">world!</span></code> to the terminal.</p>
 <p>In the above example we set the <code class="docutils literal"><span class="pre">return_value</span></code> variable, which is a <code class="docutils literal"><span class="pre">zval*</span></code> provided by the <code class="docutils literal"><span class="pre">PHP_FUNCTION</span></code> macro.
-We&#8217;ll look at this variable in more detail in the next chapter, for now it should suffice to know that the value of this
+We’ll look at this variable in more detail in the next chapter, for now it should suffice to know that the value of this
 variable will be the return value of the function. By default it is initialized to have type <code class="docutils literal"><span class="pre">IS_NULL</span></code>.</p>
 <p>Setting a zval value using the access macros is really straightforward, but there are some things one should keep in
-mind: First of all you need to remember that the type tag determines the type of a zval. It doesn&#8217;t suffice to just set
+mind: First of all you need to remember that the type tag determines the type of a zval. It doesn’t suffice to just set
 the value (via <code class="docutils literal"><span class="pre">Z_STR_P</span></code>), you always need to set the type tag as well.</p>
-<p>Furthermore you need to be aware of the fact that in most cases the zval &#8220;owns&#8221; its value and that the zval will have a
-longer life-time than the scope in which you set its value. Sometimes this doesn&#8217;t apply when dealing with temporary
-zvals, but in most cases it&#8217;s true.</p>
+<p>Furthermore you need to be aware of the fact that in most cases the zval “owns” its value and that the zval will have a
+longer life-time than the scope in which you set its value. Sometimes this doesn’t apply when dealing with temporary
+zvals, but in most cases it’s true.</p>
 <p>Using the above example this means that the <code class="docutils literal"><span class="pre">return_value</span></code> will live on after our function body leaves (which is quite
-obvious, otherwise nobody could use the return value), so it can&#8217;t make use of any temporary values of the function.</p>
+obvious, otherwise nobody could use the return value), so it can’t make use of any temporary values of the function.</p>
 <p>Because of this we need to create a new zend_string using <code class="docutils literal"><span class="pre">zend_string_init()</span></code>. This will create a separate copy
-of the string on the heap. Because the zval &#8220;carries&#8221; its value, it will make sure to free this copy when the zval is
-destroyed, or at least to decrement its refcount. This also applies to any other &#8220;complex&#8221; value of the zval. E.g.
+of the string on the heap. Because the zval “carries” its value, it will make sure to free this copy when the zval is
+destroyed, or at least to decrement its refcount. This also applies to any other “complex” value of the zval. E.g.
 if you set the <code class="docutils literal"><span class="pre">zend_array*</span></code> for an array, the zval will carry that later and release it when the zval is destroyed.
-By &#8220;releasing&#8221;, we mean either decrement the reference counter, or free the structure if reference counter falls to
-zero. When using primitive types like integers or doubles you obviously don&#8217;t need to care about this, as they are
+By “releasing”, we mean either decrement the reference counter, or free the structure if reference counter falls to
+zero. When using primitive types like integers or doubles you obviously don’t need to care about this, as they are
 always copied.
 All those memory management steps, such as allocation, free or reference counting; are detailed in the
-<code class="xref doc docutils literal"><span class="pre">/php7/zvals/memory_management</span></code> chapter.</p>
+<a class="reference internal" href="memory_and_gc.html"><span class="doc">Zval memory management and garbage collection</span></a> chapter.</p>
 <p>Setting the zval value is such a common task, PHP provides another set of macros for this purpose. They allow you to
 set the type tag and the value at the same time. Rewriting the previous example using such a macro yields:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;hello world!&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">));</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Furthermore we don&#8217;t need to manually compute the <code class="docutils literal"><span class="pre">strlen</span></code> and can use the <code class="docutils literal"><span class="pre">ZVAL_STRING</span></code> macro (without the <code class="docutils literal"><span class="pre">L</span></code> at
+<p>Furthermore we don’t need to manually compute the <code class="docutils literal"><span class="pre">strlen</span></code> and can use the <code class="docutils literal"><span class="pre">ZVAL_STRING</span></code> macro (without the <code class="docutils literal"><span class="pre">L</span></code> at
 the end) instead:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;hello world!&quot;</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>If you know the length of the string (because it was passed to you in some way) you should always make use of it via the
-<code class="docutils literal"><span class="pre">ZVAL_STRINGL</span></code> macro in order to preserve binary-safety. If you don&#8217;t know the length (or know that the string doesn&#8217;t
+<code class="docutils literal"><span class="pre">ZVAL_STRINGL</span></code> macro in order to preserve binary-safety. If you don’t know the length (or know that the string doesn’t
 contain NUL bytes, as is usually the case with literals) you can use <code class="docutils literal"><span class="pre">ZVAL_STRING</span></code> instead.</p>
 <p>Apart from <code class="docutils literal"><span class="pre">ZVAL_STRING(L)</span></code> there are a few more macros for setting values, which are listed in the following
 example:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">ZVAL_NULL</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZVAL_NULL</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
 
 <span class="n">ZVAL_FALSE</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
 <span class="n">ZVAL_TRUE</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
@@ -399,8 +397,8 @@ example:</p>
 </pre></div>
 </div>
 <p>Note that these macros will set the value, but not destroy any value that the zval might have previously held. For the
-<code class="docutils literal"><span class="pre">return_value</span></code> zval this doesn&#8217;t matter because it was initialized to <code class="docutils literal"><span class="pre">IS_NULL</span></code> (which has no value that needs to be
-freed), but in other cases you&#8217;ll have to destroy the old value first using the functions described in the following
+<code class="docutils literal"><span class="pre">return_value</span></code> zval this doesn’t matter because it was initialized to <code class="docutils literal"><span class="pre">IS_NULL</span></code> (which has no value that needs to be
+freed), but in other cases you’ll have to destroy the old value first using the functions described in the following
 section.</p>
 </div>
 </div>
@@ -414,7 +412,7 @@ section.</p>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="../strings.html">Strings management</a>&#160;&#160;»
+        <a href="memory_and_gc.html">Zval memory management and garbage collection</a>&#160;&#160;»
         </p>
 
       </div>

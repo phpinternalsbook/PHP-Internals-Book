@@ -1,35 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Learning the PHP lifecycle &mdash; PHP Internals Book</title>
-    
+    <title>Learning the PHP lifecycle &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="PHP Internals Book" href="../../index.html" />
-    <link rel="up" title="Extensions design" href="../extensions_design.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="A look into a PHP extension and extension skeleton" href="extension_skeleton.html" />
     <link rel="prev" title="Extensions design" href="../extensions_design.html" /> 
   </head>
-  <body role="document">
+  <body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Learning the PHP lifecycle</span></h2>
@@ -50,9 +48,9 @@
         
   <div class="section" id="learning-the-php-lifecycle">
 <h1>Learning the PHP lifecycle<a class="headerlink" href="#learning-the-php-lifecycle" title="Permalink to this headline">¶</a></h1>
-<p>PHP&#8217;s a complex machinery which lifecycle should really be mastered by anyone pretending to hook into it.
+<p>PHP’s a complex machinery which lifecycle should really be mastered by anyone pretending to hook into it.
 The main line is as follow :</p>
-<p>PHP starts up. If running CLI or FPM, it&#8217;s C <code class="docutils literal"><span class="pre">main()</span></code> is run. If running as a module into a webserver, like using the
+<p>PHP starts up. If running CLI or FPM, it’s C <code class="docutils literal"><span class="pre">main()</span></code> is run. If running as a module into a webserver, like using the
 apxs2 SAPI (Apache 2), PHP is started up just a little bit after Apache itself starts up and comes to run the startup
 sequence of its module which PHP is one. Starting up, is called internally <strong>the module startup step</strong>. We also
 abbreviate it as the <strong>MINIT</strong> step.</p>
@@ -60,7 +58,7 @@ abbreviate it as the <strong>MINIT</strong> step.</p>
 current script to run. However, when we talk about a web environment- should it be PHP-FPM or webserver
 module- PHP could serve several requests one after the other. It all depends on how you did configure you webserver:
 you may tell it to serve an infinite number of requests, or a specific number before shutting down and recycling the
-process. Everytime a new request shows in to be treated, PHP will run <strong>a request startup step</strong>. We call it the
+process. Every time a new request shows in to be treated, PHP will run <strong>a request startup step</strong>. We call it the
 <strong>RINIT</strong>.</p>
 <p>The request is served, some content is (probably) generated, OK. Time to shutdown the request and get prepared to
 eventually treat another one. Shutting down a request is called <strong>the request shutdown step</strong>.  We call
@@ -84,16 +82,16 @@ This model is very common under Unix. Every request leaves into its own process.
 This model is used by PHP-CLI, PHP-FPM and PHP-CGI.</p>
 <p>With the thread-based model, every PHP interpreter is isolated into a thread, using a thread library.
 This model is mainly used under Microsoft Windows OS, but can be used with most Unixes as well. This requires PHP and
-its extensions <a class="reference internal" href="../build_system/building_extensions.html"><em>to be built</em></a> in ZTS mode.</p>
+its extensions <a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">to be built</span></a> in ZTS mode.</p>
 <p>Here is the process-based model:</p>
 <img alt="../../_images/php_lifetime_process.png" class="align-center" src="../../_images/php_lifetime_process.png" />
 <p>And here is the thread-based model:</p>
 <img alt="../../_images/php_lifetime_thread.png" class="align-center" src="../../_images/php_lifetime_thread.png" />
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">PHP&#8217;s multi-processing module is not of your choice, as an extension developer. You will have to support it.
+<p class="last">PHP’s multi-processing module is not of your choice, as an extension developer. You will have to support it.
 You will have to support the fact that your extension could run in a threaded environment, especially under
-Windows platforms, and you&#8217;ll have to program against it.</p>
+Windows platforms, and you’ll have to program against it.</p>
 </div>
 </div>
 <div class="section" id="the-php-extensions-hooks">
@@ -102,7 +100,7 @@ Windows platforms, and you&#8217;ll have to program against it.</p>
 functions</em>. Your extension may declare interest into specific lifetime points by declaring function hooks while it
 registers against the engine.</p>
 <p>Those hooks can clearly be noticed once you analyze a PHP extension structure, the <code class="docutils literal"><span class="pre">zend_module_entry</span></code> structure:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">struct</span> <span class="n">_zend_module_entry</span> <span class="p">{</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">_zend_module_entry</span> <span class="p">{</span>
         <span class="kt">unsigned</span> <span class="kt">short</span> <span class="n">size</span><span class="p">;</span>
         <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">zend_api</span><span class="p">;</span>
         <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">zend_debug</span><span class="p">;</span>
@@ -134,26 +132,27 @@ registers against the engine.</p>
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>Let&#8217;s now have a look at what kind of code you should write in any of those hooks.</p>
+<p>Let’s now have a look at what kind of code you should write in any of those hooks.</p>
 <div class="section" id="module-initialization-minit">
 <h3>Module initialization: MINIT()<a class="headerlink" href="#module-initialization-minit" title="Permalink to this headline">¶</a></h3>
-<p>This is PHP process startup step. In your extension&#8217;s <code class="docutils literal"><span class="pre">MINIT()</span></code>, you&#8217;ll load and allocate any persistent object or
-piece of information you&#8217;ll need for every future request.
+<p>This is PHP process startup step. In your extension’s <code class="docutils literal"><span class="pre">MINIT()</span></code>, you’ll load and allocate any persistent object or
+piece of information you’ll need for every future request.
 For the big part of them, those allocations will target read-only objects.</p>
 <p>In <code class="docutils literal"><span class="pre">MINIT()</span></code>, no thread or process has popped yet, so you may fully access global variables with no protection at
 all. Also, you must not allocate memory that is request-bound, as a request has not started yet.
-You never use <a class="reference internal" href="../memory_management/zend_memory_manager.html"><em>Zend Memory Manager</em></a> allocations in <code class="docutils literal"><span class="pre">MINIT()</span></code> steps,
+You never use <a class="reference internal" href="../memory_management/zend_memory_manager.html"><span class="doc">Zend Memory Manager</span></a> allocations in <code class="docutils literal"><span class="pre">MINIT()</span></code> steps,
 but persistent allocations. No <code class="docutils literal"><span class="pre">emalloc()</span></code>, but <code class="docutils literal"><span class="pre">pemalloc()</span></code>. Failing to do that will lead to crashes.</p>
 <p>At <code class="docutils literal"><span class="pre">MINIT()</span></code>, the execution engine is not started yet, so beware of not trying to access any of its structure without
 special care.</p>
 <p>If you need to register INI entries for your extension, <code class="docutils literal"><span class="pre">MINIT()</span></code> is the right step to do that.</p>
-<p>If you need to register read-only <code class="docutils literal"><span class="pre">zend_strings</span></code> for further usage, it is time to do so here (with persistent alloc).</p>
-<p>If you need to allocate objects that well be written to while serving a request, then you&#8217;ll need to duplicate their
+<p>If you need to register read-only <a class="reference internal" href="../internal_types/strings.html"><span class="doc">zend_strings</span></a> for further usage, it is time to do so
+here (with persistent alloc).</p>
+<p>If you need to allocate objects that well be written to while serving a request, then you’ll need to duplicate their
 memory allocation to a thread-specific pool for the request. Remember that you can only write safely to global space
 while into <code class="docutils literal"><span class="pre">MINIT()</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Memory management, allocations, and debugging; are part of the <a class="reference internal" href="../memory_management.html"><em>memory management</em></a>
+<p class="last">Memory management, allocations, and debugging; are part of the <a class="reference internal" href="../memory_management.html"><span class="doc">memory management</span></a>
 chapter.</p>
 </div>
 <p><code class="docutils literal"><span class="pre">MINIT()</span></code> is triggered by <code class="docutils literal"><span class="pre">zend_startup_modules()</span></code> in
@@ -166,8 +165,8 @@ function.</p>
 <code class="docutils literal"><span class="pre">MINIT()</span></code>. You free your resources, you unregister your INI settings, etc..</p>
 <p>Take care again here: the execution engine is shut down, so you should not access any of its variable (but you should
 not need to here).</p>
-<p>As you don&#8217;t live in a request here, you should not free resources using
-<a class="reference internal" href="../memory_management/zend_memory_manager.html"><em>Zend Memory Manager</em></a> <code class="docutils literal"><span class="pre">efree()</span></code> or alikes, but free for persistent
+<p>As you don’t live in a request here, you should not free resources using
+<a class="reference internal" href="../memory_management/zend_memory_manager.html"><span class="doc">Zend Memory Manager</span></a> <code class="docutils literal"><span class="pre">efree()</span></code> or alikes, but free for persistent
 allocations, aka <code class="docutils literal"><span class="pre">pefree()</span></code>.</p>
 <p><code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code> is triggered by <code class="docutils literal"><span class="pre">zend_destroy_modules()</span></code> from <code class="docutils literal"><span class="pre">zend_shutdown()</span></code> in
 <a class="reference external" href="https://github.com/php/php-src/blob/3704947696fe0ee93e025fa85621d297ac7a1e4d/main/main.c#L2335">php_module_shutdown()</a>
@@ -177,21 +176,21 @@ function.</p>
 <h3>Request initialization: RINIT()<a class="headerlink" href="#request-initialization-rinit" title="Permalink to this headline">¶</a></h3>
 <p>A request just showed in, and PHP is about to treat it here. In <code class="docutils literal"><span class="pre">RINIT()</span></code>, you bootstrap the resources you need to
 treat that precise request. PHP is a share-nothing architecture, and as-is, it provides
-<a class="reference internal" href="../memory_management.html"><em>memory management</em></a> facilities.</p>
-<p>In <code class="docutils literal"><span class="pre">RINIT()</span></code>, if you need to allocate dynamic memory, you&#8217;ll use
-<a class="reference internal" href="../memory_management/zend_memory_manager.html"><em>Zend Memory Manager</em></a>. You will call for <code class="docutils literal"><span class="pre">emalloc()</span></code>.
-<a class="reference internal" href="../memory_management/zend_memory_manager.html"><em>Zend Memory Manager</em></a> tracks the memory you allocate through it, and
+<a class="reference internal" href="../memory_management.html"><span class="doc">memory management</span></a> facilities.</p>
+<p>In <code class="docutils literal"><span class="pre">RINIT()</span></code>, if you need to allocate dynamic memory, you’ll use
+<a class="reference internal" href="../memory_management/zend_memory_manager.html"><span class="doc">Zend Memory Manager</span></a>. You will call for <code class="docutils literal"><span class="pre">emalloc()</span></code>.
+<a class="reference internal" href="../memory_management/zend_memory_manager.html"><span class="doc">Zend Memory Manager</span></a> tracks the memory you allocate through it, and
 when the request shuts down, it will attempt to free the request-bound memory if you forgot to do so (you should not).</p>
-<p>You should not require persistent dynamic memory here, aka libc&#8217;s <code class="docutils literal"><span class="pre">malloc()</span></code> or Zend&#8217;s <code class="docutils literal"><span class="pre">pemalloc()</span></code>. If you require
-persistent memory here, and forgets to free it, you&#8217;ll create leaks that will stack as PHP treats more and more
+<p>You should not require persistent dynamic memory here, aka libc’s <code class="docutils literal"><span class="pre">malloc()</span></code> or Zend’s <code class="docutils literal"><span class="pre">pemalloc()</span></code>. If you require
+persistent memory here, and forgets to free it, you’ll create leaks that will stack as PHP treats more and more
 requests, to finally crash the process (Kernel OOM) and starve the machine memory.</p>
 <p>Also, take really care not to write to global space here. If PHP is run into a thread as chosen parallelism model, then
-you&#8217;ll modify the context for every thread of the pool (every other request treated in parallel to yours) and you could
-also trigger race conditions if you don&#8217;t lock the memory.
-If you need globals, you&#8217;ll need to protect them.</p>
+you’ll modify the context for every thread of the pool (every other request treated in parallel to yours) and you could
+also trigger race conditions if you don’t lock the memory.
+If you need globals, you’ll need to protect them.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Global scope management is explained into <a class="reference internal" href="globals_management.html"><em>a dedicated  chapter</em></a>.</p>
+<p class="last">Global scope management is explained into <a class="reference internal" href="globals_management.html"><span class="doc">a dedicated  chapter</span></a>.</p>
 </div>
 <p><code class="docutils literal"><span class="pre">RINIT()</span></code> is triggered by <code class="docutils literal"><span class="pre">zend_activate_module()</span></code> in
 <a class="reference external" href="https://github.com/php/php-src/blob/3704947696fe0ee93e025fa85621d297ac7a1e4d/main/main.c#L1558">php_request_startup()</a>
@@ -232,7 +231,7 @@ function.</p>
 </div>
 <div class="section" id="globals-initialization-ginit">
 <h3>Globals initialization: GINIT()<a class="headerlink" href="#globals-initialization-ginit" title="Permalink to this headline">¶</a></h3>
-<p>This hook is called everytime a thread is popped by the Threading library. If you use processes as multi-processing
+<p>This hook is called every time a thread is popped by the Threading library. If you use processes as multi-processing
 facility, this function is called only once, while PHP is starting up, just before <code class="docutils literal"><span class="pre">MINIT()</span></code> gets triggered.</p>
 <p>Not providing too many details here, you simply should initialize your globals here, usually to the value zero.
 Globals management will be covered in its dedicated chapter.</p>
@@ -240,12 +239,12 @@ Globals management will be covered in its dedicated chapter.</p>
 then you need to put such a procedure into <code class="docutils literal"><span class="pre">RINIT()</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Global scope management is explained into <a class="reference internal" href="globals_management.html"><em>a dedicated  chapter</em></a>.</p>
+<p class="last">Global scope management is explained into <a class="reference internal" href="globals_management.html"><span class="doc">a dedicated  chapter</span></a>.</p>
 </div>
 </div>
 <div class="section" id="globals-termination-gshutdown">
 <h3>Globals termination: GSHUTDOWN()<a class="headerlink" href="#globals-termination-gshutdown" title="Permalink to this headline">¶</a></h3>
-<p>This hook is called everytime a thread dies from the Threading library. If you use processes as multi-processing
+<p>This hook is called every time a thread dies from the Threading library. If you use processes as multi-processing
 facility, this function is called only once, as part of PHP shutdown (during <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code>).</p>
 <p>Not providing too many details here, you simply should de-initialize your globals here, usually you have nothing to do,
 but if you allocated resources while constructing globals (<code class="docutils literal"><span class="pre">GINIT()</span></code>), here is the step where you should release them.</p>
@@ -253,15 +252,15 @@ but if you allocated resources while constructing globals (<code class="docutils
 <p>Remember that globals are not cleared after every request; aka <code class="docutils literal"><span class="pre">GSHUTDOWN()</span></code> is not called as part of <code class="docutils literal"><span class="pre">RSHUTDOWN()</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Global scope management is explained into <a class="reference internal" href="globals_management.html"><em>a dedicated  chapter</em></a>.</p>
+<p class="last">Global scope management is explained into <a class="reference internal" href="globals_management.html"><span class="doc">a dedicated  chapter</span></a>.</p>
 </div>
 </div>
 <div class="section" id="information-gathering-minfo">
 <h3>Information gathering: MINFO()<a class="headerlink" href="#information-gathering-minfo" title="Permalink to this headline">¶</a></h3>
-<p>That hook is special as it is never triggered automatically by the engine, but only when you ask it informations about
+<p>That hook is special as it is never triggered automatically by the engine, but only when you ask it information about
 an extension. The typical use case is a call to <code class="docutils literal"><span class="pre">phpinfo()</span></code>. This function is then run, and it is expected to print
-into a stream special informations about the current extension.</p>
-<p>The <code class="docutils literal"><span class="pre">phpinfo()</span></code> panel informations, in short.</p>
+into a stream special information about the current extension.</p>
+<p>The <code class="docutils literal"><span class="pre">phpinfo()</span></code> panel information, in short.</p>
 <p>This function can also be called through the CLI, using one of the reflection switch such as <code class="docutils literal"><span class="pre">php</span> <span class="pre">--ri</span> <span class="pre">pib</span></code> or via
 userland with a call to <code class="docutils literal"><span class="pre">ini_get_all()</span></code> f.e</p>
 <p>You may leave it empty, in such a case only the name of the extension is displayed and nothing more (possible INI
@@ -273,11 +272,12 @@ settings are not displayed as this happens as part of MINFO()).</p>
 <p>As you may have spotted, <code class="docutils literal"><span class="pre">RINIT()</span></code> and <code class="docutils literal"><span class="pre">RSHUTDOWN()</span></code> are especially crucial as they could get triggered thousands
 of times on your extension. If the PHP setup is about Web (not CLI), and has been configured so that it can treat an
 infinite number of requests, thus your <code class="docutils literal"><span class="pre">RINIT()/RSHUTDOWN()</span></code> couple will be called an infinite amount of time.</p>
-<p>We&#8217;d like to once more get your attention about memory management. The little tiny byte you&#8217;ll eventually leak while
+<p>We’d like to once more get your attention about memory management. The little tiny byte you’ll eventually leak while
 treating a request (between <code class="docutils literal"><span class="pre">RINIT()</span></code> and <code class="docutils literal"><span class="pre">RSHUTDOWN()</span></code>) will have dramatic consequences on fully loaded servers.
-That&#8217;s why you are advised to use <a class="reference internal" href="../memory_management/zend_memory_manager.html"><em>Zend Memory Manager</em></a> for such
-allocations. PHP will forget and free the request memory at the end of every request as part of the share-nothing
-architecture, that&#8217;s PHP&#8217;s internal design.</p>
+That’s why you are advised to use <a class="reference internal" href="../memory_management/zend_memory_manager.html"><span class="doc">Zend Memory Manager</span></a> for such
+allocations and be ready to <a class="reference internal" href="../memory_management/memory_debugging.html"><span class="doc">debug your memory layout</span></a>. PHP will forget
+and free the request memory at the end of every request as part of the share-nothing architecture, that’s PHP’s
+internal design.</p>
 <p>Also, if you crash with a SIGSEGV signal (bad memory access), you crash the entire process. If the PHP setup was using
 threads as multi-processing engine, then you crash every other thread with you, and could even crash the webserver.</p>
 <div class="admonition note">
@@ -294,10 +294,10 @@ hook into the engine.
 As those pointers are global variables, you may replace them into <code class="docutils literal"><span class="pre">MINIT()</span></code> step, and put them back into
 <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code>.</p>
 <p>Those of interest are:</p>
-<ul>
+<ul class="simple">
 <li><dl class="first docutils">
 <dt>AST, Zend/zend_ast.h:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><cite>void (*zend_ast_process_t)(zend_ast *ast)</cite></li>
 </ul>
 </dd>
@@ -305,7 +305,7 @@ As those pointers are global variables, you may replace them into <code class="d
 </li>
 <li><dl class="first docutils">
 <dt>Compiler, Zend/zend_compile.h:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><cite>zend_op_array *(*zend_compile_file)(zend_file_handle *file_handle, int type)</cite></li>
 <li><cite>zend_op_array *(*zend_compile_string)(zval *source_string, char *filename)</cite></li>
 </ul>
@@ -314,7 +314,7 @@ As those pointers are global variables, you may replace them into <code class="d
 </li>
 <li><dl class="first docutils">
 <dt>Executor, Zend/zend_execute.h:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><cite>void (*zend_execute_ex)(zend_execute_data *execute_data)</cite></li>
 <li><cite>void (*zend_execute_internal)(zend_execute_data *execute_data, zval *return_value)</cite></li>
 </ul>
@@ -323,7 +323,7 @@ As those pointers are global variables, you may replace them into <code class="d
 </li>
 <li><dl class="first docutils">
 <dt>GC, Zend/zend_gc.h:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><cite>int (*gc_collect_cycles)(void)</cite></li>
 </ul>
 </dd>
@@ -331,7 +331,7 @@ As those pointers are global variables, you may replace them into <code class="d
 </li>
 <li><dl class="first docutils">
 <dt>TSRM, TSRM/TSRM.h:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><cite>void (*tsrm_thread_begin_func_t)(THREAD_T thread_id)</cite></li>
 <li><cite>void (*tsrm_thread_end_func_t)(THREAD_T thread_id)</cite></li>
 </ul>
@@ -340,7 +340,7 @@ As those pointers are global variables, you may replace them into <code class="d
 </li>
 <li><dl class="first docutils">
 <dt>Error, Zend/zend.h:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><cite>void (*zend_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format,
 va_list args)</cite></li>
 </ul>
@@ -349,7 +349,7 @@ va_list args)</cite></li>
 </li>
 <li><dl class="first docutils">
 <dt>Exceptions, Zend/zend_exceptions.h:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><cite>void (*zend_throw_exception_hook)(zval *ex)</cite></li>
 </ul>
 </dd>
@@ -357,7 +357,7 @@ va_list args)</cite></li>
 </li>
 <li><dl class="first docutils">
 <dt>Lifetime, Zend/zend.h:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><cite>void (*zend_on_timeout)(int seconds)</cite></li>
 <li><cite>void (*zend_interrupt_function)(zend_execute_data *execute_data)</cite></li>
 <li><cite>void (*zend_ticks_function)(int ticks)</cite></li>
@@ -368,7 +368,7 @@ va_list args)</cite></li>
 </ul>
 <p>Other exists but the above ones are the most important ones you could need while designing PHP extensions.
 As their names are self explanatory, there is no need to detail every of them.</p>
-<p>If you need some more informations, you can look for them into PHP source code, and discover when and how they get
+<p>If you need some more information, you can look for them into PHP source code, and discover when and how they get
 triggered.</p>
 </div>
 </div>

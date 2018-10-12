@@ -1,34 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Extensions design &mdash; PHP Internals Book</title>
-    
+    <title>Extensions design &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Learning the PHP lifecycle" href="extensions_design/php_lifecycle.html" />
-    <link rel="prev" title="Functions: zend_function" href="internal_types/functions.html" /> 
+    <link rel="prev" title="Objects and classes" href="internal_types/objects.html" /> 
   </head>
-  <body role="document">
+  <body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Extensions design</span></h2>
@@ -36,7 +35,7 @@
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="internal_types/functions.html">Functions: zend_function</a>
+        «&#160;&#160;<a href="internal_types/objects.html">Objects and classes</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -49,9 +48,9 @@
         
   <div class="section" id="extensions-design">
 <h1>Extensions design<a class="headerlink" href="#extensions-design" title="Permalink to this headline">¶</a></h1>
-<p>In this chapter you&#8217;ll learn how to design PHP extensions. You&#8217;ll learn about the PHP lifecycle, how and when to manage
-memory, the different hooks you can use or the different function pointers you can replace to actively change PHP&#8217;s
-internal machinery. You&#8217;ll design PHP functions and classes to provide them through your extension, and you&#8217;ll play
+<p>In this chapter you’ll learn how to design PHP extensions. You’ll learn about the PHP lifecycle, how and when to manage
+memory, the different hooks you can use or the different function pointers you can replace to actively change PHP’s
+internal machinery. You’ll design PHP functions and classes to provide them through your extension, and you’ll play
 with INI settings.</p>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
@@ -86,7 +85,7 @@ with INI settings.</p>
 <li class="toctree-l2"><a class="reference internal" href="extensions_design/globals_management.html#using-true-globals">Using true globals</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="extensions_design/extension_infos.html">Publishing extension informations</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="extensions_design/extension_infos.html">Publishing extension information</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_infos.html#minfo-hook">MINFO() hook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extensions_design/extension_infos.html#a-note-about-the-reflection-api">A note about the Reflection API</a></li>
 </ul>
@@ -118,7 +117,7 @@ with INI settings.</p>
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="internal_types/functions.html">Functions: zend_function</a>
+        «&#160;&#160;<a href="internal_types/objects.html">Objects and classes</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;

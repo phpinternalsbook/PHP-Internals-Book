@@ -1,35 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>PHP’s custom printf functions &mdash; PHP Internals Book</title>
-    
+    <title>PHP’s custom printf functions &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/style.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="PHP Internals Book" href="../../../index.html" />
-    <link rel="up" title="Strings management" href="../strings.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="The Resource type: zend_resource" href="../zend_resources.html" />
     <link rel="prev" title="smart_str API" href="smart_str.html" /> 
   </head>
-  <body role="document">
+  <body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>PHP’s custom printf functions</span></h2>
@@ -49,21 +47,21 @@
         
         
   <div class="section" id="php-s-custom-printf-functions">
-<h1>PHP&#8217;s custom printf functions<a class="headerlink" href="#php-s-custom-printf-functions" title="Permalink to this headline">¶</a></h1>
-<p>You all know libc&#8217;s <code class="docutils literal"><span class="pre">printf()</span></code> and family. This chapter will detail those many clones PHP declares and use, what&#8217;s
+<h1>PHP’s custom printf functions<a class="headerlink" href="#php-s-custom-printf-functions" title="Permalink to this headline">¶</a></h1>
+<p>You all know libc’s <code class="docutils literal"><span class="pre">printf()</span></code> and family. This chapter will detail those many clones PHP declares and use, what’s
 their goal, why use them and when to use them.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Libc&#8217;s documentation about <code class="docutils literal"><span class="pre">printf()</span></code> and friends
+<p class="last">Libc’s documentation about <code class="docutils literal"><span class="pre">printf()</span></code> and friends
 <a class="reference external" href="https://www.gnu.org/software/libc/manual/html_node/Formatted-Output-Functions.html">is located here</a></p>
 </div>
-<p>You know that those functions are useful, but sometimes don&#8217;t provide enough functionalities.
+<p>You know that those functions are useful, but sometimes don’t provide enough functionalities.
 Also, you know that
 <a class="reference external" href="https://www.gnu.org/software/libc/manual/html_node/Customizing-Printf.html">adding format strings</a> to <code class="docutils literal"><span class="pre">printf()</span></code>
 family is not trivial, not portable and security risky.</p>
 <p>PHP adds its own printf-like functions to replace libc ones and to be used by the internal developer.
-They will mainly add new formats, play with <a class="reference internal" href="zend_strings.html"><em>zend_string</em></a> instead of
-<code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>, etc...  Let&#8217;s see them together.</p>
+They will mainly add new formats, play with <a class="reference internal" href="zend_strings.html"><span class="doc">zend_string</span></a> instead of
+<code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>, etc…  Let’s see them together.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">You must master your libc default <code class="docutils literal"><span class="pre">printf()</span></code> formats. Read
@@ -71,13 +69,13 @@ They will mainly add new formats, play with <a class="reference internal" href="
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Those functions are added <strong>to replace</strong> libc ones, that means that if you use <code class="docutils literal"><span class="pre">sprintf()</span></code> f.e, that won&#8217;t
-lead to libc&#8217;s <code class="docutils literal"><span class="pre">sprintf()</span></code>, but to PHP replacement. Except the traditional <code class="docutils literal"><span class="pre">printf()</span></code>, everything else
+<p class="last">Those functions are added <strong>to replace</strong> libc ones, that means that if you use <code class="docutils literal"><span class="pre">sprintf()</span></code> f.e, that won’t
+lead to libc’s <code class="docutils literal"><span class="pre">sprintf()</span></code>, but to PHP replacement. Except the traditional <code class="docutils literal"><span class="pre">printf()</span></code>, everything else
 is replaced.</p>
 </div>
 <div class="section" id="traditional-use">
 <h2>Traditional use<a class="headerlink" href="#traditional-use" title="Permalink to this headline">¶</a></h2>
-<p>First of all, you should not use <code class="docutils literal"><span class="pre">sprintf()</span></code>, as that function doesn&#8217;t perform any check and allows many buffer
+<p>First of all, you should not use <code class="docutils literal"><span class="pre">sprintf()</span></code>, as that function doesn’t perform any check and allows many buffer
 overflow errors. Please, try to avoid using it.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -88,12 +86,12 @@ overflow errors. Please, try to avoid using it.</p>
 <h3>You know your result buffer size<a class="headerlink" href="#you-know-your-result-buffer-size" title="Permalink to this headline">¶</a></h3>
 <p>If you know your buffer size, <code class="docutils literal"><span class="pre">snprintf()</span></code> or <code class="docutils literal"><span class="pre">slprintf()</span></code> will do the job for you. There is a difference in what
 those functions return, but not in what those functions do.</p>
-<p>They both print according to the formats passed, and they both terminate your buffer by a <code class="docutils literal"><span class="pre">NUL</span></code> byte <em>&#8216;\0&#8217;</em> whatever
+<p>They both print according to the formats passed, and they both terminate your buffer by a <code class="docutils literal"><span class="pre">NUL</span></code> byte <em>‘\0’</em> whatever
 happens. However, <code class="docutils literal"><span class="pre">snprintf()</span></code> returns the number of characters that could have been used, whereas <code class="docutils literal"><span class="pre">slprintf()</span></code>
 returns the number of characters that have effectively been used, thus enabling to detect too-small buffers and string
-truncation. This, is not counting the final <em>&#8216;\0&#8217;</em>.</p>
+truncation. This, is not counting the final <em>‘\0’</em>.</p>
 <p>Here is an example so that you fully understand:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="kt">char</span> <span class="n">foo</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span> <span class="cm">/* 8-char large buffer */</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">char</span> <span class="n">foo</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span> <span class="cm">/* 8-char large buffer */</span>
 <span class="k">const</span> <span class="kt">char</span> <span class="n">str</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;Hello world&quot;</span><span class="p">;</span> <span class="cm">/* 12 chars including \0 in count */</span>
 <span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
 
@@ -104,11 +102,11 @@ truncation. This, is not counting the final <em>&#8216;\0&#8217;</em>.</p>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">snprintf()</span></code> is not a good function to use, as it does not allows to detect an eventual string truncation.
-As you can see from the example above, &#8220;Hello world\0&#8221; doesn&#8217;t fit in an eight-byte buffer, that&#8217;s obvious, but
-<code class="docutils literal"><span class="pre">snprintf()</span></code> still returns you 11, which is <code class="docutils literal"><span class="pre">strlen(&quot;Hello</span> <span class="pre">world\0&quot;)</span></code>. You have no way to detect that the string&#8217;s
+As you can see from the example above, “Hello world\0” doesn’t fit in an eight-byte buffer, that’s obvious, but
+<code class="docutils literal"><span class="pre">snprintf()</span></code> still returns you 11, which is <code class="docutils literal"><span class="pre">strlen(&quot;Hello</span> <span class="pre">world\0&quot;)</span></code>. You have no way to detect that the string’s
 got truncated.</p>
 <p>Here is <code class="docutils literal"><span class="pre">slprintf()</span></code>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="kt">char</span> <span class="n">foo</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span> <span class="cm">/* 8-char large buffer */</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">char</span> <span class="n">foo</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span> <span class="cm">/* 8-char large buffer */</span>
 <span class="k">const</span> <span class="kt">char</span> <span class="n">str</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;Hello world&quot;</span><span class="p">;</span> <span class="cm">/* 12 chars including \0 in count */</span>
 <span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
 
@@ -119,9 +117,9 @@ got truncated.</p>
 </pre></div>
 </div>
 <p>With <code class="docutils literal"><span class="pre">slprintf()</span></code>, the result buffer <code class="docutils literal"><span class="pre">foo</span></code> contains the exact same string, but the returned value is now 7. 7 is
-less than the 11 chars from the <em>&#8220;Hello world&#8221;</em> string, thus you can detect that it got truncated:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">slprintf</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span> <span class="s">&quot;%s&quot;</span><span class="p">,</span> <span class="n">str</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">))</span> <span class="p">{</span>
-    <span class="cm">/* A string truncation occured */</span>
+less than the 11 chars from the <em>“Hello world”</em> string, thus you can detect that it got truncated:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">slprintf</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span> <span class="s">&quot;%s&quot;</span><span class="p">,</span> <span class="n">str</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">))</span> <span class="p">{</span>
+    <span class="cm">/* A string truncation occurred */</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -134,11 +132,11 @@ less than the 11 chars from the <em>&#8220;Hello world&#8221;</em> string, thus 
 <a class="reference external" href="https://github.com/php/php-src/blob/648be8600ff89e1b0e4a4ad25cebad42b53bed6d/main/snprintf.c">main/snprintf.c</a></p>
 </div>
 <div class="section" id="you-don-t-know-your-buffer-size">
-<h3>You don&#8217;t know your buffer size<a class="headerlink" href="#you-don-t-know-your-buffer-size" title="Permalink to this headline">¶</a></h3>
-<p>Now if you don&#8217;t know your result buffer size, you need a dynamicaly allocated one, and then you&#8217;ll use <code class="docutils literal"><span class="pre">spprintf()</span></code>.
-Remember that <strong>you&#8217;ll have to free</strong> the buffer by yourself !</p>
+<h3>You don’t know your buffer size<a class="headerlink" href="#you-don-t-know-your-buffer-size" title="Permalink to this headline">¶</a></h3>
+<p>Now if you don’t know your result buffer size, you need a dynamically allocated one, and then you’ll use <code class="docutils literal"><span class="pre">spprintf()</span></code>.
+Remember that <strong>you’ll have to free</strong> the buffer by yourself !</p>
 <p>Here is an example:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp"></span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp"></span>
 
 <span class="kt">char</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
 <span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
@@ -152,18 +150,18 @@ Remember that <strong>you&#8217;ll have to free</strong> the buffer by yourself 
 <span class="n">efree</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">spprintf()</span></code> returns the number of characters that&#8217;ve been printed into the result buffer, not counting the final
-<em>&#8216;\0&#8217;</em>, hence you know the number of bytes that got allocated for you (minus one).</p>
+<p><code class="docutils literal"><span class="pre">spprintf()</span></code> returns the number of characters that’ve been printed into the result buffer, not counting the final
+<em>‘\0’</em>, hence you know the number of bytes that got allocated for you (minus one).</p>
 <p>Please, note that the allocation is done using ZendMM (request allocation), and should thus be used as part of a
 request and freed using <code class="docutils literal"><span class="pre">efree()</span></code> and not <code class="docutils literal"><span class="pre">free()</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><a class="reference internal" href="../../memory_management/zend_memory_manager.html"><em>The chapter about Zend Memory Manager</em></a> (ZendMM) details
+<p class="last"><a class="reference internal" href="../../memory_management/zend_memory_manager.html"><span class="doc">The chapter about Zend Memory Manager</span></a> (ZendMM) details
 how dynamic memory is allocated through PHP.</p>
 </div>
 <p>If you want to limit the buffer size, you pass that limit as the second argument, if you pass <em>0</em>, that means
 unlimited:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp"></span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp"></span>
 
 <span class="kt">char</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
 <span class="kt">int</span> <span class="n">r</span><span class="p">;</span>
@@ -194,24 +192,24 @@ to the SAPI output, aka stdout in case of CLI, or the output buffer (CGI buffer 
 </div>
 <div class="section" id="special-php-printf-formats">
 <h3>Special PHP printf formats<a class="headerlink" href="#special-php-printf-formats" title="Permalink to this headline">¶</a></h3>
-<p>Remember that PHP replaces most libc&#8217;s <code class="docutils literal"><span class="pre">printf()</span></code> functions by its own of its own design. You can have a look at
+<p>Remember that PHP replaces most libc’s <code class="docutils literal"><span class="pre">printf()</span></code> functions by its own of its own design. You can have a look at
 the argument parsing API which is easy to understand <a class="reference external" href="https://github.com/php/php-src/blob/509f5097ab0b578adc311c720afcea8de266aadd/main/spprintf.c#L203">from reading the source</a>.</p>
-<p>What that means is that arguments parsing algo has been fully rewritten, and may differ from what you&#8217;re used to in libc.
+<p>What that means is that arguments parsing algo has been fully rewritten, and may differ from what you’re used to in libc.
 F.e, the libc locale is not taken care of in most cases.</p>
-<p>Special formats may be used, like <em>&#8220;%I64&#8221;</em> to explicitely print to an int64, or <em>&#8220;%I32&#8221;</em>.
-You can also use <em>&#8220;%Z&#8221;</em> to make a zval printable (according to PHP cast rules to string), that one is a great addition.</p>
-<p>The formatter will also recognize infinite numbers and print &#8220;INF&#8221;, or &#8220;NAN&#8221; for not-a-number.</p>
+<p>Special formats may be used, like <em>“%I64”</em> to explicitly print to an int64, or <em>“%I32”</em>.
+You can also use <em>“%Z”</em> to make a zval printable (according to PHP cast rules to string), that one is a great addition.</p>
+<p>The formatter will also recognize infinite numbers and print “INF”, or “NAN” for not-a-number.</p>
 <p>If you make a mistake, and ask the formatter to print a <code class="docutils literal"><span class="pre">NULL</span></code> pointer, where libc will crash for sure, PHP will
-return <em>&#8220;(null)&#8221;</em> as a result string.</p>
+return <em>“(null)”</em> as a result string.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If in a printf you see a magic <em>&#8220;(null)&#8221;</em> appearing, that means you passed a NULL pointer to one of PHP
+<p class="last">If in a printf you see a magic <em>“(null)”</em> appearing, that means you passed a NULL pointer to one of PHP
 printf family functions.</p>
 </div>
 </div>
 <div class="section" id="printf-ing-into-zend-strings">
 <h3>Printf()ing into zend_strings<a class="headerlink" href="#printf-ing-into-zend-strings" title="Permalink to this headline">¶</a></h3>
-<p>As <a class="reference internal" href="zend_strings.html"><em>zend_string</em></a> are a very common structure into PHP source, you may need to <code class="docutils literal"><span class="pre">printf()</span></code> into a
+<p>As <a class="reference internal" href="zend_strings.html"><span class="doc">zend_string</span></a> are a very common structure into PHP source, you may need to <code class="docutils literal"><span class="pre">printf()</span></code> into a
 <code class="docutils literal"><span class="pre">zend_string</span></code> instead of a traditional C <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>.  For this, use <code class="docutils literal"><span class="pre">strpprintf()</span></code>.</p>
 <p>The API is <code class="docutils literal"><span class="pre">zend_string</span> <span class="pre">*strpprintf(size_t</span> <span class="pre">max_len,</span> <span class="pre">const</span> <span class="pre">char</span> <span class="pre">*format,</span> <span class="pre">...)</span></code> that means that the <code class="docutils literal"><span class="pre">zend_string</span></code> is
 returned to you, and not the number of printed chars as you may expect. You can limit that number though, using the
@@ -219,7 +217,7 @@ first parameter (pass 0 to mean infinite); and you must remember that the <code 
 Zend Memory Manager, and thus bound to the current request.</p>
 <p>Obviously, the format API is shared with the one seen above.</p>
 <p>Here is a quick example:</p>
-<div class="highlight-c"><div class="highlight"><pre><span class="n">zend_string</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">strpprintf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;You are using PHP %s&quot;</span><span class="p">,</span> <span class="n">PHP_VERSION</span><span class="p">);</span>
 

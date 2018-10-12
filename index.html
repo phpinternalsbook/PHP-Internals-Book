@@ -1,33 +1,32 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Table Of Contents &mdash; PHP Internals Book</title>
-    
+    <title>Table Of Contents &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PHP Internals Book" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Introduction" href="introduction.html" /> 
   </head>
-  <body role="document">
+  <body>
       <div class="header" role="banner"><h1 class="heading"><a href="#">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Table Of Contents</span></h2>
@@ -129,16 +128,18 @@
 <li class="toctree-l1"><a class="reference internal" href="php7/internal_types.html">Internal types</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="php7/internal_types/zvals.html">Zvals</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zvals/basic_structure.html">Basic structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zvals/memory_and_gc.html">Zval memory management and garbage collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zvals/casts_and_operations.html">Casts and operations on zvals</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="php7/internal_types/strings.html">Strings management</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="php7/internal_types/strings/zend_strings.html">Strings management: zend_string</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/internal_types/strings/smart_str.html">smart_str API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/strings/printing_functions.html">PHP&#8217;s custom printf functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/strings/printing_functions.html">PHP’s custom printf functions</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="php7/internal_types/zend_resources.html">The Resource type: zend_resource</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#what-is-the-resource-type">What is the &#8220;Resource&#8221; type?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#what-is-the-resource-type">What is the “Resource” type?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#resource-types-and-resource-destruction">Resource types and resource destruction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#playing-with-resources">Playing with resources</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/internal_types/zend_resources.html#reference-counting-resources">Reference counting resources</a></li>
@@ -147,6 +148,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="php7/internal_types/hashtables.html">HashTables: zend_array</a></li>
 <li class="toctree-l2"><a class="reference internal" href="php7/internal_types/functions.html">Functions: zend_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="php7/internal_types/objects.html">Objects and classes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="php7/extensions_design.html">Extensions design</a><ul>
@@ -180,7 +182,7 @@
 <li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/globals_management.html#using-true-globals">Using true globals</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="php7/extensions_design/extension_infos.html">Publishing extension informations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="php7/extensions_design/extension_infos.html">Publishing extension information</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/extension_infos.html#minfo-hook">MINFO() hook</a></li>
 <li class="toctree-l3"><a class="reference internal" href="php7/extensions_design/extension_infos.html#a-note-about-the-reflection-api">A note about the Reflection API</a></li>
 </ul>
@@ -273,8 +275,8 @@
 <div class="section" id="index-and-search">
 <h1>Index and search<a class="headerlink" href="#index-and-search" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
 </ul>
 </div>
 

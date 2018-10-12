@@ -1,34 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Zend engine &mdash; PHP Internals Book</title>
-    
+    <title>Zend engine &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="PHP Internals Book" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Zend Compiler" href="zend_engine/zend_compiler.html" />
     <link rel="prev" title="Debugging memory" href="memory_management/memory_debugging.html" /> 
   </head>
-  <body role="document">
+  <body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Zend engine</span></h2>
@@ -52,7 +51,7 @@
 <p>The Zend engine is a set of components that make PHP what it is. The most important Zend engine component is the
 <em>Zend Virtual Machine</em>, which is composed of the <em>Zend Compiler</em> and the <em>Zend Executor</em> components. We could also add
 the OPCache zend extension in such category. Those three components are the heart of PHP (or the brain, you choose),
-they are critical and they are the most complex parts of all the PHP source code. In the current chapter, we&#8217;ll try to
+they are critical and they are the most complex parts of all the PHP source code. In the current chapter, we’ll try to
 open them and detail them.</p>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
