@@ -83,7 +83,6 @@ have the first three installed by default):
   * 2.59 or higher (for PHP 7.0-7.1)
   * 2.64 or higher (for PHP 7.2)
   * 2.68 or higher (for PHP 7.3)
-* ``automake`` (1.4 or higher), which generates ``Makefile.in`` files.
 * ``libtool``, which helps manage shared libraries.
 * ``bison`` (2.4 or higher), which is used to generate the PHP parser.
 * (optional) ``re2c``, which is used to generate the PHP lexer. As the git repository already contains a generated
@@ -91,7 +90,7 @@ have the first three installed by default):
 
 On Debian/Ubuntu you can install all these with the following command::
 
-    ~/php-src> sudo apt-get install build-essential autoconf automake libtool bison re2c
+    ~/php-src> sudo apt-get install build-essential autoconf libtool bison re2c
 
 Depending on the extensions that you enable during the ``./configure`` stage PHP will need a number of additional
 libraries. When installing these, check if there is a version of the package ending in ``-dev`` or ``-devel`` and
