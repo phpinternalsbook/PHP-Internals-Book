@@ -85,8 +85,10 @@ have the first three installed by default):
   * 2.68 or higher (for PHP 7.3)
 * ``libtool``, which helps manage shared libraries.
 * ``bison`` (2.4 or higher), which is used to generate the PHP parser.
-* (optional) ``re2c``, which is used to generate the PHP lexer. As the git repository already contains a generated
-  lexer you will only need re2c if you wish to make changes to it.
+* ``re2c``, which is used to generate the PHP lexer. The re2c lexer generator was
+  once an optional dependency when building PHP from the Git repository. In
+  PHP > 7.3 branches the generated lexer files are not bundled in the Git
+  repository anymore.
 
 On Debian/Ubuntu you can install all these with the following command::
 
