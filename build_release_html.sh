@@ -5,3 +5,4 @@ rm -f BookHTML/*.html
 rm -f BookHTML/.buildinfo
 
 sphinx-build -b html -d doctrees -a Book BookHTML
+php generate_php5_redirects.php

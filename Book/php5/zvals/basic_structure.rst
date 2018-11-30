@@ -82,11 +82,11 @@ than this would cause an overflow (thus making the length negative).
 The remaining three types will only be mentioned here quickly and discussed in greater detail in their own chapters:
 
 Arrays use the ``IS_ARRAY`` type tag and are stored in the ``HashTable *ht`` member. How the ``HashTable`` structure
-works will be discussed in the :doc:`/hashtables` chapter.
+works will be discussed in the :doc:`/php5/hashtables` chapter.
 
 Objects (``IS_OBJECT``) use the ``zend_object_value obj`` member, which consists of an "object handle", which is an
 integer ID used to look up the actual data of the object, and a set of "object handlers", which define how the object
-behaves. PHP's class and object system will be described in the :doc:`/classes_objects` chapter.
+behaves. PHP's class and object system will be described in the :doc:`/php5/classes_objects` chapter.
 
 Resources (``IS_RESOURCE``) are similar to objects in that they also store a unique ID that can be used to look up the
 actual value. This ID is stored in the ``long lval`` member. Resources are covered in the Resources chapter (which
