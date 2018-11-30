@@ -7,23 +7,23 @@ PHP 5
 .. toctree::
     :maxdepth: 2
 
-    introduction.rst
-    build_system.rst
+    php5/introduction.rst
+    php5/build_system.rst
 
 * Creating PHP extensions
 
 .. toctree::
     :maxdepth: 2
 
-    zvals.rst
+    php5/zvals.rst
 
 * Implementing functions
 
 .. toctree::
     :maxdepth: 2
 
-    hashtables.rst
-    classes_objects.rst
+    php5/hashtables.rst
+    php5/classes_objects.rst
 
 PHP 7
 -----
