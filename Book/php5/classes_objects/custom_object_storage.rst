@@ -27,7 +27,8 @@ its simpler cousins is used::
     zval *obj;
     MAKE_STD_ZVAL(obj);
     object_init(obj);
-    // = object_init_ex(obj, NULL) = object_and_properties_init(obj, NULL, NULL)
+    // = object_init_ex(obj, zend_standard_class_def)
+    // = object_and_properties_init(obj, zend_standard_class_def, NULL)
 
 In the last case, i.e. when you are creating an ``stdClass`` object you will probably want to add properties afterwards.
 This usually isn't done with the ``zend_update_property`` functions from the previous chapter, instead the
