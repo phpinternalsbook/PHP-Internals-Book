@@ -217,7 +217,7 @@ initialize your globals. Here, we put zero into our random value (not really use
 .. warning:: Don't use ``PIB_G()`` macro in GINIT. Use the pointer you are given.
 
 .. note:: ``GINIT()`` is launched before ``MINIT()`` for the current process. In case of NTS, that's all. In case of
-            ZTS, ``GINIT()`` will be called additionnaly for every new thread spawned by the thread library.
+            ZTS, ``GINIT()`` will be called additionally for every new thread spawned by the thread library.
 
 .. warning:: ``GINIT()`` is not called as part of ``RINIT()``. If you need to clear your globals at every new request,
              you need to do that by hand, like we did in the example shown throughout the chapter.
