@@ -606,7 +606,7 @@ decides which of the elements should be copied using a merge checker function:</
 <p>The checker function takes the target hashtable, the source data, its hash key and an additional argument (similar to
 <code class="docutils literal"><span class="pre">zend_hash_apply_with_argument()</span></code>). As an example lets implement a function that takes two arrays, merges them and
 in case of a key collision uses the greater value:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">int</span> <span class="nf">merge_greater</span><span class="p">(</span>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">zend_bool</span> <span class="nf">merge_greater</span><span class="p">(</span>
     <span class="n">HashTable</span> <span class="o">*</span><span class="n">target_ht</span><span class="p">,</span> <span class="n">zval</span> <span class="o">**</span><span class="n">source_zv</span><span class="p">,</span> <span class="n">zend_hash_key</span> <span class="o">*</span><span class="n">hash_key</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">dummy</span>
 <span class="p">)</span> <span class="p">{</span>
     <span class="n">zval</span> <span class="o">**</span><span class="n">target_zv</span><span class="p">;</span>

@@ -37,7 +37,7 @@ make it translate to efficient CPU instructions so that you can design strong/fa
 * Hackers Delight
 * Write Great Code (2 Volumes)
 
-.. note:: This book is Work-In-Progress and some chapters have not been written yet. We d'ont pay attention to a
+.. note:: This book is Work-In-Progress and some chapters have not been written yet. We don't pay attention to a
           specific order, but add content as we feel.
 
 The repository for this book is available on GitHub_. Please report issues and provide feedback on the `issue tracker`_.

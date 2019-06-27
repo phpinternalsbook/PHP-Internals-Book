@@ -115,14 +115,19 @@ have the first three installed by default):</p>
 <li>2.68 or higher (for PHP 7.3)</li>
 </ul>
 </li>
-<li><code class="docutils literal"><span class="pre">automake</span></code> (1.4 or higher), which generates <code class="docutils literal"><span class="pre">Makefile.in</span></code> files.</li>
 <li><code class="docutils literal"><span class="pre">libtool</span></code>, which helps manage shared libraries.</li>
-<li><code class="docutils literal"><span class="pre">bison</span></code> (2.4 or higher), which is used to generate the PHP parser.</li>
-<li>(optional) <code class="docutils literal"><span class="pre">re2c</span></code>, which is used to generate the PHP lexer. As the git repository already contains a generated
-lexer you will only need re2c if you wish to make changes to it.</li>
+<li><code class="docutils literal"><span class="pre">bison</span></code> which is used to generate the PHP parser.<ul>
+<li>2.4 or higher (for PHP 7.0-7.3)</li>
+<li>3.0 or higher (for PHP 7.4)</li>
+</ul>
+</li>
+<li><code class="docutils literal"><span class="pre">re2c</span></code>, which is used to generate the PHP lexer. The re2c lexer generator was
+once an optional dependency when building PHP from the Git repository. In
+PHP &gt; 7.3 branches the generated lexer files are not bundled in the Git
+repository anymore.</li>
 </ul>
 <p>On Debian/Ubuntu you can install all these with the following command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; sudo apt-get install build-essential autoconf automake libtool bison re2c
+<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; sudo apt-get install build-essential autoconf libtool bison re2c
 </pre></div>
 </div>
 <p>Depending on the extensions that you enable during the <code class="docutils literal"><span class="pre">./configure</span></code> stage PHP will need a number of additional

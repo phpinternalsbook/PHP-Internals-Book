@@ -1,4 +1,0 @@
-HashTables: zend_array
-=======================
-
-

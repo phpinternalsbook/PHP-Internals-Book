@@ -283,7 +283,7 @@ threads as multi-processing engine, then you crash every other thread with you, 
 .. note:: The C language is not the PHP language. Using C, errors and mistakes in your program will highly probably
           lead to a program crash and termination.
 
-Hooking by overwritting function pointers
+Hooking by overwriting function pointers
 *****************************************
 
 Now you know when the engine will trigger your code, there exists also noticeable function pointers you may replace to

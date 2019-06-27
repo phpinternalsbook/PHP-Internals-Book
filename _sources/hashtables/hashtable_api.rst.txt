@@ -613,7 +613,7 @@ The checker function takes the target hashtable, the source data, its hash key a
 ``zend_hash_apply_with_argument()``). As an example lets implement a function that takes two arrays, merges them and
 in case of a key collision uses the greater value::
 
-    static int merge_greater(
+    static zend_bool merge_greater(
         HashTable *target_ht, zval **source_zv, zend_hash_key *hash_key, void *dummy
     ) {
         zval **target_zv;
