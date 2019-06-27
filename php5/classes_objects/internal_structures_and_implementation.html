@@ -1,0 +1,372 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Internal structures and implementation &#8212; PHP Internals Book</title>
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Introduction" href="../../php7/introduction.html" />
+    <link rel="prev" title="Magic interfaces - Comparable" href="magic_interfaces_comparable.html" /> 
+  </head>
+  <body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Internal structures and implementation</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="magic_interfaces_comparable.html">Magic interfaces - Comparable</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../php7/introduction.html">Introduction</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="internal-structures-and-implementation">
+<h1>Internal structures and implementation<a class="headerlink" href="#internal-structures-and-implementation" title="Permalink to this headline">¶</a></h1>
+<p>In this (last) section on object orientation in PHP we’ll have a look at some of the internal structures that were
+previously only mentioned in passing. In particular we’ll more thoroughly the default object structure and the object
+store.</p>
+<div class="section" id="object-properties">
+<h2>Object properties<a class="headerlink" href="#object-properties" title="Permalink to this headline">¶</a></h2>
+<p>The probably by far most complicated part of PHP’s object orientation system is the handling of object properties. In
+the following we’ll take a look at some of its parts in more detail.</p>
+<div class="section" id="property-storage">
+<h3>Property storage<a class="headerlink" href="#property-storage" title="Permalink to this headline">¶</a></h3>
+<p>In PHP object properties can be declared, but don’t have to. How can one efficiently handle such a situation? To find
+out let’s recall the standard <code class="docutils literal"><span class="pre">zend_object</span></code> structure:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_object</span> <span class="p">{</span>
+    <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">;</span>
+    <span class="n">HashTable</span> <span class="o">*</span><span class="n">properties</span><span class="p">;</span>
+    <span class="n">zval</span> <span class="o">**</span><span class="n">properties_table</span><span class="p">;</span>
+    <span class="n">HashTable</span> <span class="o">*</span><span class="n">guards</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zend_object</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This structure contains two fields for storing properties: The <code class="docutils literal"><span class="pre">properties</span></code> hash table and the <code class="docutils literal"><span class="pre">properties_table</span></code>
+array of <code class="docutils literal"><span class="pre">zval</span></code> pointers. Two separate fields are used to best handle both declared and dynamic properties: For the
+latter, i.e. properties that have not been declared in the class, there is no way around using the <code class="docutils literal"><span class="pre">properties</span></code>
+hash table (which uses a simple property name =&gt; value mapping).</p>
+<p>For declared properties on the other hand storing them in a hashtable would be overly wasteful: PHP’s hash tables
+have a very high per-element overhead (of nearly one hundred bytes), but the only thing that really needs to be stored
+is a <code class="docutils literal"><span class="pre">zval</span></code> pointer for the value. For this reason PHP employs a small trick: The properties are stored in a normal
+C array and accessed using their offset. The offset for each property name is stored in a (global) hashtable in the
+class entry. Thus the property lookup happens with one additional level of indirection, i.e. rather than directly
+fetching the property value, first the property offset is fetched and that offset is then used to fetch the actual
+value.</p>
+<p>Property information (including the storage offset) is stored in <code class="docutils literal"><span class="pre">class_entry-&gt;properties_info</span></code>. This hash table
+is a map of property names to <code class="docutils literal"><span class="pre">zend_property_info</span></code> structs:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_property_info</span> <span class="p">{</span>
+    <span class="n">zend_uint</span> <span class="n">flags</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">name_length</span><span class="p">;</span>
+    <span class="n">ulong</span> <span class="n">h</span><span class="p">;</span>                 <span class="cm">/* hash of name */</span>
+    <span class="kt">int</span> <span class="n">offset</span><span class="p">;</span>              <span class="cm">/* storage offset */</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">doc_comment</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">doc_comment_len</span><span class="p">;</span>
+    <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">;</span>    <span class="cm">/* CE of declaring class */</span>
+<span class="p">}</span> <span class="n">zend_property_info</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>One remaining question is what happens when both types of properties exist. In this case both structures will be used
+simultaneously: All properties will be written into the <code class="docutils literal"><span class="pre">properties</span></code> hashtable, but <code class="docutils literal"><span class="pre">properties_table</span></code> will still
+contain pointers to them. Note though that if both are used the properties table holds <code class="docutils literal"><span class="pre">zval**</span></code> values rather than
+<code class="docutils literal"><span class="pre">zval*</span></code> values.</p>
+<p>Sometimes PHP needs the properties as a hashtable even if they are all declared, e.g. when the <code class="docutils literal"><span class="pre">get_properties</span></code>
+handler is used. In this case PHP also switches to using <code class="docutils literal"><span class="pre">properties</span></code> (or rather the hybrid approach described above).
+This is done using the <code class="docutils literal"><span class="pre">rebuild_object_properties</span></code> function:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span> <span class="n">HashTable</span> <span class="o">*</span><span class="nf">zend_std_get_properties</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_object</span> <span class="o">*</span><span class="n">zobj</span><span class="p">;</span>
+    <span class="n">zobj</span> <span class="o">=</span> <span class="n">Z_OBJ_P</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">zobj</span><span class="o">-&gt;</span><span class="n">properties</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">rebuild_object_properties</span><span class="p">(</span><span class="n">zobj</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">zobj</span><span class="o">-&gt;</span><span class="n">properties</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="property-name-mangling">
+<h3>Property name mangling<a class="headerlink" href="#property-name-mangling" title="Permalink to this headline">¶</a></h3>
+<p>Consider the following code snippet:</p>
+<div class="highlight-php"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">A</span> <span class="p">{</span>
+    <span class="k">private</span> <span class="nv">$prop</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">B</span> <span class="k">extends</span> <span class="nx">A</span> <span class="p">{</span>
+    <span class="k">private</span> <span class="nv">$prop</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">C</span> <span class="k">extends</span> <span class="nx">B</span> <span class="p">{</span>
+    <span class="k">protected</span> <span class="nv">$prop</span> <span class="o">=</span> <span class="s1">&#39;C&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nb">var_dump</span><span class="p">(</span><span class="k">new</span> <span class="nx">C</span><span class="p">);</span>
+
+<span class="c1">// Output:</span>
+<span class="nx">object</span><span class="p">(</span><span class="nx">C</span><span class="p">)</span><span class="c1">#1 (3) {</span>
+  <span class="p">[</span><span class="s2">&quot;prop&quot;</span><span class="o">:</span><span class="k">protected</span><span class="p">]</span><span class="o">=&gt;</span>
+  <span class="nx">string</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="s2">&quot;C&quot;</span>
+  <span class="p">[</span><span class="s2">&quot;prop&quot;</span><span class="o">:</span><span class="s2">&quot;B&quot;</span><span class="o">:</span><span class="k">private</span><span class="p">]</span><span class="o">=&gt;</span>
+  <span class="nx">string</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="s2">&quot;B&quot;</span>
+  <span class="p">[</span><span class="s2">&quot;prop&quot;</span><span class="o">:</span><span class="s2">&quot;A&quot;</span><span class="o">:</span><span class="k">private</span><span class="p">]</span><span class="o">=&gt;</span>
+  <span class="nx">string</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="s2">&quot;A&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In the above example you can see the “same” property <code class="docutils literal"><span class="pre">$prop</span></code> being defined three times: Once as a private property of
+<code class="docutils literal"><span class="pre">A</span></code>, once as a private property of <code class="docutils literal"><span class="pre">B</span></code> and once as a protected property of <code class="docutils literal"><span class="pre">C</span></code>. Even though these three properties
+have the same name they are still distinct properties and require separate storage.</p>
+<p>In order to support this situation PHP “mangles” the property name by including the type of the property and the
+defining class:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>class Foo { private $prop;   } =&gt; &quot;\0Foo\0prop&quot;
+class Bar { private $prop;   } =&gt; &quot;\0Bar\0prop&quot;
+class Rab { protected $prop; } =&gt; &quot;\0*\0prop&quot;
+class Oof { public $prop;    } =&gt; &quot;prop&quot;
+</pre></div>
+</div>
+<p>As you can see public properties have “normal” names, protected ones get a <code class="docutils literal"><span class="pre">\0*\0</span></code> prefix (where <code class="docutils literal"><span class="pre">\0</span></code> are NUL bytes)
+and private ones start with <code class="docutils literal"><span class="pre">\0ClassName\0</span></code>.</p>
+<p>Most of the time PHP does a good job hiding the mangled names from userland. You only get to see them in some rare
+cases, e.g. if you cast an object to array or look at serialization output. Internally you usually don’t need to care
+about mangled names either, e.g. when using the <code class="docutils literal"><span class="pre">zend_declare_property</span></code> APIs the mangling is automatically done for
+you.</p>
+<p>The only places where you have to look out for mangled names is if you access the <code class="docutils literal"><span class="pre">property_info-&gt;name</span></code> field or if
+you try to directly access the <code class="docutils literal"><span class="pre">zobj-&gt;properties</span></code> hash. In this cases you can use the
+<code class="docutils literal"><span class="pre">zend_(un)mangle_property_name</span></code> APIs:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="c1">// Unmangling</span>
+<span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">class_name</span><span class="p">,</span> <span class="o">*</span><span class="n">property_name</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">property_name_len</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_unmangle_property_name_ex</span><span class="p">(</span>
+        <span class="n">mangled_property_name</span><span class="p">,</span> <span class="n">mangled_property_name_len</span><span class="p">,</span>
+        <span class="o">&amp;</span><span class="n">class_name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">property_name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">property_name_len</span>
+    <span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="c1">// Mangling</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">mangled_property_name</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">mangled_property_name_len</span><span class="p">;</span>
+
+<span class="n">zend_mangle_property_name</span><span class="p">(</span>
+    <span class="o">&amp;</span><span class="n">mangled_property_name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mangled_property_name_len</span><span class="p">,</span>
+    <span class="n">class_name</span><span class="p">,</span> <span class="n">class_name_len</span><span class="p">,</span> <span class="n">property_name</span><span class="p">,</span> <span class="n">property_name_len</span><span class="p">,</span>
+    <span class="n">should_do_persistent_alloc</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="mi">0</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="property-recursion-guards">
+<h3>Property recursion guards<a class="headerlink" href="#property-recursion-guards" title="Permalink to this headline">¶</a></h3>
+<p>The last member in <code class="docutils literal"><span class="pre">zend_object</span></code> is the <code class="docutils literal"><span class="pre">HashTable</span> <span class="pre">*guards</span></code> field. To find out what it is used for, consider what
+happens in the following code using magic <code class="docutils literal"><span class="pre">__set</span></code> properties:</p>
+<div class="highlight-php"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__set</span><span class="p">(</span><span class="nv">$name</span><span class="p">,</span> <span class="nv">$value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="nv">$name</span> <span class="o">=</span> <span class="nv">$value</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$foo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">;</span>
+<span class="nv">$foo</span><span class="o">-&gt;</span><span class="na">bar</span> <span class="o">=</span> <span class="s1">&#39;baz&#39;</span><span class="p">;</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$foo</span><span class="o">-&gt;</span><span class="na">bar</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">$foo-&gt;bar</span> <span class="pre">=</span> <span class="pre">'baz'</span></code> assignment in the script will call <code class="docutils literal"><span class="pre">$foo-&gt;__set('bar',</span> <span class="pre">'baz')</span></code> as the <code class="docutils literal"><span class="pre">$bar</span></code> property is
+not defined. The <code class="docutils literal"><span class="pre">$this-&gt;$name</span> <span class="pre">=</span> <span class="pre">$value</span></code> line in the method body in this case would become <code class="docutils literal"><span class="pre">$foo-&gt;bar</span> <span class="pre">=</span> <span class="pre">'baz'</span></code>.
+Once again <code class="docutils literal"><span class="pre">$bar</span></code> is an undefined property. So, does that mean that the <code class="docutils literal"><span class="pre">__set</span></code> method will be (recursively) called
+again?</p>
+<p>That’s not what happens. Rather PHP sees that it is already within <code class="docutils literal"><span class="pre">__set</span></code> and does <em>not</em> do a recursive call. Instead
+it actually creates the new <code class="docutils literal"><span class="pre">$bar</span></code> property. In order to implement this behavior PHP uses recursion guards which
+remember whether PHP is already in <code class="docutils literal"><span class="pre">__set</span></code> etc for a certain property. These guards are stored in the <code class="docutils literal"><span class="pre">guards</span></code> hash
+table, which maps property names to <code class="docutils literal"><span class="pre">zend_guard</span></code> structures:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_guard</span> <span class="p">{</span>
+    <span class="n">zend_bool</span> <span class="n">in_get</span><span class="p">;</span>
+    <span class="n">zend_bool</span> <span class="n">in_set</span><span class="p">;</span>
+    <span class="n">zend_bool</span> <span class="n">in_unset</span><span class="p">;</span>
+    <span class="n">zend_bool</span> <span class="n">in_isset</span><span class="p">;</span>
+    <span class="n">zend_bool</span> <span class="n">dummy</span><span class="p">;</span> <span class="cm">/* sizeof(zend_guard) must not be equal to sizeof(void*) */</span>
+<span class="p">}</span> <span class="n">zend_guard</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="object-store">
+<h2>Object store<a class="headerlink" href="#object-store" title="Permalink to this headline">¶</a></h2>
+<p>We already made a lot of use of the object store, so let’s have a closer look at it now:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_objects_store</span> <span class="p">{</span>
+    <span class="n">zend_object_store_bucket</span> <span class="o">*</span><span class="n">object_buckets</span><span class="p">;</span>
+    <span class="n">zend_uint</span> <span class="n">top</span><span class="p">;</span>
+    <span class="n">zend_uint</span> <span class="n">size</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">free_list_head</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zend_objects_store</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The object store is basically a dynamically resized array of <code class="docutils literal"><span class="pre">object_buckets</span></code>. <code class="docutils literal"><span class="pre">size</span></code> specifies the size of the
+allocation, whereas <code class="docutils literal"><span class="pre">top</span></code> is the next object handle to be used. Handles are counted starting from 1, to ensure that
+all handles are “truthy”. Thus if <code class="docutils literal"><span class="pre">top</span> <span class="pre">==</span> <span class="pre">1</span></code> the next object will get <code class="docutils literal"><span class="pre">handle</span> <span class="pre">=</span> <span class="pre">1</span></code>, but will be put at position
+<code class="docutils literal"><span class="pre">object_buckets[0]</span></code>.</p>
+<p>The <code class="docutils literal"><span class="pre">free_list_head</span></code> is the head of a linked list of unused buckets. Whenever an object is destroyed it leaves behind
+an unused bucket, which is then put in this list. If a new object is created and such a bucket exists (i.e.
+<code class="docutils literal"><span class="pre">free_list_head</span></code> is not <code class="docutils literal"><span class="pre">-1</span></code>), then this bucket is used instead of the <code class="docutils literal"><span class="pre">top</span></code> one.</p>
+<p>To see how this linked list is maintained have a look at the <code class="docutils literal"><span class="pre">zend_object_store_bucket</span></code> structure:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_object_store_bucket</span> <span class="p">{</span>
+    <span class="n">zend_bool</span> <span class="n">destructor_called</span><span class="p">;</span>
+    <span class="n">zend_bool</span> <span class="n">valid</span><span class="p">;</span>
+    <span class="n">zend_uchar</span> <span class="n">apply_count</span><span class="p">;</span>
+    <span class="k">union</span> <span class="n">_store_bucket</span> <span class="p">{</span>
+        <span class="k">struct</span> <span class="n">_store_object</span> <span class="p">{</span>
+            <span class="kt">void</span> <span class="o">*</span><span class="n">object</span><span class="p">;</span>
+            <span class="n">zend_objects_store_dtor_t</span> <span class="n">dtor</span><span class="p">;</span>
+            <span class="n">zend_objects_free_object_storage_t</span> <span class="n">free_storage</span><span class="p">;</span>
+            <span class="n">zend_objects_store_clone_t</span> <span class="n">clone</span><span class="p">;</span>
+            <span class="k">const</span> <span class="n">zend_object_handlers</span> <span class="o">*</span><span class="n">handlers</span><span class="p">;</span>
+            <span class="n">zend_uint</span> <span class="n">refcount</span><span class="p">;</span>
+            <span class="n">gc_root_buffer</span> <span class="o">*</span><span class="n">buffered</span><span class="p">;</span>
+        <span class="p">}</span> <span class="n">obj</span><span class="p">;</span>
+        <span class="k">struct</span> <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">next</span><span class="p">;</span>
+        <span class="p">}</span> <span class="n">free_list</span><span class="p">;</span>
+    <span class="p">}</span> <span class="n">bucket</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zend_object_store_bucket</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>If the bucket is in use (i.e. stores an object), then the <code class="docutils literal"><span class="pre">valid</span></code> member will be 1. In this case the
+<code class="docutils literal"><span class="pre">struct</span> <span class="pre">_store_object</span></code> part of the union will be used. If the bucket is not used, then <code class="docutils literal"><span class="pre">valid</span></code> will be 0 and PHP
+will make use of <code class="docutils literal"><span class="pre">free_list.next</span></code>.</p>
+<p>This reclaiming of unused object handles can be shown with a small script:</p>
+<div class="highlight-php"><div class="highlight"><pre><span></span><span class="nb">var_dump</span><span class="p">(</span><span class="nv">$a</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">);</span> <span class="c1">// object(stdClass)#1 (0) {}</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$b</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">);</span> <span class="c1">// object(stdClass)#2 (0) {}</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$c</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">);</span> <span class="c1">// object(stdClass)#3 (0) {}</span>
+
+<span class="nb">unset</span><span class="p">(</span><span class="nv">$b</span><span class="p">);</span> <span class="c1">// free handle 2</span>
+<span class="nb">unset</span><span class="p">(</span><span class="nv">$a</span><span class="p">);</span> <span class="c1">// free handle 1</span>
+
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$e</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">);</span> <span class="c1">// object(stdClass)#1 (0) {}</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$f</span> <span class="o">=</span> <span class="k">new</span> <span class="k">stdClass</span><span class="p">);</span> <span class="c1">// object(stdClass)#2 (0) {}</span>
+</pre></div>
+</div>
+<p>As you can see the handles of <code class="docutils literal"><span class="pre">$b</span></code> and <code class="docutils literal"><span class="pre">$a</span></code> are reused in reverse order of destruction.</p>
+<p>Apart from <code class="docutils literal"><span class="pre">valid</span></code> the bucket structure also contains a <code class="docutils literal"><span class="pre">destructor_called</span></code> flag. This flag is needed for PHP’s
+two-phase object destruction process: As already outlined previously PHP has distinct dtor (can run userland code, isn’t
+always run) and free (must not run userland code, is always executed) phases. After the dtor handler has been called,
+the <code class="docutils literal"><span class="pre">destructor_called</span></code> flag is set to 1, so that the dtor is not run again when the object is freed.</p>
+<p>The <code class="docutils literal"><span class="pre">apply_count</span></code> member serves the same role as the <code class="docutils literal"><span class="pre">nApplyCount</span></code> member of <code class="docutils literal"><span class="pre">HashTable</span></code>: It protects against
+infinite recursion. It is used via the macros <code class="docutils literal"><span class="pre">Z_OBJ_UNPROTECT_RECURSION(zval_ptr)</span></code> (leave recursion) and
+<code class="docutils literal"><span class="pre">Z_OBJ_PROTECT_RECURSION(zval_ptr)</span></code> (enter recursion). The latter will throw an error if the nesting level for an
+object is 3 or larger. Currently this protection mechanism is only used in the object comparison handler.</p>
+<p>The <code class="docutils literal"><span class="pre">handlers</span></code> member in the <code class="docutils literal"><span class="pre">_store_object</span></code> struct is also required for destruction. The reason for this is that
+the <code class="docutils literal"><span class="pre">dtor</span></code> handler only gets passed the stored object and its handle:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zend_object_handle</span> <span class="n">handle</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>But in order to call <code class="docutils literal"><span class="pre">__destruct</span></code> PHP needs a zval. Thus it creates a temporary zval using the passed object handle
+and the object handlers stored in <code class="docutils literal"><span class="pre">bucket.obj.handlers</span></code>. The issue is that this member can only be set if the object
+is destructed through <code class="docutils literal"><span class="pre">zval_ptr_dtor</span></code> or some other method where the zval (and as such the object handlers) is known.</p>
+<p>If on the other hand the object is destroyed during shutdown (using <code class="docutils literal"><span class="pre">zend_objects_store_call_destructors</span></code>) the zval
+is <em>not</em> known. In this case <code class="docutils literal"><span class="pre">bucket.obj.handlers</span></code> will be <code class="docutils literal"><span class="pre">NULL</span></code> and PHP falls back to the default object handlers.
+Thus it can sometimes happen that overloaded object behavior is not available in <code class="docutils literal"><span class="pre">__destruct</span></code>. An example:</p>
+<div class="highlight-php"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DLL</span> <span class="k">extends</span> <span class="nx">SplDoublyLinkedList</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__destruct</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$this</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$dll</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DLL</span><span class="p">;</span>
+<span class="nv">$dll</span><span class="o">-&gt;</span><span class="na">push</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="nv">$dll</span><span class="o">-&gt;</span><span class="na">push</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="nv">$dll</span><span class="o">-&gt;</span><span class="na">push</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$dll</span><span class="p">);</span>
+
+<span class="nb">set_error_handler</span><span class="p">(</span><span class="k">function</span><span class="p">()</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$dll</span><span class="p">)</span> <span class="p">{});</span>
+</pre></div>
+</div>
+<p>This code snippet adds a <code class="docutils literal"><span class="pre">__destruct</span></code> method to <code class="docutils literal"><span class="pre">SplDoublyLinkedList</span></code> and then forces the destructor to be called
+during shutdown by binding it to the error handler (the error handler is one of the last things that is freed during
+shutdown.) This will produce the following output:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>object(DLL)#1 (2) {
+  [&quot;flags&quot;:&quot;SplDoublyLinkedList&quot;:private]=&gt;
+  int(0)
+  [&quot;dllist&quot;:&quot;SplDoublyLinkedList&quot;:private]=&gt;
+  array(3) {
+    [0]=&gt;
+    int(1)
+    [1]=&gt;
+    int(2)
+    [2]=&gt;
+    int(3)
+  }
+}
+object(DLL)#1 (0) {
+}
+</pre></div>
+</div>
+<p>For the <code class="docutils literal"><span class="pre">var_dump</span></code> outside the destructor <code class="docutils literal"><span class="pre">get_debug_info</span></code> is invoked and you get meaningful debugging output.
+Inside the destructor PHP uses the default object handlers and as such you don’t get anything apart from the class
+name. The same also applies to other handlers, e.g. things like cloning, comparison, etc will not work properly.</p>
+<p>This concludes the chapter on object orientation. You should now have a good understanding of how the object orientation
+system in PHP works and how extensions can make use of it.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="magic_interfaces_comparable.html">Magic interfaces - Comparable</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../php7/introduction.html">Introduction</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

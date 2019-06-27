@@ -1,114 +1,16 @@
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Using the PHP build system &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Building PHP" href="build_system/building_php.html" />
-    <link rel="prev" title="Introduction" href="introduction.html" /> 
-  </head>
-  <body>
-      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
-          <span>PHP Internals Book</span></a></h1>
-        <h2 class="heading"><span>Using the PHP build system</span></h2>
-      </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
-      
-        <p>
-        «&#160;&#160;<a href="introduction.html">Introduction</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="build_system/building_php.html">Building PHP</a>&#160;&#160;»
-        </p>
-
-      </div>
-      <div class="content">
-        
-        
-  <div class="section" id="using-the-php-build-system">
-<h1>Using the PHP build system<a class="headerlink" href="#using-the-php-build-system" title="Permalink to this headline">¶</a></h1>
-<p>In this chapter we’ll explain how to use the PHP build system to compile both itself and additional extensions. This
-chapter will not yet be concerned with writing your own autoconf build instructions and only explain how to use the
-tooling.</p>
-<p>Contents:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="build_system/building_php.html">Building PHP</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_php.html#why-not-use-packages">Why not use packages?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_php.html#obtaining-the-source-code">Obtaining the source code</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_php.html#build-overview">Build overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_php.html#the-buildconf-script">The <code class="docutils literal"><span class="pre">./buildconf</span></code> script</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_php.html#the-configure-script">The <code class="docutils literal"><span class="pre">./configure</span></code> script</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_php.html#make-and-make-install"><code class="docutils literal"><span class="pre">make</span></code> and <code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_php.html#running-the-test-suite">Running the test suite</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_php.html#fixing-compilation-problems-and-make-clean">Fixing compilation problems and <code class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="build_system/building_extensions.html">Building PHP extensions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_extensions.html#loading-shared-extensions">Loading shared extensions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_extensions.html#installing-extensions-from-pecl">Installing extensions from PECL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_extensions.html#adding-extensions-to-the-php-source-tree">Adding extensions to the PHP source tree</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_extensions.html#building-extensions-using-phpize">Building extensions using <code class="docutils literal"><span class="pre">phpize</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="build_system/building_extensions.html#displaying-information-about-extensions">Displaying information about extensions</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-
-
-      </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
-      
-        <p>
-        «&#160;&#160;<a href="introduction.html">Introduction</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="build_system/building_php.html">Building PHP</a>&#160;&#160;»
-        </p>
-
-      </div>
-
-    <div class="footer feedback">
-        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
-        <br/><br/>
-        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
-            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
-        </a>
-        <br />
-        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
-    </div>
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="1; url=/php5/build_system.html">
+    
     <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
-      ga('send', 'pageview');
+    window.location.href = "/php5/build_system.html"
     </script>
-
-  </body>
+</head>
+<body>
+<title>Page Redirection</title>
+ 
+If you are not redirected automatically, follow <a href="/php5/build_system.html">this link.</a>
+</body>
 </html>

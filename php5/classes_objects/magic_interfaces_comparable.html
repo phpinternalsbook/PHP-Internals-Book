@@ -1,0 +1,236 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Magic interfaces - Comparable &#8212; PHP Internals Book</title>
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Internal structures and implementation" href="internal_structures_and_implementation.html" />
+    <link rel="prev" title="Serialization" href="serialization.html" /> 
+  </head>
+  <body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Magic interfaces - Comparable</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="serialization.html">Serialization</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="internal_structures_and_implementation.html">Internal structures and implementation</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="magic-interfaces-comparable">
+<h1>Magic interfaces - Comparable<a class="headerlink" href="#magic-interfaces-comparable" title="Permalink to this headline">¶</a></h1>
+<p>Internal interfaces in PHP are very similar to their userland equivalents. The only notable difference is that internal
+interfaces have the additional possibility of specifying a handler that is executed when the interface is implemented.
+This feature can be used for various purposes like enforcing additional constraints or replacing handlers. We’ll make
+use of it to implement a “magic” <code class="docutils literal"><span class="pre">Comparable</span></code> interface, which exposes the internal <code class="docutils literal"><span class="pre">compare_objects</span></code> handler to
+userland.</p>
+<p>The interface itself will look as follows:</p>
+<div class="highlight-php"><div class="highlight"><pre><span></span><span class="k">interface</span> <span class="nx">Comparable</span> <span class="p">{</span>
+    <span class="k">static</span> <span class="k">function</span> <span class="nf">compare</span><span class="p">(</span><span class="nv">$left</span><span class="p">,</span> <span class="nv">$right</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>First, let’s register this new interface in <code class="docutils literal"><span class="pre">MINIT</span></code>:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">comparable_ce</span><span class="p">;</span>
+
+<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_comparable</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">obj1</span><span class="p">)</span>
+    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">obj2</span><span class="p">)</span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+
+<span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">comparable_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ZEND_FENTRY</span><span class="p">(</span>
+        <span class="n">compare</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">arginfo_comparable</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="o">|</span><span class="n">ZEND_ACC_ABSTRACT</span><span class="o">|</span><span class="n">ZEND_ACC_STATIC</span>
+    <span class="p">)</span>
+    <span class="n">PHP_FE_END</span>
+<span class="p">};</span>
+
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">comparable</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_class_entry</span> <span class="n">tmp_ce</span><span class="p">;</span>
+    <span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="s">&quot;Comparable&quot;</span><span class="p">,</span> <span class="n">comparable_functions</span><span class="p">);</span>
+    <span class="n">comparable_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_interface</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that in this case we can’t use <code class="docutils literal"><span class="pre">PHP_ABSTRACT_ME</span></code>, because it does not support static abstract methods. Instead
+we have to use the low-level <code class="docutils literal"><span class="pre">ZEND_FENTRY</span></code> macro.</p>
+<p>Next we implement the <code class="docutils literal"><span class="pre">interface_gets_implemented</span></code> handler:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">int</span> <span class="nf">implement_comparable</span><span class="p">(</span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">interface</span><span class="p">,</span> <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">create_object</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">zend_error</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span> <span class="s">&quot;Comparable interface can only be used on userland classes&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">ce</span><span class="o">-&gt;</span><span class="n">create_object</span> <span class="o">=</span> <span class="n">comparable_create_object_override</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// in MINIT</span>
+<span class="n">comparable_ce</span><span class="o">-&gt;</span><span class="n">interface_gets_implemented</span> <span class="o">=</span> <span class="n">implement_comparable</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>When the interface is implemented the <code class="docutils literal"><span class="pre">implement_comparable</span></code> function will be called. In this function we override the
+classes <code class="docutils literal"><span class="pre">create_object</span></code> handler. To simplify things we only allow the interface to be used when <code class="docutils literal"><span class="pre">create_object</span></code>
+was <code class="docutils literal"><span class="pre">NULL</span></code> previously (i.e. it is a “normal” userland class). We could obviously also make this work with arbitrary
+classes by backing up the old <code class="docutils literal"><span class="pre">create_object</span></code> handler somewhere.</p>
+<p>In our <code class="docutils literal"><span class="pre">create_object</span></code> override we create the object as usual but assign our own handlers structure with a custom
+<code class="docutils literal"><span class="pre">compare_objects</span></code> handler:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">zend_object_handlers</span> <span class="n">comparable_handlers</span><span class="p">;</span>
+
+<span class="k">static</span> <span class="n">zend_object_value</span> <span class="nf">comparable_create_object_override</span><span class="p">(</span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_object</span> <span class="o">*</span><span class="n">object</span><span class="p">;</span>
+    <span class="n">zend_object_value</span> <span class="n">retval</span><span class="p">;</span>
+
+    <span class="n">retval</span> <span class="o">=</span> <span class="n">zend_objects_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object</span><span class="p">,</span> <span class="n">ce</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+    <span class="n">object_properties_init</span><span class="p">(</span><span class="n">object</span><span class="p">,</span> <span class="n">ce</span><span class="p">);</span>
+
+    <span class="n">retval</span><span class="p">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">comparable_handlers</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// In MINIT</span>
+<span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">comparable_handlers</span><span class="p">,</span> <span class="n">zend_get_std_object_handlers</span><span class="p">(),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
+<span class="n">comparable_handlers</span><span class="p">.</span><span class="n">compare_objects</span> <span class="o">=</span> <span class="n">comparable_compare_objects</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Lastly we have to implement the custom comparison handler. It will call the <code class="docutils literal"><span class="pre">compare</span></code> method using the
+<code class="docutils literal"><span class="pre">zend_call_method_with_2_params</span></code> macro, which is defined in <code class="docutils literal"><span class="pre">zend_interfaces.h</span></code>. One question that arises is which
+class the method should be called on. For this implementation we’ll simply use the first passed object, though this is
+just an arbitrary choice. In practice this means that for <code class="docutils literal"><span class="pre">$left</span> <span class="pre">&lt;</span> <span class="pre">$right</span></code> the class of <code class="docutils literal"><span class="pre">$left</span></code> will be used, but
+for <code class="docutils literal"><span class="pre">$left</span> <span class="pre">&gt;</span> <span class="pre">$right</span></code> the class of <code class="docutils literal"><span class="pre">$right</span></code> is used (because PHP transforms the <code class="docutils literal"><span class="pre">&gt;</span></code> to a <code class="docutils literal"><span class="pre">&lt;</span></code> operation).</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;zend_interfaces.h&quot;</span><span class="cp"></span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="nf">comparable_compare_objects</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">obj2</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zval</span> <span class="o">*</span><span class="n">retval</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">result</span><span class="p">;</span>
+
+    <span class="n">zend_call_method_with_2_params</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">Z_OBJCE_P</span><span class="p">(</span><span class="n">obj1</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;compare&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">retval</span><span class="p">,</span> <span class="n">obj1</span><span class="p">,</span> <span class="n">obj2</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">retval</span> <span class="o">||</span> <span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">retval</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">retval</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">retval</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">zend_get_std_object_handlers</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">compare_objects</span><span class="p">(</span><span class="n">obj1</span><span class="p">,</span> <span class="n">obj2</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">convert_to_long_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">retval</span><span class="p">);</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">ZEND_NORMALIZE_BOOL</span><span class="p">(</span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">retval</span><span class="p">));</span>
+    <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">retval</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">ZEND_NORMALIZE_BOOL</span></code> macro used above normalizes the returned integer to <code class="docutils literal"><span class="pre">-1</span></code>, <code class="docutils literal"><span class="pre">0</span></code> and <code class="docutils literal"><span class="pre">1</span></code>.</p>
+<p>And that’s all it takes. Now we can try out the new interface (sorry if the example doesn’t make particularly much
+sense):</p>
+<div class="highlight-php"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Point</span> <span class="k">implements</span> <span class="nx">Comparable</span> <span class="p">{</span>
+    <span class="k">protected</span> <span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">,</span> <span class="nv">$z</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">,</span> <span class="nv">$z</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">=</span> <span class="nv">$x</span><span class="p">;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">=</span> <span class="nv">$y</span><span class="p">;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">z</span> <span class="o">=</span> <span class="nv">$z</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* We assume a point is smaller/greater if all its components are smaller/greater */</span>
+    <span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">compare</span><span class="p">(</span><span class="nv">$p1</span><span class="p">,</span> <span class="nv">$p2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">==</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">==</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">z</span> <span class="o">==</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">z</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&lt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&lt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">z</span> <span class="o">&lt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">z</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&gt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&gt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">y</span> <span class="o">&amp;&amp;</span> <span class="nv">$p1</span><span class="o">-&gt;</span><span class="na">z</span> <span class="o">&gt;</span> <span class="nv">$p2</span><span class="o">-&gt;</span><span class="na">z</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// not comparable</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$p1</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="nv">$p2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="nv">$p3</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$p1</span> <span class="o">&lt;</span> <span class="nv">$p2</span><span class="p">,</span> <span class="nv">$p1</span> <span class="o">&gt;</span> <span class="nv">$p2</span><span class="p">,</span> <span class="nv">$p1</span> <span class="o">==</span> <span class="nv">$p2</span><span class="p">);</span> <span class="c1">// true, false, false</span>
+
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$p1</span> <span class="o">==</span> <span class="nv">$p1</span><span class="p">);</span> <span class="c1">// true</span>
+
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$p1</span> <span class="o">&lt;</span> <span class="nv">$p3</span><span class="p">,</span> <span class="nv">$p1</span> <span class="o">&gt;</span> <span class="nv">$p3</span><span class="p">,</span> <span class="nv">$p1</span> <span class="o">==</span> <span class="nv">$p3</span><span class="p">);</span> <span class="c1">// false, false, false</span>
+</pre></div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="serialization.html">Serialization</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="internal_structures_and_implementation.html">Internal structures and implementation</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,294 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Symtable and array API &#8212; PHP Internals Book</title>
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Hash algorithm and collisions" href="hash_algorithm.html" />
+    <link rel="prev" title="Hashtable API" href="hashtable_api.html" /> 
+  </head>
+  <body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Symtable and array API</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="hashtable_api.html">Hashtable API</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="hash_algorithm.html">Hash algorithm and collisions</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="symtable-and-array-api">
+<h1>Symtable and array API<a class="headerlink" href="#symtable-and-array-api" title="Permalink to this headline">¶</a></h1>
+<p>The hashtable API allows you to work with values of any type, but in the vast majority of cases the values will be
+zvals. Using the <code class="docutils literal"><span class="pre">zend_hash</span></code> API with zvals can often be somewhat cumbersome, as you need to handle zval allocation
+and initialization yourself. This is why PHP provides a second set of APIs specifically aimed at this use case. Before
+introducing these simplified APIs we will have a look at a special kind of hashtable that PHP arrays make use of.</p>
+<div class="section" id="symtables">
+<h2>Symtables<a class="headerlink" href="#symtables" title="Permalink to this headline">¶</a></h2>
+<p>One of the core concepts behind the design of PHP is that integers and strings containing integers should be
+interchangeable. This also applies to arrays where the keys <code class="docutils literal"><span class="pre">42</span></code> and <code class="docutils literal"><span class="pre">&quot;42&quot;</span></code> should be considered the same. This is
+not the case though with ordinary hashtables: They strictly distinguish the key types and it’s okay to have both the
+key <code class="docutils literal"><span class="pre">42</span></code> and <code class="docutils literal"><span class="pre">&quot;42&quot;</span></code> in the same table (with different values).</p>
+<p>This is why there is an additional <em>symtable</em> (symbol table) API, which is a thin wrapper around some hashtable
+functions which converts integral string keys to actual integer keys. For example, this is how the
+<code class="docutils literal"><span class="pre">zend_symtable_find()</span></code> function is defined:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_find</span><span class="p">(</span>
+    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span><span class="n">pData</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="n">ZEND_HANDLE_NUMERIC</span><span class="p">(</span><span class="n">arKey</span><span class="p">,</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">pData</span><span class="p">));</span>
+    <span class="k">return</span> <span class="n">zend_hash_find</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">arKey</span><span class="p">,</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="n">pData</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The implementation of the <code class="docutils literal"><span class="pre">ZEND_HANDLE_NUMERIC()</span></code> macro will not be considered in detail here, only the functionality
+behind it is important: If <code class="docutils literal"><span class="pre">arKey</span></code> contains a decimal integer between <code class="docutils literal"><span class="pre">LONG_MIN</span></code> and <code class="docutils literal"><span class="pre">LONG_MAX</span></code>, then that
+integer is written into <code class="docutils literal"><span class="pre">idx</span></code> and <code class="docutils literal"><span class="pre">zend_hash_index_find()</span></code> is called with it. In all other cases the code will
+continue to the next line, where <code class="docutils literal"><span class="pre">zend_hash_find()</span></code> will be invoked.</p>
+<p>Apart from <code class="docutils literal"><span class="pre">zend_symtable_find()</span></code> the following functions are part of the symtable API, again with the same behavior
+as their hashtable counterparts, but including string to integer normalization:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_exists</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">);</span>
+<span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_del</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">);</span>
+<span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_update</span><span class="p">(</span>
+    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">pData</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nDataSize</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span><span class="n">pDest</span>
+<span class="p">);</span>
+<span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_update_current_key_ex</span><span class="p">(</span>
+    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="kt">int</span> <span class="n">mode</span><span class="p">,</span> <span class="n">HashPosition</span> <span class="o">*</span><span class="n">pos</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<p>Additionally there are two macros for creating symtables:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#define ZEND_INIT_SYMTABLE_EX(ht, n, persistent) \</span>
+<span class="cp">    zend_hash_init(ht, n, NULL, ZVAL_PTR_DTOR, persistent)</span>
+
+<span class="cp">#define ZEND_INIT_SYMTABLE(ht) \</span>
+<span class="cp">    ZEND_INIT_SYMTABLE_EX(ht, 2, 0)</span>
+</pre></div>
+</div>
+<p>As you can see these macros are just <code class="docutils literal"><span class="pre">zend_hash_init()</span></code> calls using <code class="docutils literal"><span class="pre">ZVAL_PTR_DTOR</span></code> as the destructor. As such
+these macros are not directly related to the string to integer casting behavior described above.</p>
+<p>Let’s give this new set of functions a try:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
+<span class="n">zval</span> <span class="o">*</span><span class="n">zv1</span><span class="p">,</span> <span class="o">*</span><span class="n">zv2</span><span class="p">;</span>
+<span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span>
+
+<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+<span class="n">ZEND_INIT_SYMTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv1</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv1</span><span class="p">,</span> <span class="s">&quot;zv1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv2</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv2</span><span class="p">,</span> <span class="s">&quot;zv2&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="n">zend_symtable_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;42&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;42&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">zv2</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Value at key 42 is %Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">zend_symtable_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;42&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;42&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Value at key </span><span class="se">\&quot;</span><span class="s">42</span><span class="se">\&quot;</span><span class="s"> is %Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">zend_hash_destroy</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+<span class="n">FREE_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This code will print:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>Value at key 42 is zv2
+Value at key &quot;42&quot; is zv2
+</pre></div>
+</div>
+<p>Thus both <code class="docutils literal"><span class="pre">update</span></code> calls wrote to the same element (the second one overwriting the first one) and both <code class="docutils literal"><span class="pre">find</span></code> calls
+also found the same element.</p>
+</div>
+<div class="section" id="array-api">
+<h2>Array API<a class="headerlink" href="#array-api" title="Permalink to this headline">¶</a></h2>
+<p>Now we have all the prerequisites to look at the array API. This API no longer works directly on hashtables, but rather
+accepts zvals from which the hashtable is extracted using <code class="docutils literal"><span class="pre">Z_ARRVAL_P()</span></code>.</p>
+<p>The first two functions from this API are <code class="docutils literal"><span class="pre">array_init()</span></code> and <code class="docutils literal"><span class="pre">array_init_size()</span></code>, which initialize a hashtable
+into a zval. The former function takes only the target zval, whereas the latter takes an additional size hint:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cm">/* Create empty array into return_value */</span>
+<span class="n">array_init</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
+
+<span class="cm">/* Create empty array with expected size 1000000 into return_value */</span>
+<span class="n">array_init_size</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The remaining functions of this API all deal with inserting values into an array. There are four families of functions
+which look as follows:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cm">/* Insert at next index */</span>
+<span class="kt">int</span> <span class="n">add_next_index_</span><span class="o">*</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="p">...);</span>
+<span class="cm">/* Insert at specific index */</span>
+<span class="kt">int</span> <span class="n">add_index_</span><span class="o">*</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">ulong</span> <span class="n">idx</span><span class="p">,</span> <span class="p">...);</span>
+<span class="cm">/* Insert at specific key */</span>
+<span class="kt">int</span> <span class="n">add_assoc_</span><span class="o">*</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span> <span class="p">...);</span>
+<span class="cm">/* Insert at specific key of length key_len (for binary safety) */</span>
+<span class="kt">int</span> <span class="n">add_assoc_</span><span class="o">*</span><span class="nf">_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span> <span class="n">uint</span> <span class="n">key_len</span><span class="p">,</span> <span class="p">...);</span>
+</pre></div>
+</div>
+<p>Here <code class="docutils literal"><span class="pre">*</span></code> is a placeholder for a type and <code class="docutils literal"><span class="pre">...</span></code> a placeholder for the type-specific arguments. The valid values for
+them are listed in the following table:</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type</th>
+<th class="head">Additional arguments</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">null</span></code></td>
+<td>none</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">bool</span></code></td>
+<td><code class="docutils literal"><span class="pre">int</span> <span class="pre">b</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">long</span></code></td>
+<td><code class="docutils literal"><span class="pre">long</span> <span class="pre">n</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">double</span></code></td>
+<td><code class="docutils literal"><span class="pre">double</span> <span class="pre">d</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">string</span></code></td>
+<td><code class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*str,</span> <span class="pre">int</span> <span class="pre">duplicate</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">stringl</span></code></td>
+<td><code class="docutils literal"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*str,</span> <span class="pre">uint</span> <span class="pre">length,</span> <span class="pre">int</span> <span class="pre">duplicate</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">resource</span></code></td>
+<td><code class="docutils literal"><span class="pre">int</span> <span class="pre">r</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">zval</span></code></td>
+<td><code class="docutils literal"><span class="pre">zval</span> <span class="pre">*value</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>As an example for the usage of these functions, let’s just create a dummy array with elements of various types:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">make_array</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">;</span>
+
+    <span class="n">array_init</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
+
+    <span class="n">add_index_long</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span>
+    <span class="n">add_index_double</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">3.141</span><span class="p">);</span>
+    <span class="n">add_index_string</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+    <span class="n">add_next_index_bool</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="n">add_next_index_stringl</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+    <span class="n">add_assoc_null</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">);</span>
+    <span class="n">add_assoc_long</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+
+    <span class="n">add_assoc_double_ex</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">),</span> <span class="mf">1.61</span><span class="p">);</span>
+
+    <span class="cm">/* For some things you still have to manually create a zval... */</span>
+    <span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
+    <span class="n">object_init</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
+    <span class="n">add_next_index_zval</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="n">zv</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">var_dump()</span></code> output of this array looks as follows (with NUL-bytes replaced by <code class="docutils literal"><span class="pre">\0</span></code>):</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>array(9) {
+  [10]=&gt;
+  int(100)
+  [20]=&gt;
+  float(3.141)
+  [30]=&gt;
+  string(3) &quot;foo&quot;
+  [31]=&gt;
+  bool(true)
+  [32]=&gt;
+  string(4) &quot;\0bar&quot;
+  [&quot;foo&quot;]=&gt;
+  NULL
+  [&quot;bar&quot;]=&gt;
+  int(42)
+  [&quot;\0bar&quot;]=&gt;
+  float(1.61)
+  [33]=&gt;
+  object(stdClass)#1 (0) {
+  }
+}
+</pre></div>
+</div>
+<p>Looking at the above code you may notice that the array API is even more inconsistent in regard to string lengths: The
+key length passed to the <code class="docutils literal"><span class="pre">_ex</span></code> functions <em>includes</em> the terminating NUL-byte, whereas the string length passed to the
+<code class="docutils literal"><span class="pre">stringl</span></code> functions <em>excludes</em> the NUL-byte.</p>
+<p>Furthermore it should be noted that while these functions start with <code class="docutils literal"><span class="pre">add</span></code> they behave like <code class="docutils literal"><span class="pre">update</span></code> functions in
+that they overwrite previously existing keys.</p>
+<p>There are several additional <code class="docutils literal"><span class="pre">add_get</span></code> functions which both insert a value and fetch it again (analogous to the last
+parameter of the <code class="docutils literal"><span class="pre">zend_hash_update</span></code> functions). As they are virtually never used they will not be discussed here and
+are mentioned only for the sake of completeness.</p>
+<p>This concludes our walk through the hashtable, symtable and array APIs.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="hashtable_api.html">Hashtable API</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="hash_algorithm.html">Hash algorithm and collisions</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>
