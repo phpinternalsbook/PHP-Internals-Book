@@ -1,34 +1,11 @@
 Table Of Contents
 =================
 
-PHP 5
------
-
-.. toctree::
-    :maxdepth: 2
-
-    introduction.rst
-    build_system.rst
-
-* Creating PHP extensions
-
-.. toctree::
-    :maxdepth: 2
-
-    zvals.rst
-
-* Implementing functions
-
-.. toctree::
-    :maxdepth: 2
-
-    hashtables.rst
-    classes_objects.rst
-
 PHP 7
 -----
 
-This part concerns only the PHP 7 branch. It is under development.
+This part concerns the current stable branches of PHP based on Zend Engine
+Version 3. You can find internals for Zend Version 2 (PHP 5) below.
 
 .. toctree::
     :maxdepth: 3
@@ -56,6 +33,31 @@ This part concerns only the PHP 7 branch. It is under development.
     php7/sapis.rst
     php7/zend_engine.rst
     php7/final.rst
+
+PHP 5
+-----
+
+.. toctree::
+    :maxdepth: 2
+
+    introduction.rst
+    build_system.rst
+
+* Creating PHP extensions
+
+.. toctree::
+    :maxdepth: 2
+
+    zvals.rst
+
+* Implementing functions
+
+.. toctree::
+    :maxdepth: 2
+
+    hashtables.rst
+    classes_objects.rst
+
 
 Testing PHP Source
 ------------------
