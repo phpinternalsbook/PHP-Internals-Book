@@ -16,6 +16,7 @@ Contents:
     extensions_design/php_functions.rst
     extensions_design/globals_management.rst
     extensions_design/extension_infos.rst
+    extensions_design/hooks.rst
     extensions_design/ini_settings.rst
     extensions_design/zend_extensions.rst
 
