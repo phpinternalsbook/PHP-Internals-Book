@@ -71,7 +71,7 @@ Overwriting an Internal Function
 ********************************
 
 While overwriting the execute hooks an extension can record **every** function
-call, you can also overwrite individual function pointers of userland core and
+call, you can also overwrite individual function pointers of userland, core and
 extension functions (and methods). This has much better performance
 characteristics if an extension only needs access to specific internal function
 calls.::
