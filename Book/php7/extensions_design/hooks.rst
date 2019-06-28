@@ -105,7 +105,7 @@ calls.::
         }
     }
 
-When overwriting a class method, then the function table can be found on the
+When overwriting a class method, the function table can be found on the
 ``zend_class_entry``.::
 
     zend_class_entry *ce = zend_hash_str_find_ptr(CG(class_table), "PDO", sizeof("PDO")-1);
