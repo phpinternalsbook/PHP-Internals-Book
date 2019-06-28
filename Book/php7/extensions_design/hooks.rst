@@ -128,7 +128,7 @@ you to modify the AST after it is parsed and created.
 
 This is one of the most complicated hooks to use, because it requires perfect
 understanding of the AST possibilities. Creating an invalid AST here can cause
-weird behaivor.
+weird behavior.
 
 It is best to look at example extensions that use this hook:
 
