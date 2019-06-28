@@ -133,7 +133,42 @@ It is best to look at example extensions that use this hook:
 Hooking into Script/File Compilation
 ************************************
 
-TODO
+Whenever a user script calls ``include``/``require`` or their counterparts
+``include_once``/``require_once`` PHP core calls the function at the pointer
+``zend_compile_file`` to handle this request. The argument is a file handle
+and the result is a ``zend_op_array``.::
+
+    zend_op_array * my_extension_compile_file(zend_file_handle *file_handle, int type);
+
+There are two extensions in PHP core that implement this hook: dtrace and
+opcache.
+
+- If you start the PHP script with the environment variable ``USE_ZEND_DTRACE``
+  and compiled PHP with dtrace support, then ``dtrace_compile_file`` is used
+  from ``Zend/zend_dtrace.c``.
+
+- Opcache stores op arrays in shared memory for better performance, so that
+  whenever a script is compiled its final op array is served from a cache and
+  not re-compiled. You can find this implementation in
+  ``ext/opcache/ZendAccelerator.c``.
+
+- The default implementation is called ``compile_file`` is part of the
+  generated scanner code in ``Zend/zend_language_scanner.c``.
+
+Use cases for implementing this hook are Opcode Accelerating, PHP code
+encrypting/decrypting, debugging or profiling.
+
+You can replace this hook whenever you want in the execution of a PHP process
+and all PHP scripts compiled after the replacement will be handled by your
+implementation of the hook.
+
+It is very important to always call the original function pointer, otherwise
+PHP cannot compile scripts anymore and Opcache will not work anymore.
+
+The extension overwriting order here is also important as you need to be
+careful to make sure yourregister your hook before or after Opcache, because
+Opcache does not call the original function pointer if it finds an opcode array
+entry in its shared memory cache.
 
 Hooking into eval()
 *******************
