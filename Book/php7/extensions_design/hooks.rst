@@ -35,8 +35,8 @@ The usual pattern for overwriting is this::
 
     static void (*original_zend_execute_ex) (zend_execute_data *execute_data);
     static void (*original_zend_execute_internal) (zend_execute_data *execute_data, zval *return_value);
-    ZEND_DLEXPORT void my_execute_internal(zend_execute_data *execute_data, zval *return_value);
-    ZEND_DLEXPORT void my_execute_ex (zend_execute_data *execute_data);
+    void my_execute_internal(zend_execute_data *execute_data, zval *return_value);
+    void my_execute_ex (zend_execute_data *execute_data);
 
     PHP_MINIT_FUNCTION(my_extension)
     {
@@ -60,9 +60,10 @@ The usual pattern for overwriting is this::
     }
 
 One downside of overwriting ``zend_execute_ex`` is that it changes the Zend
-Virtual Machine runtime behavior to use recursion instead of a hybrid mode that
-uses goto/switch. In addition a PHP engine without overwritten
-``zend_execute_ex`` can also generate more optimized function call opcodes.
+Virtual Machine runtime behavior to use recursion instead of handling calls
+without leaving the interpreter loop. In addition a PHP engine without
+overwritten ``zend_execute_ex`` can also generate more optimized function call
+opcodes.
 
 These hooks are very performance sensitive depending on the complexity of code
 that wraps the original functions.
@@ -76,18 +77,12 @@ extension functions (and methods). This has much better performance
 characteristics if an extension only needs access to specific internal function
 calls.::
 
-    #if PHP_VERSION_ID >= 70300
-    #define EXT_FASTCALL ZEND_FASTCALL
-    #else
-    #define EXT_FASTCALL
-    #endif
-
     #if PHP_VERSION_ID < 70200
     typedef void (*zif_handler)(INTERNAL_FUNCTION_PARAMETERS);
     #endif
     zif_handler original_handler_var_dump;
 
-    void EXT_FASTCALL my_overwrite_var_dump(INTERNAL_FUNCTION_PARAMETERS)
+    ZEND_NAMED_FUNCTION(my_overwrite_var_dump)
     {
         // if we want to call the original function
         original_handler_var_dump(INTERNAL_FUNCTION_PARAM_PASSTHRU);
@@ -122,13 +117,12 @@ Modifying the Abstract Syntax Tree (AST)
 ****************************************
 
 When PHP 7 compiles PHP code it converts it into an abstract syntax tree (AST)
-before finally generating Opcodes that are persisted in Opcache. One lesser
-known hook is called ``zend_ast_process`` for every compiled script and allows
-you to modify the AST after it is parsed and created.
+before finally generating Opcodes that are persisted in Opcache. The
+``zend_ast_process hook`` is called for every compiled script"
 
 This is one of the most complicated hooks to use, because it requires perfect
 understanding of the AST possibilities. Creating an invalid AST here can cause
-weird behavior.
+weird behavior or crashes.
 
 It is best to look at example extensions that use this hook:
 
