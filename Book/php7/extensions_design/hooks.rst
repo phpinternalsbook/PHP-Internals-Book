@@ -170,6 +170,100 @@ careful to make sure yourregister your hook before or after Opcache, because
 Opcache does not call the original function pointer if it finds an opcode array
 entry in its shared memory cache.
 
+Notification when Error Handler is called
+*****************************************
+
+Similar to the PHP userland ``set_error_handler()`` function, an extension can
+register itself as error handler by implementing the ``zend_error_cb`` hook.::
+
+    ZEND_API void (*zend_error_cb)(int type, const char *error_filename, const uint32_t error_lineno, const char *format, va_list args);
+
+The ``type`` variable corresponds to the ``E_*`` error constants that are also
+available in PHP userland.
+
+The relationship between PHP core and userland error handlers is complex:
+
+1. If no userland error handler is registered then ``zend_error_cb`` is always
+   called.
+2. If userland error handler is registered, then for all errors of ``E_ERROR``,
+   ``E_PARSE``, ``E_CORE_ERROR``, ``E_CORE_WARNING``, ``E_COMPILE_ERROR`` and
+   ``E_COMPILE_WARNING`` the ``zend_error_cb`` hook is always called.
+3. For all other errors, the ``zend_error_cb`` is only called if the userland
+   handler fails or returns ``false``.
+
+In addition Xdebug overwrites the error handler in a way that does not call
+previously registered internal handlers, because of its complex own
+implementation.
+
+As such overwriting this hook is not very reliable.
+
+Again overwriting should be done in a way that respects the original handler
+unless you want to completly replace it::
+
+    void (*original_zend_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args);
+
+    void my_error_cb(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args)
+    {
+        // my special error handling here
+
+        original_zend_error_cb(type, error_filename, error_lineno, format, args);
+    }
+
+    PHP_MINIT_FUNCTION(my_extension)
+    {
+        original_zend_error_cb = zend_error_cb;
+        zend_error_cb = my_error_cb;
+
+        RETURN SUCCESS;
+    }
+
+    PHP_MSHUTDOWN(my_extension)
+    {
+        zend_error_cb = original_zend_error_cb;
+    }
+
+This hook is mainly used to implement central exception tracking for Exception
+Tracking or Application Performance Management software.
+
+Notification when Exception is thrown
+*************************************
+
+Whenever PHP Core or userland code throws an exception the
+``zend_throw_exception_hook`` is called with the exception as argument.
+
+This hooks' signature is fairly simple::
+
+    void my_throw_exception_hook(zval *exception)
+    {
+        if (original_zend_throw_exception_hook != NULL) {
+            original_zend_throw_exception_hook(exception);
+        }
+    }
+
+This hook has no default implementation and points to ``NULL`` if not
+overwritten by an extension.
+
+::
+
+    static void (*original_zend_throw_exception_hook)(zval *ex);
+    void my_throw_exception_hook(zval *exception TSRMLS_DC);
+
+    PHP_MINIT_FUNCTION(my_extension)
+    {
+        original_zend_throw_exception_hook = zend_throw_exception_hook;
+        zend_throw_exception_hook = my_throw_exception_hook;
+
+        return SUCCESS;
+    }
+
+If you implement this hook be aware that this hook is called if the exception
+is caught or not. It can still be useful to temporarily store the exception
+here and then combine this with an implementation of the Error Handler hook
+to check if the exception was uncaught and caused the script to halt.
+
+Use-cases to implement this hook include debugging, logging and exception
+tracking.
+
 Hooking into eval()
 *******************
 
@@ -182,16 +276,6 @@ TODO
 
 Replacing Opcode Handlers
 *************************
-
-TODO
-
-Notification when Exception is thrown
-*************************************
-
-TODO
-
-Notification when Error Handler is called
-*****************************************
 
 TODO
 
