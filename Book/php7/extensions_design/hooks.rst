@@ -118,7 +118,8 @@ Modifying the Abstract Syntax Tree (AST)
 
 When PHP 7 compiles PHP code it converts it into an abstract syntax tree (AST)
 before finally generating Opcodes that are persisted in Opcache. The
-``zend_ast_process hook`` is called for every compiled script"
+``zend_ast_process hook`` is called for every compiled script and allows you to
+modify the AST after it is parsed and created.
 
 This is one of the most complicated hooks to use, because it requires perfect
 understanding of the AST possibilities. Creating an invalid AST here can cause
@@ -138,7 +139,7 @@ Whenever a user script calls ``include``/``require`` or their counterparts
 ``zend_compile_file`` to handle this request. The argument is a file handle
 and the result is a ``zend_op_array``.::
 
-    zend_op_array * my_extension_compile_file(zend_file_handle *file_handle, int type);
+    zend_op_array *my_extension_compile_file(zend_file_handle *file_handle, int type);
 
 There are two extensions in PHP core that implement this hook: dtrace and
 opcache.
@@ -152,8 +153,8 @@ opcache.
   not re-compiled. You can find this implementation in
   ``ext/opcache/ZendAccelerator.c``.
 
-- The default implementation is called ``compile_file`` is part of the
-  generated scanner code in ``Zend/zend_language_scanner.c``.
+- The default implementation called ``compile_file`` is part of the scanner
+  code in ``Zend/zend_language_scanner.l``.
 
 Use cases for implementing this hook are Opcode Accelerating, PHP code
 encrypting/decrypting, debugging or profiling.
@@ -166,7 +167,7 @@ It is very important to always call the original function pointer, otherwise
 PHP cannot compile scripts anymore and Opcache will not work anymore.
 
 The extension overwriting order here is also important as you need to be
-careful to make sure yourregister your hook before or after Opcache, because
+careful whether you register your hook before or after Opcache, because
 Opcache does not call the original function pointer if it finds an opcode array
 entry in its shared memory cache.
 
@@ -198,7 +199,7 @@ implementation.
 As such overwriting this hook is not very reliable.
 
 Again overwriting should be done in a way that respects the original handler
-unless you want to completly replace it::
+unless you want to completely replace it::
 
     void (*original_zend_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args);
 
@@ -246,7 +247,7 @@ overwritten by an extension.
 ::
 
     static void (*original_zend_throw_exception_hook)(zval *ex);
-    void my_throw_exception_hook(zval *exception TSRMLS_DC);
+    void my_throw_exception_hook(zval *exception);
 
     PHP_MINIT_FUNCTION(my_extension)
     {
@@ -256,10 +257,11 @@ overwritten by an extension.
         return SUCCESS;
     }
 
-If you implement this hook be aware that this hook is called if the exception
-is caught or not. It can still be useful to temporarily store the exception
-here and then combine this with an implementation of the Error Handler hook
-to check if the exception was uncaught and caused the script to halt.
+If you implement this hook be aware that this hook is called regardless of
+whether the exception is caught or not. It can still be useful to temporarily
+store the exception here and then combine this with an implementation of the
+Error Handler hook to check if the exception was uncaught and caused the script
+to halt.
 
 Use-cases to implement this hook include debugging, logging and exception
 tracking.
