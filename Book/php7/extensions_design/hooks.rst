@@ -166,10 +166,12 @@ implementation of the hook.
 It is very important to always call the original function pointer, otherwise
 PHP cannot compile scripts anymore and Opcache will not work anymore.
 
-The extension overwriting order here is also important as you need to be
-careful whether you register your hook before or after Opcache, because
-Opcache does not call the original function pointer if it finds an opcode array
-entry in its shared memory cache.
+The extension overwriting order here is also important as you need to be aware
+whether you want to register your hook before or after Opcache, because Opcache
+does not call the original function pointer if it finds an opcode array entry
+in its shared memory cache. Opcache registers their hook as a post startup
+hook, which runs after the minit phase for extensions, so by default your hook
+will not be called anymore when the script gets cached.
 
 Notification when Error Handler is called
 *****************************************
