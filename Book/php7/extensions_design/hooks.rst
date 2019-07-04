@@ -290,7 +290,7 @@ PHPs Garbage Collector can be triggered explicitly when ``gc_collect_cycles()``
 is called or implicitly by the engine itself when the number of collectable
 objects reaches a certain theshold.
 
-To allow understanding of how the garabage collector works or to profile its
+To allow understanding of how the garbage collector works or to profile its
 performance, you can overwrite the function pointer hook that performs the
 garbage collection operation. Theoretically you can implement your own garbage
 collection algorithm here, but given other changes to the engine would probably
@@ -317,17 +317,16 @@ Overwrite Interrupt Handler
 ***************************
 
 The interrupt handler is called once when the executor global
-``EG(vm_interrupt)`` is set to 1. This is checked after every opcode.  The
-engine uses this hook to implement the PHP execution timeout via a signal
-handler that sets the interrupt to 1 after the timeout duration is reached.
+``EG(vm_interrupt)`` is set to 1. This is checked at regular checkpoints during
+the execution of userland code. The engine uses this hook to implement the PHP
+execution timeout via a signal handler that sets the interrupt to 1 after the
+timeout duration is reached.
 
-You can implement the interrupt helper yourself and trigger it by setting
-``EG(vm_interrupt) = 1`` in your extension.
-
-This can be helpful to implement debuggers, sampling profilers or your own
-timeout handling. By setting this hook you cannot accidently disable the
-timeout check of PHP, because it has a customized handling that has higher
-priority than any ``zend_interrupt_function`` hook overwrite.
+This can be helpful to defer signal handling to a later stage of the runtime
+execution, when it is safer to clean up or to implement your own timeout
+handling. By setting this hook you cannot accidently disable the timeout check
+of PHP, because it has customized handling that has higher priority than any
+overwrite of ``zend_interrupt_function``.
 
 ::
 
@@ -335,7 +334,9 @@ priority than any ``zend_interrupt_function`` hook overwrite.
 
     void my_interrupt_function(zend_execute_data *execute_data)
     {
-        original_interrupt_function(execute_data);
+        if (original_interrupt_function != NULL) {
+            original_interrupt_function(execute_data);
+        }
     }
 
     PHP_MINIT_FUNCTION(my_extension)
