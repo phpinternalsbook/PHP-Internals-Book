@@ -276,8 +276,8 @@ code.
 Interned zend_string
 ********************
 
-Just a quick word here about interned strings. You should rarely need such a concept in extension development.
-Interned strings also interact with OPCache extension.
+Just a quick word here about `interned strings <https://en.wikipedia.org/wiki/String_interning>`_. You could 
+need such a concept in extension development. Interned strings also interact with OPCache extension.
 
 Interned strings are deduplicated strings. When used with OPCache, they also get recycled from request to request.
 
@@ -314,7 +314,7 @@ your string (probably freeing it) and replaces it by the string from the interne
 it adds it to the interned string buffer and so makes it available for future usage or other parts of PHP.
 
 You must take care about memory allocation. Interned strings always have a refcount set to one, because they don't need
-to be refcounted, as they will get shared with the interned string buffer, and thus they can't be destroyed out of it.
+to be refcounted, as they will get shared with the interned strings buffer, and thus they can't be destroyed out of it.
 
 Example::
 
@@ -342,23 +342,37 @@ When a string is interned, its GC flags are changed to add the ``IS_STR_INTERNED
 class they use (permanent or request based).
 This flag is probed when you want to copy or release a string. If the string is interned, the engine does not increment
 its refcount as you copy the string. But it doesn't decrement it nor free it if you release the string. It shadowly
-does nothing. At the end of the process lifetime, it will destroy its interned string buffer, and it will free your
+does nothing. At the end of the process lifetime, it will destroy its interned strings buffer, and it will free your
 interned strings.
 
-This process is in fact a little bit more complex than this if OPCache fires in. OPCache extension changes the way
-interned strings are used. Without OPCache, if you create an interned zend_string during the process of a request, that
-string will get cleared at the end of the current request and won't be reused for the next request.
-However, if you use OPCache, interned strings are stored into a shared memory segment and shared between every PHP
-process of the same pool. Also, interned strings get reused across several requests.
+This process is in fact a little bit more complex than this. If you make use of an interned string out of a 
+:doc:`request processing <../../extensions_design/php_lifecycle>`, that string will be interned for sure.
+However, if you make use of an interned string as PHP is treating a request, then this string will only get interned for 
+the current request, and will get cleared after that.
+All this is valid if you don't use the OPCache extension, something you shouldn't do : use it.
+
+When using the OPCache extension, if you make use of an interned string out of a 
+:doc:`request processing <../../extensions_design/php_lifecycle>`, that string will be 
+interned for sure and will also be shared to every PHP process or thread that will be spawned by you parallelism layer.
+Also, if you make use of an interned string as PHP is treating a request, this string will also get interned by OPCache 
+itself, and shared to every PHP process or thread that will be spawned by you parallelism layer.
+
+Interned strings mechanisms are then changed when OPCache extension fires in. OPCache not only allows to intern strings 
+that come from a request, but it also allows to share them to every PHP process of the same pool. This is done using 
+shared memory. When saving an interned string, OPCache will also add the ``IS_STR_PERMANENT`` flag to its GC info. 
+That flag means the memory allocation used for the structure (``zend_string`` here) is permanent, it could be a shared 
+read-only memory segment.
 
 Interned strings save memory, because the same string is never stored more than once in memory. But it could waste some
-CPU time as it often needs to lookup the interned string store, even if that process is well optimized yet.
+CPU time as it often needs to lookup the interned strings store, even if that process is well optimized yet.
 As an extension designer, here are global rules:
 
-* If OPCache is used (it should be), and if you need to create request-bound read-only strings : use an interned string.
+* If OPCache is used (it should be), and if you need to create read-only strings : use an interned string.
 * If you need a string you know for sure PHP will have interned (a well-known-PHP-string, f.e "php" or "str_replace"),
   use an interned string.
 * If the string is not read-only and could/should be altered after its been created, do not use an interned string.
 * If the string is unlikely to be reused in the future, do not use an interned string.
+
+.. warning:: Never ever try to modify (write to) an interned string, you'll likely crash.
 
 Interned strings are detailed in `Zend/zend_string.c <https://github.com/php/php-src/blob/PHP-7.0/Zend/zend_string.c>`_
