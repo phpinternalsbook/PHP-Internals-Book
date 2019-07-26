@@ -791,24 +791,8 @@ such an env in ``MSHUTDOWN()``, and unwrite it in ``shutdown()``.
 `putenv() <http://man7.org/linux/man-pages/man3/putenv.3.html>`_ will do the job. That's fine even if that's tricky.
 Also, if another extension between us plays with that, that will smell for us.
 
-The second solution is less portable but safer/stronger, and calls for your knowledge of how libdl works.
-`Read libdl manual <https://linux.die.net/man/3/dlopen>`_, and you'll find a
-`glibc <https://www.gnu.org/software/libc/>`_-only solution.
-
-That solution is to increment the refcount of the libdl handle, by calling ``dlopen()`` one more time for our extension.
-That way, when the engine will ``dlclose()`` us, libdl will simply decrement the refcount of the shared object (ourselves),
-but won't close it until the last reference (us) does so.
-But ``dlopen()`` takes a full path to the object to open, and we don't know our own location path (where will be located
-our *pib.so* on the runtime environment ?). To get that path, we'll have to call for
-`dladdr() <https://linux.die.net/man/3/dlopen>`_ , but ``dladdr()`` is glibc only. We are less portable here, but we are
-clearly safe. If you run on a system which doesn't use glibc (very unlikely), get some information about it to know if
-it supports ``dladdr()`` call or an alternative.
-
-.. note:: That is one drawback of the C language : the lack of definition when it was born back in 1970 makes its usage
-          often platform dependent. You have to master the platforms you target.
-
-The closing part, will be part of the unload of the Zend extension, and for that we'll have to share the libdl handle
-between the ``zend_module_entry``, and the ``zend_extension``.
+The second solution is provided by a trick with the unloading mechanism. If you transfer the libdl handle from the PHP 
+extension structure to the Zend one, you'll be allright with the engine unloading.
 
 Code patched::
 
@@ -818,15 +802,11 @@ Code patched::
 
         PRINT("PHP extension is starting up");
 
-        /* Register our zend_extension part, and share our libdl handle so that
-           the zend_extension shutdown step in the engine will dlclose() us */
+        /* Register our zend_extension part, and give it our own PHP extension handle */
         zend_register_extension(&zend_extension_entry, pib_module_entry.handle);
-
-        /* Get our full path filename at runtime */
-        dladdr(ZEND_MODULE_STARTUP_N(pib), &infos);
-
-        /* Increment our libdl's handle refcount by reopening ourselves */
-        dlopen(infos.dli_fname, 0);
+        
+        /* Prevent the engine from unloading our PHP extension */
+        pib_module_entry.handle = NULL;
 
         return SUCCESS;
     }
