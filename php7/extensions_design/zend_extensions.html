@@ -796,24 +796,8 @@ that if we pass an env <code class="docutils literal"><span class="pre">ZEND_DON
 such an env in <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code>, and unwrite it in <code class="docutils literal"><span class="pre">shutdown()</span></code>.
 <a class="reference external" href="http://man7.org/linux/man-pages/man3/putenv.3.html">putenv()</a> will do the job. That’s fine even if that’s tricky.
 Also, if another extension between us plays with that, that will smell for us.</p>
-<p>The second solution is less portable but safer/stronger, and calls for your knowledge of how libdl works.
-<a class="reference external" href="https://linux.die.net/man/3/dlopen">Read libdl manual</a>, and you’ll find a
-<a class="reference external" href="https://www.gnu.org/software/libc/">glibc</a>-only solution.</p>
-<p>That solution is to increment the refcount of the libdl handle, by calling <code class="docutils literal"><span class="pre">dlopen()</span></code> one more time for our extension.
-That way, when the engine will <code class="docutils literal"><span class="pre">dlclose()</span></code> us, libdl will simply decrement the refcount of the shared object (ourselves),
-but won’t close it until the last reference (us) does so.
-But <code class="docutils literal"><span class="pre">dlopen()</span></code> takes a full path to the object to open, and we don’t know our own location path (where will be located
-our <em>pib.so</em> on the runtime environment ?). To get that path, we’ll have to call for
-<a class="reference external" href="https://linux.die.net/man/3/dlopen">dladdr()</a> , but <code class="docutils literal"><span class="pre">dladdr()</span></code> is glibc only. We are less portable here, but we are
-clearly safe. If you run on a system which doesn’t use glibc (very unlikely), get some information about it to know if
-it supports <code class="docutils literal"><span class="pre">dladdr()</span></code> call or an alternative.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">That is one drawback of the C language : the lack of definition when it was born back in 1970 makes its usage
-often platform dependent. You have to master the platforms you target.</p>
-</div>
-<p>The closing part, will be part of the unload of the Zend extension, and for that we’ll have to share the libdl handle
-between the <code class="docutils literal"><span class="pre">zend_module_entry</span></code>, and the <code class="docutils literal"><span class="pre">zend_extension</span></code>.</p>
+<p>The second solution is provided by a trick with the unloading mechanism. If you transfer the libdl handle from the PHP
+extension structure to the Zend one, you’ll be allright with the engine unloading.</p>
 <p>Code patched:</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="nf">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 <span class="p">{</span>
@@ -821,15 +805,11 @@ between the <code class="docutils literal"><span class="pre">zend_module_entry</
 
     <span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is starting up&quot;</span><span class="p">);</span>
 
-    <span class="cm">/* Register our zend_extension part, and share our libdl handle so that</span>
-<span class="cm">       the zend_extension shutdown step in the engine will dlclose() us */</span>
+    <span class="cm">/* Register our zend_extension part, and give it our own PHP extension handle */</span>
     <span class="n">zend_register_extension</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zend_extension_entry</span><span class="p">,</span> <span class="n">pib_module_entry</span><span class="p">.</span><span class="n">handle</span><span class="p">);</span>
 
-    <span class="cm">/* Get our full path filename at runtime */</span>
-    <span class="n">dladdr</span><span class="p">(</span><span class="n">ZEND_MODULE_STARTUP_N</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">infos</span><span class="p">);</span>
-
-    <span class="cm">/* Increment our libdl&#39;s handle refcount by reopening ourselves */</span>
-    <span class="n">dlopen</span><span class="p">(</span><span class="n">infos</span><span class="p">.</span><span class="n">dli_fname</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="cm">/* Prevent the engine from unloading our PHP extension */</span>
+    <span class="n">pib_module_entry</span><span class="p">.</span><span class="n">handle</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
 
     <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
 <span class="p">}</span>
