@@ -650,7 +650,7 @@ they're designed to.
 If your function accept a parameter as a reference, you must declare that in arguments signature and be passed a
 reference from your ``zend_parse_parameter()`` call. Let's see that like always, with a PHP example first:
 
-.. code-block::php
+.. code-block:: php
 
     function fahrenheit_to_celsius_by_ref(&$fahreinheit)
     {
