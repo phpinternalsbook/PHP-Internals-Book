@@ -88,7 +88,7 @@ calls.::
         original_handler_var_dump(INTERNAL_FUNCTION_PARAM_PASSTHRU);
     }
 
-    PHP_MINIT_FUNCTION(my_extension)
+    static PHP_RINIT_FUNCTION(my_extension)
     {
         zend_function *original;
 
@@ -98,6 +98,8 @@ calls.::
             original_handler_var_dump = original->internal_function.handler;
             original->internal_function.handler = my_overwrite_var_dump;
         }
+
+        return SUCCESS;
     }
 
 When overwriting a class method, the function table can be found on the
