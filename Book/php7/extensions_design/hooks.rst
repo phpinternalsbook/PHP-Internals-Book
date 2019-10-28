@@ -90,9 +90,15 @@ calls.::
 
     PHP_MINIT_FUNCTION(my_extension)
     {
+        // If the ZEND_TSRMLS_CACHE_UPDATE() is in RINIT, move it
+        // to MINIT to ensure access to the compiler globals
+    #if defined(COMPILE_DL_MY_EXTENSION) && defined(ZTS)
+        ZEND_TSRMLS_CACHE_UPDATE();
+    #endif
+
         zend_function *original;
 
-        original = zend_hash_str_find_ptr(EG(function_table), "var_dump", sizeof("var_dump")-1);
+        original = zend_hash_str_find_ptr(CG(function_table), "var_dump", sizeof("var_dump")-1);
 
         if (original != NULL) {
             original_handler_var_dump = original->internal_function.handler;
