@@ -75,7 +75,7 @@ Nothing really strong in such a structure.
 * Then, like we detailed in the introduction chapter above, we find the ``orig_value``, ``orig_modified``, ``modifiable``
   and ``modified`` fields which are related to the modification of the setting's value. The setting must keep in memory
   its original value (as "master value").
-* ``modifiable`` tells if the setting is actually modifable, and must pick some
+* ``modifiable`` tells if the setting is actually modifiable, and must pick some
   values from ``ZEND_INI_USER``, ``ZEND_INI_PERDIR``, ``ZEND_INI_SYSTEM`` or
   ``ZEND_INI_ALL``, those may be flagued together and are detailed `in the PHP manual
   <http://php.net/configuration.changes.modes>`_.

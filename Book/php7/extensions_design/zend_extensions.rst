@@ -792,7 +792,7 @@ such an env in ``MSHUTDOWN()``, and unwrite it in ``shutdown()``.
 Also, if another extension between us plays with that, that will smell for us.
 
 The second solution is provided by a trick with the unloading mechanism. If you transfer the libdl handle from the PHP 
-extension structure to the Zend one, you'll be allright with the engine unloading.
+extension structure to the Zend one, you'll be alright with the engine unloading.
 
 Code patched::
 
