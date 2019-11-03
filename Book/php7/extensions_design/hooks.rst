@@ -288,7 +288,7 @@ Hooking into the Garbage Collector
 
 PHPs Garbage Collector can be triggered explicitly when ``gc_collect_cycles()``
 is called or implicitly by the engine itself when the number of collectable
-objects reaches a certain theshold.
+objects reaches a certain threshold.
 
 To allow understanding of how the garbage collector works or to profile its
 performance, you can overwrite the function pointer hook that performs the
@@ -324,7 +324,7 @@ timeout duration is reached.
 
 This can be helpful to defer signal handling to a later stage of the runtime
 execution, when it is safer to clean up or to implement your own timeout
-handling. By setting this hook you cannot accidently disable the timeout check
+handling. By setting this hook you cannot accidentally disable the timeout check
 of PHP, because it has customized handling that has higher priority than any
 overwrite of ``zend_interrupt_function``.
 
