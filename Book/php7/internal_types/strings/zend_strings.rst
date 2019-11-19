@@ -279,7 +279,7 @@ Interned zend_string
 Just a quick word here about `interned strings <https://en.wikipedia.org/wiki/String_interning>`_. You could 
 need such a concept in extension development. Interned strings also interact with OPCache extension.
 
-Interned strings are deduplicated strings. When used with OPCache, they also get recycled from request to request.
+Interned strings are deduplicated strings. When used with OPCache, they also get reused from request to request.
 
 Say you want to create the string "foo". What you tend to do is simply create a new string "foo"::
 
