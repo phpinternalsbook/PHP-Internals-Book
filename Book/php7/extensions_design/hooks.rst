@@ -394,11 +394,20 @@ or let the engine do its normal behaviour::
             return ZEND_USER_OPCODE_CONTINUE;
         }                                              
 
+        /* We select the handler depending on which opcode this handler is called *for* */
         if (execute_data->opline == ZEND_BEGIN_SILENCE) {
-            return MYEXTG(original_begin_silence_handler)(execute_data);
+            /* Only call the original handler if it wasn't NULL */
+            if (MYEXTG(original_begin_silence_handler)(execute_data)) {
+                return MYEXTG(original_begin_silence_handler)(execute_data);
+            }
         } else {
-            return MYEXTG(original_end_silence_handler)(execute_data);
+            if (MYEXTG(original_end_silence_handler)(execute_data)) {
+                return MYEXTG(original_end_silence_handler)(execute_data);
+            }
         }
+        
+        /* If the original handler was NULL, instruct the VM to do whatever it needs to */
+        return ZEND_USER_OPCODE_DISPATCH;
     }
 
     PHP_MINIT_FUNCTION(my_extension)
@@ -414,7 +423,7 @@ or let the engine do its normal behaviour::
     PHP_MSHUTDOWN_FUNCTION(my_extension)
     {
         zend_set_user_opcode_handler(ZEND_BEGIN_SILENCE, MYEXTG(original_begin_silence_handler));
-        zend_set_user_opcode_handler(ZEND_END_SILENCE,  MYEXTG(original_end_silence_handler));
+        zend_set_user_opcode_handler(ZEND_END_SILENCE, MYEXTG(original_end_silence_handler));
 
         return SUCCESS;
     }
