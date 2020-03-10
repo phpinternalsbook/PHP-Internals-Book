@@ -353,7 +353,7 @@ Replacing Opcode Handlers
 It is possible to override the Zend engine's individual handlers for opcodes. This might be useful
 to ignore the ``@`` operator or count how often each opcode gets executed. The API in the engine
 is only geared up for having *one* extension defined handler per opcode, which makes it important
-that you as extension author, take care of handlers already set by other extensions.
+that you as an extension author, take care of handlers already set by other extensions.
 
 The basic APIs in the engine are::
 
