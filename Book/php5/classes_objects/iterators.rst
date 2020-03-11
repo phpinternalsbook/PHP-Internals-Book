@@ -185,7 +185,7 @@ Now let's actually implement the ``buffer_view_iterator_funcs`` that we specifie
 
     static void buffer_view_iterator_rewind(zend_object_iterator *intern TSRMLS_DC)
     {
-        buffer_view_iterator *iter = (buffer_view_iterator *) iter;
+        buffer_view_iterator *iter = (buffer_view_iterator *) intern;
 
         iter->offset = 0;
         iter->current = NULL;
