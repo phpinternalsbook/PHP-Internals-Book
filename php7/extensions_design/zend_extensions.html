@@ -797,7 +797,7 @@ such an env in <code class="docutils literal"><span class="pre">MSHUTDOWN()</spa
 <a class="reference external" href="http://man7.org/linux/man-pages/man3/putenv.3.html">putenv()</a> will do the job. That’s fine even if that’s tricky.
 Also, if another extension between us plays with that, that will smell for us.</p>
 <p>The second solution is provided by a trick with the unloading mechanism. If you transfer the libdl handle from the PHP
-extension structure to the Zend one, you’ll be allright with the engine unloading.</p>
+extension structure to the Zend one, you’ll be alright with the engine unloading.</p>
 <p>Code patched:</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="nf">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 <span class="p">{</span>

@@ -37,7 +37,7 @@ length is then 3. Also, the string "foo\\0bar" will be stored as "foo\\0bar\\0" 
 Finally, the characters are stored into the ``char[1]`` field. This is not a ``char *``, but a ``char[1]``. Why that?
 This is a memory optimization known as "C struct hack" (you may use a search engine with these terms). Basically, that
 allows the engine to allocate space for the ``zend_string`` structure and the characters to be stored, as one solo C
-pointer. This optimizes memory accesses as memory will be a contiguous allocated block, and not two blocks sparsed in
+pointer. This optimizes memory accesses as memory will be a contiguous allocated block, and not two blocks far away from each other in
 memory (one for ``zend_string *``, and one for the ``char *`` to store into it).
 
 This struct hack must be remembered, as the memory layout looks like with the C chars at the end of the C ``zend_string``
@@ -236,7 +236,7 @@ The macros will allow you to store a ``zend_string`` into a ``zval``, or to read
 
     zend_string_init(world, "world", strlen("world"), 0);
 
-    /* Changes the zend_string into myval : replaces it by another one */
+    /* Changes the zend_string into myval : replaces it with another one */
     Z_STR(myval) = world;
 
     /* ... */
@@ -261,7 +261,7 @@ PHP's history and classical C strings
 *************************************
 
 Just a quick note about classical C strings. In C, strings are character arrays (``char foo[]``), or pointers to
-characters (``char *``). They don't know anything about their length, that's why they are NUL terminated (knowing the
+characters (``char *``). They don't know anything about their length, that's why they are NULL terminated (knowing the
 beginning of the string and its end, you know its length).
 
 Before PHP 7, ``zend_string`` structure simply did not exist. A traditional ``char * / int`` couple were used back in
@@ -279,7 +279,7 @@ Interned zend_string
 Just a quick word here about `interned strings <https://en.wikipedia.org/wiki/String_interning>`_. You could 
 need such a concept in extension development. Interned strings also interact with OPCache extension.
 
-Interned strings are deduplicated strings. When used with OPCache, they also get recycled from request to request.
+Interned strings are deduplicated strings. When used with OPCache, they also get reused from request to request.
 
 Say you want to create the string "foo". What you tend to do is simply create a new string "foo"::
 
@@ -307,10 +307,10 @@ Here is an example::
 
     zend_string_release(foo);
 
-What we do in the code above, is we create a new ``zend_string`` very classicaly. Then, we pass that created
+What we do in the code above, is we create a new ``zend_string`` very classically. Then, we pass that created
 ``zend_string`` to ``zend_new_interned_string()``. This function looks for the same piece of string ("foo" here) into
 the engine interned string buffer. If it finds it (meaning someone already created such a string), it then releases
-your string (probably freeing it) and replaces it by the string from the interned string buffer. If it does not find it:
+your string (probably freeing it) and replaces it with the string from the interned string buffer. If it does not find it:
 it adds it to the interned string buffer and so makes it available for future usage or other parts of PHP.
 
 You must take care about memory allocation. Interned strings always have a refcount set to one, because they don't need

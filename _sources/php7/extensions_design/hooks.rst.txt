@@ -288,7 +288,7 @@ Hooking into the Garbage Collector
 
 PHPs Garbage Collector can be triggered explicitly when ``gc_collect_cycles()``
 is called or implicitly by the engine itself when the number of collectable
-objects reaches a certain theshold.
+objects reaches a certain threshold.
 
 To allow understanding of how the garbage collector works or to profile its
 performance, you can overwrite the function pointer hook that performs the
@@ -324,7 +324,7 @@ timeout duration is reached.
 
 This can be helpful to defer signal handling to a later stage of the runtime
 execution, when it is safer to clean up or to implement your own timeout
-handling. By setting this hook you cannot accidently disable the timeout check
+handling. By setting this hook you cannot accidentally disable the timeout check
 of PHP, because it has customized handling that has higher priority than any
 overwrite of ``zend_interrupt_function``.
 
@@ -350,4 +350,82 @@ overwrite of ``zend_interrupt_function``.
 Replacing Opcode Handlers
 *************************
 
-TODO
+It is possible to override the Zend engine's individual handlers for opcodes. This might be useful
+to ignore the ``@`` operator or count how often each opcode gets executed. The API in the engine
+is only geared up for having *one* extension defined handler per opcode, which makes it important
+that you as an extension author, take care of handlers already set by other extensions.
+
+The basic APIs in the engine are::
+
+    void zend_set_user_opcode_handler(int opcode, user_opcode_handler_t handler);
+    user_opcode_handler_t zend_get_user_opcode_handler(int opcode);
+    
+The `user_opcode_handler_t` is a function pointer, and each handler has the following signature[1]_::
+
+    int my_handler(zend_execute_data *execute_data);
+
+The handler's return value is important, and a few constants are defined that have a meaning:
+
+ZEND_USER_OPCODE_CONTINUE
+    Execute next opcode
+ZEND_USER_OPCODE_RETURN
+    Exit from executor (return from function)
+ZEND_USER_OPCODE_DISPATCH
+    Call original opcode handler
+ZEND_USER_OPCODE_ENTER
+    Enter into new op_array without recursion
+ZEND_USER_OPCODE_LEAVE
+    Return to calling op_array within the same executor
+
+In the example below, we will override the ``ZEND_BEGIN_SILENCE`` and ``ZEND_END_SILENCE`` opcodes which
+are used to implement the ``@`` operator. Based on an extension global (``no_silence``), it will either skip the opcodes
+or let the engine do its normal behaviour::
+
+    ZEND_BEGIN_MODULE_GLOBALS(my_extension)
+        int                   no_silence;
+        user_opcode_handler_t original_begin_silence_handler;
+        user_opcode_handler_t original_end_silence_handler
+    ZEND_END_MODULE_GLOBALS(my_extension)
+
+    static int silence_handler(zend_execute_data *execute_data)
+    {
+        if (MYEXTG(no_silence)) {      
+            execute_data->opline++;
+            return ZEND_USER_OPCODE_CONTINUE;
+        }                                              
+
+        /* We select the handler depending on which opcode this handler is called *for* */
+        if (execute_data->opline == ZEND_BEGIN_SILENCE) {
+            /* Only call the original handler if it wasn't NULL */
+            if (MYEXTG(original_begin_silence_handler)(execute_data)) {
+                return MYEXTG(original_begin_silence_handler)(execute_data);
+            }
+        } else {
+            if (MYEXTG(original_end_silence_handler)(execute_data)) {
+                return MYEXTG(original_end_silence_handler)(execute_data);
+            }
+        }
+        
+        /* If the original handler was NULL, instruct the VM to do whatever it needs to */
+        return ZEND_USER_OPCODE_DISPATCH;
+    }
+
+    PHP_MINIT_FUNCTION(my_extension)
+    {
+        MYEXTG(original_begin_silence_handler) = zend_get_user_opcode_handler(ZEND_BEGIN_SILENCE);
+        MYEXTG(original_end_silence_handler) = zend_get_user_opcode_handler(ZEND_END_SILENCE);
+        zend_set_user_opcode_handler(ZEND_BEGIN_SILENCE, silence_handler);
+        zend_set_user_opcode_handler(ZEND_END_SILENCE, silence_handler);
+
+        return SUCCESS;
+    }
+
+    PHP_MSHUTDOWN_FUNCTION(my_extension)
+    {
+        zend_set_user_opcode_handler(ZEND_BEGIN_SILENCE, MYEXTG(original_begin_silence_handler));
+        zend_set_user_opcode_handler(ZEND_END_SILENCE, MYEXTG(original_end_silence_handler));
+
+        return SUCCESS;
+    }
+    
+.. [1] In PHP 8, this signature is changing and will differ on whether a specific GCC feature is enabled.

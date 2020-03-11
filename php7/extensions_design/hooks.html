@@ -306,7 +306,7 @@ may need eval. One example is Xdebug that uses it to execute breakpoint conditio
 <h2>Hooking into the Garbage Collector<a class="headerlink" href="#hooking-into-the-garbage-collector" title="Permalink to this headline">¶</a></h2>
 <p>PHPs Garbage Collector can be triggered explicitly when <code class="docutils literal"><span class="pre">gc_collect_cycles()</span></code>
 is called or implicitly by the engine itself when the number of collectable
-objects reaches a certain theshold.</p>
+objects reaches a certain threshold.</p>
 <p>To allow understanding of how the garbage collector works or to profile its
 performance, you can overwrite the function pointer hook that performs the
 garbage collection operation. Theoretically you can implement your own garbage
@@ -338,7 +338,7 @@ execution timeout via a signal handler that sets the interrupt to 1 after the
 timeout duration is reached.</p>
 <p>This can be helpful to defer signal handling to a later stage of the runtime
 execution, when it is safer to clean up or to implement your own timeout
-handling. By setting this hook you cannot accidently disable the timeout check
+handling. By setting this hook you cannot accidentally disable the timeout check
 of PHP, because it has customized handling that has higher priority than any
 overwrite of <code class="docutils literal"><span class="pre">zend_interrupt_function</span></code>.</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_interrupt_function</span><span class="p">)(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
@@ -362,7 +362,89 @@ overwrite of <code class="docutils literal"><span class="pre">zend_interrupt_fun
 </div>
 <div class="section" id="replacing-opcode-handlers">
 <h2>Replacing Opcode Handlers<a class="headerlink" href="#replacing-opcode-handlers" title="Permalink to this headline">¶</a></h2>
-<p>TODO</p>
+<p>It is possible to override the Zend engine’s individual handlers for opcodes. This might be useful
+to ignore the <code class="docutils literal"><span class="pre">&#64;</span></code> operator or count how often each opcode gets executed. The API in the engine
+is only geared up for having <em>one</em> extension defined handler per opcode, which makes it important
+that you as an extension author, take care of handlers already set by other extensions.</p>
+<p>The basic APIs in the engine are:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">zend_set_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">opcode</span><span class="p">,</span> <span class="n">user_opcode_handler_t</span> <span class="n">handler</span><span class="p">);</span>
+<span class="n">user_opcode_handler_t</span> <span class="nf">zend_get_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">opcode</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The <cite>user_opcode_handler_t</cite> is a function pointer, and each handler has the following signature[1]_:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">my_handler</span><span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The handler’s return value is important, and a few constants are defined that have a meaning:</p>
+<dl class="docutils">
+<dt>ZEND_USER_OPCODE_CONTINUE</dt>
+<dd>Execute next opcode</dd>
+<dt>ZEND_USER_OPCODE_RETURN</dt>
+<dd>Exit from executor (return from function)</dd>
+<dt>ZEND_USER_OPCODE_DISPATCH</dt>
+<dd>Call original opcode handler</dd>
+<dt>ZEND_USER_OPCODE_ENTER</dt>
+<dd>Enter into new op_array without recursion</dd>
+<dt>ZEND_USER_OPCODE_LEAVE</dt>
+<dd>Return to calling op_array within the same executor</dd>
+</dl>
+<p>In the example below, we will override the <code class="docutils literal"><span class="pre">ZEND_BEGIN_SILENCE</span></code> and <code class="docutils literal"><span class="pre">ZEND_END_SILENCE</span></code> opcodes which
+are used to implement the <code class="docutils literal"><span class="pre">&#64;</span></code> operator. Based on an extension global (<code class="docutils literal"><span class="pre">no_silence</span></code>), it will either skip the opcodes
+or let the engine do its normal behaviour:</p>
+<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+    <span class="kt">int</span>                   <span class="n">no_silence</span><span class="p">;</span>
+    <span class="n">user_opcode_handler_t</span> <span class="n">original_begin_silence_handler</span><span class="p">;</span>
+    <span class="n">user_opcode_handler_t</span> <span class="n">original_end_silence_handler</span>
+<span class="nf">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="n">silence_handler</span><span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">no_silence</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">opline</span><span class="o">++</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">ZEND_USER_OPCODE_CONTINUE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* We select the handler depending on which opcode this handler is called *for* */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">opline</span> <span class="o">==</span> <span class="n">ZEND_BEGIN_SILENCE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/* Only call the original handler if it wasn&#39;t NULL */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* If the original handler was NULL, instruct the VM to do whatever it needs to */</span>
+    <span class="k">return</span> <span class="n">ZEND_USER_OPCODE_DISPATCH</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">)</span> <span class="o">=</span> <span class="n">zend_get_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">);</span>
+    <span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">)</span> <span class="o">=</span> <span class="n">zend_get_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_END_SILENCE</span><span class="p">);</span>
+    <span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">,</span> <span class="n">silence_handler</span><span class="p">);</span>
+    <span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_END_SILENCE</span><span class="p">,</span> <span class="n">silence_handler</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">,</span> <span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">));</span>
+    <span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_END_SILENCE</span><span class="p">,</span> <span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">));</span>
+
+    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils footnote" frame="void" id="id1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td>In PHP 8, this signature is changing and will differ on whether a specific GCC feature is enabled.</td></tr>
+</tbody>
+</table>
 </div>
 </div>
 

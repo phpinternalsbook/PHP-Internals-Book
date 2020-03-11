@@ -12,7 +12,7 @@ at the `step-by-step build instructions`__ in the PHP wiki [#]_.
 This chapter also provides an overview of how the PHP build system works and which tools it uses, but a detailed
 description is outside the scope of this book.
 
-.. __: https://wiki.php.net/internals/windows/stepbystepbuild
+.. __: https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2
 
 .. [#] Disclaimer: We are not liable for any adverse health effects caused by the attempt to compile PHP on Windows.
 

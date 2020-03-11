@@ -226,7 +226,7 @@ of the <code class="docutils literal"><span class="pre">Traversable</span></code
 
 <span class="k">static</span> <span class="kt">void</span> <span class="nf">buffer_view_iterator_rewind</span><span class="p">(</span><span class="n">zend_object_iterator</span> <span class="o">*</span><span class="n">intern</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
 <span class="p">{</span>
-    <span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="n">iter</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="p">)</span> <span class="n">iter</span><span class="p">;</span>
+    <span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="n">iter</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_view_iterator</span> <span class="o">*</span><span class="p">)</span> <span class="n">intern</span><span class="p">;</span>
 
     <span class="n">iter</span><span class="o">-&gt;</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
     <span class="n">iter</span><span class="o">-&gt;</span><span class="n">current</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>

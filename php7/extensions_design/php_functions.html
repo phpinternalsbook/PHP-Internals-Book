@@ -657,6 +657,12 @@ is a heap allocated <code class="docutils literal"><span class="pre">zval</span>
 they’re designed to.</p>
 <p>If your function accept a parameter as a reference, you must declare that in arguments signature and be passed a
 reference from your <code class="docutils literal"><span class="pre">zend_parse_parameter()</span></code> call. Let’s see that like always, with a PHP example first:</p>
+<div class="highlight-php"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">fahrenheit_to_celsius_by_ref</span><span class="p">(</span><span class="o">&amp;</span><span class="nv">$fahreinheit</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="nv">$fahreinheit</span> <span class="o">=</span> <span class="mi">9</span><span class="o">/</span><span class="mi">5</span> <span class="o">*</span> <span class="nv">$fahrenheit</span> <span class="o">+</span> <span class="mi">32</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <p>So now in C, first we must change our <code class="docutils literal"><span class="pre">arg_info</span></code>:</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">fahrenheit</span><span class="p">)</span>

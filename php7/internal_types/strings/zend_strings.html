@@ -79,7 +79,7 @@ length is then 3. Also, the string “foo\0bar” will be stored as “foo\0bar\
 <p>Finally, the characters are stored into the <code class="docutils literal"><span class="pre">char[1]</span></code> field. This is not a <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>, but a <code class="docutils literal"><span class="pre">char[1]</span></code>. Why that?
 This is a memory optimization known as “C struct hack” (you may use a search engine with these terms). Basically, that
 allows the engine to allocate space for the <code class="docutils literal"><span class="pre">zend_string</span></code> structure and the characters to be stored, as one solo C
-pointer. This optimizes memory accesses as memory will be a contiguous allocated block, and not two blocks sparsed in
+pointer. This optimizes memory accesses as memory will be a contiguous allocated block, and not two blocks far away from each other in
 memory (one for <code class="docutils literal"><span class="pre">zend_string</span> <span class="pre">*</span></code>, and one for the <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code> to store into it).</p>
 <p>This struct hack must be remembered, as the memory layout looks like with the C chars at the end of the C <code class="docutils literal"><span class="pre">zend_string</span></code>
 structure, and may be felt/seen when using a C debugger (or when debugging strings). This hack is entirely managed by
@@ -271,7 +271,7 @@ container.</p>
 
 <span class="n">zend_string_init</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="s">&quot;world&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;world&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
 
-<span class="cm">/* Changes the zend_string into myval : replaces it by another one */</span>
+<span class="cm">/* Changes the zend_string into myval : replaces it with another one */</span>
 <span class="n">Z_STR</span><span class="p">(</span><span class="n">myval</span><span class="p">)</span> <span class="o">=</span> <span class="n">world</span><span class="p">;</span>
 
 <span class="cm">/* ... */</span>
@@ -296,7 +296,7 @@ container.</p>
 <div class="section" id="php-s-history-and-classical-c-strings">
 <h3>PHP’s history and classical C strings<a class="headerlink" href="#php-s-history-and-classical-c-strings" title="Permalink to this headline">¶</a></h3>
 <p>Just a quick note about classical C strings. In C, strings are character arrays (<code class="docutils literal"><span class="pre">char</span> <span class="pre">foo[]</span></code>), or pointers to
-characters (<code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>). They don’t know anything about their length, that’s why they are NUL terminated (knowing the
+characters (<code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>). They don’t know anything about their length, that’s why they are NULL terminated (knowing the
 beginning of the string and its end, you know its length).</p>
 <p>Before PHP 7, <code class="docutils literal"><span class="pre">zend_string</span></code> structure simply did not exist. A traditional <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span> <span class="pre">/</span> <span class="pre">int</span></code> couple were used back in
 that time. You may still find rare places into PHP source where <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span> <span class="pre">/</span> <span class="pre">int</span></code> couple is used instead of
@@ -310,7 +310,7 @@ code.</p>
 <h3>Interned zend_string<a class="headerlink" href="#interned-zend-string" title="Permalink to this headline">¶</a></h3>
 <p>Just a quick word here about <a class="reference external" href="https://en.wikipedia.org/wiki/String_interning">interned strings</a>. You could
 need such a concept in extension development. Interned strings also interact with OPCache extension.</p>
-<p>Interned strings are deduplicated strings. When used with OPCache, they also get recycled from request to request.</p>
+<p>Interned strings are deduplicated strings. When used with OPCache, they also get reused from request to request.</p>
 <p>Say you want to create the string “foo”. What you tend to do is simply create a new string “foo”:</p>
 <div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span><span class="p">;</span>
 <span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
@@ -335,10 +335,10 @@ of PHP source code (other extensions, the engine itself, etc…).</p>
 <span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>What we do in the code above, is we create a new <code class="docutils literal"><span class="pre">zend_string</span></code> very classicaly. Then, we pass that created
+<p>What we do in the code above, is we create a new <code class="docutils literal"><span class="pre">zend_string</span></code> very classically. Then, we pass that created
 <code class="docutils literal"><span class="pre">zend_string</span></code> to <code class="docutils literal"><span class="pre">zend_new_interned_string()</span></code>. This function looks for the same piece of string (“foo” here) into
 the engine interned string buffer. If it finds it (meaning someone already created such a string), it then releases
-your string (probably freeing it) and replaces it by the string from the interned string buffer. If it does not find it:
+your string (probably freeing it) and replaces it with the string from the interned string buffer. If it does not find it:
 it adds it to the interned string buffer and so makes it available for future usage or other parts of PHP.</p>
 <p>You must take care about memory allocation. Interned strings always have a refcount set to one, because they don’t need
 to be refcounted, as they will get shared with the interned strings buffer, and thus they can’t be destroyed out of it.</p>

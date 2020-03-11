@@ -116,7 +116,7 @@ however that the value is a string (as <a class="reference internal" href="../in
 <li>Then, like we detailed in the introduction chapter above, we find the <code class="docutils literal"><span class="pre">orig_value</span></code>, <code class="docutils literal"><span class="pre">orig_modified</span></code>, <code class="docutils literal"><span class="pre">modifiable</span></code>
 and <code class="docutils literal"><span class="pre">modified</span></code> fields which are related to the modification of the setting’s value. The setting must keep in memory
 its original value (as “master value”).</li>
-<li><code class="docutils literal"><span class="pre">modifiable</span></code> tells if the setting is actually modifable, and must pick some
+<li><code class="docutils literal"><span class="pre">modifiable</span></code> tells if the setting is actually modifiable, and must pick some
 values from <code class="docutils literal"><span class="pre">ZEND_INI_USER</span></code>, <code class="docutils literal"><span class="pre">ZEND_INI_PERDIR</span></code>, <code class="docutils literal"><span class="pre">ZEND_INI_SYSTEM</span></code> or
 <code class="docutils literal"><span class="pre">ZEND_INI_ALL</span></code>, those may be flagued together and are detailed <a class="reference external" href="http://php.net/configuration.changes.modes">in the PHP manual</a>.</li>
 <li><code class="docutils literal"><span class="pre">modified</span></code> is set to one anytime the setting has been modified during a request so that the engine knows at request
