@@ -37,6 +37,10 @@ extensions = ['sphinx.ext.todo', 'sphinx.ext.ifconfig']
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
+# Add static stylesheets
+def setup(app):
+    app.add_stylesheet('style.css')
+
 # The suffix of source filenames.
 source_suffix = '.rst'
 
