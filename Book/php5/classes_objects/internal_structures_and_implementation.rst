@@ -2,7 +2,7 @@ Internal structures and implementation
 ======================================
 
 In this (last) section on object orientation in PHP we'll have a look at some of the internal structures that were
-previously only mentioned in passing. In particular we'll more thoroughly the default object structure and the object
+previously only mentioned in passing. In particular we'll see more thoroughly the default object structure and the object
 store.
 
 Object properties
