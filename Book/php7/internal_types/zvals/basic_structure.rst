@@ -194,7 +194,7 @@ we'll get back to it later.
 
 Knowing the zval structure you can now write code making use of it::
 
-    zval zv_ptr = /* ... get zval from somewhere */;
+    zval *zv_ptr = /* ... get zval from somewhere */;
 
     if (zv_ptr->type == IS_LONG) {
         php_printf("Zval is a long with value %ld\n", zv_ptr->value.lval);
