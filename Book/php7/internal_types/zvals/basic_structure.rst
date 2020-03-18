@@ -298,11 +298,11 @@ Setting the value
 -----------------
 
 Most of the macros introduced above just access some member of the zval structure and as such you can use them both to
-read and to write the respective values. As an example consider the following function, which simply returns the string
+read and to write the respective values. An exception is ``Z_TYPE_P``, you need to use ``Z_TYPE_INFO_P`` instead to write the type tag. As an example consider the following function, which simply returns the string
 "hello world!"::
 
     PHP_FUNCTION(hello_world) {
-        Z_TYPE_P(return_value) = IS_STRING;
+        Z_TYPE_INFO_P(return_value) = IS_STRING;
         Z_STR_P(return_value) = zend_string_init("hello world!", strlen("hello world!"), 0);
     };
 
