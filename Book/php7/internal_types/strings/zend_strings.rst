@@ -16,10 +16,10 @@ Structure and access macros
 Here is the simple ``zend_string`` structure exposed::
 
     struct _zend_string {
-	    zend_refcounted_h gc;
-	    zend_ulong        h;
-	    size_t            len;
-	    char              val[1];
+        zend_refcounted_h gc;
+        zend_ulong        h;
+        size_t            len;
+        char              val[1];
     };
 
 Like you can see, the structure embeds a ``zend_refcounted_h`` header. This is done for memory management and reference.
@@ -188,13 +188,13 @@ them. There is no concat operation available yet, but that is pretty easy to per
 
     /* Compares a zend_string against a C string literal */
     if (!zend_string_equals_literal(FOO, "foobar")) {
-    	foobar = zend_string_copy(FOO);
+        foobar = zend_string_copy(FOO);
 
-    	/* realloc()ates the C string to a larger buffer */
-    	foobar = zend_string_extend(foobar, strlen("foobar"), 0);
+        /* realloc()ates the C string to a larger buffer */
+        foobar = zend_string_extend(foobar, strlen("foobar"), 0);
 
         /* concatenates "bar" after the newly reallocated large enough "FOO" */
-    	memcpy(ZSTR_VAL(foobar) + ZSTR_LEN(FOO), ZSTR_VAL(bar), ZSTR_LEN(bar));
+        memcpy(ZSTR_VAL(foobar) + ZSTR_LEN(FOO), ZSTR_VAL(bar), ZSTR_LEN(bar));
     }
 
     php_printf("This is my new string: %s\n", ZSTR_VAL(foobar));
@@ -202,7 +202,7 @@ them. There is no concat operation available yet, but that is pretty easy to per
     /* Compares two zend_string together */
     if (!zend_string_equals(FOO, foobar)) {
         /* duplicates a string and lowers it */
-    	foo_lc = zend_string_tolower(foo);
+        foo_lc = zend_string_tolower(FOO);
     }
 
     php_printf("This is FOO in lower-case: %s\n", ZSTR_VAL(foo_lc));
