@@ -226,7 +226,7 @@ The macros will allow you to store a ``zend_string`` into a ``zval``, or to read
     zval myval;
     zend_string *hello, *world;
 
-    zend_string_init(hello, "hello", strlen("hello"), 0);
+    hello = zend_string_init("hello", strlen("hello"), 0);
 
     /* Stores the string into the zval */
     ZVAL_STR(&myval, hello);
@@ -234,7 +234,7 @@ The macros will allow you to store a ``zend_string`` into a ``zval``, or to read
     /* Reads the C string, from the zend_string from the zval */
     php_printf("The string is %s", Z_STRVAL(myval));
 
-    zend_string_init(world, "world", strlen("world"), 0);
+    world = zend_string_init("world", strlen("world"), 0);
 
     /* Changes the zend_string into myval : replaces it with another one */
     Z_STR(myval) = world;
@@ -323,14 +323,14 @@ Example::
     foo  = zend_string_init("foo", strlen("foo"), 0);
     foo2 = zend_string_copy(foo); /* increments refcount of foo */
 
-     /* refcount falls back to 1, even if the string is now
-      * used at three different places */
+     /* foo points to the interned string buffer, and refcount
+      * in original zend_string falls back to 1 */
     foo = zend_new_interned_string(foo);
 
     /* This doesn't do anything, as foo is interned */
     zend_string_release(foo);
 
-    /* This doesn't do anything, as foo2 is interned */
+    /* The original buffer referenced by foo2 is released */
     zend_string_release(foo2);
 
     /* At the end of the process, PHP will purge its interned
