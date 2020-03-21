@@ -8,7 +8,7 @@ The book is written using ReStructured Text and generated using Sphinx.
 
  * RST manual: http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html
  * RST quickref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
- * Sphinx manual: http://sphinx.pocoo.org/markup/index.html
+ * Sphinx manual: https://www.sphinx-doc.org/en/master/
 
 Coding style
 ------------
