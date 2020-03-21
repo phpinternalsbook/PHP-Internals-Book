@@ -358,7 +358,7 @@ need such variables and use them as read-only variable.
 Remember it is perfectly safe to write to true-globals as you are in the ``MINIT()`` or ``MSHUTDOWN()`` steps of PHP
 lifecycle. But you can't write to them while treating a request (but reading from them is OK).
 
-So, a simple example is that you want to read an environment value to do something with it. Also, it is not uncomon to
+So, a simple example is that you want to read an environment value to do something with it. Also, it is not uncommon to
 initialize persistent :doc:`zend_string <../internal_types/strings/zend_strings>` to make use of them later as you'll
 treat some requests.
 
