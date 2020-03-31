@@ -372,7 +372,7 @@ Here is the patched example introducing true globals, we just show the diff abou
         *result = zend_string_init(str, strlen(str), 1);
         zend_string_hash_val(*result);
 
-        GC_FLAGS(*result) |= IS_INTERNED;
+        GC_ADD_FLAGS(*result, IS_STR_INTERNED);
     }
 
     static void pib_rnd_init(void)
