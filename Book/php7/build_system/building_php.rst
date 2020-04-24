@@ -442,7 +442,7 @@ If the ``make`` command finishes successfully, it will print a message encouragi
     Don't forget to run 'make test'
 
 ``make test`` will run the PHP CLI binary against our test suite, which is located in the different *tests/* directories
-of the PHP source tree. As a default build is run against approximately 9000 tests (less for a minimal build, more if
+of the PHP source tree. As a default build is run against more than 10000 (less for a minimal build, more if
 you enable additional extensions) this can take several minutes. The ``make test`` command is currently not parallel, so
 specifying the ``-jN`` option will not make it faster.
 
