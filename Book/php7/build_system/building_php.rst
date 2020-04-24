@@ -442,9 +442,8 @@ If the ``make`` command finishes successfully, it will print a message encouragi
     Don't forget to run 'make test'
 
 ``make test`` will run the PHP CLI binary against our test suite, which is located in the different *tests/* directories
-of the PHP source tree. As a default build is run against more than 10000 (less for a minimal build, more if
-you enable additional extensions) this can take several minutes. The ``make test`` command is currently not parallel, so
-specifying the ``-jN`` option will not make it faster.
+of the PHP source tree. As a default build is run against approximately 9000 tests (less for a minimal build, more if
+you enable additional extensions) this can take several minutes. The ``make test`` can also be run in parallel. To make it happen you need to set ``TEST_PHP_ARGS=-jN`` enviroment valriable. Run ``make TEST_PHP_ARGS=-j$(getconf _NPROCESSORS_ONLN) test`` to use all your cores.
 
 If this is the first time you compile PHP on your platform, we encourage you to run the test suite. Depending on your
 OS and your build environment you may find bugs in PHP by running the tests. If there are any failures, the script will
