@@ -11,6 +11,7 @@ PHP 7
     php7/build_system.rst
     php7/internal_types.rst
     php7/extensions_design.rst
+    php7/pdo.rst
     php7/memory_management.rst
     php7/zend_engine.rst
     php7/debugging.rst
