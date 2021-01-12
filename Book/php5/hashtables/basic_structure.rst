@@ -28,7 +28,6 @@ illustration of chaining collision resolution:
 .. image:: ./images/basic_hashtable.*
    :align: center
    :height: 265
-   :scale: 200%
 
 The elements of the linked list are called ``Bucket``\s and the C array containing the heads of the linked lists is
 called ``arBuckets``.
@@ -42,7 +41,6 @@ pointers in the reverse direction. The latter is what PHP does: Every bucket con
 .. image:: ./images/doubly_linked_hashtable.*
    :align: center
    :height: 250
-   :scale: 200%
 
 Furthermore PHP hashtables are *ordered*: If you traverse an array you'll get the elements in same order in which you
 inserted them. To support this the buckets have to be part of another linked list which specifies the order. This is
@@ -54,7 +52,6 @@ example of how this linked list could look like for the elements ``"a"``, ``"b"`
 .. image:: ./images/ordered_hashtable.*
    :align: center
    :height: 250
-   :scale: 200%
 
 The HashTable and Bucket structures
 -----------------------------------
