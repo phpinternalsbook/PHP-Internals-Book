@@ -1,3 +1,5 @@
+.. _zend_mm:
+
 Zend Memory Manager
 ===================
 

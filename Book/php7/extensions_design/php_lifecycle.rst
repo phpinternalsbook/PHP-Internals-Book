@@ -1,3 +1,5 @@
+.. _php_lifecycle:
+
 Learning the PHP lifecycle
 ==========================
 

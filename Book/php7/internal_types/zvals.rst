@@ -1,8 +1,8 @@
 Zvals
 =====
 
-In this chapter the "zval" data structure, which is used to represent PHP values, is introduced. We explain the concepts
-behind zvals and how to use them in extension code.
+In this chapter the ``zval`` data structure, which is used to represent PHP values, is introduced. We explain the
+concepts behind zvals and how to use them in extension code.
 
 Contents:
 
@@ -10,5 +10,5 @@ Contents:
     :maxdepth: 2
 
     zvals/basic_structure.rst
-    zvals/memory_and_gc.rst
+    zvals/memory_management.rst
     zvals/casts_and_operations.rst
