@@ -29,9 +29,9 @@ typically called ``php-dev``. To facilitate debugging with valgrind or gdb one c
 which are usually available as another package called ``php-dbg``.
 
 But even if you install headers and debug symbols, you'll still be working with a release build of PHP. This means that
-it will be built with high optimization level, which can make debugging very hard. Furthermore release builds will not
-generate warnings about memory leaks or inconsistent data structures. Additionally prebuilt packages don't enable thread
-safety, which is very helpful during development.
+it will be built with high optimization level, which can make debugging very hard. Furthermore release builds do not
+enable assertions and do not generate warnings about memory leaks. Additionally, prebuilt packages don't enable
+thread safety, which may be helpful to ensure your extension builds in a thread-safe configuration.
 
 Another issue is that nearly all distributions apply additional patches to PHP. In some cases these patches only
 contain minor changes related to configuration, but some distributions make use of highly intrusive patches like
@@ -53,7 +53,7 @@ download an archive from `PHP's download page`_ or clone the git repository from
 
 The build process is slightly different for both cases: The git repository doesn't bundle a ``configure`` script, so
 you'll need to generate it using the ``buildconf`` script, which makes use of autoconf. Furthermore the git repository
-does not contain a pregenerated parser, so you'll also need to have bison installed.
+does not contain a pregenerated lexer and parser, so you'll also need to have re2c and bison installed.
 
 We recommend to checkout out the source code from git, because this will provide you with an easy way to keep your
 installation updated and to try your code with different versions. A git checkout is also required if you want to
@@ -65,33 +65,33 @@ To clone the repository, run the following commands in your shell::
     ~> cd php-src
     # by default you will be on the master branch, which is the current
     # development version. You can check out a stable branch instead:
-    ~/php-src> git checkout PHP-7.0
+    ~/php-src> git checkout PHP-8.0
 
 If you have issues with the git checkout, take a look at the `Git FAQ`_ on the PHP wiki. The Git FAQ also explains how
 to setup git if you want to contribute to PHP itself. Furthermore it contains instructions on setting up multiple
 working directories for different PHP versions. This can be very useful if you need to test your extensions or changes
 against multiple PHP versions and configurations.
 
-Before continuing you should also install some basic build dependencies with your package manager (you'll likely already
-have the first three installed by default):
+Before continuing, you should also install some basic build dependencies with your package manager (you'll likely
+already have the first three installed by default):
 
-* ``gcc`` or some other compiler suite.
+* ``gcc`` and ``g++``  or some other compiler toolchain.
 * ``libc-dev``, which provides the C standard library, including headers.
 * ``make``, which is the build-management tool PHP uses.
 * ``autoconf``, which is used to generate the ``configure`` script.
 
   * 2.59 or higher (for PHP 7.0-7.1)
   * 2.64 or higher (for PHP 7.2)
-  * 2.68 or higher (for PHP 7.3)
+  * 2.68 or higher (for PHP 7.3 and higher)
 * ``libtool``, which helps manage shared libraries.
 * ``bison`` which is used to generate the PHP parser.
 
   * 2.4 or higher (for PHP 7.0-7.3)
-  * 3.0 or higher (for PHP 7.4)
-* ``re2c``, which is used to generate the PHP lexer. The re2c lexer generator was
-  once an optional dependency when building PHP from the Git repository. In
-  PHP > 7.3 branches the generated lexer files are not bundled in the Git
-  repository anymore.
+  * 3.0 or higher (for PHP 7.4 and higher)
+* ``re2c``, which is used to generate the PHP lexer.
+
+  * Optional for PHP <= 7.3.
+  * 0.13.4 or higher (for PHP 7.4 and higher)
 
 On Debian/Ubuntu you can install all these with the following command::
 
@@ -100,10 +100,8 @@ On Debian/Ubuntu you can install all these with the following command::
 Depending on the extensions that you enable during the ``./configure`` stage PHP will need a number of additional
 libraries. When installing these, check if there is a version of the package ending in ``-dev`` or ``-devel`` and
 install them instead. The packages without ``dev`` typically do not contain necessary header files. For example a
-default PHP build will require libxml, which you can install via the ``libxml2-dev`` package.
-
-If you are using Debian or Ubuntu you can use ``sudo apt-get build-dep php7`` to install a large number of optional
-build-dependencies in one go. If you are only aiming for a default build, many of them will not be necessary though.
+default PHP build will require libxml and libsqlite3, which you can install via the ``libxml2-dev`` and
+``libsqlite3-dev`` packages.
 
 .. _PHP's download page: http://www.php.net/downloads.php
 .. _git.php.net: http://git.php.net
@@ -120,7 +118,8 @@ Before taking a closer look at what the individual build steps do, here are the 
     ~/php-src> ./configure
     ~/php-src> make -jN
 
-For a fast build, replace ``N`` with the number of CPU cores you have available (see ``grep "cpu cores" /proc/cpuinfo``).
+For a fast build, replace ``N`` with the number of CPU cores you have available (you can run ``nproc`` to determine
+this).
 
 By default PHP will build binaries for the CLI and CGI SAPIs, which will be located at ``sapi/cli/php`` and
 ``sapi/cgi/php-cgi`` respectively. To check that everything went well, try running ``sapi/cli/php -v``.
@@ -148,13 +147,13 @@ The main job of these makefiles is to run ``autoconf`` to generate the ``./confi
 generate the ``main/php_config.h.in`` template. The latter file will be used by configure to generate the final
 configuration header file ``main/php_config.h``.
 
-Both utilities produce their results from the ``configure.in`` file (which specifies most of the PHP build process),
-the ``acinclude.m4`` file (which specifies a large number of PHP-specific M4 macros) and the ``config.m4`` files of
+Both utilities produce their results from the ``configure.ac`` file (which specifies most of the PHP build process),
+the ``build/php.m4`` file (which specifies a large number of PHP-specific M4 macros) and the ``config.m4`` files of
 individual extensions and SAPIs (as well as a bunch of other `m4 files <http://www.gnu.org/software/m4/m4.html>`_).
 
 The good news is that writing extensions or even doing core modifications will not require much interaction with the
 build system. You will have to write small ``config.m4`` files later on, but those usually just use two or three of the
-high-level macros that ``acinclude.m4`` provides. As such we will not go into further detail here.
+high-level macros that ``build/php.m4`` provides. As such we will not go into further detail here.
 
 The ``./buildconf`` script only has two options: ``--debug`` will disable warning suppression when calling autoconf and
 autoheader. Unless you want to work on the buildsystem, this option will be of little interest to you.
@@ -164,7 +163,7 @@ the packaged source code and want to generate a new ``./configure``) and additio
 ``config.cache`` and ``autom4te.cache/``.
 
 If you update your git repository using ``git pull`` (or some other command) and get weird errors during the ``make``
-step, this usually means that something in the build configuration changed and you need to run ``./buildconf --force``.
+step, this usually means that something in the build configuration changed and you need to rerun ``./buildconf``.
 
 The ``./configure`` script
 --------------------------
@@ -182,9 +181,14 @@ build and want to quickly change between different configurations.
 
 Apart from generic autoconf options there are also many settings specific to PHP. For example, you can choose which
 extensions and SAPIs should be compiled using the ``--enable-NAME`` and ``--disable-NAME`` switches. If the extension or
-SAPI has external dependencies you need to use ``--with-NAME`` and ``--without-NAME`` instead. If a library needed by
-``NAME`` is not located in the default location (e.g. because you compiled it yourself) you can specify its location
-using ``--with-NAME=DIR``.
+SAPI has external dependencies you need to use ``--with-NAME`` and ``--without-NAME`` instead.
+
+If a library needed by ``NAME`` is not located in the default location (e.g. because you compiled it yourself), some
+extensions allow you to specify its location using ``--with-NAME=DIR``. However, since PHP 7.4 most extensions use
+``pkg-config`` instead, in which case passing a directory to ``--with`` has no effect. In this case, it is necessary
+to add the library to the ``PKG_CONFIG_PATH``::
+
+    export PKG_CONFIG_PATH=/path/to/library/lib/pkgconfig:$PKG_CONFIG_PATH
 
 By default PHP will build the CLI and CGI SAPIs, as well as a number of extensions. You can find out which extensions
 your PHP binary contains using the ``-m`` option. For a default PHP 7.0 build the result will look as follows:
@@ -243,6 +247,8 @@ extensions use the ``--disable-all`` option::
     [PHP Modules]
     Core
     date
+    hash
+    json
     pcre
     Reflection
     SPL
@@ -252,25 +258,31 @@ The ``--disable-all`` option is very useful if you want a fast build and don't n
 implementing language changes). For the smallest possible build you can additionally specify the ``--disable-cgi``
 switch, so only the CLI binary is generated.
 
-There are two more switches, which you should **always** specify when developing extensions or working on PHP:
+There are three more switches, which you should usually specify when developing extensions or working on PHP:
 
 ``--enable-debug`` enables debug mode, which has multiple effects: Compilation will run with ``-g`` to generate debug
 symbols and additionally use the lowest optimization level ``-O0``. This will make PHP a lot slower, but make debugging
 with tools like ``gdb`` more predictable. Furthermore debug mode defines the ``ZEND_DEBUG`` macro, which will enable
-various debugging helpers in the engine. Among other things memory leaks, as well as incorrect use of some data
-structures, will be reported.
+th use of assertions and enable various debugging helpers in the engine. Among other things memory leaks, as well as
+incorrect use of some data structures, will be reported. It is possible to enable debug assertions without disabling
+optimizations by using ``--enable-debug-assertions`` instead.
 
-``--enable-maintainer-zts`` enables thread-safety. This switch will define the ``ZTS`` macro, which in turn will enable
-the whole TSRM (thread-safe resource manager) machinery used by PHP. Writing thread-safe extensions for PHP is very
-simple, but only if make sure to enable this switch. If you need more information about thread safety and global
-memory management in PHP, you should read :doc:`the globals management chapter <../extensions_design/globals_management>`
+``--enable-zts`` (or ``--enable-maintainer-zts`` before PHP 8.0) enables thread-safety. This switch will define the
+``ZTS`` macro, which in turn will enable the whole TSRM (thread-safe resource manager) machinery used by PHP. Since
+PHP 7 having this switch continuously enabled is much less important than on previous versions. It is primarily
+important to make sure you included all the necessary boilerplate code. If you need more information about thread
+safety and global memory management in PHP, you should read :doc:`the globals management chapter <../extensions_design/globals_management>`
 
-On the other hand you should not use either of these options if you want to perform performance benchmarks for your
-code, as both can cause significant and asymmetrical slowdowns.
+``--enable-werror`` (since PHP 7.4) enables the ``-Werror`` compiler flag, which will promote compiler warnings to
+errors. Enabling this flag ensures that the PHP build remains warning free. However, generated warnings depend on the
+used compiler, version and optimizatino options, so some compilers may not be usable with option.
 
-Note that ``--enable-debug`` and ``--enable-maintainer-zts`` change the ABI of the PHP binary, e.g. by adding additional
-arguments to many functions. As such, shared extensions compiled in debug mode will not be compatible with a PHP binary
-built in release mode. Similarly a thread-safe extension (ZTS) is not compatible with a non-thread-safe PHP build (NTS).
+On the other hand you should not use the ``--enable-debug`` option if you want to perform performance benchmarks for
+your code. ``--enable-zts`` can also negatively impact runtime performance.
+
+Note that ``--enable-debug`` and ``--enable-zts`` change the ABI of the PHP binary, e.g. by adding additional arguments
+to functions. As such, shared extensions compiled in debug mode will not be compatible with a PHP binary built in
+release mode. Similarly a thread-safe extension (ZTS) is not compatible with a non-thread-safe PHP build (NTS).
 
 Due to the ABI incompatibility ``make install`` (and PECL install) will put shared extensions in different directories
 depending on these options:
@@ -296,10 +308,12 @@ For example you can use ``CC`` to use a different compiler and ``CFLAGS`` to cha
 In this configuration the build will make use of clang (instead of gcc) and use a very high optimization level
 (``-O3 -march=native``).
 
-You may use additional compiler warning flags that could help you spot some bugs.
-For GCC, you may read them `in the GCC manual`_
+An option that is particularly useful for development is ``-fsanitize``, which allows you to detect memory corruption
+and undefined behavior at runtime::
 
-.. _in the GCC manual: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#Warning-Options
+    CFLAGS="-fsanitize=address -fsanitize=undefined"
+
+These options only work reliably since PHP 7.4 and will significantly slow down the generated PHP binary.
 
 ``make`` and ``make install``
 -----------------------------
@@ -371,7 +385,7 @@ A short overview of the directory structure:
 * *etc/* contains configuration. Note that the default *php.ini* directory is **not** here.
 * *include/php* contains header files, which are needed to build additional extensions or embed PHP in custom software.
 * *lib/php* contains PEAR files. The *lib/php/build* directory includes files necessary for building extensions, e.g.
-  the ``acinclude.m4`` file containing PHP's M4 macros. If we had compiled any shared extensions those files would live
+  the ``php.m4`` file containing PHP's M4 macros. If we had compiled any shared extensions those files would live
   in a subdirectory of *lib/php/extensions*.
 * *php/man* obviously contains man pages for the ``php`` command.
 
@@ -443,42 +457,41 @@ If the ``make`` command finishes successfully, it will print a message encouragi
 
 ``make test`` will run the PHP CLI binary against our test suite, which is located in the different *tests/* directories
 of the PHP source tree. As a default build is run against more than 10000 (less for a minimal build, more if
-you enable additional extensions) this can take several minutes. The ``make test`` command is currently not parallel, so
-specifying the ``-jN`` option will not make it faster.
+you enable additional extensions) this can take several minutes.
 
-If this is the first time you compile PHP on your platform, we encourage you to run the test suite. Depending on your
-OS and your build environment you may find bugs in PHP by running the tests. If there are any failures, the script will
-ask whether you want to send a report to our QA platform, which will allow contributors to analyze the failures. Note
-that it is quite normal to have a few failing tests and your build will likely work well as long as you don't see
-dozens of failures.
+The ``make test`` command internally invokes the ``run-tests.php`` file using your CLI binary. For more control, it is
+recommended to invoke ``run-tests.php`` directly. For example, this will allow you to enable the parallel test runner::
 
-The ``make test`` command internally invokes the ``run-tests.php`` file using your CLI binary. You can run
-``sapi/cli/php run-tests.php --help`` to display a list of options this script accepts.
+    ~/php-src> sapi/cli/php run-tests.php -jN
 
-If you manually run ``run-tests.php`` you need to specify either the ``-p`` or ``-P`` option (or an ugly environment
-variable)::
+Test parallelism is only available as of PHP 7.4. On earlier PHP versions parallelism is not available, and it is
+necessary to additionally pass the ``-P`` option::
 
-    ~/php-src> sapi/cli/php run-tests.php -p `pwd`/sapi/cli/php
     ~/php-src> sapi/cli/php run-tests.php -P
-
-``-p`` is used to explicitly specify a binary to test. Note that in order to run all tests correctly this should be an
-absolute path (or otherwise independent of the directory it is called from). ``-P`` is a shortcut that will use the
-binary that ``run-tests.php`` was called with. In the above example both approaches are the same.
 
 Instead of running the whole test suite, you can also limit it to certain directories by passing them as arguments to
 ``run-tests.php``. E.g. to test only the Zend engine, the reflection extension and the array functions::
 
-    ~/php-src> sapi/cli/php run-tests.php -P Zend/ ext/reflection/ ext/standard/tests/array/
+    ~/php-src> sapi/cli/php run-tests.php -jN Zend/ ext/reflection/ ext/standard/tests/array/
 
 This is very useful, because it allows you to quickly run only the parts of the test suite that are relevant to your
 changes. E.g. if you are doing language modifications you likely don't care about the extension tests and only want to
 verify that the Zend engine is still working correctly.
 
+You can run ``sapi/cli/php run-tests.php --help`` to display a full list of options the test runner accepts. Some
+particularly useful options are:
+
+  * ``-c php.ini`` can be used to specify a php.ini file to use.
+  * ``-d foo=bar`` can be used to set ini options.
+  * ``-m`` runs tests under valgrind to detect memory errors. Note that this is extremely slow.
+  * ``--asan`` should be set when compiling PHP with ``-fsanitize=address``. Together these are approximately
+    equivalent to running under valgrind, but with much better performance.
+
 You don't need to explicitly use ``run-tests.php`` to pass options or limit directories. Instead you can use the
 ``TESTS`` variable to pass additional arguments via ``make test``. E.g. the equivalent of the previous command would
 be::
 
-    ~/php-src> make test TESTS="Zend/ ext/reflection/ ext/standard/tests/array/"
+    ~/php-src> make test TESTS="-jN Zend/ ext/reflection/ ext/standard/tests/array/"
 
 We will take a more detailed look at the ``run-tests.php`` system later, in particular also talk about how to write your
 own tests and how to debug test failures. :doc:`See the dedicated tests chapter <../../tests/introduction>`.
@@ -493,24 +506,19 @@ files making use of that header, thus leading to a broken build.
 
 If you get odd errors while running ``make`` or the resulting binary is broken (e.g. if ``make test`` crashes it before
 it gets to run the first test), you should try to run ``make clean``. This will delete all compiled objects, thus
-forcing the next ``make`` call to perform a full build.
+forcing the next ``make`` call to perform a full build. (You can use ``ccache`` to reduce the cost of rebuilds.)
 
 Sometimes you also need to run ``make clean`` after changing ``./configure`` options. If you only enable additional
 extensions an incremental build should be safe, but changing other options may require a full rebuild.
 
-A more aggressive cleaning target is available via ``make distclean``. This will perform a normal clean, but also roll
-back any files brought by the ``./configure`` command invocation. It will delete configure caches, Makefiles,
-configuration headers and various other files. As the name implies this target "cleans for distribution", so it is
-mostly used by release managers.
-
 Another source of compilation issues is the modification of ``config.m4`` files or other files that are part of the PHP
-build system. If such a file is changed, it is necessary to rerun the ``./buildconf`` script. If you do the modification
-yourself, you will likely remember to run the command, but if it happens as part of a ``git pull`` (or some other
-updating command) the issue might not be so obvious.
+build system. If such a file is changed, it is necessary to rerun the ``./buildconf`` and ``./configure`` scripts. If
+you do the modification yourself, you will likely remember to run the command, but if it happens as part of a
+``git pull`` (or some other updating command) the issue might not be so obvious.
 
 If you encounter any odd compilation problems that are not resolved by ``make clean``, chances are that running
-``./buildconf --force`` will fix the issue. To avoid typing out the previous ``./configure`` options afterwards, you
-can make use of the ``./config.nice`` script (which contains your last ``./configure`` call)::
+``./buildconf`` will fix the issue. To avoid typing out the previous ``./configure`` options afterwards, you can make
+use of the ``./config.nice`` script (which contains your last ``./configure`` call)::
 
     ~/php-src> make clean
     ~/php-src> ./buildconf --force
