@@ -1,6 +1,6 @@
 .. highlight:: bash
 
-.. _building_php_7:
+.. _building_php:
 
 Building PHP
 ============
@@ -328,9 +328,8 @@ The main result of this operation will be PHP binaries for the enabled SAPIs (by
 Now you can run ``make install`` to install PHP into ``/usr/local`` (default) or whatever directory you specified using
 the ``--prefix`` configure switch.
 
-``make install`` will do little more than copy a number of files to the new location. Unless you specified
-``--without-pear`` during configuration, it will also download and install PEAR. Here is the resulting tree of a default
-PHP build:
+``make install`` will do little more than copy a number of files to the new location. If you specified ``--with-pear``
+during configuration, it will also download and install PEAR. Here is the resulting tree of a default PHP build:
 
 .. code-block:: none
 
