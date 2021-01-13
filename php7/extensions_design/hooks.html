@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hooks provided by PHP &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Declaring and using INI settings" href="ini_settings.html" />
     <link rel="prev" title="Publishing extension information" href="extension_infos.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Hooks provided by PHP</span></h2>
@@ -43,7 +34,7 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="hooks-provided-by-php">
@@ -64,8 +55,8 @@ without causing conflicts.</p>
 within the Zend engine that you can replace with your own implementations.
 The primary use-case for extensions to overwrite this hook is generic
 function-level profiling, debugging and aspect oriented programming.</p>
-<p>The hooks are defined in <code class="docutils literal"><span class="pre">Zend/zend_execute.h</span></code>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span> <span class="k">extern</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">zend_execute_ex</span><span class="p">)(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
+<p>The hooks are defined in <code class="docutils literal notranslate"><span class="pre">Zend/zend_execute.h</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span> <span class="k">extern</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">zend_execute_ex</span><span class="p">)(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
 <span class="n">ZEND_API</span> <span class="k">extern</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">zend_execute_internal</span><span class="p">)(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">return_value</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -73,7 +64,7 @@ function-level profiling, debugging and aspect oriented programming.</p>
 MINIT, because other decisions inside the Zend Engine are made early based on
 the fact if the pointers are overwritten or not.</p>
 <p>The usual pattern for overwriting is this:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_zend_execute_ex</span><span class="p">)</span> <span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_zend_execute_ex</span><span class="p">)</span> <span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
 <span class="k">static</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_zend_execute_internal</span><span class="p">)</span> <span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">return_value</span><span class="p">);</span>
 <span class="kt">void</span> <span class="nf">my_execute_internal</span><span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">return_value</span><span class="p">);</span>
 <span class="kt">void</span> <span class="nf">my_execute_ex</span> <span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
@@ -100,10 +91,10 @@ the fact if the pointers are overwritten or not.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>One downside of overwriting <code class="docutils literal"><span class="pre">zend_execute_ex</span></code> is that it changes the Zend
+<p>One downside of overwriting <code class="docutils literal notranslate"><span class="pre">zend_execute_ex</span></code> is that it changes the Zend
 Virtual Machine runtime behavior to use recursion instead of handling calls
 without leaving the interpreter loop. In addition a PHP engine without
-overwritten <code class="docutils literal"><span class="pre">zend_execute_ex</span></code> can also generate more optimized function call
+overwritten <code class="docutils literal notranslate"><span class="pre">zend_execute_ex</span></code> can also generate more optimized function call
 opcodes.</p>
 <p>These hooks are very performance sensitive depending on the complexity of code
 that wraps the original functions.</p>
@@ -115,7 +106,7 @@ call, you can also overwrite individual function pointers of userland, core and
 extension functions (and methods). This has much better performance
 characteristics if an extension only needs access to specific internal function
 calls.:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#if PHP_VERSION_ID &lt; 70200</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#if PHP_VERSION_ID &lt; 70200</span>
 <span class="k">typedef</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">zif_handler</span><span class="p">)(</span><span class="n">INTERNAL_FUNCTION_PARAMETERS</span><span class="p">);</span>
 <span class="cp">#endif</span>
 <span class="n">zif_handler</span> <span class="n">original_handler_var_dump</span><span class="p">;</span>
@@ -128,9 +119,15 @@ calls.:</p>
 
 <span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
 <span class="p">{</span>
+    <span class="c1">// If the ZEND_TSRMLS_CACHE_UPDATE() is in RINIT, move it</span>
+    <span class="c1">// to MINIT to ensure access to the compiler globals</span>
+<span class="cp">#if defined(COMPILE_DL_MY_EXTENSION) &amp;&amp; defined(ZTS)</span>
+    <span class="n">ZEND_TSRMLS_CACHE_UPDATE</span><span class="p">();</span>
+<span class="cp">#endif</span>
+
     <span class="n">zend_function</span> <span class="o">*</span><span class="n">original</span><span class="p">;</span>
 
-    <span class="n">original</span> <span class="o">=</span> <span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="n">EG</span><span class="p">(</span><span class="n">function_table</span><span class="p">),</span> <span class="s">&quot;var_dump&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;var_dump&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">original</span> <span class="o">=</span> <span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="n">CG</span><span class="p">(</span><span class="n">function_table</span><span class="p">),</span> <span class="s">&quot;var_dump&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;var_dump&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">original</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">original_handler_var_dump</span> <span class="o">=</span> <span class="n">original</span><span class="o">-&gt;</span><span class="n">internal_function</span><span class="p">.</span><span class="n">handler</span><span class="p">;</span>
@@ -140,8 +137,8 @@ calls.:</p>
 </pre></div>
 </div>
 <p>When overwriting a class method, the function table can be found on the
-<code class="docutils literal"><span class="pre">zend_class_entry</span></code>.:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span> <span class="o">=</span> <span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="n">CG</span><span class="p">(</span><span class="n">class_table</span><span class="p">),</span> <span class="s">&quot;PDO&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;PDO&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+<code class="docutils literal notranslate"><span class="pre">zend_class_entry</span></code>.:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span> <span class="o">=</span> <span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="n">CG</span><span class="p">(</span><span class="n">class_table</span><span class="p">),</span> <span class="s">&quot;PDO&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;PDO&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
 <span class="k">if</span> <span class="p">(</span><span class="n">ce</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">original</span> <span class="o">=</span> <span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">function_table</span><span class="p">,</span> <span class="s">&quot;exec&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;exec&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
 
@@ -157,38 +154,38 @@ calls.:</p>
 <h2>Modifying the Abstract Syntax Tree (AST)<a class="headerlink" href="#modifying-the-abstract-syntax-tree-ast" title="Permalink to this headline">¶</a></h2>
 <p>When PHP 7 compiles PHP code it converts it into an abstract syntax tree (AST)
 before finally generating Opcodes that are persisted in Opcache. The
-<code class="docutils literal"><span class="pre">zend_ast_process</span> <span class="pre">hook</span></code> is called for every compiled script and allows you to
+<code class="docutils literal notranslate"><span class="pre">zend_ast_process</span> <span class="pre">hook</span></code> is called for every compiled script and allows you to
 modify the AST after it is parsed and created.</p>
 <p>This is one of the most complicated hooks to use, because it requires perfect
 understanding of the AST possibilities. Creating an invalid AST here can cause
 weird behavior or crashes.</p>
 <p>It is best to look at example extensions that use this hook:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/GoogleCloudPlatform/stackdriver-debugger-php-extension/blob/master/stackdriver_debugger_ast.c">Google Stackdriver PHP Debugger Extension</a></li>
-<li>Based on Stackdriver this <a class="reference external" href="https://github.com/beberlei/php-ast-tracer-poc/blob/master/astracer.c">Proof of Concept Tracer with AST</a></li>
+<li><p><a class="reference external" href="https://github.com/GoogleCloudPlatform/stackdriver-debugger-php-extension/blob/master/stackdriver_debugger_ast.c">Google Stackdriver PHP Debugger Extension</a></p></li>
+<li><p>Based on Stackdriver this <a class="reference external" href="https://github.com/beberlei/php-ast-tracer-poc/blob/master/astracer.c">Proof of Concept Tracer with AST</a></p></li>
 </ul>
 </div>
 <div class="section" id="hooking-into-script-file-compilation">
 <h2>Hooking into Script/File Compilation<a class="headerlink" href="#hooking-into-script-file-compilation" title="Permalink to this headline">¶</a></h2>
-<p>Whenever a user script calls <code class="docutils literal"><span class="pre">include</span></code>/<code class="docutils literal"><span class="pre">require</span></code> or their counterparts
-<code class="docutils literal"><span class="pre">include_once</span></code>/<code class="docutils literal"><span class="pre">require_once</span></code> PHP core calls the function at the pointer
-<code class="docutils literal"><span class="pre">zend_compile_file</span></code> to handle this request. The argument is a file handle
-and the result is a <code class="docutils literal"><span class="pre">zend_op_array</span></code>.:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_op_array</span> <span class="o">*</span><span class="nf">my_extension_compile_file</span><span class="p">(</span><span class="n">zend_file_handle</span> <span class="o">*</span><span class="n">file_handle</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">);</span>
+<p>Whenever a user script calls <code class="docutils literal notranslate"><span class="pre">include</span></code>/<code class="docutils literal notranslate"><span class="pre">require</span></code> or their counterparts
+<code class="docutils literal notranslate"><span class="pre">include_once</span></code>/<code class="docutils literal notranslate"><span class="pre">require_once</span></code> PHP core calls the function at the pointer
+<code class="docutils literal notranslate"><span class="pre">zend_compile_file</span></code> to handle this request. The argument is a file handle
+and the result is a <code class="docutils literal notranslate"><span class="pre">zend_op_array</span></code>.:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_op_array</span> <span class="o">*</span><span class="nf">my_extension_compile_file</span><span class="p">(</span><span class="n">zend_file_handle</span> <span class="o">*</span><span class="n">file_handle</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>There are two extensions in PHP core that implement this hook: dtrace and
 opcache.</p>
 <ul class="simple">
-<li>If you start the PHP script with the environment variable <code class="docutils literal"><span class="pre">USE_ZEND_DTRACE</span></code>
-and compiled PHP with dtrace support, then <code class="docutils literal"><span class="pre">dtrace_compile_file</span></code> is used
-from <code class="docutils literal"><span class="pre">Zend/zend_dtrace.c</span></code>.</li>
-<li>Opcache stores op arrays in shared memory for better performance, so that
+<li><p>If you start the PHP script with the environment variable <code class="docutils literal notranslate"><span class="pre">USE_ZEND_DTRACE</span></code>
+and compiled PHP with dtrace support, then <code class="docutils literal notranslate"><span class="pre">dtrace_compile_file</span></code> is used
+from <code class="docutils literal notranslate"><span class="pre">Zend/zend_dtrace.c</span></code>.</p></li>
+<li><p>Opcache stores op arrays in shared memory for better performance, so that
 whenever a script is compiled its final op array is served from a cache and
 not re-compiled. You can find this implementation in
-<code class="docutils literal"><span class="pre">ext/opcache/ZendAccelerator.c</span></code>.</li>
-<li>The default implementation called <code class="docutils literal"><span class="pre">compile_file</span></code> is part of the scanner
-code in <code class="docutils literal"><span class="pre">Zend/zend_language_scanner.l</span></code>.</li>
+<code class="docutils literal notranslate"><span class="pre">ext/opcache/ZendAccelerator.c</span></code>.</p></li>
+<li><p>The default implementation called <code class="docutils literal notranslate"><span class="pre">compile_file</span></code> is part of the scanner
+code in <code class="docutils literal notranslate"><span class="pre">Zend/zend_language_scanner.l</span></code>.</p></li>
 </ul>
 <p>Use cases for implementing this hook are Opcode Accelerating, PHP code
 encrypting/decrypting, debugging or profiling.</p>
@@ -206,22 +203,22 @@ will not be called anymore when the script gets cached.</p>
 </div>
 <div class="section" id="notification-when-error-handler-is-called">
 <h2>Notification when Error Handler is called<a class="headerlink" href="#notification-when-error-handler-is-called" title="Permalink to this headline">¶</a></h2>
-<p>Similar to the PHP userland <code class="docutils literal"><span class="pre">set_error_handler()</span></code> function, an extension can
-register itself as error handler by implementing the <code class="docutils literal"><span class="pre">zend_error_cb</span></code> hook.:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">zend_error_cb</span><span class="p">)(</span><span class="kt">int</span> <span class="n">type</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">error_filename</span><span class="p">,</span> <span class="k">const</span> <span class="kt">uint32_t</span> <span class="n">error_lineno</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">args</span><span class="p">);</span>
+<p>Similar to the PHP userland <code class="docutils literal notranslate"><span class="pre">set_error_handler()</span></code> function, an extension can
+register itself as error handler by implementing the <code class="docutils literal notranslate"><span class="pre">zend_error_cb</span></code> hook.:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">zend_error_cb</span><span class="p">)(</span><span class="kt">int</span> <span class="n">type</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">error_filename</span><span class="p">,</span> <span class="k">const</span> <span class="kt">uint32_t</span> <span class="n">error_lineno</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">args</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">type</span></code> variable corresponds to the <code class="docutils literal"><span class="pre">E_*</span></code> error constants that are also
+<p>The <code class="docutils literal notranslate"><span class="pre">type</span></code> variable corresponds to the <code class="docutils literal notranslate"><span class="pre">E_*</span></code> error constants that are also
 available in PHP userland.</p>
 <p>The relationship between PHP core and userland error handlers is complex:</p>
 <ol class="arabic simple">
-<li>If no userland error handler is registered then <code class="docutils literal"><span class="pre">zend_error_cb</span></code> is always
-called.</li>
-<li>If userland error handler is registered, then for all errors of <code class="docutils literal"><span class="pre">E_ERROR</span></code>,
-<code class="docutils literal"><span class="pre">E_PARSE</span></code>, <code class="docutils literal"><span class="pre">E_CORE_ERROR</span></code>, <code class="docutils literal"><span class="pre">E_CORE_WARNING</span></code>, <code class="docutils literal"><span class="pre">E_COMPILE_ERROR</span></code> and
-<code class="docutils literal"><span class="pre">E_COMPILE_WARNING</span></code> the <code class="docutils literal"><span class="pre">zend_error_cb</span></code> hook is always called.</li>
-<li>For all other errors, the <code class="docutils literal"><span class="pre">zend_error_cb</span></code> is only called if the userland
-handler fails or returns <code class="docutils literal"><span class="pre">false</span></code>.</li>
+<li><p>If no userland error handler is registered then <code class="docutils literal notranslate"><span class="pre">zend_error_cb</span></code> is always
+called.</p></li>
+<li><p>If userland error handler is registered, then for all errors of <code class="docutils literal notranslate"><span class="pre">E_ERROR</span></code>,
+<code class="docutils literal notranslate"><span class="pre">E_PARSE</span></code>, <code class="docutils literal notranslate"><span class="pre">E_CORE_ERROR</span></code>, <code class="docutils literal notranslate"><span class="pre">E_CORE_WARNING</span></code>, <code class="docutils literal notranslate"><span class="pre">E_COMPILE_ERROR</span></code> and
+<code class="docutils literal notranslate"><span class="pre">E_COMPILE_WARNING</span></code> the <code class="docutils literal notranslate"><span class="pre">zend_error_cb</span></code> hook is always called.</p></li>
+<li><p>For all other errors, the <code class="docutils literal notranslate"><span class="pre">zend_error_cb</span></code> is only called if the userland
+handler fails or returns <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
 </ol>
 <p>In addition Xdebug overwrites the error handler in a way that does not call
 previously registered internal handlers, because of its complex own
@@ -229,7 +226,7 @@ implementation.</p>
 <p>As such overwriting this hook is not very reliable.</p>
 <p>Again overwriting should be done in a way that respects the original handler
 unless you want to completely replace it:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_zend_error_cb</span><span class="p">)(</span><span class="kt">int</span> <span class="n">type</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">error_filename</span><span class="p">,</span> <span class="k">const</span> <span class="n">uint</span> <span class="n">error_lineno</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">args</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_zend_error_cb</span><span class="p">)(</span><span class="kt">int</span> <span class="n">type</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">error_filename</span><span class="p">,</span> <span class="k">const</span> <span class="n">uint</span> <span class="n">error_lineno</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">args</span><span class="p">);</span>
 
 <span class="kt">void</span> <span class="nf">my_error_cb</span><span class="p">(</span><span class="kt">int</span> <span class="n">type</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">error_filename</span><span class="p">,</span> <span class="k">const</span> <span class="n">uint</span> <span class="n">error_lineno</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">args</span><span class="p">)</span>
 <span class="p">{</span>
@@ -258,9 +255,9 @@ Tracking or Application Performance Management software.</p>
 <div class="section" id="notification-when-exception-is-thrown">
 <h2>Notification when Exception is thrown<a class="headerlink" href="#notification-when-exception-is-thrown" title="Permalink to this headline">¶</a></h2>
 <p>Whenever PHP Core or userland code throws an exception the
-<code class="docutils literal"><span class="pre">zend_throw_exception_hook</span></code> is called with the exception as argument.</p>
+<code class="docutils literal notranslate"><span class="pre">zend_throw_exception_hook</span></code> is called with the exception as argument.</p>
 <p>This hooks’ signature is fairly simple:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">my_throw_exception_hook</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">exception</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">my_throw_exception_hook</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">exception</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">original_zend_throw_exception_hook</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">original_zend_throw_exception_hook</span><span class="p">(</span><span class="n">exception</span><span class="p">);</span>
@@ -268,9 +265,9 @@ Tracking or Application Performance Management software.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>This hook has no default implementation and points to <code class="docutils literal"><span class="pre">NULL</span></code> if not
+<p>This hook has no default implementation and points to <code class="docutils literal notranslate"><span class="pre">NULL</span></code> if not
 overwritten by an extension.</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_zend_throw_exception_hook</span><span class="p">)(</span><span class="n">zval</span> <span class="o">*</span><span class="n">ex</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_zend_throw_exception_hook</span><span class="p">)(</span><span class="n">zval</span> <span class="o">*</span><span class="n">ex</span><span class="p">);</span>
 <span class="kt">void</span> <span class="nf">my_throw_exception_hook</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">exception</span><span class="p">);</span>
 
 <span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
@@ -292,19 +289,19 @@ tracking.</p>
 </div>
 <div class="section" id="hooking-into-eval">
 <h2>Hooking into eval()<a class="headerlink" href="#hooking-into-eval" title="Permalink to this headline">¶</a></h2>
-<p>PHPs <code class="docutils literal"><span class="pre">eval</span></code> is not an internal function but a special language construct. As
-such you cannot hook into it through <code class="docutils literal"><span class="pre">zend_execute_internal</span></code> or by
+<p>PHPs <code class="docutils literal notranslate"><span class="pre">eval</span></code> is not an internal function but a special language construct. As
+such you cannot hook into it through <code class="docutils literal notranslate"><span class="pre">zend_execute_internal</span></code> or by
 overwriting its function pointer.</p>
 <p>Use cases for hooking into eval are not that many, you can use it for profiling
 or for security purposes. If you change its behavior be aware that other extensions
 may need eval. One example is Xdebug that uses it to execute breakpoint conditions.</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">extern</span> <span class="n">ZEND_API</span> <span class="n">zend_op_array</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">zend_compile_string</span><span class="p">)(</span><span class="n">zval</span> <span class="o">*</span><span class="n">source_string</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span> <span class="n">ZEND_API</span> <span class="n">zend_op_array</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">zend_compile_string</span><span class="p">)(</span><span class="n">zval</span> <span class="o">*</span><span class="n">source_string</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="hooking-into-the-garbage-collector">
 <h2>Hooking into the Garbage Collector<a class="headerlink" href="#hooking-into-the-garbage-collector" title="Permalink to this headline">¶</a></h2>
-<p>PHPs Garbage Collector can be triggered explicitly when <code class="docutils literal"><span class="pre">gc_collect_cycles()</span></code>
+<p>PHPs Garbage Collector can be triggered explicitly when <code class="docutils literal notranslate"><span class="pre">gc_collect_cycles()</span></code>
 is called or implicitly by the engine itself when the number of collectable
 objects reaches a certain threshold.</p>
 <p>To allow understanding of how the garbage collector works or to profile its
@@ -312,7 +309,7 @@ performance, you can overwrite the function pointer hook that performs the
 garbage collection operation. Theoretically you can implement your own garbage
 collection algorithm here, but given other changes to the engine would probably
 be necessary this probably is not really feasible.</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">original_gc_collect_cycles</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">original_gc_collect_cycles</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
 
 <span class="kt">int</span> <span class="nf">my_gc_collect_cycles</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
 <span class="p">{</span>
@@ -332,7 +329,7 @@ be necessary this probably is not really feasible.</p>
 <div class="section" id="overwrite-interrupt-handler">
 <h2>Overwrite Interrupt Handler<a class="headerlink" href="#overwrite-interrupt-handler" title="Permalink to this headline">¶</a></h2>
 <p>The interrupt handler is called once when the executor global
-<code class="docutils literal"><span class="pre">EG(vm_interrupt)</span></code> is set to 1. This is checked at regular checkpoints during
+<code class="docutils literal notranslate"><span class="pre">EG(vm_interrupt)</span></code> is set to 1. This is checked at regular checkpoints during
 the execution of userland code. The engine uses this hook to implement the PHP
 execution timeout via a signal handler that sets the interrupt to 1 after the
 timeout duration is reached.</p>
@@ -340,8 +337,8 @@ timeout duration is reached.</p>
 execution, when it is safer to clean up or to implement your own timeout
 handling. By setting this hook you cannot accidentally disable the timeout check
 of PHP, because it has customized handling that has higher priority than any
-overwrite of <code class="docutils literal"><span class="pre">zend_interrupt_function</span></code>.</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_interrupt_function</span><span class="p">)(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
+overwrite of <code class="docutils literal notranslate"><span class="pre">zend_interrupt_function</span></code>.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">original_interrupt_function</span><span class="p">)(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
 
 <span class="kt">void</span> <span class="nf">my_interrupt_function</span><span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">)</span>
 <span class="p">{</span>
@@ -363,35 +360,35 @@ overwrite of <code class="docutils literal"><span class="pre">zend_interrupt_fun
 <div class="section" id="replacing-opcode-handlers">
 <h2>Replacing Opcode Handlers<a class="headerlink" href="#replacing-opcode-handlers" title="Permalink to this headline">¶</a></h2>
 <p>It is possible to override the Zend engine’s individual handlers for opcodes. This might be useful
-to ignore the <code class="docutils literal"><span class="pre">&#64;</span></code> operator or count how often each opcode gets executed. The API in the engine
+to ignore the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> operator or count how often each opcode gets executed. The API in the engine
 is only geared up for having <em>one</em> extension defined handler per opcode, which makes it important
 that you as an extension author, take care of handlers already set by other extensions.</p>
 <p>The basic APIs in the engine are:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">zend_set_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">opcode</span><span class="p">,</span> <span class="n">user_opcode_handler_t</span> <span class="n">handler</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">zend_set_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">opcode</span><span class="p">,</span> <span class="n">user_opcode_handler_t</span> <span class="n">handler</span><span class="p">);</span>
 <span class="n">user_opcode_handler_t</span> <span class="nf">zend_get_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">opcode</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The <cite>user_opcode_handler_t</cite> is a function pointer, and each handler has the following signature[1]_:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">my_handler</span><span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">my_handler</span><span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The handler’s return value is important, and a few constants are defined that have a meaning:</p>
-<dl class="docutils">
-<dt>ZEND_USER_OPCODE_CONTINUE</dt>
-<dd>Execute next opcode</dd>
-<dt>ZEND_USER_OPCODE_RETURN</dt>
-<dd>Exit from executor (return from function)</dd>
-<dt>ZEND_USER_OPCODE_DISPATCH</dt>
-<dd>Call original opcode handler</dd>
-<dt>ZEND_USER_OPCODE_ENTER</dt>
-<dd>Enter into new op_array without recursion</dd>
-<dt>ZEND_USER_OPCODE_LEAVE</dt>
-<dd>Return to calling op_array within the same executor</dd>
+<dl class="simple">
+<dt>ZEND_USER_OPCODE_CONTINUE</dt><dd><p>Execute next opcode</p>
+</dd>
+<dt>ZEND_USER_OPCODE_RETURN</dt><dd><p>Exit from executor (return from function)</p>
+</dd>
+<dt>ZEND_USER_OPCODE_DISPATCH</dt><dd><p>Call original opcode handler</p>
+</dd>
+<dt>ZEND_USER_OPCODE_ENTER</dt><dd><p>Enter into new op_array without recursion</p>
+</dd>
+<dt>ZEND_USER_OPCODE_LEAVE</dt><dd><p>Return to calling op_array within the same executor</p>
+</dd>
 </dl>
-<p>In the example below, we will override the <code class="docutils literal"><span class="pre">ZEND_BEGIN_SILENCE</span></code> and <code class="docutils literal"><span class="pre">ZEND_END_SILENCE</span></code> opcodes which
-are used to implement the <code class="docutils literal"><span class="pre">&#64;</span></code> operator. Based on an extension global (<code class="docutils literal"><span class="pre">no_silence</span></code>), it will either skip the opcodes
+<p>In the example below, we will override the <code class="docutils literal notranslate"><span class="pre">ZEND_BEGIN_SILENCE</span></code> and <code class="docutils literal notranslate"><span class="pre">ZEND_END_SILENCE</span></code> opcodes which
+are used to implement the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> operator. Based on an extension global (<code class="docutils literal notranslate"><span class="pre">no_silence</span></code>), it will either skip the opcodes
 or let the engine do its normal behaviour:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
     <span class="kt">int</span>                   <span class="n">no_silence</span><span class="p">;</span>
     <span class="n">user_opcode_handler_t</span> <span class="n">original_begin_silence_handler</span><span class="p">;</span>
     <span class="n">user_opcode_handler_t</span> <span class="n">original_end_silence_handler</span>
@@ -439,12 +436,11 @@ or let the engine do its normal behaviour:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<table class="docutils footnote" frame="void" id="id1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[1]</td><td>In PHP 8, this signature is changing and will differ on whether a specific GCC feature is enabled.</td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><p>In PHP 8, this signature is changing and will differ on whether a specific GCC feature is enabled.</p>
+</dd>
+</dl>
 </div>
 </div>
 

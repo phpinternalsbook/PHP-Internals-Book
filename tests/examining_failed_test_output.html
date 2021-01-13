@@ -1,32 +1,23 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Examining failed test output &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/style.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="The .phpt file structure" href="phpt_file_structure.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Examining failed test output</span></h2>
@@ -34,13 +25,13 @@
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a>
+        «&#160;&#160;<a href="phpt_file_structure.html">The <code class="docutils literal notranslate"><span class="pre">.phpt</span></code> file structure</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="examining-failed-test-output">
@@ -50,25 +41,25 @@ wrong? We’ll examine how to help ourselves debug failed tests using the failed
 <div class="section" id="failed-test-output-files">
 <h2>Failed test output files<a class="headerlink" href="#failed-test-output-files" title="Permalink to this headline">¶</a></h2>
 <p>If a test would fail, the test results will be dumped in the directory where the test file resides. This happens for
-each failed test. For example for a failed test <code class="docutils literal"><span class="pre">001.phpt</span></code> you will get this output:</p>
+each failed test. For example for a failed test <code class="docutils literal notranslate"><span class="pre">001.phpt</span></code> you will get this output:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">001.log</span></code> The output of this one test</li>
-<li><code class="docutils literal"><span class="pre">001.exp</span></code> The expected test result</li>
-<li><code class="docutils literal"><span class="pre">001.out</span></code> The actual test result</li>
-<li><code class="docutils literal"><span class="pre">001.diff</span></code> The difference between the expected and actual result</li>
-<li><code class="docutils literal"><span class="pre">001.php</span></code> A PHP snippet that contains the code of the failed test</li>
-<li><code class="docutils literal"><span class="pre">001.sh</span></code> A script to run the PHP snippet of the failed test</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">001.log</span></code> The output of this one test</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">001.exp</span></code> The expected test result</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">001.out</span></code> The actual test result</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">001.diff</span></code> The difference between the expected and actual result</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">001.php</span></code> A PHP snippet that contains the code of the failed test</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">001.sh</span></code> A script to run the PHP snippet of the failed test</p></li>
 </ul>
-<p>The <code class="docutils literal"><span class="pre">.sh</span></code> bash script is a wrapper around the failed php script that makes it easy to re-run the failed script with
+<p>The <code class="docutils literal notranslate"><span class="pre">.sh</span></code> bash script is a wrapper around the failed php script that makes it easy to re-run the failed script with
 the same runtime conditions as the test run. With all this information at hand, you can start debugging your code.</p>
 </div>
 <div class="section" id="examine-failed-test-output-inline">
 <h2>Examine failed test output inline<a class="headerlink" href="#examine-failed-test-output-inline" title="Permalink to this headline">¶</a></h2>
 <p>Having all these files on your filesystem is not always convenient. Sometimes you might just want to see the failed
-test output on your screen, inline with the failed test. The <code class="docutils literal"><span class="pre">run-tests.php</span></code> script accepts flags to enable such
-behavior <code class="docutils literal"><span class="pre">--show-[all|php|exp|diff|out]</span></code>. For example if you want to see the diffs inline:</p>
+test output on your screen, inline with the failed test. The <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code> script accepts flags to enable such
+behavior <code class="docutils literal notranslate"><span class="pre">--show-[all|php|exp|diff|out]</span></code>. For example if you want to see the diffs inline:</p>
 <blockquote>
-<div><div class="highlight-bash"><div class="highlight"><pre><span></span>./run-tests.php --show-diff
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php --show-diff
 ...
 TEST <span class="m">613</span>/14433 <span class="o">[</span>tests/lang/operators/nan-comparison-false.phpt<span class="o">]</span>
 <span class="o">========</span><span class="nv">DIFF</span><span class="o">========</span>
@@ -86,9 +77,9 @@ TEST <span class="m">613</span>/14433 <span class="o">[</span>tests/lang/operato
 </div>
 </div></blockquote>
 <p>In case of diff they are only printed if there is an actual difference. There are also flags to print the skip
-criteria or the clean scripts <code class="docutils literal"><span class="pre">--show-[skip|clean]</span></code>. For example:</p>
+criteria or the clean scripts <code class="docutils literal notranslate"><span class="pre">--show-[skip|clean]</span></code>. For example:</p>
 <blockquote>
-<div><div class="highlight-bash"><div class="highlight"><pre><span></span>./run-tests.php --show-clean
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php --show-clean
 ...
 PASS Test <span class="k">for</span> buffering in core functions with implicit flush on <span class="o">[</span>tests/func/009.phpt<span class="o">]</span>
 TEST <span class="m">399</span>/14433 <span class="o">[</span>tests/func/010.phpt<span class="o">]</span>
@@ -103,11 +94,11 @@ PASS Test bitwise AND, OR, XOR, NOT and logical NOT in INI via error_reporting <
 </pre></div>
 </div>
 </div></blockquote>
-<p>There even is a flag to show slow tests <code class="docutils literal"><span class="pre">--show-slow</span></code> that accepts a number of milliseconds. At the end of the test
-run, the tests that ran slower are reported. Say you want to inspect tests in <code class="docutils literal"><span class="pre">ext/standard/tests/file</span></code> that run
+<p>There even is a flag to show slow tests <code class="docutils literal notranslate"><span class="pre">--show-slow</span></code> that accepts a number of milliseconds. At the end of the test
+run, the tests that ran slower are reported. Say you want to inspect tests in <code class="docutils literal notranslate"><span class="pre">ext/standard/tests/file</span></code> that run
 more than 10 seconds:</p>
 <blockquote>
-<div><div class="highlight-bash"><div class="highlight"><pre><span></span>./run-tests.php --show-slow <span class="m">10000</span> ext/standard/tests/file
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php --show-slow <span class="m">10000</span> ext/standard/tests/file
 <span class="o">=====================================================================</span>
 SLOW TEST SUMMARY
 ---------------------------------------------------------------------
@@ -117,9 +108,9 @@ SLOW TEST SUMMARY
 </div>
 </div></blockquote>
 <p>Unfortunately the make script does not have environment variables to activate these flags. But you can use them anyway
-by abusing the <code class="docutils literal"><span class="pre">TESTS</span></code> variable instead:</p>
+by abusing the <code class="docutils literal notranslate"><span class="pre">TESTS</span></code> variable instead:</p>
 <blockquote>
-<div><div class="highlight-bash"><div class="highlight"><pre><span></span>make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>--show-all
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>--show-all
 </pre></div>
 </div>
 </div></blockquote>
@@ -131,7 +122,7 @@ by abusing the <code class="docutils literal"><span class="pre">TESTS</span></co
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a>
+        «&#160;&#160;<a href="phpt_file_structure.html">The <code class="docutils literal notranslate"><span class="pre">.phpt</span></code> file structure</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         </p>

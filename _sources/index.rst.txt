@@ -1,8 +1,8 @@
 Table Of Contents
 =================
 
-PHP 7
------
+PHP 7 and PHP 8
+---------------
 
 .. toctree::
     :maxdepth: 3

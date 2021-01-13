@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A look into a PHP extension and extension skeleton &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Registering and using PHP functions" href="php_functions.html" />
     <link rel="prev" title="Learning the PHP lifecycle" href="php_lifecycle.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>A look into a PHP extension and extension skeleton</span></h2>
@@ -43,7 +34,7 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="a-look-into-a-php-extension-and-extension-skeleton">
@@ -61,7 +52,7 @@ They are not represented as <em>.so</em> files, but as <em>.o</em> objects that 
 such extensions cannot be disabled, they are part of the PHP executable body code : they are here, in, whatever you say
 and do. Some extensions are required to be statically built, f.e <em>ext/core</em>, <em>ext/standard</em>, <em>ext/spl</em> and
 <em>ext/mysqlnd</em> (non-exhaustive list).</p>
-<p>You can find the list of statically compiled extensions by looking at the <code class="docutils literal"><span class="pre">main/internal_functions.c</span></code> that is
+<p>You can find the list of statically compiled extensions by looking at the <code class="docutils literal notranslate"><span class="pre">main/internal_functions.c</span></code> that is
 generated while you compile PHP. This step is detailed in
 <a class="reference internal" href="../build_system/building_php.html"><span class="doc">the chapter about building PHP</span></a>.</p>
 <p>Then, you may also build <strong>dynamically loaded</strong> extensions. Those are the famous <em>extension.so</em> files that are born at
@@ -73,24 +64,24 @@ really suffer from that.</p>
 ones to be loaded before them. Although this is not a good practice, we’ll see that PHP extension system allows you to
 declare dependencies to master such an order, but dependencies are usually a bad idea and should be avoided.</p>
 <p>Last thing : PHP statically compiled extensions start before dynamically compiled ones. That means that their
-<code class="docutils literal"><span class="pre">MINIT()</span></code> is called before extensions.so files’ <code class="docutils literal"><span class="pre">MINIT()</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> is called before extensions.so files’ <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code>.</p>
 <p>When PHP starts, it quickly goes to parse its different INI files. If present, those later may declare extensions to
 load using the <em>“extension=some_ext.so”</em> line reference.
 PHP then collects every extension parsed from INI configuration, and will try to load them in the same order they’ve
 been added to the INI file, until some extensions declared some dependencies (which will then be loaded before).</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you use an operating system package manager, you may have noticed that packagers usually name their
+<p class="admonition-title">Note</p>
+<p>If you use an operating system package manager, you may have noticed that packagers usually name their
 extension file with heading numbers, aka <em>00_ext.ini</em>, <em>01_ext.ini</em> etc… This is to master the order
 extensions will be loaded. Some uncommon extensions require a specific order to be run. We’d like to remind
 you that depending on other extensions to be loaded before yours is a bad idea.</p>
 </div>
 <p>To load extensions, <a class="reference external" href="https://en.wikipedia.org/wiki/Dynamic_loading">libdl</a> and its
 <a class="reference external" href="http://www.unix.com/man-page/All/3lib/libdl/">dlopen()/dlsym()</a> functions are used.</p>
-<p>The symbol that is looked for is the <code class="docutils literal"><span class="pre">get_module()</span></code> symbol, that means that you extension must export it to be loaded.
+<p>The symbol that is looked for is the <code class="docutils literal notranslate"><span class="pre">get_module()</span></code> symbol, that means that you extension must export it to be loaded.
 This is usually the case, as if you used the skeleton script (we’ll foresee it in a minute), then that later generated
-code using the <code class="docutils literal"><span class="pre">ZEND_GET_MODULE(your_ext)</span></code> macro, which looks like:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#define ZEND_GET_MODULE(name) \</span>
+code using the <code class="docutils literal notranslate"><span class="pre">ZEND_GET_MODULE(your_ext)</span></code> macro, which looks like:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define ZEND_GET_MODULE(name) \</span>
 <span class="cp">    BEGIN_EXTERN_C()\</span>
 <span class="cp">    ZEND_DLEXPORT zend_module_entry *get_module(void) { return &amp;name##_module_entry; }\</span>
 <span class="cp">    END_EXTERN_C()</span>
@@ -99,16 +90,16 @@ code using the <code class="docutils literal"><span class="pre">ZEND_GET_MODULE(
 <p>Like you can see, that macro when used declares a global symbol : the get_module() function that will get called by the
 engine once wanting to load your extension.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The source code PHP uses to load extensions is located into
+<p class="admonition-title">Note</p>
+<p>The source code PHP uses to load extensions is located into
 <a class="reference external" href="https://github.com/php/php-src/blob/27d681435174433c3a9b0b8325361dfa383be0a6/ext/standard/dl.c#L90">ext/standard/dl.c</a></p>
 </div>
 </div>
 <div class="section" id="what-is-a-php-extension">
 <h2>What is a PHP extension ?<a class="headerlink" href="#what-is-a-php-extension" title="Permalink to this headline">¶</a></h2>
 <p>A PHP extension, not to be confused with a <a class="reference internal" href="zend_extensions.html"><span class="doc">Zend extension</span></a>, is set up by the usage of a
-<code class="docutils literal"><span class="pre">zend_module_entry</span></code> structure:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">_zend_module_entry</span> <span class="p">{</span>
+<code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">_zend_module_entry</span> <span class="p">{</span>
     <span class="kt">unsigned</span> <span class="kt">short</span> <span class="n">size</span><span class="p">;</span>                                <span class="cm">/*</span>
 <span class="cm">    unsigned int zend_api;                               * STANDARD_MODULE_HEADER</span>
 <span class="cm">    unsigned char zend_debug;                            *</span>
@@ -147,26 +138,25 @@ engine once wanting to load your extension.</p>
 </div>
 <p>The four first parameters have already been explained in
 <a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">the building extensions chapter</span></a>. They are usually filled-in using the
-<code class="docutils literal"><span class="pre">STANDARD_MODULE_HEADER</span></code> macro.</p>
-<p>The <code class="docutils literal"><span class="pre">ini_entry</span></code> vector is actually unused. You <a class="reference internal" href="ini_settings.html"><span class="doc">register INI entries</span></a> using special macros.</p>
+<code class="docutils literal notranslate"><span class="pre">STANDARD_MODULE_HEADER</span></code> macro.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ini_entry</span></code> vector is actually unused. You <a class="reference internal" href="ini_settings.html"><span class="doc">register INI entries</span></a> using special macros.</p>
 <p>Then you may declare dependencies, that means that your extension could need another extension to be loaded before it,
-or could declare a conflict with another extensions. This is done using the <code class="docutils literal"><span class="pre">deps</span></code> field. In reality, this is very
-ucommonly used, and more generally it is a bad practice to create dependencies across PHP extensions. Also, note that
-dependencies are</p>
-<p>After that you declare a <code class="docutils literal"><span class="pre">name</span></code>. Nothing to say, this name is the name of your extension (which can be different from
+or could declare a conflict with another extensions. This is done using the <code class="docutils literal notranslate"><span class="pre">deps</span></code> field. In reality, this is very
+uncommonly used, and more generally it is a bad practice to create dependencies across PHP extensions.</p>
+<p>After that you declare a <code class="docutils literal notranslate"><span class="pre">name</span></code>. Nothing to say, this name is the name of your extension (which can be different from
 the name of its own <em>.so</em> file). Take care the name is case sensitive in most operations, we suggest you use something
 short, lower case, with no spaces (to make things a bit easier).</p>
-<p>Then come the <code class="docutils literal"><span class="pre">functions</span></code> field. It is a pointer to some PHP functions that extension wants to register into
+<p>Then come the <code class="docutils literal notranslate"><span class="pre">functions</span></code> field. It is a pointer to some PHP functions that extension wants to register into
 the engine. We talked about that <a class="reference internal" href="php_functions.html"><span class="doc">in a dedicated chapter</span></a>.</p>
 <p>Keeping-on come the 5 lifetime hooks. <a class="reference internal" href="php_lifecycle.html"><span class="doc">See their dedicated chapter</span></a>.</p>
-<p>Your extension may publish a version number, as a <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code>, using the <code class="docutils literal"><span class="pre">version</span></code> field. This field is only read as
+<p>Your extension may publish a version number, as a <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">*</span></code>, using the <code class="docutils literal notranslate"><span class="pre">version</span></code> field. This field is only read as
 part of your extension information, that is by phpinfo() or by the reflection API as
-<code class="docutils literal"><span class="pre">ReflectionExtension::getVersion()</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">ReflectionExtension::getVersion()</span></code>.</p>
 <p>We next see a lot of fields about globals. Globals management <a class="reference internal" href="globals_management.html"><span class="doc">has a dedicated chapter</span></a>.</p>
-<p>Finally the ending fields are usually part of the <code class="docutils literal"><span class="pre">STANDARD_MODULE_PROPERTIES</span></code> macro and you don’t have to play with
-them by hand. The engine will give you a <code class="docutils literal"><span class="pre">module_number</span></code> for its internal management, and the extension type will be
-set to <code class="docutils literal"><span class="pre">MODULE_PERSISTENT</span></code>. It could be <code class="docutils literal"><span class="pre">MODULE_TEMPORARY</span></code> as if you extension were loaded using PHP’s userland
-<code class="docutils literal"><span class="pre">dl()</span></code> function, but that use-case is very uncommon, doesn’t work with every SAPI and temporary extensions usually
+<p>Finally the ending fields are usually part of the <code class="docutils literal notranslate"><span class="pre">STANDARD_MODULE_PROPERTIES</span></code> macro and you don’t have to play with
+them by hand. The engine will give you a <code class="docutils literal notranslate"><span class="pre">module_number</span></code> for its internal management, and the extension type will be
+set to <code class="docutils literal notranslate"><span class="pre">MODULE_PERSISTENT</span></code>. It could be <code class="docutils literal notranslate"><span class="pre">MODULE_TEMPORARY</span></code> as if you extension were loaded using PHP’s userland
+<code class="docutils literal notranslate"><span class="pre">dl()</span></code> function, but that use-case is very uncommon, doesn’t work with every SAPI and temporary extensions usually
 lead to many problems into the engine.</p>
 </div>
 <div class="section" id="generating-extension-skeleton-with-scripts">
@@ -178,11 +168,11 @@ and structure you won’t be forced to create by hand from scratch.</p>
 the structure it uses as a template is stored into
 <a class="reference external" href="https://github.com/php/php-src/tree/27d681435174433c3a9b0b8325361dfa383be0a6/ext/skeleton">php-src/ext/skeleton</a></p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The script and the structure move a little bit as PHP versions move forward.</p>
+<p class="admonition-title">Note</p>
+<p>The script and the structure move a little bit as PHP versions move forward.</p>
 </div>
 <p>You can analyze those scripts to see how they work, but the basic usage is:</p>
-<div class="highlight-shell"><div class="highlight"><pre><span></span>&gt; <span class="nb">cd</span> /tmp
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&gt; <span class="nb">cd</span> /tmp
 /tmp&gt; /path/to/php/ext/ext_skel --skel<span class="o">=</span>/path/to/php/ext/skeleton --extname<span class="o">=</span>pib
 <span class="o">[</span> ... generating ... <span class="o">]</span>
 /tmp&gt; tree pib/
@@ -208,7 +198,7 @@ us. Don’t change that name, the building system expects such a naming conventi
 <p>You can see that a minimal test structure has been generated as well.</p>
 <p>Let’s open <em>pib.c</em>. In there, everything is commented out, so we won’t have too many lines to write here.</p>
 <p>Basically, we can see that the module symbol needed by the engine to load our extension is published here:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#ifdef COMPILE_DL_PIB</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef COMPILE_DL_PIB</span>
 <span class="cp">#ifdef ZTS</span>
 <span class="n">ZEND_TSRMLS_CACHE_DEFINE</span><span class="p">()</span>
 <span class="cp">#endif</span>
@@ -216,8 +206,8 @@ us. Don’t change that name, the building system expects such a naming conventi
 <span class="cp">#endif</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">COMPILE_DL_&lt;YOUR-EXT-NAME&gt;</span></code> macro is defined if you pass <em>–enable-&lt;my-ext-name&gt;</em> flag to configure script. We
-also see that in case of ZTS mode, the TSRM local storage pointer is defined as part of <code class="docutils literal"><span class="pre">ZEND_TSRMLS_CACHE_DEFINE()</span></code>
+<p>The <code class="docutils literal notranslate"><span class="pre">COMPILE_DL_&lt;YOUR-EXT-NAME&gt;</span></code> macro is defined if you pass <em>–enable-&lt;my-ext-name&gt;</em> flag to configure script. We
+also see that in case of ZTS mode, the TSRM local storage pointer is defined as part of <code class="docutils literal notranslate"><span class="pre">ZEND_TSRMLS_CACHE_DEFINE()</span></code>
 macro.</p>
 <p>After that, there is nothing more to say as everything is commented out and should be clear to you.</p>
 </div>
@@ -226,11 +216,12 @@ macro.</p>
 <p>Since <a class="reference external" href="https://github.com/php/php-src/commit/f35f45906eac34498c7720326fb9da9fde960871">this commit</a> and the
 extension skeleton generator had took a new style :</p>
 <blockquote>
-<div>It will now run on Windows without Cygwin and other nonsense.
+<div><p>It will now run on Windows without Cygwin and other nonsense.
 It no longer includes a way to generate XML documentation (the PHP documentation utilities already got tools for that
-in svn under phpdoc/doc-base) and it no longer support function stubs.</div></blockquote>
+in svn under phpdoc/doc-base) and it no longer support function stubs.</p>
+</div></blockquote>
 <p>and here is the available options :</p>
-<div class="highlight-shell"><div class="highlight"><pre><span></span>php ext_skel.php --ext &lt;name&gt; <span class="o">[</span>--experimental<span class="o">]</span> <span class="o">[</span>--author &lt;name&gt;<span class="o">]</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>php ext_skel.php --ext &lt;name&gt; <span class="o">[</span>--experimental<span class="o">]</span> <span class="o">[</span>--author &lt;name&gt;<span class="o">]</span>
                  <span class="o">[</span>--dir &lt;path&gt;<span class="o">]</span> <span class="o">[</span>--std<span class="o">]</span> <span class="o">[</span>--onlyunix<span class="o">]</span>
                  <span class="o">[</span>--onlywindows<span class="o">]</span> <span class="o">[</span>--help<span class="o">]</span>
 
@@ -252,14 +243,14 @@ in svn under phpdoc/doc-base) and it no longer support function stubs.</div></bl
 <p>The new extension skeleton generator will generate skeleton with three fixed functions,
 you may define any others functions and change the concrete body as you want.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Remember that the new ext_skel is no longer support proto files.</p>
+<p class="admonition-title">Note</p>
+<p>Remember that the new ext_skel is no longer support proto files.</p>
 </div>
 </div>
 <div class="section" id="publishing-api">
 <h2>Publishing API<a class="headerlink" href="#publishing-api" title="Permalink to this headline">¶</a></h2>
 <p>If we open the header file, we can see those lines:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#ifdef PHP_WIN32</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef PHP_WIN32</span>
 <span class="cp">#   define PHP_PIB_API __declspec(dllexport)</span>
 <span class="cp">#elif defined(__GNUC__) &amp;&amp; __GNUC__ &gt;= 4</span>
 <span class="cp">#   define PHP_PIB_API __attribute__ ((visibility(&quot;default&quot;)))</span>
@@ -268,36 +259,36 @@ you may define any others functions and change the concrete body as you want.</p
 <span class="cp">#endif</span>
 </pre></div>
 </div>
-<p>Those lines define a macro named <code class="docutils literal"><span class="pre">PHP_&lt;EXT-NAME&gt;_API</span></code> (for us <code class="docutils literal"><span class="pre">PHP_PIB_API</span></code>) and it resolves to the
+<p>Those lines define a macro named <code class="docutils literal notranslate"><span class="pre">PHP_&lt;EXT-NAME&gt;_API</span></code> (for us <code class="docutils literal notranslate"><span class="pre">PHP_PIB_API</span></code>) and it resolves to the
 <a class="reference external" href="https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#Common-Function-Attributes">GCC custom attribute</a>
 visibility(“default”).</p>
 <p>In C, you can tell the linker to hide every symbol from the final object. This is what’s done in PHP, for every
 symbol, not only static ones (which are by definition not published).</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">The default PHP compilation line tells the compiler to hide every symbol and not export them.</p>
+<p class="admonition-title">Warning</p>
+<p>The default PHP compilation line tells the compiler to hide every symbol and not export them.</p>
 </div>
 <p>You should then “unhide” the symbols you’d like your extension to publish for those to be used in other extensions or
 other parts of the final ELF file.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Remember that you can read published and hidden symbol of an ELF using <code class="docutils literal"><span class="pre">nm</span></code> under Unix.</p>
+<p class="admonition-title">Note</p>
+<p>Remember that you can read published and hidden symbol of an ELF using <code class="docutils literal notranslate"><span class="pre">nm</span></code> under Unix.</p>
 </div>
 <p>We can’t explain those concepts in deep here, perhaps such links could help you ?</p>
 <ul class="simple">
-<li><a class="reference external" href="https://gcc.gnu.org/wiki/Visibility">https://gcc.gnu.org/wiki/Visibility</a></li>
-<li><a class="reference external" href="http://www.iecc.com/linker/linker10.html">http://www.iecc.com/linker/linker10.html</a></li>
-<li><a class="reference external" href="https://www.akkadia.org/drepper/dsohowto.pdf">https://www.akkadia.org/drepper/dsohowto.pdf</a></li>
-<li><a class="reference external" href="http://www.faqs.org/docs/Linux-HOWTO/Program-Library-HOWTO.html">http://www.faqs.org/docs/Linux-HOWTO/Program-Library-HOWTO.html</a></li>
-<li><a class="reference external" href="https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/DynamicLibraries/000-Introduction/Introduction.html">https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/DynamicLibraries/000-Introduction/Introduction.html</a></li>
+<li><p><a class="reference external" href="https://gcc.gnu.org/wiki/Visibility">https://gcc.gnu.org/wiki/Visibility</a></p></li>
+<li><p><a class="reference external" href="http://www.iecc.com/linker/linker10.html">http://www.iecc.com/linker/linker10.html</a></p></li>
+<li><p><a class="reference external" href="https://www.akkadia.org/drepper/dsohowto.pdf">https://www.akkadia.org/drepper/dsohowto.pdf</a></p></li>
+<li><p><a class="reference external" href="http://www.faqs.org/docs/Linux-HOWTO/Program-Library-HOWTO.html">http://www.faqs.org/docs/Linux-HOWTO/Program-Library-HOWTO.html</a></p></li>
+<li><p><a class="reference external" href="https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/DynamicLibraries/000-Introduction/Introduction.html">https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/DynamicLibraries/000-Introduction/Introduction.html</a></p></li>
 </ul>
 <p>So basically, if you want a C symbol of yours to be publicly available to other extensions, you should declare it
-using the special <code class="docutils literal"><span class="pre">PHP_PIB_API</span></code> macro. The traditional use-case for that is to publish the classes symbols
-(<code class="docutils literal"><span class="pre">zend_class_entry*</span></code> type) so that other extensions can hook into your own published classes and replace some of their
+using the special <code class="docutils literal notranslate"><span class="pre">PHP_PIB_API</span></code> macro. The traditional use-case for that is to publish the classes symbols
+(<code class="docutils literal notranslate"><span class="pre">zend_class_entry*</span></code> type) so that other extensions can hook into your own published classes and replace some of their
 handlers.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Please, note that this only works with the traditional PHP. If you use
+<p class="admonition-title">Note</p>
+<p>Please, note that this only works with the traditional PHP. If you use
 <a class="reference internal" href="../build_system/building_php.html"><span class="doc">a PHP from a Linux distribution</span></a>, those are patched to resolve symbols
 at load time and not lazilly, thus this trick doesn’t work.</p>
 </div>

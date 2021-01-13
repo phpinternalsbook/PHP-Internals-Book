@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Running the test suite &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/style.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="The .phpt file structure" href="phpt_file_structure.html" />
     <link rel="prev" title="Testing overview" href="overview.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Running the test suite</span></h2>
@@ -39,73 +30,73 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a>&#160;&#160;»
+        <a href="phpt_file_structure.html">The <code class="docutils literal notranslate"><span class="pre">.phpt</span></code> file structure</a>&#160;&#160;»
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="running-the-test-suite">
 <span id="id1"></span><h1>Running the test suite<a class="headerlink" href="#running-the-test-suite" title="Permalink to this headline">¶</a></h1>
 <p>Now that we have an basic understanding of what kind of testing we’re doing, let’s run the test suite. Before we can run
-the tests, make sure you have successfully built php from source (see <a class="reference internal" href="../php5/build_system/building_php.html#building-php"><span class="std std-ref">Building PHP</span></a>) and you have an executable
-at <code class="docutils literal"><span class="pre">sapi/cli/php</span></code>.</p>
+the tests, make sure you have successfully built php from source (see <a class="reference internal" href="../php7/build_system/building_php.html#building-php"><span class="std std-ref">Building PHP</span></a>) and you have an executable
+at <code class="docutils literal notranslate"><span class="pre">sapi/cli/php</span></code>.</p>
 <p>There are two ways to run the test suite.</p>
 <div class="section" id="running-tests-directly-with-run-tests-php">
-<h2>Running tests directly with <code class="docutils literal"><span class="pre">run-tests.php</span></code><a class="headerlink" href="#running-tests-directly-with-run-tests-php" title="Permalink to this headline">¶</a></h2>
+<h2>Running tests directly with <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code><a class="headerlink" href="#running-tests-directly-with-run-tests-php" title="Permalink to this headline">¶</a></h2>
 <p>You can run the test suite directly with run-tests.php. At minimum you’ll need to specify the php executable that you
-wish to test against which you can do with the <code class="docutils literal"><span class="pre">-p</span></code> flag. Note that in order to run all tests correctly this should be
+wish to test against which you can do with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag. Note that in order to run all tests correctly this should be
 an absolute path to the PHP executable.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -p <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sapi/cli/php
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -p <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sapi/cli/php
 </pre></div>
 </div>
 <p>A shortcut flag you can use to tell run-tests to test against the PHP executable that is currently invoked is by using
-the <code class="docutils literal"><span class="pre">-P</span></code> flag.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -P
+the <code class="docutils literal notranslate"><span class="pre">-P</span></code> flag.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -P
 </pre></div>
 </div>
-<p>If you don’t want to have to set the <code class="docutils literal"><span class="pre">-p</span></code> or <code class="docutils literal"><span class="pre">-P</span></code> flag every time, you could specify the php executable with the
-<code class="docutils literal"><span class="pre">TEST_PHP_EXECUTABLE</span></code> environment variable which can be set with <code class="docutils literal"><span class="pre">export</span></code> on Linux machines.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; <span class="nb">export</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
+<p>If you don’t want to have to set the <code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">-P</span></code> flag every time, you could specify the php executable with the
+<code class="docutils literal notranslate"><span class="pre">TEST_PHP_EXECUTABLE</span></code> environment variable which can be set with <code class="docutils literal notranslate"><span class="pre">export</span></code> on Linux machines.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; <span class="nb">export</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
 ~/php-src&gt; sapi/cli/php run-tests.php
 </pre></div>
 </div>
-<p>On Windows you can set the environment variable using <code class="docutils literal"><span class="pre">set</span></code>.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>C:<span class="se">\p</span>hp-src&gt; <span class="nb">set</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
+<p>On Windows you can set the environment variable using <code class="docutils literal notranslate"><span class="pre">set</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>C:<span class="se">\p</span>hp-src&gt; <span class="nb">set</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
 C:<span class="se">\p</span>hp-src&gt; sapi/cli/php run-tests.php
 </pre></div>
 </div>
-<p>By default <code class="docutils literal"><span class="pre">run-tests.php</span></code> will start running all 15,000+ tests in the test suite which would take forever-ever. You
+<p>By default <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code> will start running all 15,000+ tests in the test suite which would take forever-ever. You
 can specify a target folder of tests to run or even a single test. The following example will run all the tests
 associated with <a class="reference external" href="http://php.net/csprng">PHP 7’s CSPRNG</a>.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -P ext/standard/tests/random
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -P ext/standard/tests/random
 </pre></div>
 </div>
 <p>You can also specify multiple target folders or files to run.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -P Zend/ ext/reflection/ ext/standard/tests/array/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -P Zend/ ext/reflection/ ext/standard/tests/array/
 </pre></div>
 </div>
 <p>If you run the full test suite, and there are failing tests, the script will ask if you want to send a report to the
-PHP QA team. This can be annoying sometimes. It is possible suppress this question by setting the <code class="docutils literal"><span class="pre">-q</span></code> flag, or by
-setting environment variable <code class="docutils literal"><span class="pre">NO_INTERACTION=1</span></code>.</p>
+PHP QA team. This can be annoying sometimes. It is possible suppress this question by setting the <code class="docutils literal notranslate"><span class="pre">-q</span></code> flag, or by
+setting environment variable <code class="docutils literal notranslate"><span class="pre">NO_INTERACTION=1</span></code>.</p>
 </div>
 <div class="section" id="running-tests-via-the-makefile-recommended">
-<h2>Running tests via the <code class="docutils literal"><span class="pre">Makefile</span></code> (recommended)<a class="headerlink" href="#running-tests-via-the-makefile-recommended" title="Permalink to this headline">¶</a></h2>
-<p>The recommended way of running the test suite is via the <code class="docutils literal"><span class="pre">test</span></code> target which is defined in the <code class="docutils literal"><span class="pre">Makefile</span></code>. The
-<code class="docutils literal"><span class="pre">test</span></code> target does all the hard work of specifying the PHP executable for you (the one you compiled), setting up some
+<h2>Running tests via the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> (recommended)<a class="headerlink" href="#running-tests-via-the-makefile-recommended" title="Permalink to this headline">¶</a></h2>
+<p>The recommended way of running the test suite is via the <code class="docutils literal notranslate"><span class="pre">test</span></code> target which is defined in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>. The
+<code class="docutils literal notranslate"><span class="pre">test</span></code> target does all the hard work of specifying the PHP executable for you (the one you compiled), setting up some
 default INI settings and specifying the best run-tests flags for you. You needn’t worry about setting environment
 variables or setting additional flags so the command is very simple.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span>
 </pre></div>
 </div>
-<p>As before, <code class="docutils literal"><span class="pre">run-tests.php</span></code> will start running the entire test suite. To specify a folder or single test to execute you
-can pass <code class="docutils literal"><span class="pre">make</span></code> a <code class="docutils literal"><span class="pre">TESTS</span></code> variable. The following example will test that PHP can handle binary literals properly.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>Zend/tests/binary.phpt
+<p>As before, <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code> will start running the entire test suite. To specify a folder or single test to execute you
+can pass <code class="docutils literal notranslate"><span class="pre">make</span></code> a <code class="docutils literal notranslate"><span class="pre">TESTS</span></code> variable. The following example will test that PHP can handle binary literals properly.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>Zend/tests/binary.phpt
 </pre></div>
 </div>
-<p>You can specify multiple target folders or files to run by separating each path with a space in the <code class="docutils literal"><span class="pre">TESTS</span></code> variable.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;Zend/ ext/reflection/ ext/standard/tests/array/&quot;</span>
+<p>You can specify multiple target folders or files to run by separating each path with a space in the <code class="docutils literal notranslate"><span class="pre">TESTS</span></code> variable.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;Zend/ ext/reflection/ ext/standard/tests/array/&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -115,17 +106,17 @@ can pass <code class="docutils literal"><span class="pre">make</span></code> a <
 </div>
 <div class="section" id="more-options">
 <h2>More options<a class="headerlink" href="#more-options" title="Permalink to this headline">¶</a></h2>
-<p>Tests that passed are usually not that interesting. You can filter what tests to show with the <code class="docutils literal"><span class="pre">-g</span></code> flag. Possible
-values are <code class="docutils literal"><span class="pre">PASS</span></code>, <code class="docutils literal"><span class="pre">FAIL</span></code>, <code class="docutils literal"><span class="pre">XFAIL</span></code>, <code class="docutils literal"><span class="pre">SKIP</span></code>, <code class="docutils literal"><span class="pre">BORK</span></code>, <code class="docutils literal"><span class="pre">WARN</span></code>, <code class="docutils literal"><span class="pre">LEAK</span></code>, <code class="docutils literal"><span class="pre">REDIRECT</span></code> For example to only
+<p>Tests that passed are usually not that interesting. You can filter what tests to show with the <code class="docutils literal notranslate"><span class="pre">-g</span></code> flag. Possible
+values are <code class="docutils literal notranslate"><span class="pre">PASS</span></code>, <code class="docutils literal notranslate"><span class="pre">FAIL</span></code>, <code class="docutils literal notranslate"><span class="pre">XFAIL</span></code>, <code class="docutils literal notranslate"><span class="pre">SKIP</span></code>, <code class="docutils literal notranslate"><span class="pre">BORK</span></code>, <code class="docutils literal notranslate"><span class="pre">WARN</span></code>, <code class="docutils literal notranslate"><span class="pre">LEAK</span></code>, <code class="docutils literal notranslate"><span class="pre">REDIRECT</span></code> For example to only
 show failing tests:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; run-tests.php -g FAIL
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; run-tests.php -g FAIL
 </pre></div>
 </div>
-<p>For a full list of supported options that run-tests supports, just run it with <code class="docutils literal"><span class="pre">--help</span></code>.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php --help
+<p>For a full list of supported options that run-tests supports, just run it with <code class="docutils literal notranslate"><span class="pre">--help</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php --help
 </pre></div>
 </div>
-<p>For example <code class="docutils literal"><span class="pre">-x</span></code> to skip slow tests, <code class="docutils literal"><span class="pre">--offline</span></code> to skip online tests or <code class="docutils literal"><span class="pre">-m</span></code> for testing memory leaks with
+<p>For example <code class="docutils literal notranslate"><span class="pre">-x</span></code> to skip slow tests, <code class="docutils literal notranslate"><span class="pre">--offline</span></code> to skip online tests or <code class="docutils literal notranslate"><span class="pre">-m</span></code> for testing memory leaks with
 Valgrind can be very useful.</p>
 </div>
 </div>
@@ -139,7 +130,7 @@ Valgrind can be very useful.</p>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="phpt_file_structure.html">The <code class="docutils literal"><span class="pre">.phpt</span></code> file structure</a>&#160;&#160;»
+        <a href="phpt_file_structure.html">The <code class="docutils literal notranslate"><span class="pre">.phpt</span></code> file structure</a>&#160;&#160;»
         </p>
 
       </div>

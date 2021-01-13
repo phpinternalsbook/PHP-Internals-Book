@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basic structure &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Memory management" href="memory_management.html" />
     <link rel="prev" title="Zvals" href="../zvals.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Basic structure</span></h2>
@@ -43,7 +34,7 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="basic-structure">
@@ -57,10 +48,10 @@ dynamically typed language and as such variable types are only known at run-time
 the type can change during the life of a zval, so if the zval previously stored an integer it may contain a string at a
 later point in time.</p>
 <p>The type is stored as an integer tag (an unsigned char). It can be one of eight values, which correspond to the eight
-types available in PHP. These values are referred to using constants of the form <code class="docutils literal"><span class="pre">IS_TYPE</span></code>. E.g. <code class="docutils literal"><span class="pre">IS_NULL</span></code>
-corresponds to the null type and <code class="docutils literal"><span class="pre">IS_STRING</span></code> corresponds to the string type.</p>
+types available in PHP. These values are referred to using constants of the form <code class="docutils literal notranslate"><span class="pre">IS_TYPE</span></code>. E.g. <code class="docutils literal notranslate"><span class="pre">IS_NULL</span></code>
+corresponds to the null type and <code class="docutils literal notranslate"><span class="pre">IS_STRING</span></code> corresponds to the string type.</p>
 <p>The actual value is stored in a union, which is defined as follows:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">union</span> <span class="n">_zvalue_value</span> <span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">union</span> <span class="n">_zvalue_value</span> <span class="p">{</span>
     <span class="kt">long</span> <span class="n">lval</span><span class="p">;</span>
     <span class="kt">double</span> <span class="n">dval</span><span class="p">;</span>
     <span class="k">struct</span> <span class="p">{</span>
@@ -73,96 +64,96 @@ corresponds to the null type and <code class="docutils literal"><span class="pre
 </pre></div>
 </div>
 <p>To those not familiar with the concept of unions: A union defines multiple members of different types, but only one of
-them can ever be used at a time. E.g. if the <code class="docutils literal"><span class="pre">value.lval</span></code> member was set, then you also need to look up the value
-using <code class="docutils literal"><span class="pre">value.lval</span></code> and not one of the other members (doing so would violate “strict aliasing” guarantees and lead to
+them can ever be used at a time. E.g. if the <code class="docutils literal notranslate"><span class="pre">value.lval</span></code> member was set, then you also need to look up the value
+using <code class="docutils literal notranslate"><span class="pre">value.lval</span></code> and not one of the other members (doing so would violate “strict aliasing” guarantees and lead to
 undefined behaviour). The reason is that unions store all their members at the same memory location and just interpret
 the value located there differently depending on which member you access. The size of the union is the size of its
 largest member.</p>
 <p>When working with zvals the type tag is used to find out which of the union’s member is currently in use. Before having
 a look at the APIs used to do so, let’s walk through the different types PHP supports and how they are stored:</p>
-<p>The simplest type is <code class="docutils literal"><span class="pre">IS_NULL</span></code>: It doesn’t need to actually store any value, because there is just one <code class="docutils literal"><span class="pre">null</span></code> value.</p>
-<p>For storing numbers PHP provides the types <code class="docutils literal"><span class="pre">IS_LONG</span></code> and <code class="docutils literal"><span class="pre">IS_DOUBLE</span></code>, which make use of the <code class="docutils literal"><span class="pre">long</span> <span class="pre">lval</span></code> and
-<code class="docutils literal"><span class="pre">double</span> <span class="pre">dval</span></code> members respectively. The former is used to store integers, whereas the latter stores floating point
+<p>The simplest type is <code class="docutils literal notranslate"><span class="pre">IS_NULL</span></code>: It doesn’t need to actually store any value, because there is just one <code class="docutils literal notranslate"><span class="pre">null</span></code> value.</p>
+<p>For storing numbers PHP provides the types <code class="docutils literal notranslate"><span class="pre">IS_LONG</span></code> and <code class="docutils literal notranslate"><span class="pre">IS_DOUBLE</span></code>, which make use of the <code class="docutils literal notranslate"><span class="pre">long</span> <span class="pre">lval</span></code> and
+<code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">dval</span></code> members respectively. The former is used to store integers, whereas the latter stores floating point
 numbers.</p>
-<p>There are some things that one should be aware of about the <code class="docutils literal"><span class="pre">long</span></code> type: Firstly, this is a signed integer type, i.e.
+<p>There are some things that one should be aware of about the <code class="docutils literal notranslate"><span class="pre">long</span></code> type: Firstly, this is a signed integer type, i.e.
 it can store both positive and negative integers, but is commonly not well suited for doing bitwise operations.
-Secondly, <code class="docutils literal"><span class="pre">long</span></code> has different sizes on different platforms: On 32bit systems it is 32 bits / 4 bytes large, but on
+Secondly, <code class="docutils literal notranslate"><span class="pre">long</span></code> has different sizes on different platforms: On 32bit systems it is 32 bits / 4 bytes large, but on
 64bit systems it’s size will be either 4 or 8 bytes. In particular 64bit Unix systems typically have 8 byte longs,
 whereas 64bit Windows uses only 4 bytes.</p>
-<p>For this reason you shouldn’t rely on any particular size for the <code class="docutils literal"><span class="pre">long</span></code> type. The minimum and maximum values a
-<code class="docutils literal"><span class="pre">long</span></code> can store are available via <code class="docutils literal"><span class="pre">LONG_MIN</span></code> and <code class="docutils literal"><span class="pre">LONG_MAX</span></code> and the size of the type can be accessed using
-<code class="docutils literal"><span class="pre">SIZEOF_LONG</span></code> (unlike <code class="docutils literal"><span class="pre">sizeof(long)</span></code> this is also usable in <code class="docutils literal"><span class="pre">#if</span></code> directives).</p>
-<p>The <code class="docutils literal"><span class="pre">double</span></code> type used to store floating point numbers is (typically) an 8-byte value following the IEEE-754
+<p>For this reason you shouldn’t rely on any particular size for the <code class="docutils literal notranslate"><span class="pre">long</span></code> type. The minimum and maximum values a
+<code class="docutils literal notranslate"><span class="pre">long</span></code> can store are available via <code class="docutils literal notranslate"><span class="pre">LONG_MIN</span></code> and <code class="docutils literal notranslate"><span class="pre">LONG_MAX</span></code> and the size of the type can be accessed using
+<code class="docutils literal notranslate"><span class="pre">SIZEOF_LONG</span></code> (unlike <code class="docutils literal notranslate"><span class="pre">sizeof(long)</span></code> this is also usable in <code class="docutils literal notranslate"><span class="pre">#if</span></code> directives).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">double</span></code> type used to store floating point numbers is (typically) an 8-byte value following the IEEE-754
 specification. The details of this format won’t be discussed here, but you should at least be aware of the fact that
 this type has limited precision and commonly doesn’t store the exact value you want.</p>
-<p>Booleans use the <code class="docutils literal"><span class="pre">IS_BOOL</span></code> flag and are stored in the <code class="docutils literal"><span class="pre">long</span> <span class="pre">lval</span></code> member as values 0 (for false) and 1 (for true).
-As there are only these two values, one could theoretically use some smaller type instead (like <code class="docutils literal"><span class="pre">zend_bool</span></code>, which is
-an unsigned char), but as the <code class="docutils literal"><span class="pre">zvalue_value</span></code> union has the size of its <em>largest</em> member this would not actually result
-in any memory savings. As such the <code class="docutils literal"><span class="pre">lval</span></code> member is reused.</p>
-<p>Strings (<code class="docutils literal"><span class="pre">IS_STRING</span></code>) are stored in <code class="docutils literal"><span class="pre">struct</span> <span class="pre">{</span> <span class="pre">char</span> <span class="pre">*val;</span> <span class="pre">int</span> <span class="pre">len;</span> <span class="pre">}</span> <span class="pre">str</span></code>, i.e. they consist of a <code class="docutils literal"><span class="pre">char*</span></code> string
-and an <code class="docutils literal"><span class="pre">int</span></code> length. PHP strings need to store an explicit length in order to allow use of NUL bytes (<code class="docutils literal"><span class="pre">'\0'</span></code>) in
+<p>Booleans use the <code class="docutils literal notranslate"><span class="pre">IS_BOOL</span></code> flag and are stored in the <code class="docutils literal notranslate"><span class="pre">long</span> <span class="pre">lval</span></code> member as values 0 (for false) and 1 (for true).
+As there are only these two values, one could theoretically use some smaller type instead (like <code class="docutils literal notranslate"><span class="pre">zend_bool</span></code>, which is
+an unsigned char), but as the <code class="docutils literal notranslate"><span class="pre">zvalue_value</span></code> union has the size of its <em>largest</em> member this would not actually result
+in any memory savings. As such the <code class="docutils literal notranslate"><span class="pre">lval</span></code> member is reused.</p>
+<p>Strings (<code class="docutils literal notranslate"><span class="pre">IS_STRING</span></code>) are stored in <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">{</span> <span class="pre">char</span> <span class="pre">*val;</span> <span class="pre">int</span> <span class="pre">len;</span> <span class="pre">}</span> <span class="pre">str</span></code>, i.e. they consist of a <code class="docutils literal notranslate"><span class="pre">char*</span></code> string
+and an <code class="docutils literal notranslate"><span class="pre">int</span></code> length. PHP strings need to store an explicit length in order to allow use of NUL bytes (<code class="docutils literal notranslate"><span class="pre">'\0'</span></code>) in
 them (“binary safety”). Regardless of this, the strings used by PHP are still NUL-terminated to ease interoperability
 with library functions which don’t take length arguments and expect NUL-terminated strings instead. Of course in this
 case the strings won’t be binary safe anymore and will be cut off at the first NUL byte they contain. For example many
 filesystem related functions behave like this, as well as most libc string functions.</p>
 <p>The length of a string is in bytes (not Unicode code points) and does <strong>not</strong> include the terminating NUL byte: The
-length of the string <code class="docutils literal"><span class="pre">&quot;foo&quot;</span></code> is 3, even though it is actually stored using 4 bytes. If you determine the length of a
-constant string using <code class="docutils literal"><span class="pre">sizeof</span></code> you need to make sure to subtract one: <code class="docutils literal"><span class="pre">strlen(&quot;foo&quot;)</span> <span class="pre">==</span> <span class="pre">sizeof(&quot;foo&quot;)</span> <span class="pre">-</span> <span class="pre">1</span></code></p>
-<p>Furthermore it’s important to realize that the string length is stored in an <code class="docutils literal"><span class="pre">int</span></code> and not a <code class="docutils literal"><span class="pre">long</span></code> or some other
+length of the string <code class="docutils literal notranslate"><span class="pre">&quot;foo&quot;</span></code> is 3, even though it is actually stored using 4 bytes. If you determine the length of a
+constant string using <code class="docutils literal notranslate"><span class="pre">sizeof</span></code> you need to make sure to subtract one: <code class="docutils literal notranslate"><span class="pre">strlen(&quot;foo&quot;)</span> <span class="pre">==</span> <span class="pre">sizeof(&quot;foo&quot;)</span> <span class="pre">-</span> <span class="pre">1</span></code></p>
+<p>Furthermore it’s important to realize that the string length is stored in an <code class="docutils literal notranslate"><span class="pre">int</span></code> and not a <code class="docutils literal notranslate"><span class="pre">long</span></code> or some other
 type. This is an unfortunate historical artifact, which limits the length of strings to 2147483647 bytes. Strings larger
 than this would cause an overflow (thus making the length negative).</p>
 <p>The remaining three types will only be mentioned here quickly and discussed in greater detail in their own chapters:</p>
-<p>Arrays use the <code class="docutils literal"><span class="pre">IS_ARRAY</span></code> type tag and are stored in the <code class="docutils literal"><span class="pre">HashTable</span> <span class="pre">*ht</span></code> member. How the <code class="docutils literal"><span class="pre">HashTable</span></code> structure
+<p>Arrays use the <code class="docutils literal notranslate"><span class="pre">IS_ARRAY</span></code> type tag and are stored in the <code class="docutils literal notranslate"><span class="pre">HashTable</span> <span class="pre">*ht</span></code> member. How the <code class="docutils literal notranslate"><span class="pre">HashTable</span></code> structure
 works will be discussed in the <a class="reference internal" href="../hashtables.html"><span class="doc">Hashtables</span></a> chapter.</p>
-<p>Objects (<code class="docutils literal"><span class="pre">IS_OBJECT</span></code>) use the <code class="docutils literal"><span class="pre">zend_object_value</span> <span class="pre">obj</span></code> member, which consists of an “object handle”, which is an
+<p>Objects (<code class="docutils literal notranslate"><span class="pre">IS_OBJECT</span></code>) use the <code class="docutils literal notranslate"><span class="pre">zend_object_value</span> <span class="pre">obj</span></code> member, which consists of an “object handle”, which is an
 integer ID used to look up the actual data of the object, and a set of “object handlers”, which define how the object
 behaves. PHP’s class and object system will be described in the <a class="reference internal" href="../classes_objects.html"><span class="doc">Classes and objects</span></a> chapter.</p>
-<p>Resources (<code class="docutils literal"><span class="pre">IS_RESOURCE</span></code>) are similar to objects in that they also store a unique ID that can be used to look up the
-actual value. This ID is stored in the <code class="docutils literal"><span class="pre">long</span> <span class="pre">lval</span></code> member. Resources are covered in the Resources chapter (which
+<p>Resources (<code class="docutils literal notranslate"><span class="pre">IS_RESOURCE</span></code>) are similar to objects in that they also store a unique ID that can be used to look up the
+actual value. This ID is stored in the <code class="docutils literal notranslate"><span class="pre">long</span> <span class="pre">lval</span></code> member. Resources are covered in the Resources chapter (which
 doesn’t exist yet).</p>
 <p>To summarize, here’s a table with all the available type tags and the corresponding storage location for their values:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col style="width: 50%" />
+<col style="width: 50%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Type tag</th>
-<th class="head">Storage location</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Type tag</p></th>
+<th class="head"><p>Storage location</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">IS_NULL</span></code></td>
-<td>none</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">IS_NULL</span></code></p></td>
+<td><p>none</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">IS_BOOL</span></code></td>
-<td><code class="docutils literal"><span class="pre">long</span> <span class="pre">lval</span></code></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">IS_BOOL</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">long</span> <span class="pre">lval</span></code></p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">IS_LONG</span></code></td>
-<td><code class="docutils literal"><span class="pre">long</span> <span class="pre">lval</span></code></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">IS_LONG</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">long</span> <span class="pre">lval</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">IS_DOUBLE</span></code></td>
-<td><code class="docutils literal"><span class="pre">double</span> <span class="pre">dval</span></code></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">IS_DOUBLE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">dval</span></code></p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">IS_STRING</span></code></td>
-<td><code class="docutils literal"><span class="pre">struct</span> <span class="pre">{</span> <span class="pre">char</span> <span class="pre">*val;</span> <span class="pre">int</span> <span class="pre">len;</span> <span class="pre">}</span> <span class="pre">str</span></code></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">IS_STRING</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">{</span> <span class="pre">char</span> <span class="pre">*val;</span> <span class="pre">int</span> <span class="pre">len;</span> <span class="pre">}</span> <span class="pre">str</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">IS_ARRAY</span></code></td>
-<td><code class="docutils literal"><span class="pre">HashTable</span> <span class="pre">*ht</span></code></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">IS_ARRAY</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HashTable</span> <span class="pre">*ht</span></code></p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">IS_OBJECT</span></code></td>
-<td><code class="docutils literal"><span class="pre">zend_object_value</span> <span class="pre">obj</span></code></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">IS_OBJECT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">zend_object_value</span> <span class="pre">obj</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">IS_RESOURCE</span></code></td>
-<td><code class="docutils literal"><span class="pre">long</span> <span class="pre">lval</span></code></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">IS_RESOURCE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">long</span> <span class="pre">lval</span></code></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="access-macros">
 <h2>Access macros<a class="headerlink" href="#access-macros" title="Permalink to this headline">¶</a></h2>
-<p>Lets now have a look at how the <code class="docutils literal"><span class="pre">zval</span></code> struct actually looks like:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zval_struct</span> <span class="p">{</span>
+<p>Lets now have a look at how the <code class="docutils literal notranslate"><span class="pre">zval</span></code> struct actually looks like:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zval_struct</span> <span class="p">{</span>
     <span class="n">zvalue_value</span> <span class="n">value</span><span class="p">;</span>
     <span class="n">zend_uint</span> <span class="n">refcount__gc</span><span class="p">;</span>
     <span class="n">zend_uchar</span> <span class="n">type</span><span class="p">;</span>
@@ -170,12 +161,12 @@ doesn’t exist yet).</p>
 <span class="p">}</span> <span class="n">zval</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>As already mentioned, the zval has members to store a <code class="docutils literal"><span class="pre">value</span></code> and its <code class="docutils literal"><span class="pre">type</span></code>. The value is stored in the
-<code class="docutils literal"><span class="pre">zvalue_value</span></code> union discussed above and the type tag is held in a <code class="docutils literal"><span class="pre">zend_uchar</span></code>. Additionally the structure has two
-properties ending in <code class="docutils literal"><span class="pre">__gc</span></code>, which are used for the garbage collection mechanism PHP employs. We’ll ignore them for
+<p>As already mentioned, the zval has members to store a <code class="docutils literal notranslate"><span class="pre">value</span></code> and its <code class="docutils literal notranslate"><span class="pre">type</span></code>. The value is stored in the
+<code class="docutils literal notranslate"><span class="pre">zvalue_value</span></code> union discussed above and the type tag is held in a <code class="docutils literal notranslate"><span class="pre">zend_uchar</span></code>. Additionally the structure has two
+properties ending in <code class="docutils literal notranslate"><span class="pre">__gc</span></code>, which are used for the garbage collection mechanism PHP employs. We’ll ignore them for
 now and discuss their function in the next section.</p>
 <p>Knowing the zval structure you can now write code making use of it:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... get zval from somewhere */</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... get zval from somewhere */</span><span class="p">;</span>
 
 <span class="k">if</span> <span class="p">(</span><span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">==</span> <span class="n">IS_LONG</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">lval</span><span class="p">);</span>
@@ -184,17 +175,17 @@ now and discuss their function in the next section.</p>
 </div>
 <p>While the above code works, this is not the idiomatic way to write it. It directly accesses the zval members rather than
 using a special set of access macros for this purpose:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... */</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... */</span><span class="p">;</span>
 
 <span class="k">if</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_LONG</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
 <span class="p">}</span> <span class="k">else</span> <span class="cm">/* ... */</span>
 </pre></div>
 </div>
-<p>The above code uses the <code class="docutils literal"><span class="pre">Z_TYPE_P()</span></code> macro for retrieving the type tag and <code class="docutils literal"><span class="pre">Z_LVAL_P()</span></code> to get the long (integer)
-value. All the access macros have variants with a <code class="docutils literal"><span class="pre">_P</span></code> suffix, a <code class="docutils literal"><span class="pre">_PP</span></code> suffix or no suffix at all. Which one you
-use depends on whether you are working on a <code class="docutils literal"><span class="pre">zval</span></code>, a <code class="docutils literal"><span class="pre">zval*</span></code> or a <code class="docutils literal"><span class="pre">zval**</span></code>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">zv</span><span class="p">;</span>
+<p>The above code uses the <code class="docutils literal notranslate"><span class="pre">Z_TYPE_P()</span></code> macro for retrieving the type tag and <code class="docutils literal notranslate"><span class="pre">Z_LVAL_P()</span></code> to get the long (integer)
+value. All the access macros have variants with a <code class="docutils literal notranslate"><span class="pre">_P</span></code> suffix, a <code class="docutils literal notranslate"><span class="pre">_PP</span></code> suffix or no suffix at all. Which one you
+use depends on whether you are working on a <code class="docutils literal notranslate"><span class="pre">zval</span></code>, a <code class="docutils literal notranslate"><span class="pre">zval*</span></code> or a <code class="docutils literal notranslate"><span class="pre">zval**</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">zv</span><span class="p">;</span>
 <span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
 <span class="n">zval</span> <span class="o">**</span><span class="n">zv_ptr_ptr</span><span class="p">;</span>
 <span class="n">zval</span> <span class="o">***</span><span class="n">zv_ptr_ptr_ptr</span><span class="p">;</span>
@@ -205,12 +196,12 @@ use depends on whether you are working on a <code class="docutils literal"><span
 <span class="n">Z_TYPE_PP</span><span class="p">(</span><span class="o">*</span><span class="n">zv_ptr_ptr_ptr</span><span class="p">);</span> <span class="c1">// = (**zv_ptr_ptr_ptr)-&gt;type</span>
 </pre></div>
 </div>
-<p>Basically the number of <code class="docutils literal"><span class="pre">P</span></code>s should be the same as the number of <code class="docutils literal"><span class="pre">*</span></code>s of the type. This only works until
-<code class="docutils literal"><span class="pre">zval**</span></code>, i.e. there are no special macros for working with <code class="docutils literal"><span class="pre">zval***</span></code> as this is rarely necessary in practice
-(you’ll just have to dereference the value first using the <code class="docutils literal"><span class="pre">*</span></code> operator).</p>
-<p>Similarly to <code class="docutils literal"><span class="pre">Z_LVAL</span></code> there are also macros for fetching values of all the other types. To demonstrate their usage
+<p>Basically the number of <code class="docutils literal notranslate"><span class="pre">P</span></code>s should be the same as the number of <code class="docutils literal notranslate"><span class="pre">*</span></code>s of the type. This only works until
+<code class="docutils literal notranslate"><span class="pre">zval**</span></code>, i.e. there are no special macros for working with <code class="docutils literal notranslate"><span class="pre">zval***</span></code> as this is rarely necessary in practice
+(you’ll just have to dereference the value first using the <code class="docutils literal notranslate"><span class="pre">*</span></code> operator).</p>
+<p>Similarly to <code class="docutils literal notranslate"><span class="pre">Z_LVAL</span></code> there are also macros for fetching values of all the other types. To demonstrate their usage
 we’ll create a simple function for dumping a zval:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
 
@@ -259,7 +250,7 @@ we’ll create a simple function for dumping a zval:</p>
 </pre></div>
 </div>
 <p>Lets try it out:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">dump</span><span class="p">(</span><span class="n">null</span><span class="p">);</span>                 <span class="c1">// NULL: null</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">dump</span><span class="p">(</span><span class="n">null</span><span class="p">);</span>                 <span class="c1">// NULL: null</span>
 <span class="n">dump</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>                 <span class="c1">// BOOL: true</span>
 <span class="n">dump</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>                <span class="c1">// BOOL: false</span>
 <span class="n">dump</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>                   <span class="c1">// LONG: 42</span>
@@ -270,14 +261,14 @@ we’ll create a simple function for dumping a zval:</p>
 <span class="n">dump</span><span class="p">(</span><span class="n">new</span> <span class="n">stdClass</span><span class="p">);</span>         <span class="c1">// OBJECT: ???</span>
 </pre></div>
 </div>
-<p>The macros for accessing the values are pretty straightforward: <code class="docutils literal"><span class="pre">Z_BVAL</span></code> for bools, <code class="docutils literal"><span class="pre">Z_LVAL</span></code> for longs, <code class="docutils literal"><span class="pre">Z_DVAL</span></code>
-for doubles. For strings <code class="docutils literal"><span class="pre">Z_STRVAL</span></code> returns the actual <code class="docutils literal"><span class="pre">char*</span></code> string, whereas <code class="docutils literal"><span class="pre">Z_STRLEN</span></code> provides us with the
-length. The resource ID can be fetched using <code class="docutils literal"><span class="pre">Z_RESVAL</span></code> and the <code class="docutils literal"><span class="pre">HashTable*</span></code> of an array is accessed with
-<code class="docutils literal"><span class="pre">Z_ARRVAL</span></code>. How object values are accessed will not be covered here as it requires some more background knowledge.</p>
+<p>The macros for accessing the values are pretty straightforward: <code class="docutils literal notranslate"><span class="pre">Z_BVAL</span></code> for bools, <code class="docutils literal notranslate"><span class="pre">Z_LVAL</span></code> for longs, <code class="docutils literal notranslate"><span class="pre">Z_DVAL</span></code>
+for doubles. For strings <code class="docutils literal notranslate"><span class="pre">Z_STRVAL</span></code> returns the actual <code class="docutils literal notranslate"><span class="pre">char*</span></code> string, whereas <code class="docutils literal notranslate"><span class="pre">Z_STRLEN</span></code> provides us with the
+length. The resource ID can be fetched using <code class="docutils literal notranslate"><span class="pre">Z_RESVAL</span></code> and the <code class="docutils literal notranslate"><span class="pre">HashTable*</span></code> of an array is accessed with
+<code class="docutils literal notranslate"><span class="pre">Z_ARRVAL</span></code>. How object values are accessed will not be covered here as it requires some more background knowledge.</p>
 <p>When you want to access the contents of a zval you should always go through these macros, rather than directly accessing
 its members. This maintains a level of abstraction and makes the intention clearer: For example, if you directly
-accessed the <code class="docutils literal"><span class="pre">lval</span></code> member you could either be fetching the bool value, the long value or the resource ID. Using
-<code class="docutils literal"><span class="pre">Z_BVAL</span></code>, <code class="docutils literal"><span class="pre">Z_LVAL</span></code> and <code class="docutils literal"><span class="pre">Z_RESVAL</span></code> instead makes the intention unambiguous. Using the macros also serves as a
+accessed the <code class="docutils literal notranslate"><span class="pre">lval</span></code> member you could either be fetching the bool value, the long value or the resource ID. Using
+<code class="docutils literal notranslate"><span class="pre">Z_BVAL</span></code>, <code class="docutils literal notranslate"><span class="pre">Z_LVAL</span></code> and <code class="docutils literal notranslate"><span class="pre">Z_RESVAL</span></code> instead makes the intention unambiguous. Using the macros also serves as a
 protection against changes to the internal zval representation in future PHP versions.</p>
 </div>
 <div class="section" id="setting-the-value">
@@ -285,7 +276,7 @@ protection against changes to the internal zval representation in future PHP ver
 <p>Most of the macros introduced above just access some member of the zval structure and as such you can use them both to
 read and to write the respective values. As an example consider the following function, which simply returns the string
 “hello world!”:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span> <span class="o">=</span> <span class="n">IS_STRING</span><span class="p">;</span>
     <span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span> <span class="o">=</span> <span class="n">estrdup</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">);</span>
     <span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">);</span>
@@ -296,61 +287,61 @@ read and to write the respective values. As an example consider the following fu
 <span class="cm">/* ... */</span>
 </pre></div>
 </div>
-<p>Running <code class="docutils literal"><span class="pre">php</span> <span class="pre">-r</span> <span class="pre">&quot;echo</span> <span class="pre">hello_world();&quot;</span></code> should now print <code class="docutils literal"><span class="pre">hello</span> <span class="pre">world!</span></code> to the terminal.</p>
-<p>In the above example we set the <code class="docutils literal"><span class="pre">return_value</span></code> variable, which is a <code class="docutils literal"><span class="pre">zval*</span></code> provided by the <code class="docutils literal"><span class="pre">PHP_FUNCTION</span></code> macro.
+<p>Running <code class="docutils literal notranslate"><span class="pre">php</span> <span class="pre">-r</span> <span class="pre">&quot;echo</span> <span class="pre">hello_world();&quot;</span></code> should now print <code class="docutils literal notranslate"><span class="pre">hello</span> <span class="pre">world!</span></code> to the terminal.</p>
+<p>In the above example we set the <code class="docutils literal notranslate"><span class="pre">return_value</span></code> variable, which is a <code class="docutils literal notranslate"><span class="pre">zval*</span></code> provided by the <code class="docutils literal notranslate"><span class="pre">PHP_FUNCTION</span></code> macro.
 We’ll look at this variable in more detail in the next chapter, for now it should suffice to know that the value of this
-variable will be the return value of the function. By default it is initialized to have type <code class="docutils literal"><span class="pre">IS_NULL</span></code>.</p>
+variable will be the return value of the function. By default it is initialized to have type <code class="docutils literal notranslate"><span class="pre">IS_NULL</span></code>.</p>
 <p>Setting a zval value using the access macros is really straightforward, but there are some things one should keep in
 mind: First of all you need to remember that the type tag determines the type of a zval. It doesn’t suffice to just set
-the value (via <code class="docutils literal"><span class="pre">Z_STRVAL</span></code> and <code class="docutils literal"><span class="pre">Z_STRLEN</span></code> here), you always need to set the type tag as well.</p>
+the value (via <code class="docutils literal notranslate"><span class="pre">Z_STRVAL</span></code> and <code class="docutils literal notranslate"><span class="pre">Z_STRLEN</span></code> here), you always need to set the type tag as well.</p>
 <p>Furthermore you need to be aware of the fact that in most cases the zval “owns” its value and that the zval will have a
 longer life-time than the scope in which you set its value. Sometimes this doesn’t apply when dealing with temporary
 zvals, but in most cases it’s true.</p>
-<p>Using the above example this means that the <code class="docutils literal"><span class="pre">return_value</span></code> will live on after our function body leaves (which is quite
+<p>Using the above example this means that the <code class="docutils literal notranslate"><span class="pre">return_value</span></code> will live on after our function body leaves (which is quite
 obvious, otherwise nobody could use the return value), so it can’t make use of any temporary values of the function.
-E.g. just writing <code class="docutils literal"><span class="pre">Z_STRVAL_P(return_value)</span> <span class="pre">=</span> <span class="pre">&quot;hello</span> <span class="pre">world!&quot;</span></code> would be invalid, because the string literal
-<code class="docutils literal"><span class="pre">&quot;hello</span> <span class="pre">world!&quot;</span></code> ceases to exist after the body is left (which is true for every stack allocated value in C).</p>
-<p>Because of this we need to copy the string using <code class="docutils literal"><span class="pre">estrdup()</span></code>. This will create a separate copy of the string on the
+E.g. just writing <code class="docutils literal notranslate"><span class="pre">Z_STRVAL_P(return_value)</span> <span class="pre">=</span> <span class="pre">&quot;hello</span> <span class="pre">world!&quot;</span></code> would be invalid, because the string literal
+<code class="docutils literal notranslate"><span class="pre">&quot;hello</span> <span class="pre">world!&quot;</span></code> ceases to exist after the body is left (which is true for every stack allocated value in C).</p>
+<p>Because of this we need to copy the string using <code class="docutils literal notranslate"><span class="pre">estrdup()</span></code>. This will create a separate copy of the string on the
 heap. Because the zval “owns” its value, it will make sure to free this copy when the zval is destroyed. This also
-applies to any other “complex” value of the zval. E.g. if you set the <code class="docutils literal"><span class="pre">HashTable*</span></code> for an array, the zval will take
+applies to any other “complex” value of the zval. E.g. if you set the <code class="docutils literal notranslate"><span class="pre">HashTable*</span></code> for an array, the zval will take
 ownership of it and free it when the zval is destroyed. When using primitive types like integers or doubles you
 obviously don’t need to care about this, as they are always copied.</p>
-<p>Lastly, it should be pointed out that not all of the access macros directly return a member. The <code class="docutils literal"><span class="pre">Z_BVAL</span></code> macro for
+<p>Lastly, it should be pointed out that not all of the access macros directly return a member. The <code class="docutils literal notranslate"><span class="pre">Z_BVAL</span></code> macro for
 example is defined as follows:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#define Z_BVAL(zval) ((zend_bool)(zval).value.lval)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define Z_BVAL(zval) ((zend_bool)(zval).value.lval)</span>
 </pre></div>
 </div>
-<p>Because this macro contains a cast you will not be able to write <code class="docutils literal"><span class="pre">Z_BVAL_P(return_value)</span> <span class="pre">=</span> <span class="pre">1</span></code>. Apart from some of the
+<p>Because this macro contains a cast you will not be able to write <code class="docutils literal notranslate"><span class="pre">Z_BVAL_P(return_value)</span> <span class="pre">=</span> <span class="pre">1</span></code>. Apart from some of the
 object-related macros this is the only exception though. All the other access macros can be used to set values.</p>
 <p>In practice you won’t have to worry about the last bit though: As setting the zval value is such a common task, PHP
 provides another set of macros for this purpose. They allow you to set the type tag and the value at the same time.
 Rewriting the previous example using such a macro yields:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="n">estrdup</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>As it is very common that the string has to be copied when assigning to the zval, the last (boolean) parameter of the
-<code class="docutils literal"><span class="pre">ZVAL_STRINGL</span></code> macro can handle this for you. If you pass <code class="docutils literal"><span class="pre">0</span></code> the string is used as is, but if you pass <code class="docutils literal"><span class="pre">1</span></code> it
-will be copied using <code class="docutils literal"><span class="pre">estrndup()</span></code>. Thus our example can be rewritten as:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
+<code class="docutils literal notranslate"><span class="pre">ZVAL_STRINGL</span></code> macro can handle this for you. If you pass <code class="docutils literal notranslate"><span class="pre">0</span></code> the string is used as is, but if you pass <code class="docutils literal notranslate"><span class="pre">1</span></code> it
+will be copied using <code class="docutils literal notranslate"><span class="pre">estrndup()</span></code>. Thus our example can be rewritten as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;hello world!&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Furthermore we don’t need to manually compute the <code class="docutils literal"><span class="pre">strlen</span></code> and can use the <code class="docutils literal"><span class="pre">ZVAL_STRING</span></code> macro (without the <code class="docutils literal"><span class="pre">L</span></code> at
+<p>Furthermore we don’t need to manually compute the <code class="docutils literal notranslate"><span class="pre">strlen</span></code> and can use the <code class="docutils literal notranslate"><span class="pre">ZVAL_STRING</span></code> macro (without the <code class="docutils literal notranslate"><span class="pre">L</span></code> at
 the end) instead:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;hello world!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>If you know the length of the string (because it was passed to you in some way) you should always make use of it via the
-<code class="docutils literal"><span class="pre">ZVAL_STRINGL</span></code> macro in order to preserve binary-safety. If you don’t know the length (or know that the string doesn’t
-contain NUL bytes, as is usually the case with literals) you can use <code class="docutils literal"><span class="pre">ZVAL_STRING</span></code> instead.</p>
-<p>Apart from <code class="docutils literal"><span class="pre">ZVAL_STRING(L)</span></code> there are a few more macros for setting values, which are listed in the following
+<code class="docutils literal notranslate"><span class="pre">ZVAL_STRINGL</span></code> macro in order to preserve binary-safety. If you don’t know the length (or know that the string doesn’t
+contain NUL bytes, as is usually the case with literals) you can use <code class="docutils literal notranslate"><span class="pre">ZVAL_STRING</span></code> instead.</p>
+<p>Apart from <code class="docutils literal notranslate"><span class="pre">ZVAL_STRING(L)</span></code> there are a few more macros for setting values, which are listed in the following
 example:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZVAL_NULL</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_NULL</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
 
 <span class="n">ZVAL_BOOL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 <span class="n">ZVAL_BOOL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
@@ -373,7 +364,7 @@ example:</p>
 </pre></div>
 </div>
 <p>Note that these macros will set the value, but not destroy any value that the zval might have previously held. For the
-<code class="docutils literal"><span class="pre">return_value</span></code> zval this doesn’t matter because it was initialized to <code class="docutils literal"><span class="pre">IS_NULL</span></code> (which has no value that needs to be
+<code class="docutils literal notranslate"><span class="pre">return_value</span></code> zval this doesn’t matter because it was initialized to <code class="docutils literal notranslate"><span class="pre">IS_NULL</span></code> (which has no value that needs to be
 freed), but in other cases you’ll have to destroy the old value first using the functions described in the following
 section.</p>
 </div>

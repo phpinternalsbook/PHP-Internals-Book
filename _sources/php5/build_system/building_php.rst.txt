@@ -1,6 +1,6 @@
 .. highlight:: bash
 
-.. _building_php:
+.. _building_php_5:
 
 Building PHP
 ============

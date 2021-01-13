@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Object handlers &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Iterators" href="iterators.html" />
     <link rel="prev" title="Implementing typed arrays" href="implementing_typed_arrays.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Object handlers</span></h2>
@@ -43,13 +34,13 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="object-handlers">
 <h1>Object handlers<a class="headerlink" href="#object-handlers" title="Permalink to this headline">¶</a></h1>
 <p>In the previous sections you already had some contact with object handlers. In particular you should know how to create
-the structure used to specify the handlers and how to implement cloning behavior using <code class="docutils literal"><span class="pre">clone_obj</span></code>. But this is just
+the structure used to specify the handlers and how to implement cloning behavior using <code class="docutils literal notranslate"><span class="pre">clone_obj</span></code>. But this is just
 the beginning: Nearly all operations on objects in PHP go through object handlers and every magic method or magic
 interface is implemented with an object or class handler internally. Furthermore there are quite a few handlers which
 are not exposed to userland PHP. For example internal classes can have custom comparison and cast behavior.</p>
@@ -59,137 +50,137 @@ implementation from the last section) for a few of them. For all the others only
 <h2>An Overview<a class="headerlink" href="#an-overview" title="Permalink to this headline">¶</a></h2>
 <p>As of this writing there are 26 object handlers, which are listed in the following with their signature and a small
 description.</p>
-<dl class="member">
-<dt id="c.read_property">
-zval *<code class="descname">read_property</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, int<em>&nbsp;type</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.read_property" title="Permalink to this definition">¶</a></dt>
-<dt id="c.write_property">
-void <code class="descname">write_property</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, zval<em>&nbsp;*value</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.write_property" title="Permalink to this definition">¶</a></dt>
-<dt id="c.has_property">
-int <code class="descname">has_property</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, int<em>&nbsp;has_set_exists</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.has_property" title="Permalink to this definition">¶</a></dt>
-<dt id="c.unset_property">
-void <code class="descname">unset_property</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.unset_property" title="Permalink to this definition">¶</a></dt>
-<dt id="c.get_property_ptr_ptr">
-zval **<code class="descname">get_property_ptr_ptr</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get_property_ptr_ptr" title="Permalink to this definition">¶</a></dt>
-<dd><p>These handlers correspond to the <code class="docutils literal"><span class="pre">__get</span></code>, <code class="docutils literal"><span class="pre">__set</span></code>, <code class="docutils literal"><span class="pre">__isset</span></code> and <code class="docutils literal"><span class="pre">__unset</span></code> methods. <code class="docutils literal"><span class="pre">get_property_ptr_ptr</span></code>
-is the internal equivalent of <code class="docutils literal"><span class="pre">__get</span></code> returning by reference. The <code class="docutils literal"><span class="pre">zend_literal</span> <span class="pre">*key</span></code> passed to these functions
+<dl class="c member">
+<dt>
+<code class="sig-name descname">zval *read_property(zval *object, zval *member, int type, const struct _zend_literal *key TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">void write_property(zval *object, zval *member, zval *value, const struct _zend_literal *key TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">int has_property(zval *object, zval *member, int has_set_exists, const struct _zend_literal *key TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">void unset_property(zval *object, zval *member, const struct _zend_literal *key TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">zval **get_property_ptr_ptr(zval *object, zval *member, const struct _zend_literal *key TSRMLS_DC)</code></dt>
+<dd><p>These handlers correspond to the <code class="docutils literal notranslate"><span class="pre">__get</span></code>, <code class="docutils literal notranslate"><span class="pre">__set</span></code>, <code class="docutils literal notranslate"><span class="pre">__isset</span></code> and <code class="docutils literal notranslate"><span class="pre">__unset</span></code> methods. <code class="docutils literal notranslate"><span class="pre">get_property_ptr_ptr</span></code>
+is the internal equivalent of <code class="docutils literal notranslate"><span class="pre">__get</span></code> returning by reference. The <code class="docutils literal notranslate"><span class="pre">zend_literal</span> <span class="pre">*key</span></code> passed to these functions
 exists as an optimization, for example it contains a precomputed hash of the property name.</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.read_dimension">
-zval *<code class="descname">read_dimension</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*offset</em>, int type<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.read_dimension" title="Permalink to this definition">¶</a></dt>
-<dt id="c.write_dimension">
-void <code class="descname">write_dimension</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*offset</em>, zval *value<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.write_dimension" title="Permalink to this definition">¶</a></dt>
-<dt id="c.has_dimension">
-int <code class="descname">has_dimension</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval<em>&nbsp;*member</em>, int check_empty<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.has_dimension" title="Permalink to this definition">¶</a></dt>
-<dt id="c.unset_dimension">
-void <code class="descname">unset_dimension</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval *offset<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.unset_dimension" title="Permalink to this definition">¶</a></dt>
-<dd><p>This set of handlers is the internal representation of the <code class="docutils literal"><span class="pre">ArrayAccess</span></code> interface.</p>
+<dl class="c member">
+<dt>
+<code class="sig-name descname">zval *read_dimension(zval *object, zval *offset, int type TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">void write_dimension(zval *object, zval *offset, zval *value TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">int has_dimension(zval *object, zval *member, int check_empty TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">void unset_dimension(zval *object, zval *offset TSRMLS_DC)</code></dt>
+<dd><p>This set of handlers is the internal representation of the <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code> interface.</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.set">
-void <code class="descname">set</code><span class="sig-paren">(</span>zval<em>&nbsp;**object</em>, zval *value<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.set" title="Permalink to this definition">¶</a></dt>
-<dt id="c.get">
-zval *<code class="descname">get</code><span class="sig-paren">(</span>zval *object<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get" title="Permalink to this definition">¶</a></dt>
+<dl class="c member">
+<dt>
+<code class="sig-name descname">void set(zval **object, zval *value TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">zval *get(zval *object TSRMLS_DC)</code></dt>
 <dd><p>These handlers get/set the “object value”. They can be used to override (to a certain degree) the compound
-assignment operators (like <code class="docutils literal"><span class="pre">+=</span></code> or <code class="docutils literal"><span class="pre">++</span></code>) and exist mainly for the purpose of proxy objects. In practice they are
+assignment operators (like <code class="docutils literal notranslate"><span class="pre">+=</span></code> or <code class="docutils literal notranslate"><span class="pre">++</span></code>) and exist mainly for the purpose of proxy objects. In practice they are
 rarely used.</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.get_properties">
-HashTable *<code class="descname">get_properties</code><span class="sig-paren">(</span>zval *object<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get_properties" title="Permalink to this definition">¶</a></dt>
-<dt id="c.get_debug_info">
-HashTable *<code class="descname">get_debug_info</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, int *is_temp<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get_debug_info" title="Permalink to this definition">¶</a></dt>
+<dl class="c member">
+<dt>
+<code class="sig-name descname">HashTable *get_properties(zval *object TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">HashTable *get_debug_info(zval *object, int *is_temp TSRMLS_DC)</code></dt>
 <dd><p>Used to get the object properties as a hashtable. The former is more general purpose, for example it is also used
-for the <code class="docutils literal"><span class="pre">get_object_vars</span></code> function. The latter on the other hand is used exclusively to display properties in
-debugging functions like <code class="docutils literal"><span class="pre">var_dump</span></code>. So even if your object does not provide any formal properties you can still
+for the <code class="docutils literal notranslate"><span class="pre">get_object_vars</span></code> function. The latter on the other hand is used exclusively to display properties in
+debugging functions like <code class="docutils literal notranslate"><span class="pre">var_dump</span></code>. So even if your object does not provide any formal properties you can still
 have a meaningful debug output.</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.get_method">
-union _zend_function *<code class="descname">get_method</code><span class="sig-paren">(</span>zval<em>&nbsp;**object_ptr</em>, char<em>&nbsp;*method</em>, int<em>&nbsp;method_len</em>, const struct _zend_literal *key<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get_method" title="Permalink to this definition">¶</a></dt>
+<dl class="c member">
+<dt>
+<code class="sig-name descname">union _zend_function *get_method(zval **object_ptr, char *method, int method_len, const struct _zend_literal *key TSRMLS_DC)</code></dt>
 <dt id="c.call_method">
-int <code class="descname">call_method</code><span class="sig-paren">(</span>const char<em>&nbsp;*method</em>, INTERNAL_FUNCTION_PARAMETERS<span class="sig-paren">)</span><a class="headerlink" href="#c.call_method" title="Permalink to this definition">¶</a></dt>
-<dd><p>The <code class="docutils literal"><span class="pre">get_method</span></code> handler fetches the <code class="docutils literal"><span class="pre">zend_function</span></code> used to call a certain method. If there is no particular
-<code class="docutils literal"><span class="pre">zend_function</span></code> that you want to invoke, but you rather want a <code class="docutils literal"><span class="pre">__call</span></code>-like catch-all behavior, then
-<code class="docutils literal"><span class="pre">get_method</span></code> can signal that it is a <code class="docutils literal"><span class="pre">ZEND_OVERLOADED_FUNCTION</span></code> in which case the <code class="docutils literal"><span class="pre">call_method</span></code> handler will
+int <code class="sig-name descname">call_method</code><span class="sig-paren">(</span><em class="property">const</em> char *<em>method</em>, INTERNAL_FUNCTION_PARAMETERS<span class="sig-paren">)</span><a class="headerlink" href="#c.call_method" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The <code class="docutils literal notranslate"><span class="pre">get_method</span></code> handler fetches the <code class="docutils literal notranslate"><span class="pre">zend_function</span></code> used to call a certain method. If there is no particular
+<code class="docutils literal notranslate"><span class="pre">zend_function</span></code> that you want to invoke, but you rather want a <code class="docutils literal notranslate"><span class="pre">__call</span></code>-like catch-all behavior, then
+<code class="docutils literal notranslate"><span class="pre">get_method</span></code> can signal that it is a <code class="docutils literal notranslate"><span class="pre">ZEND_OVERLOADED_FUNCTION</span></code> in which case the <code class="docutils literal notranslate"><span class="pre">call_method</span></code> handler will
 be used instead.</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.get_constructor">
-union _zend_function *<code class="descname">get_constructor</code><span class="sig-paren">(</span>zval *object<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get_constructor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Like <code class="docutils literal"><span class="pre">get_method</span></code>, but getting the constructor function. The most common reason to override this handler is to
+<dl class="c member">
+<dt>
+<code class="sig-name descname">union _zend_function *get_constructor(zval *object TSRMLS_DC)</code></dt>
+<dd><p>Like <code class="docutils literal notranslate"><span class="pre">get_method</span></code>, but getting the constructor function. The most common reason to override this handler is to
 disallow manual construction by throwing an error in the handler.</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.count_elements">
-int <code class="descname">count_elements</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, long *count<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.count_elements" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is just the internal way of implementing the <code class="docutils literal"><span class="pre">Countable::count</span></code> method.</p>
+<dl class="c member">
+<dt>
+<code class="sig-name descname">int count_elements(zval *object, long *count TSRMLS_DC)</code></dt>
+<dd><p>This is just the internal way of implementing the <code class="docutils literal notranslate"><span class="pre">Countable::count</span></code> method.</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.compare_objects">
-int <code class="descname">compare_objects</code><span class="sig-paren">(</span>zval<em>&nbsp;*object1</em>, zval *object2<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.compare_objects" title="Permalink to this definition">¶</a></dt>
-<dt id="c.cast_object">
-int <code class="descname">cast_object</code><span class="sig-paren">(</span>zval<em>&nbsp;*readobj</em>, zval<em>&nbsp;*retval</em>, int type<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.cast_object" title="Permalink to this definition">¶</a></dt>
+<dl class="c member">
+<dt>
+<code class="sig-name descname">int compare_objects(zval *object1, zval *object2 TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">int cast_object(zval *readobj, zval *retval, int type TSRMLS_DC)</code></dt>
 <dd><p>Internal classes have the ability to implement a custom compare behavior and override casting behavior for all
 types. Userland classes on the other hand only have the ability to override object to string casting through
-<code class="docutils literal"><span class="pre">__toString</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">__toString</span></code>.</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.get_closure">
-int <code class="descname">get_closure</code><span class="sig-paren">(</span>zval<em>&nbsp;*obj</em>, zend_class_entry<em>&nbsp;**ce_ptr</em>, union _zend_function<em>&nbsp;**fptr_ptr</em>, zval **zobj_ptr<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get_closure" title="Permalink to this definition">¶</a></dt>
-<dd><p>This handler is invoked when the object is used as a function, i.e. it is the internal version of <code class="docutils literal"><span class="pre">__invoke</span></code>.
-The name derives from the fact that its main use is for the implementation of closures (the <code class="docutils literal"><span class="pre">Closure</span></code> class).</p>
+<dl class="c member">
+<dt>
+<code class="sig-name descname">int get_closure(zval *obj, zend_class_entry **ce_ptr, union _zend_function **fptr_ptr, zval **zobj_ptr TSRMLS_DC)</code></dt>
+<dd><p>This handler is invoked when the object is used as a function, i.e. it is the internal version of <code class="docutils literal notranslate"><span class="pre">__invoke</span></code>.
+The name derives from the fact that its main use is for the implementation of closures (the <code class="docutils literal notranslate"><span class="pre">Closure</span></code> class).</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.get_class_entry">
-zend_class_entry *<code class="descname">get_class_entry</code><span class="sig-paren">(</span>const zval *object<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get_class_entry" title="Permalink to this definition">¶</a></dt>
-<dt id="c.get_class_name">
-int <code class="descname">get_class_name</code><span class="sig-paren">(</span>const zval<em>&nbsp;*object</em>, const char<em>&nbsp;**class_name</em>, zend_uint<em>&nbsp;*class_name_len</em>, int parent<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get_class_name" title="Permalink to this definition">¶</a></dt>
+<dl class="c member">
+<dt>
+<code class="sig-name descname">zend_class_entry *get_class_entry(const zval *object TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">int get_class_name(const zval *object, const char **class_name, zend_uint *class_name_len, int parent TSRMLS_DC)</code></dt>
 <dd><p>These two handlers are used to get the class entry and class name from an object. There should be little reason to
 overwrite them. The only occasion that I can think of where this would be necessary is if you choose to create a
-custom object structure that does <em>not</em> contain the standard <code class="docutils literal"><span class="pre">zend_object</span></code> as a substructure. (This is entirely
+custom object structure that does <em>not</em> contain the standard <code class="docutils literal notranslate"><span class="pre">zend_object</span></code> as a substructure. (This is entirely
 possible, but not usually done.)</p>
 </dd></dl>
 
-<dl class="member">
-<dt id="c.add_ref">
-void <code class="descname">add_ref</code><span class="sig-paren">(</span>zval *object<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.add_ref" title="Permalink to this definition">¶</a></dt>
-<dt id="c.del_ref">
-void <code class="descname">del_ref</code><span class="sig-paren">(</span>zval *object<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.del_ref" title="Permalink to this definition">¶</a></dt>
-<dt id="c.clone_obj">
-zend_object_value <code class="descname">clone_obj</code><span class="sig-paren">(</span>zval *object<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.clone_obj" title="Permalink to this definition">¶</a></dt>
-<dt id="c.get_gc">
-HashTable *<code class="descname">get_gc</code><span class="sig-paren">(</span>zval<em>&nbsp;*object</em>, zval<em>&nbsp;***table</em>, int *n<em>&nbsp;TSRMLS_DC</em><span class="sig-paren">)</span><a class="headerlink" href="#c.get_gc" title="Permalink to this definition">¶</a></dt>
-<dd><p>This set of handlers is used for various object maintenance tasks. <code class="docutils literal"><span class="pre">add_ref</span></code> is called when a new zval starts
-referencing the object, <code class="docutils literal"><span class="pre">del_ref</span></code> is called when a reference is removed. By default these handlers will change
+<dl class="c member">
+<dt>
+<code class="sig-name descname">void add_ref(zval *object TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">void del_ref(zval *object TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">zend_object_value clone_obj(zval *object TSRMLS_DC)</code></dt>
+<dt>
+<code class="sig-name descname">HashTable *get_gc(zval *object, zval ***table, int *n TSRMLS_DC)</code></dt>
+<dd><p>This set of handlers is used for various object maintenance tasks. <code class="docutils literal notranslate"><span class="pre">add_ref</span></code> is called when a new zval starts
+referencing the object, <code class="docutils literal notranslate"><span class="pre">del_ref</span></code> is called when a reference is removed. By default these handlers will change
 the refcount in the object store. Once again there should be virtually no reason to overwrite them. The only
 application I can think of is when you choose <em>not</em> to use the Zend object store, but rather use some custom
 storage facility.</p>
-<p>You already know the <code class="docutils literal"><span class="pre">clone_obj</span></code> handler, so I’ll jump right to <code class="docutils literal"><span class="pre">get_gc</span></code>: This handler should return all
+<p>You already know the <code class="docutils literal notranslate"><span class="pre">clone_obj</span></code> handler, so I’ll jump right to <code class="docutils literal notranslate"><span class="pre">get_gc</span></code>: This handler should return all
 variables that are held by the object, so cyclic dependencies can be properly collected.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="implementing-array-access-using-object-handlers">
 <h2>Implementing array access using object handlers<a class="headerlink" href="#implementing-array-access-using-object-handlers" title="Permalink to this headline">¶</a></h2>
-<p>In the previous section the <code class="docutils literal"><span class="pre">ArrayAccess</span></code> interface was used to provide array-like behavior for the buffer views. Now
-we want to improve the implementation by using the respective <code class="docutils literal"><span class="pre">*_dimension</span></code> object handlers. These same handlers are
-also used to implement <code class="docutils literal"><span class="pre">ArrayAccess</span></code>, but providing a custom implementation will be faster as the overhead of calling
+<p>In the previous section the <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code> interface was used to provide array-like behavior for the buffer views. Now
+we want to improve the implementation by using the respective <code class="docutils literal notranslate"><span class="pre">*_dimension</span></code> object handlers. These same handlers are
+also used to implement <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code>, but providing a custom implementation will be faster as the overhead of calling
 methods is avoided.</p>
-<p>The object handlers for dimensions are <code class="docutils literal"><span class="pre">read_dimension</span></code>, <code class="docutils literal"><span class="pre">write_dimension</span></code>, <code class="docutils literal"><span class="pre">has_dimension</span></code> and
-<code class="docutils literal"><span class="pre">unset_dimension</span></code>. They all take the object zval as first argument and the offset zval as second. For our purposes
+<p>The object handlers for dimensions are <code class="docutils literal notranslate"><span class="pre">read_dimension</span></code>, <code class="docutils literal notranslate"><span class="pre">write_dimension</span></code>, <code class="docutils literal notranslate"><span class="pre">has_dimension</span></code> and
+<code class="docutils literal notranslate"><span class="pre">unset_dimension</span></code>. They all take the object zval as first argument and the offset zval as second. For our purposes
 the offset has to be an integer, so let’s first introduce a helper function for getting the long value from a zval (in
 order to avoid all the repeating cast code):</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">long</span> <span class="nf">get_long_from_zval</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">long</span> <span class="nf">get_long_from_zval</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_LONG</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
@@ -202,9 +193,9 @@ order to avoid all the repeating cast code):</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Now writing the respective handlers is rather straightforward. For example, this is how the <code class="docutils literal"><span class="pre">read_dimension</span></code> handler
+<p>Now writing the respective handlers is rather straightforward. For example, this is how the <code class="docutils literal notranslate"><span class="pre">read_dimension</span></code> handler
 looks like:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">zval</span> <span class="o">*</span><span class="nf">array_buffer_view_read_dimension</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">zval</span> <span class="o">*</span><span class="nf">array_buffer_view_read_dimension</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
     <span class="n">zval</span> <span class="o">*</span><span class="n">retval</span><span class="p">;</span>
@@ -227,16 +218,16 @@ looks like:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Something that is slightly odd about this handler is the <code class="docutils literal"><span class="pre">Z_DELREF_P(retval)</span></code> at the end: <code class="docutils literal"><span class="pre">read_dimension</span></code> is
+<p>Something that is slightly odd about this handler is the <code class="docutils literal notranslate"><span class="pre">Z_DELREF_P(retval)</span></code> at the end: <code class="docutils literal notranslate"><span class="pre">read_dimension</span></code> is
 expected to return a zval with refcount 0 if the returned zval isn’t used anywhere else (as it is the case for us). The
 engine will increment the refcount itself. The refcount 0 also tells the engine that reference operations on the return
 value don’t make sense (as nothing would be actually modified).</p>
 <p>Another thing that might seem strange is that we have to check for array appends (which are signaled by
-<code class="docutils literal"><span class="pre">zv_offset</span> <span class="pre">=</span> <span class="pre">NULL</span></code>) in a <em>read</em> handler. This is related to <code class="docutils literal"><span class="pre">type</span></code> parameter that was left unused in the above
-code. This parameter specifies the context in which the read occurred. For “normal” <code class="docutils literal"><span class="pre">$foo[0]</span></code> style reads the <code class="docutils literal"><span class="pre">type</span></code>
-will be <code class="docutils literal"><span class="pre">BP_VAR_R</span></code>, but it can also be one of <code class="docutils literal"><span class="pre">BP_VAR_W</span></code>, <code class="docutils literal"><span class="pre">BP_VAR_RW</span></code>, <code class="docutils literal"><span class="pre">BP_VAR_IS</span></code> or <code class="docutils literal"><span class="pre">BP_VAR_UNSET</span></code>. To
+<code class="docutils literal notranslate"><span class="pre">zv_offset</span> <span class="pre">=</span> <span class="pre">NULL</span></code>) in a <em>read</em> handler. This is related to <code class="docutils literal notranslate"><span class="pre">type</span></code> parameter that was left unused in the above
+code. This parameter specifies the context in which the read occurred. For “normal” <code class="docutils literal notranslate"><span class="pre">$foo[0]</span></code> style reads the <code class="docutils literal notranslate"><span class="pre">type</span></code>
+will be <code class="docutils literal notranslate"><span class="pre">BP_VAR_R</span></code>, but it can also be one of <code class="docutils literal notranslate"><span class="pre">BP_VAR_W</span></code>, <code class="docutils literal notranslate"><span class="pre">BP_VAR_RW</span></code>, <code class="docutils literal notranslate"><span class="pre">BP_VAR_IS</span></code> or <code class="docutils literal notranslate"><span class="pre">BP_VAR_UNSET</span></code>. To
 understand when “non-read” types like this can happen consider the following examples:</p>
-<div class="highlight-php"><div class="highlight"><pre><span></span><span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>        <span class="c1">// [0] is a read_dimension(..., BP_VAR_R),</span>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>        <span class="c1">// [0] is a read_dimension(..., BP_VAR_R),</span>
                    <span class="c1">// [1] is a read_dimension(..., BP_VAR_R)</span>
 <span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$bar</span><span class="p">;</span> <span class="c1">// [0] is a read_dimension(..., BP_VAR_W),     [1] is a write_dimension</span>
 <span class="nv">$foo</span><span class="p">[][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$bar</span><span class="p">;</span>  <span class="c1">// []  is a read_dimension(..., BP_VAR_W),     [1] is a write_dimension</span>
@@ -244,22 +235,22 @@ understand when “non-read” types like this can happen consider the following
 <span class="nb">unset</span><span class="p">(</span><span class="nv">$foo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]);</span> <span class="c1">// [0] is a read_dimension(..., BP_VAR_UNSET), [1] is a unset_dimension</span>
 </pre></div>
 </div>
-<p>As you can see the other <code class="docutils literal"><span class="pre">BP_VAR</span></code> types occur with nested dimension access. In this case only the outermost access
+<p>As you can see the other <code class="docutils literal notranslate"><span class="pre">BP_VAR</span></code> types occur with nested dimension access. In this case only the outermost access
 calls the actual handler for the operation, the inner dimension accesses go through the read handler with the respective
-type. So if the <code class="docutils literal"><span class="pre">[]</span></code> append operator is used in a nested access the <code class="docutils literal"><span class="pre">read_dimension</span></code> handler can be called with the
-offset being <code class="docutils literal"><span class="pre">NULL</span></code>.</p>
-<p>The <code class="docutils literal"><span class="pre">type</span></code> parameter can be used to change the behavior depending on the context. For example <code class="docutils literal"><span class="pre">isset</span></code> is usually
+type. So if the <code class="docutils literal notranslate"><span class="pre">[]</span></code> append operator is used in a nested access the <code class="docutils literal notranslate"><span class="pre">read_dimension</span></code> handler can be called with the
+offset being <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">type</span></code> parameter can be used to change the behavior depending on the context. For example <code class="docutils literal notranslate"><span class="pre">isset</span></code> is usually
 expected not to throw any warnings, errors or exceptions. We could honor this by explicitly checking for the
-<code class="docutils literal"><span class="pre">BP_VAR_IS</span></code> type:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">type</span> <span class="o">==</span> <span class="n">BP_VAR_IS</span><span class="p">)</span>
+<code class="docutils literal notranslate"><span class="pre">BP_VAR_IS</span></code> type:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">type</span> <span class="o">==</span> <span class="n">BP_VAR_IS</span><span class="p">)</span>
     <span class="k">return</span> <span class="o">&amp;</span><span class="n">EG</span><span class="p">(</span><span class="n">uninitialized_zval_ptr</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>But as in our particular case nested dimension access doesn’t really make sense we don’t need to worry much about any
 such behaviors.</p>
-<p>The remaining handlers are similar to <code class="docutils literal"><span class="pre">read_dimension</span></code> (but less tricky):</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">array_buffer_view_write_dimension</span><span class="p">(</span>
+<p>The remaining handlers are similar to <code class="docutils literal notranslate"><span class="pre">read_dimension</span></code> (but less tricky):</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">array_buffer_view_write_dimension</span><span class="p">(</span>
     <span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">value</span> <span class="n">TSRMLS_DC</span>
 <span class="p">)</span> <span class="p">{</span>
     <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
@@ -306,11 +297,11 @@ such behaviors.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>There is little to say about these handlers. The only thing worth noting is the <code class="docutils literal"><span class="pre">check_empty</span></code> parameter of the
-<code class="docutils literal"><span class="pre">has_dimension</span></code> handler. If this parameter is <code class="docutils literal"><span class="pre">0</span></code> then it’s an <code class="docutils literal"><span class="pre">isset</span></code> call, if it is <code class="docutils literal"><span class="pre">1</span></code> then it’s an <code class="docutils literal"><span class="pre">empty</span></code>
-call. For <code class="docutils literal"><span class="pre">isset</span></code> the mere existence is checked, for <code class="docutils literal"><span class="pre">empty</span></code> the truthyness.</p>
-<p>Lastly the new handlers need to be assigned in <code class="docutils literal"><span class="pre">MINIT</span></code>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">,</span> <span class="n">zend_get_std_object_handlers</span><span class="p">(),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
+<p>There is little to say about these handlers. The only thing worth noting is the <code class="docutils literal notranslate"><span class="pre">check_empty</span></code> parameter of the
+<code class="docutils literal notranslate"><span class="pre">has_dimension</span></code> handler. If this parameter is <code class="docutils literal notranslate"><span class="pre">0</span></code> then it’s an <code class="docutils literal notranslate"><span class="pre">isset</span></code> call, if it is <code class="docutils literal notranslate"><span class="pre">1</span></code> then it’s an <code class="docutils literal notranslate"><span class="pre">empty</span></code>
+call. For <code class="docutils literal notranslate"><span class="pre">isset</span></code> the mere existence is checked, for <code class="docutils literal notranslate"><span class="pre">empty</span></code> the truthyness.</p>
+<p>Lastly the new handlers need to be assigned in <code class="docutils literal notranslate"><span class="pre">MINIT</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">,</span> <span class="n">zend_get_std_object_handlers</span><span class="p">(),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
 <span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">clone_obj</span>       <span class="o">=</span> <span class="n">array_buffer_view_clone</span><span class="p">;</span> <span class="cm">/* from previous section */</span>
 <span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">read_dimension</span>  <span class="o">=</span> <span class="n">array_buffer_view_read_dimension</span><span class="p">;</span>
 <span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">write_dimension</span> <span class="o">=</span> <span class="n">array_buffer_view_write_dimension</span><span class="p">;</span>
@@ -319,16 +310,16 @@ call. For <code class="docutils literal"><span class="pre">isset</span></code> t
 </pre></div>
 </div>
 <p>And now all array operations should work just as previously, only faster (for me using the handlers directly was about
-four times faster than <code class="docutils literal"><span class="pre">ArrayAccess</span></code>).</p>
+four times faster than <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code>).</p>
 </div>
 <div class="section" id="honoring-inheritance">
 <h2>Honoring inheritance<a class="headerlink" href="#honoring-inheritance" title="Permalink to this headline">¶</a></h2>
 <p>One key issue that has to be considered whenever you implement object handlers is that they apply all the way down the
 inheritance chain. If the user extends one of the view classes it will still use the same handlers. So if the dimension
-access handlers are overridden the user will no longer be able to use <code class="docutils literal"><span class="pre">ArrayAccess</span></code> in an inheriting class.</p>
+access handlers are overridden the user will no longer be able to use <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code> in an inheriting class.</p>
 <p>A very simple way to solve this issue is to check whether the class was extended in the dimension handlers and fall back
 to the standard handlers in this case:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">.</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">.</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="n">zend_get_std_object_handlers</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">read_dimension</span><span class="p">(</span><span class="n">object</span><span class="p">,</span> <span class="n">zv_offset</span><span class="p">,</span> <span class="n">type</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
@@ -341,8 +332,8 @@ not really what we want. Instead we should implement our own comparison behavior
 equal if they use the same buffer, with the same offset, same length and same type. Furthermore their class entry should
 match (so inheriting classes aren’t considered equal). Additionally the properties should be equal, or to simplify our
 implementation just shouldn’t exist. In other words: Two buffer views are equal if their internal objects are the same
-byte for byte. We can easily check this with <code class="docutils literal"><span class="pre">memcmp</span></code>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">int</span> <span class="nf">array_buffer_view_compare_objects</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">obj2</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+byte for byte. We can easily check this with <code class="docutils literal notranslate"><span class="pre">memcmp</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">int</span> <span class="nf">array_buffer_view_compare_objects</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">obj2</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern1</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj1</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
     <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern2</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj2</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
@@ -355,26 +346,26 @@ byte for byte. We can easily check this with <code class="docutils literal"><spa
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>As you can see the <code class="docutils literal"><span class="pre">compare_objects</span></code> handler takes two objects and returns how those two objects relate. The return
+<p>As you can see the <code class="docutils literal notranslate"><span class="pre">compare_objects</span></code> handler takes two objects and returns how those two objects relate. The return
 value is one of -1 (smaller), 0 (equal) and 1 (greater).</p>
-<p>In our case the smaller/greater relationship doesn’t really make sense, so we want <code class="docutils literal"><span class="pre">$view1</span> <span class="pre">&lt;</span> <span class="pre">$view2</span></code> and
-<code class="docutils literal"><span class="pre">$view1</span> <span class="pre">&gt;</span> <span class="pre">$view2</span></code> to always be false. This can be done by returning 1 from the handler if the objects are not equal.
-You might wonder why this works, after all 1 means “greater” so one could expect <code class="docutils literal"><span class="pre">$view1</span> <span class="pre">&gt;</span> <span class="pre">$view2</span></code> to return true.
-The reason why this trick works is that PHP automatically translates <code class="docutils literal"><span class="pre">$a</span> <span class="pre">&gt;</span> <span class="pre">$b</span></code> to <code class="docutils literal"><span class="pre">$b</span> <span class="pre">&lt;</span> <span class="pre">$a</span></code> (and <code class="docutils literal"><span class="pre">$a</span> <span class="pre">&gt;=</span> <span class="pre">$b</span></code> to
-<code class="docutils literal"><span class="pre">$b</span> <span class="pre">&lt;=</span> <span class="pre">$a</span></code>). Thus always the “less than” relationship is used and as we’re returning 1 (regardless of order) any
+<p>In our case the smaller/greater relationship doesn’t really make sense, so we want <code class="docutils literal notranslate"><span class="pre">$view1</span> <span class="pre">&lt;</span> <span class="pre">$view2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">$view1</span> <span class="pre">&gt;</span> <span class="pre">$view2</span></code> to always be false. This can be done by returning 1 from the handler if the objects are not equal.
+You might wonder why this works, after all 1 means “greater” so one could expect <code class="docutils literal notranslate"><span class="pre">$view1</span> <span class="pre">&gt;</span> <span class="pre">$view2</span></code> to return true.
+The reason why this trick works is that PHP automatically translates <code class="docutils literal notranslate"><span class="pre">$a</span> <span class="pre">&gt;</span> <span class="pre">$b</span></code> to <code class="docutils literal notranslate"><span class="pre">$b</span> <span class="pre">&lt;</span> <span class="pre">$a</span></code> (and <code class="docutils literal notranslate"><span class="pre">$a</span> <span class="pre">&gt;=</span> <span class="pre">$b</span></code> to
+<code class="docutils literal notranslate"><span class="pre">$b</span> <span class="pre">&lt;=</span> <span class="pre">$a</span></code>). Thus always the “less than” relationship is used and as we’re returning 1 (regardless of order) any
 comparison will be false.</p>
-<p>A similar comparison handler can be written for the <code class="docutils literal"><span class="pre">ArrayBuffer</span></code> class too.</p>
+<p>A similar comparison handler can be written for the <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> class too.</p>
 </div>
 <div class="section" id="debug-information">
 <h2>Debug information<a class="headerlink" href="#debug-information" title="Permalink to this headline">¶</a></h2>
-<p>If you dumped a buffer view object with <code class="docutils literal"><span class="pre">var_dump</span></code> or <code class="docutils literal"><span class="pre">print_r</span></code> right now, you wouldn’t get any useful information:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>object(Int8Array)#2 (0) {
+<p>If you dumped a buffer view object with <code class="docutils literal notranslate"><span class="pre">var_dump</span></code> or <code class="docutils literal notranslate"><span class="pre">print_r</span></code> right now, you wouldn’t get any useful information:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>object(Int8Array)#2 (0) {
 }
 </pre></div>
 </div>
 <p>It would be much more helpful if instead the contents of the array were printed. Such a behavior can be implemented
-using the <code class="docutils literal"><span class="pre">get_debug_info</span></code> handler:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">HashTable</span> <span class="o">*</span><span class="nf">array_buffer_view_get_debug_info</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">is_temp</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+using the <code class="docutils literal notranslate"><span class="pre">get_debug_info</span></code> handler:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">HashTable</span> <span class="o">*</span><span class="nf">array_buffer_view_get_debug_info</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">is_temp</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
     <span class="n">HashTable</span> <span class="o">*</span><span class="n">props</span> <span class="o">=</span> <span class="n">Z_OBJPROP_P</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
@@ -396,14 +387,14 @@ using the <code class="docutils literal"><span class="pre">get_debug_info</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The handler creates a hashtable using <code class="docutils literal"><span class="pre">ZEND_INIT_SYMTABLE_EX</span></code> to provide a size-hint, copies the properties (in case
+<p>The handler creates a hashtable using <code class="docutils literal notranslate"><span class="pre">ZEND_INIT_SYMTABLE_EX</span></code> to provide a size-hint, copies the properties (in case
 the user added custom properties) and then loops through the view and inserts all its elements into the hash.</p>
-<p>Into the additional <code class="docutils literal"><span class="pre">is_temp</span></code> parameter the value <code class="docutils literal"><span class="pre">1</span></code> is written, signifying that we are using a temporary
-hashtable that has to be freed later. Alternatively we could write <code class="docutils literal"><span class="pre">0</span></code> into the pointer, in which case we would have
+<p>Into the additional <code class="docutils literal notranslate"><span class="pre">is_temp</span></code> parameter the value <code class="docutils literal notranslate"><span class="pre">1</span></code> is written, signifying that we are using a temporary
+hashtable that has to be freed later. Alternatively we could write <code class="docutils literal notranslate"><span class="pre">0</span></code> into the pointer, in which case we would have
 to store the hashtable somewhere else and manually free it (you’ll find that many objects have some kind of
-<code class="docutils literal"><span class="pre">debug_info</span></code> field in their internal structure that is used for this purpose.)</p>
+<code class="docutils literal notranslate"><span class="pre">debug_info</span></code> field in their internal structure that is used for this purpose.)</p>
 <p>A small example of the kind of output this produces:</p>
-<div class="highlight-php"><div class="highlight"><pre><span></span><span class="nv">$buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ArrayBuffer</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ArrayBuffer</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
 
 <span class="nv">$view</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Int8Array</span><span class="p">(</span><span class="nv">$buffer</span><span class="p">);</span>
 <span class="nv">$view</span><span class="o">-&gt;</span><span class="na">foo</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span><span class="p">;</span>
@@ -427,8 +418,8 @@ to store the hashtable somewhere else and manually free it (you’ll find that m
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>One more handler that could be implemented for typed arrays is <code class="docutils literal"><span class="pre">count_elements</span></code>, i.e. the internal equivalent of
-<code class="docutils literal"><span class="pre">Countable::count()</span></code>. There is nothing special about that handler though, so I’m leaving this as an exercise for the
+<p>One more handler that could be implemented for typed arrays is <code class="docutils literal notranslate"><span class="pre">count_elements</span></code>, i.e. the internal equivalent of
+<code class="docutils literal notranslate"><span class="pre">Countable::count()</span></code>. There is nothing special about that handler though, so I’m leaving this as an exercise for the
 reader (just don’t forget the inheritance check!)</p>
 </div>
 </div>

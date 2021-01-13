@@ -1,0 +1,458 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory management &#8212; PHP Internals Book</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Casts and operations on zvals" href="casts_and_operations.html" />
+    <link rel="prev" title="Basic structure" href="basic_structure.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>Memory management</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="basic_structure.html">Basic structure</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="casts_and_operations.html">Casts and operations on zvals</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <div class="section" id="memory-management">
+<h1>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h1>
+<p>To work with zvals correctly and efficiently, it is important to understand how their memory management works. Broadly,
+we can classify values into two categories: Simple values like integers, which are stored directly inside the zval, and
+complex values like strings, for which the zval only stores a pointer to a separate structure.</p>
+<div class="section" id="reference-counted-values">
+<h2>Reference-counted values<a class="headerlink" href="#reference-counted-values" title="Permalink to this headline">¶</a></h2>
+<p>All complex values share a common header with the following structure:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_refcounted_h</span> <span class="p">{</span>
+    <span class="kt">uint32_t</span> <span class="n">refcount</span><span class="p">;</span>
+    <span class="k">union</span> <span class="p">{</span>
+        <span class="kt">uint32_t</span> <span class="n">type_info</span><span class="p">;</span>
+    <span class="p">}</span> <span class="n">u</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">zend_refcounted_h</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This header stores a reference count, which tracks in how many places this structure is used. If the structure is used
+in a new zval, the refcount is incremented. If it stops being used, it is decremented. If the reference count reaches
+zero, we know that the structure is no longer used and can be freed. This is the core mechanism of PHP’s memory
+management.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">type_info</span></code> field encodes additional information, such as the type of the structure, a number of type-specific
+flags, as well as a garbage collection root. We will discuss the purpose of this information later.</p>
+<p>There are functions for creating different kinds of refcounted structures, which will create them with an initial
+refcount of one:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="cm">/* persistent */</span> <span class="mi">0</span><span class="p">);</span> <span class="c1">// refcount=1</span>
+<span class="n">zend_array</span> <span class="o">*</span><span class="n">arr</span> <span class="o">=</span> <span class="n">zend_new_array</span><span class="p">(</span><span class="cm">/* size hint */</span> <span class="mi">0</span><span class="p">);</span> <span class="c1">// refcount=1</span>
+
+<span class="c1">// Do something with str and arr.</span>
+
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">str</span><span class="p">);</span> <span class="c1">// refcount=0 =&gt; destroy!</span>
+<span class="n">zend_array_release</span><span class="p">(</span><span class="n">arr</span><span class="p">);</span> <span class="c1">// refcount=0 =&gt; destroy!</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">zend_string_release()</span></code> and <code class="docutils literal notranslate"><span class="pre">zend_array_release()</span></code> functions will decrement the refcount of the string or array
+and if it reaches zero, destroy it. For example, the following code is perfectly valid:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="cm">/* persistent */</span> <span class="mi">0</span><span class="p">);</span> <span class="c1">// refcount=1</span>
+<span class="n">zend_hash_add_empty_element</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">str</span><span class="p">);</span> <span class="c1">// refcount=2</span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">str</span><span class="p">);</span> <span class="c1">// refcount=1</span>
+</pre></div>
+</div>
+<p>This adds an element with key <code class="docutils literal notranslate"><span class="pre">str</span></code> to an array and releases the string afterwards. However, the
+<code class="docutils literal notranslate"><span class="pre">zend_hash_add_empty_element()</span></code> function will have incremented the refcount of the string, as such the
+<code class="docutils literal notranslate"><span class="pre">zend_string_release()</span></code> call will not destroy it. It will only get destroyed once the array is destroyed as well and
+no references to the string remain.</p>
+<div class="section" id="immutable-values">
+<h3>Immutable values<a class="headerlink" href="#immutable-values" title="Permalink to this headline">¶</a></h3>
+<p>While all complex structures share the <code class="docutils literal notranslate"><span class="pre">zend_refcounted_h</span></code> header, the refcount is not always actually used. Strings
+and arrays can be immutable, which means that that the entire structure, including the reference count, must never be
+modified. Such structures can be reused without incrementing the reference count and are guaranteed to not be destroyed
+until (at least) the end of the request.</p>
+<p>There are a number of reasons why immutable strings and arrays exist:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Any structures stored in opcache shared memory are immutable, because they are shared across multiple processes.
+You can set the <code class="docutils literal notranslate"><span class="pre">opcache.protect_memory=1</span></code> ini setting in order to enforce this through <code class="docutils literal notranslate"><span class="pre">mprotect()</span></code>. This will
+make most immutability violations result in crashes rather than misbehavior.</p></li>
+<li><p>The empty array is declared <code class="docutils literal notranslate"><span class="pre">const</span></code> and as such typically allocated in a read-only segment. Attempting to modify
+it will result in a crash.</p></li>
+<li><p>Persistent strings that are created outside a request but may be used inside it (such as ini values) must be
+immutable, because there may be multiple threads using them in parallel. As PHP’s reference counting is non-atomic,
+performing normal refcounting would not be safe.</p></li>
+<li><p>Finally, while the above reasons make immutable structures a technical requirement, having them also serves as a
+performance optimization, as refcounting operations can be avoided in many common cases.</p></li>
+</ul>
+</div></blockquote>
+<p>When working with higher-level APIs such as <code class="docutils literal notranslate"><span class="pre">zend_string_copy()</span></code> or <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY()</span></code>, immutable structures will be
+correctly handled automatically. However, if you use lower-level APIs, you need to take them into account explicitly.</p>
+<p>The low-level interface is provided primarily through the following macros:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Macro</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GC_TYPE</span></code></p></td>
+<td><p>Get type of the structure (<code class="docutils literal notranslate"><span class="pre">IS_*</span></code> constant).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GC_FLAGS</span></code></p></td>
+<td><p>Get flags.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GC_REFCOUNT</span></code></p></td>
+<td><p>Get reference count.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GC_ADDREF</span></code></p></td>
+<td><p>Increment refcount. Structure must be mutable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">GC_DELREF</span></code></p></td>
+<td><p>Decrement refcount. Structure must be mutable. Does <strong>not</strong> release structure if refcount reaches zero.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">GC_TRY_ADDREF</span></code></p></td>
+<td><p>Increment refcount if mutable, otherwise do nothing.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Immutable structures set the <code class="docutils literal notranslate"><span class="pre">GC_IMMUTABLE</span></code> flag (which has a number of aliases like <code class="docutils literal notranslate"><span class="pre">IS_STR_INTERNED</span></code> and
+<code class="docutils literal notranslate"><span class="pre">IS_ARRAY_IMMUTABLE</span></code>), which can be used to determine whether incrementing the refcount is safe:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="cm">/* ... */</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">GC_FLAGS</span><span class="p">(</span><span class="n">str</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">GC_IMMUTABLE</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">GC_ADDREF</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Same as:</span>
+<span class="n">GC_TRY_ADDREF</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+
+<span class="c1">// Same as (high-level API):</span>
+<span class="n">zend_string_addref</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Macros that have <code class="docutils literal notranslate"><span class="pre">TRY</span></code> in the name generally indicate that an operation should only be performed for mutable
+structures. You’ll encounter more examples like <code class="docutils literal notranslate"><span class="pre">Z_TRY_ADDREF</span></code> and <code class="docutils literal notranslate"><span class="pre">GC_TRY_PROTECT_RECURSION</span></code> where the meaning is
+the same.</p>
+</div>
+<div class="section" id="persistent-structures">
+<h3>Persistent structures<a class="headerlink" href="#persistent-structures" title="Permalink to this headline">¶</a></h3>
+<p>PHP makes use of two allocators: The per-request allocator, which releases all memory at the end of a request, and the
+persistent allocator, which retains allocations across multiple requests. The persistent allocator is effectively
+the same as the normal system allocator. See the <a class="reference internal" href="../../extensions_design/php_lifecycle.html#php-lifecycle"><span class="std std-ref">PHP Lifecycle</span></a> and <a class="reference internal" href="../../memory_management/zend_memory_manager.html#zend-mm"><span class="std std-ref">Zend Memory Manager</span></a> chapters for
+more information on PHP’s allocation management.</p>
+<p>Many functions that create refcounted structures will accept a <code class="docutils literal notranslate"><span class="pre">persistent</span></code> flag to determine which allocator to
+use. An example of this is the last argument of <code class="docutils literal notranslate"><span class="pre">zend_string_init()</span></code>. If a function exposes no <code class="docutils literal notranslate"><span class="pre">persistent</span></code> flag,
+then a good default assumption is that the per-request (non-persistent) allocator is used. For example the
+<code class="docutils literal notranslate"><span class="pre">zend_array_new()</span></code> function always creates a per-request array, while lower-level APIs have to be used to create
+a persistent array.</p>
+<p>Persistent structures set the <code class="docutils literal notranslate"><span class="pre">GC_PERSISTENT</span></code> flag, and their destructors will automatically take care of using
+the correct allocator to free the memory. As such, you generally do not need to worry about this flag beyond using the
+correct allocator in the first place (usually the per-request one).</p>
+<p>However, it is important to understand how persistent structures interact with code executed during a request:
+Persistent structures can potentially be used by multiple threads. As PHP’s reference counting is non-atomic,
+performing refcounting from multiple threads results in a data race (that will result in crashes).</p>
+<p>As such, any persistent structure that is also used during the request must either be immutable or thread-local.
+PHP can be compiled using <code class="docutils literal notranslate"><span class="pre">CFLAGS=&quot;-DZEND_RC_DEBUG=1&quot;</span></code> to diagnose such issues automatically. This problem most
+typically affects strings, in which case they can be made immutable through interning. The
+<code class="docutils literal notranslate"><span class="pre">GC_MAKE_PERSISTENT_LOCAL()</span></code> macro is used to mark a persistent structure as thread-local. This macro doesn’t do
+anything beyond disabling the <code class="docutils literal notranslate"><span class="pre">ZEND_RC_DEBUG</span></code> verification.</p>
+</div>
+</div>
+<div class="section" id="zval-memory-management">
+<h2>Zval memory management<a class="headerlink" href="#zval-memory-management" title="Permalink to this headline">¶</a></h2>
+<p>With the preliminaries out of the way, we can discuss how memory management interacts with zvals. Refcounted
+structures can be used independently, but storing them inside zvals is certainly one of the more common use-cases.</p>
+<p>Zvals themselves are never individually heap-allocated. They are either allocated temporarily on the stack, or
+embedded as part of a larger heap-allocated structure.</p>
+<p>This basic example shows the initialization of a stack-allocated zval, and its subsequent destruction:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">str_val</span><span class="p">;</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="o">&amp;</span><span class="n">str_val</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">);</span> <span class="c1">// Creates zend_string (refcount=1).</span>
+<span class="c1">// ... Do something with str_val.</span>
+<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">str_val</span><span class="p">);</span> <span class="c1">// Decrements to refcount=0, and destroys the string.</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ZVAL_STRING()</span></code> creates a string zval and <code class="docutils literal notranslate"><span class="pre">zval_ptr_dtor()</span></code> releases it. We’ll discuss different initialization
+macros and destructors in a moment.</p>
+<p>A stack-allocated zval can only be used in the scope it was declared in. While it is technically possible to return
+a <code class="docutils literal notranslate"><span class="pre">zval</span></code>, you will find that PHP <em>never</em> passes or returns zvals by value. Instead zvals are always passed by
+pointer. In order to return a zval, an out-parameter needs to be passed to the function:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// retval is an output parameter.</span>
+<span class="kt">void</span> <span class="nf">init_zval</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">retval</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">some_other_function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+    <span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+    <span class="c1">// ... Do something with val.</span>
+    <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>While zvals themselves are generally not shared, it’s possible to share the structures they point to using the
+refcounting mechanism. The <code class="docutils literal notranslate"><span class="pre">Z_REFCOUNT</span></code>, <code class="docutils literal notranslate"><span class="pre">Z_ADDREF</span></code> and <code class="docutils literal notranslate"><span class="pre">Z_DELREF</span></code> macros work the same way as the
+corresponding <code class="docutils literal notranslate"><span class="pre">GC_*</span></code> macros, but operate on zvals. Importantly, these macros can only be used if the zval does
+point to a refcounted structure, and the structure is not immutable. Whether this is the case is stored in the
+zval type flags as <code class="docutils literal notranslate"><span class="pre">IS_TYPE_REFCOUNTED</span></code> and can be accessed through <code class="docutils literal notranslate"><span class="pre">Z_REFCOUNTED</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">fill_array</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">array</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+    <span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+
+    <span class="c1">// Manually check REFCOUNTED:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">Z_REFCOUNTED</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">Z_ADDREF</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">add_index_zval</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+
+    <span class="c1">// Or use the TRY macro:</span>
+    <span class="n">Z_TRY_ADDREF</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+    <span class="n">add_index_zval</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+
+    <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This example adds the same value to an array twice, which means the refcount has to be incremented twice. While it’s
+possible to manually check whether the zval is <code class="docutils literal notranslate"><span class="pre">Z_REFCOUNTED</span></code>, it is preferred to use <code class="docutils literal notranslate"><span class="pre">Z_TRY_ADDREF</span></code> instead,
+which only increments the refcount for refcounted structures.</p>
+<p>Something to consider here is who is responsible for incrementing the refcount. In this example, the caller of
+<code class="docutils literal notranslate"><span class="pre">add_index_zval()</span></code> is responsible for the increment. Unfortunately, PHP APIs are not very consistent in this regard.
+As a very rough rule of thumb, array values expect the refcount to be incremented by the caller, while most other
+APIs will take care of it themselves.</p>
+<div class="section" id="copying-zvals">
+<h3>Copying zvals<a class="headerlink" href="#copying-zvals" title="Permalink to this headline">¶</a></h3>
+<p>It is common that zvals need to be copied from one location to another. For this purpose, a number of copying macros
+are provided. The first is <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE()</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">init_zval_indirect</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">retval</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+    <span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+    <span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This (rather silly) example initializes a stack zval and then moves the value over into the <code class="docutils literal notranslate"><span class="pre">retval</span></code> out parameter.
+The <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> macro performs a simple zval copy without incrementing the refcount. As such, its primary
+usage is to <em>move</em> a zval, which means that the original zval will no longer be used (which includes that it should
+not be destroyed). Sometimes, this macro is also used as an optimization to <em>copy</em> a zval that we know not to be
+refcounted.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> macro differs from a simple assignment (<code class="docutils literal notranslate"><span class="pre">*retval</span> <span class="pre">=</span> <span class="pre">val</span></code>) in that it only copies the zval
+value and type, but not its u2 member. As such, it is safe to <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> into a zval whose u2 member is
+in used, as it will not be overwritten.</p>
+<p>The second macro is <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY</span></code>, which is an optimized combination of <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> and <code class="docutils literal notranslate"><span class="pre">Z_TRY_ADDREF</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">retval1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">retval2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+    <span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span> <span class="c1">// refcount=1</span>
+
+    <span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">retval1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">);</span> <span class="c1">// refcount=2</span>
+    <span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">retval2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">);</span> <span class="c1">// refcount=3</span>
+
+    <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span> <span class="c1">// refcount=2</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This example copies the value twice, incrementing the refcount (if it has one) twice. A different, and slightly more
+efficient way to write this function would be:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">retval1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">retval2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+    <span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span> <span class="c1">// refcount=1</span>
+    <span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">retval1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">);</span> <span class="c1">// refcount=2</span>
+    <span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">retval2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">);</span> <span class="c1">// refcount=2</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This copies the value once into <code class="docutils literal notranslate"><span class="pre">retval1</span></code>, and then performs a move into <code class="docutils literal notranslate"><span class="pre">retval2</span></code>, saving a redundant refcount
+increment and decrement. Finally, the way we would probably write this code in practice is this:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">retval1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">retval2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">init_zval</span><span class="p">(</span><span class="n">retval1</span><span class="p">);</span> <span class="c1">// refcount=1</span>
+    <span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">retval2</span><span class="p">,</span> <span class="n">retval1</span><span class="p">);</span> <span class="c1">// refcount=2</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Here, the value is directly initialized into <code class="docutils literal notranslate"><span class="pre">retval1</span></code> and then copied into <code class="docutils literal notranslate"><span class="pre">retval2</span></code>. This version is both the
+simplest and the most efficient.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ZVAL_DUP</span></code> macro is similar to <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY</span></code>, but will duplicate arrays, rather than just incrementing their
+refcount. If you are using this macro, you are almost certainly doing something very wrong.</p>
+<p>Finally, <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_OR_DUP</span></code> is a very specialized copy macro that can be used when copying from a potentially
+persistent zval during the request. As mentioned before, incrementing the refcount is illegal in this case, because
+it would not be thread-safe. This macro will increment the refcount on non-persistent values, but perform a full
+string/array duplication for persistent values.</p>
+</div>
+<div class="section" id="destroying-zvals">
+<h3>Destroying zvals<a class="headerlink" href="#destroying-zvals" title="Permalink to this headline">¶</a></h3>
+<p>The above examples have already been making use of <code class="docutils literal notranslate"><span class="pre">zval_ptr_dtor()</span></code> to destroy zvals. If the value is refcounted,
+this function decrements the refcount and destroys the value when it reaches zero.</p>
+<p>However, there is one subtlety here: Reference counting is not sufficient to detect unused values that are part
+of cycles. For this reason, PHP employs an additional mark and sweep style circular garbage collector (GC). When the
+refcount is decremented but does not reach zero, and the structure is marked as potentially circular (the
+<code class="docutils literal notranslate"><span class="pre">GC_NOT_COLLECTABLE</span></code> flag is not set), then PHP will add the structure to the GC root buffer.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">zval_ptr_dtor_nogc()</span></code> function is a variant that does not perform GC root buffer checks, and is only safe to
+use if you know that the destroyed data is non-circular. <code class="docutils literal notranslate"><span class="pre">zval_dtor()</span></code> is a legacy alias for the same function.</p>
+<p>Another variant that can be encountered in internal code is <code class="docutils literal notranslate"><span class="pre">i_zval_ptr_dtor()</span></code>, which is the same as
+<code class="docutils literal notranslate"><span class="pre">zval_ptr_dtor()</span></code> but using an inlined implementation. The <code class="docutils literal notranslate"><span class="pre">i_</span></code> prefix is a general convention for functions that
+have both inlined and outlined variants.</p>
+</div>
+<div class="section" id="initializing-zvals">
+<h3>Initializing zvals<a class="headerlink" href="#initializing-zvals" title="Permalink to this headline">¶</a></h3>
+<p>Until now, we have been using an abstract <code class="docutils literal notranslate"><span class="pre">init_zval()</span></code> function that <em>somehow</em> initializes a zval. It will not
+come as a surprise that PHP handles zval initialization using a plethora of macros. The initialization of simple
+types is especially straightforward:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_UNDEF</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_NULL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_FALSE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_TRUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_BOOL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">zero_or_one</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="mf">3.141</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>For strings, there are quite a few initialization options. The most fundamental is the <code class="docutils literal notranslate"><span class="pre">ZVAL_STR()</span></code> macro, which
+takes an already constructed <code class="docutils literal notranslate"><span class="pre">zend_string*</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>As creating a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> from a string literal or an existing string is so common, there are two convenience
+wrappers:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">);</span> <span class="c1">// Uses strlen() for length.</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">ZVAL_STR</span></code> macro will set the <code class="docutils literal notranslate"><span class="pre">IS_TYPE_REFCOUNTED</span></code> flag based on whether the string is immutable or not.
+There are two optimized variants that can be known if it is known in advance whether the string is interned:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// This string is definitely not interned/immutable.</span>
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_NEW_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+
+<span class="c1">// This string is definitely interned.</span>
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_INTERNED_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">ZSTR_CHAR</span><span class="p">(</span><span class="sc">&#39;a&#39;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>Empty strings have a separate helper:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_EMPTY_STRING</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">ZVAL_STRINGL_FAST</span></code> macro can be used to avoid a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> allocation if the string is empty or has a
+single character, as such strings always have interned variants that can be fetched quickly:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_STRINGL_FAST</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Finally, the <code class="docutils literal notranslate"><span class="pre">ZVAL_STR_COPY</span></code> macro is a combination of <code class="docutils literal notranslate"><span class="pre">ZVAL_STR</span></code> and <code class="docutils literal notranslate"><span class="pre">zend_string_copy</span></code>, where the latter
+increments the refcount of the string:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_STR_COPY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">zstr</span><span class="p">);</span> <span class="c1">// Refcount will be incremented.</span>
+<span class="c1">// More efficient/compact version of:</span>
+<span class="n">ZVAL_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">zend_string_copy</span><span class="p">(</span><span class="n">zstr</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>For arrays, we thankfully only have to consider two initialization macros:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_ARR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">zend_new_array</span><span class="p">(</span><span class="cm">/* size_hint */</span> <span class="mi">0</span><span class="p">));</span>
+
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_EMPTY_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The first one initializes an array zval to an existing <code class="docutils literal notranslate"><span class="pre">zend_array*</span></code> structure, while the latter initializes an
+empty array in particular. Note that while both of the above examples initialize an empty array, they are not the
+same. <code class="docutils literal notranslate"><span class="pre">ZVAL_EMPTY_ARRAY()</span></code> uses an immutable shared empty array, while <code class="docutils literal notranslate"><span class="pre">zend_new_array()</span></code> creates a new one. If
+you plan to modify the array directly afterwards, you should be using the <code class="docutils literal notranslate"><span class="pre">zend_new_array()</span></code> variant.</p>
+<p>Object zvals are initialized using <code class="docutils literal notranslate"><span class="pre">ZVAL_OBJ</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_OBJ</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">obj_ptr</span><span class="p">);</span>
+
+<span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_OBJ_COPY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">obj_ptr</span><span class="p">);</span> <span class="c1">// Increments refcount</span>
+</pre></div>
+</div>
+<p>While these are somewhat common when dealing with already existing objects, <code class="docutils literal notranslate"><span class="pre">object_init_ex()</span></code> is the typical way
+to create an object from scratch. This will covered in a later chapter on objects.</p>
+<p>Finally, resources are initialized using <code class="docutils literal notranslate"><span class="pre">ZVAL_RES</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_RES</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="n">zend_register_resource</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">le_resource_type</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="separating-zvals">
+<h3>Separating zvals<a class="headerlink" href="#separating-zvals" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="basic_structure.html">Basic structure</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="casts_and_operations.html">Casts and operations on zvals</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>

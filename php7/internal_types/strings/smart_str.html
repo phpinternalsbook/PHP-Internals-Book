@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>smart_str API &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="PHP’s custom printf functions" href="printing_functions.html" />
     <link rel="prev" title="Strings management: zend_string" href="zend_strings.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>smart_str API</span></h2>
@@ -43,7 +34,7 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="smart-str-api">
@@ -52,16 +43,16 @@
 expand, transform, etc…). C is a low level general purpose language one can use to build APIs to deal with more
 specific tasks, such as string constructions.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Obviously you all got that we talk about ASCII strings, aka bytes. No Unicode in there.</p>
+<p class="admonition-title">Note</p>
+<p>Obviously you all got that we talk about ASCII strings, aka bytes. No Unicode in there.</p>
 </div>
-<p>PHP’s <code class="docutils literal"><span class="pre">smart_str</span></code> is an API that will help you build strings and especially concatenate chunks of bytes into strings.
+<p>PHP’s <code class="docutils literal notranslate"><span class="pre">smart_str</span></code> is an API that will help you build strings and especially concatenate chunks of bytes into strings.
 This API seats next to <a class="reference internal" href="printing_functions.html"><span class="doc">PHP’s special printf() APIs</span></a> and <a class="reference internal" href="zend_strings.html"><span class="doc">zend_string</span></a> to
 help with strings management.</p>
 <div class="section" id="smart-str-vs-smart-string">
 <h2>smart_str VS smart_string<a class="headerlink" href="#smart-str-vs-smart-string" title="Permalink to this headline">¶</a></h2>
 <p>Here are the two structures:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
     <span class="kt">char</span> <span class="o">*</span><span class="n">c</span><span class="p">;</span>
     <span class="kt">size_t</span> <span class="n">len</span><span class="p">;</span>
     <span class="kt">size_t</span> <span class="n">a</span><span class="p">;</span>
@@ -73,27 +64,27 @@ help with strings management.</p>
 <span class="p">}</span> <span class="n">smart_str</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>Like you can see, one will work with traditional C strings (as <code class="docutils literal"><span class="pre">char*/size_t</span></code>) and the other will make use of the
-PHP’s specific <code class="docutils literal"><span class="pre">zend_string</span></code> structure.</p>
-<p>We will detail the latter: <code class="docutils literal"><span class="pre">smart_str</span></code>, that works with <a class="reference internal" href="zend_strings.html"><span class="doc">zend_strings</span></a>. Both APIs are exactly the
-same, simply note that one (the one we’ll detail here) starts by <code class="docutils literal"><span class="pre">smart_str_**()</span></code> and the other by
-<code class="docutils literal"><span class="pre">smart_string_***()</span></code>. Don’t confuse !</p>
-<p>The <code class="docutils literal"><span class="pre">smart_str</span></code> API is detailed into <a class="reference external" href="https://github.com/php/php-src/blob/509f5097ab0b578adc311c720afcea8de266aadd/Zend/zend_smart_str.h">Zend/zend_smart_str.h</a> (also the .c
+<p>Like you can see, one will work with traditional C strings (as <code class="docutils literal notranslate"><span class="pre">char*/size_t</span></code>) and the other will make use of the
+PHP’s specific <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> structure.</p>
+<p>We will detail the latter: <code class="docutils literal notranslate"><span class="pre">smart_str</span></code>, that works with <a class="reference internal" href="zend_strings.html"><span class="doc">zend_strings</span></a>. Both APIs are exactly the
+same, simply note that one (the one we’ll detail here) starts by <code class="docutils literal notranslate"><span class="pre">smart_str_**()</span></code> and the other by
+<code class="docutils literal notranslate"><span class="pre">smart_string_***()</span></code>. Don’t confuse !</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">smart_str</span></code> API is detailed into <a class="reference external" href="https://github.com/php/php-src/blob/509f5097ab0b578adc311c720afcea8de266aadd/Zend/zend_smart_str.h">Zend/zend_smart_str.h</a> (also the .c
 file).</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last"><code class="docutils literal"><span class="pre">smart_str</span></code> is not to be confused with <code class="docutils literal"><span class="pre">smart_string</span></code>.</p>
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">smart_str</span></code> is not to be confused with <code class="docutils literal notranslate"><span class="pre">smart_string</span></code>.</p>
 </div>
 </div>
 <div class="section" id="basic-api-usage">
 <h2>Basic API usage<a class="headerlink" href="#basic-api-usage" title="Permalink to this headline">¶</a></h2>
-<p>So far so good, that API is really easy to manage. You basically stack-allocate a <code class="docutils literal"><span class="pre">smart_str</span></code>, and pass its pointer to
-<code class="docutils literal"><span class="pre">smart_str_***()</span></code> API functions that manage the embedded <code class="docutils literal"><span class="pre">zend_string</span></code> for you. You build your string, use it, and
+<p>So far so good, that API is really easy to manage. You basically stack-allocate a <code class="docutils literal notranslate"><span class="pre">smart_str</span></code>, and pass its pointer to
+<code class="docutils literal notranslate"><span class="pre">smart_str_***()</span></code> API functions that manage the embedded <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> for you. You build your string, use it, and
 then you free it. Nothing very strong in there right ?</p>
-<p>The embedded <code class="docutils literal"><span class="pre">zend_string</span></code> will be allocated whether
+<p>The embedded <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> will be allocated whether
 <a class="reference internal" href="../../memory_management/zend_memory_manager.html"><span class="doc">permanently or request-bound</span></a>, that depends on the last extended API
 parameter you’ll use:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">smart_str</span> <span class="n">my_str</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">smart_str</span> <span class="n">my_str</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 
 <span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_str</span><span class="p">,</span> <span class="s">&quot;Hello, you are using PHP version &quot;</span><span class="p">);</span>
 <span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_str</span><span class="p">,</span> <span class="n">PHP_VERSION</span><span class="p">);</span>
@@ -113,32 +104,32 @@ parameter you’ll use:</p>
 <span class="n">smart_str_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_str</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>We used here the simple API, the extended one ends with <code class="docutils literal"><span class="pre">_ex()</span></code>, and allows you to tell if you want a persistent or
-a request-bound allocation for the underlying <code class="docutils literal"><span class="pre">zend_string</span></code>. Example:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">smart_str</span> <span class="n">my_str</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<p>We used here the simple API, the extended one ends with <code class="docutils literal notranslate"><span class="pre">_ex()</span></code>, and allows you to tell if you want a persistent or
+a request-bound allocation for the underlying <code class="docutils literal notranslate"><span class="pre">zend_string</span></code>. Example:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">smart_str</span> <span class="n">my_str</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 
 <span class="n">smart_str_appends_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_str</span><span class="p">,</span> <span class="s">&quot;Hello world&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span> <span class="cm">/* 1 means persistent allocation */</span>
 </pre></div>
 </div>
 <p>Then, depending on what you want to append, you’ll use the right API call. If you append a classical C string, you can
-use <code class="docutils literal"><span class="pre">smart_str_appends(smart_str</span> <span class="pre">*dst,</span> <span class="pre">const</span> <span class="pre">char</span> <span class="pre">*src)</span></code>. If you make use of a binary string, and thus know its
-length, then use <code class="docutils literal"><span class="pre">smart_str_appendl(smart_str</span> <span class="pre">*dst,</span> <span class="pre">const</span> <span class="pre">char</span> <span class="pre">*src,</span> <span class="pre">size_t</span> <span class="pre">len)</span></code>.</p>
-<p>The less specific <code class="docutils literal"><span class="pre">smart_str_append(smart_str</span> <span class="pre">*dest,</span> <span class="pre">const</span> <span class="pre">zend_string</span> <span class="pre">*src)</span></code> simply appends a <code class="docutils literal"><span class="pre">zend_string</span></code> to
-your <code class="docutils literal"><span class="pre">smart_str</span></code> string. And if you come to play with others <code class="docutils literal"><span class="pre">smart_str</span></code>, use
-<code class="docutils literal"><span class="pre">smart_str_append_smart_str(smart_str</span> <span class="pre">*dst,</span> <span class="pre">const</span> <span class="pre">smart_str</span> <span class="pre">*src)</span></code> to combine them together.</p>
+use <code class="docutils literal notranslate"><span class="pre">smart_str_appends(smart_str</span> <span class="pre">*dst,</span> <span class="pre">const</span> <span class="pre">char</span> <span class="pre">*src)</span></code>. If you make use of a binary string, and thus know its
+length, then use <code class="docutils literal notranslate"><span class="pre">smart_str_appendl(smart_str</span> <span class="pre">*dst,</span> <span class="pre">const</span> <span class="pre">char</span> <span class="pre">*src,</span> <span class="pre">size_t</span> <span class="pre">len)</span></code>.</p>
+<p>The less specific <code class="docutils literal notranslate"><span class="pre">smart_str_append(smart_str</span> <span class="pre">*dest,</span> <span class="pre">const</span> <span class="pre">zend_string</span> <span class="pre">*src)</span></code> simply appends a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> to
+your <code class="docutils literal notranslate"><span class="pre">smart_str</span></code> string. And if you come to play with others <code class="docutils literal notranslate"><span class="pre">smart_str</span></code>, use
+<code class="docutils literal notranslate"><span class="pre">smart_str_append_smart_str(smart_str</span> <span class="pre">*dst,</span> <span class="pre">const</span> <span class="pre">smart_str</span> <span class="pre">*src)</span></code> to combine them together.</p>
 </div>
 <div class="section" id="smart-str-specific-tricks">
 <h2>smart_str specific tricks<a class="headerlink" href="#smart-str-specific-tricks" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Never forget to finish your string with a call to <code class="docutils literal"><span class="pre">smart_str_0()</span></code>. That puts a <em>NUL</em> char at the end of the embed
-string and make it compatible with libc string functions.</li>
-<li>Never forget to free your string, with <code class="docutils literal"><span class="pre">smart_str_free()</span></code>, once you’re done with it.</li>
-<li><code class="docutils literal"><span class="pre">smart_str</span></code> embeds a <code class="docutils literal"><span class="pre">zend_string</span></code>, and then allows you to share that later elsewhere playing with its reference
-counter. Please, visit the <a class="reference internal" href="zend_strings.html"><span class="doc">zend_string dedicated chapter</span></a> to know more about it.</li>
-<li>You can play with <code class="docutils literal"><span class="pre">smart_str</span></code> allocations. Look at <code class="docutils literal"><span class="pre">smart_str_alloc()</span></code> and friends.</li>
-<li><code class="docutils literal"><span class="pre">smart_str</span></code> is heavily used into PHP’s heart. For example, PHP’s
-<a class="reference internal" href="printing_functions.html"><span class="doc">specific printf() functions</span></a> internally use a <code class="docutils literal"><span class="pre">smart_str</span></code> buffer.</li>
-<li><code class="docutils literal"><span class="pre">smart_str</span></code> is definitely an easy structure you need to master.</li>
+<li><p>Never forget to finish your string with a call to <code class="docutils literal notranslate"><span class="pre">smart_str_0()</span></code>. That puts a <em>NUL</em> char at the end of the embed
+string and make it compatible with libc string functions.</p></li>
+<li><p>Never forget to free your string, with <code class="docutils literal notranslate"><span class="pre">smart_str_free()</span></code>, once you’re done with it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smart_str</span></code> embeds a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code>, and then allows you to share that later elsewhere playing with its reference
+counter. Please, visit the <a class="reference internal" href="zend_strings.html"><span class="doc">zend_string dedicated chapter</span></a> to know more about it.</p></li>
+<li><p>You can play with <code class="docutils literal notranslate"><span class="pre">smart_str</span></code> allocations. Look at <code class="docutils literal notranslate"><span class="pre">smart_str_alloc()</span></code> and friends.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smart_str</span></code> is heavily used into PHP’s heart. For example, PHP’s
+<a class="reference internal" href="printing_functions.html"><span class="doc">specific printf() functions</span></a> internally use a <code class="docutils literal notranslate"><span class="pre">smart_str</span></code> buffer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smart_str</span></code> is definitely an easy structure you need to master.</p></li>
 </ul>
 </div>
 </div>

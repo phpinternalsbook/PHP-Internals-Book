@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Declaring and using INI settings &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Zend Extensions" href="zend_extensions.html" />
     <link rel="prev" title="Hooks provided by PHP" href="hooks.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Declaring and using INI settings</span></h2>
@@ -43,7 +34,7 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="declaring-and-using-ini-settings">
@@ -60,38 +51,38 @@ and everything related to INI mainly takes place in
 <p>First, PHP tries to parse one or several INI files. Those files may declare some settings, that may or may not be
 relevant in the future. At this very early stage (INI files parsing), PHP knows nothing about what to expect in such
 files. It just parses the content, and saves this one for later use.</p>
-<p>Then as a second step, PHP boots up its extensions, calling their <code class="docutils literal"><span class="pre">MINIT()</span></code>. If you need to remember about the PHP
-lifecycle, <a class="reference internal" href="php_lifecycle.html"><span class="doc">read the dedicated chapter</span></a>. <code class="docutils literal"><span class="pre">MINIT()</span></code> may now register the current
+<p>Then as a second step, PHP boots up its extensions, calling their <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code>. If you need to remember about the PHP
+lifecycle, <a class="reference internal" href="php_lifecycle.html"><span class="doc">read the dedicated chapter</span></a>. <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> may now register the current
 extension INI settings of interest. When registering the setting, the engine checks if it parsed its definition before,
 as part of the INI files parsing step. If that was the case, then the INI setting is registered into the engine and it
 gets the value that was parsed from INI files. If it had no definition in INI files parsed, then it gets registered with
 the default value the extension designer gives to the API.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The default value the setting will get is probed from INI files parsing. If none is found, then the default
+<p class="admonition-title">Note</p>
+<p>The default value the setting will get is probed from INI files parsing. If none is found, then the default
 is the one given by the extension developer, not the other way around.</p>
 </div>
-<p>The default value we are talking about here is called the <strong>“master value”</strong>. You may recall it from a <code class="docutils literal"><span class="pre">phpinfo()</span></code>
+<p>The default value we are talking about here is called the <strong>“master value”</strong>. You may recall it from a <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code>
 output, right ?</p>
 <img alt="../../_images/php_extensions_ini.png" class="align-center" src="../../_images/php_extensions_ini.png" />
 <p>The master value cannot change. If during a request, the user wants to change the configuration, f.e using
-<code class="docutils literal"><span class="pre">ini_set()</span></code>, and if he’s allowed to, then the changed value will be the <strong>“local value”</strong> , that is the current value
+<code class="docutils literal notranslate"><span class="pre">ini_set()</span></code>, and if he’s allowed to, then the changed value will be the <strong>“local value”</strong> , that is the current value
 for the current request. The engine will automatically restore the local value to the master value at the end of
 the request, thus resetting it and forgetting about request-live changes.</p>
-<p><code class="docutils literal"><span class="pre">ini_get()</span></code> reads the current request-bound local value, whereas <code class="docutils literal"><span class="pre">get_cfg_var()</span></code> will read the master value
+<p><code class="docutils literal notranslate"><span class="pre">ini_get()</span></code> reads the current request-bound local value, whereas <code class="docutils literal notranslate"><span class="pre">get_cfg_var()</span></code> will read the master value
 whatever happens.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you have understood correctly, <code class="docutils literal"><span class="pre">get_cfg_var()</span></code> will return false for any value asked that was not part of
+<p class="admonition-title">Note</p>
+<p>If you have understood correctly, <code class="docutils literal notranslate"><span class="pre">get_cfg_var()</span></code> will return false for any value asked that was not part of
 INI file parsing, even if the value exists and was declared by an extension.
-And the opposite is true: <code class="docutils literal"><span class="pre">ini_get()</span></code> will return false if asked for a setting that no extension has declared
+And the opposite is true: <code class="docutils literal notranslate"><span class="pre">ini_get()</span></code> will return false if asked for a setting that no extension has declared
 interest in, even if such a setting was part of an INI file parsing (like php.ini).</p>
 </div>
 </div>
 <div class="section" id="zoom-on-ini-settings">
 <h2>Zoom on INI settings<a class="headerlink" href="#zoom-on-ini-settings" title="Permalink to this headline">¶</a></h2>
-<p>Into the engine, an INI setting is represented by a <code class="docutils literal"><span class="pre">zend_ini_entry</span></code> structure:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">_zend_ini_entry</span> <span class="p">{</span>
+<p>Into the engine, an INI setting is represented by a <code class="docutils literal notranslate"><span class="pre">zend_ini_entry</span></code> structure:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">_zend_ini_entry</span> <span class="p">{</span>
     <span class="n">zend_string</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
     <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">on_modify</span><span class="p">)(</span><span class="n">zend_ini_entry</span> <span class="o">*</span><span class="n">entry</span><span class="p">,</span> <span class="n">zend_string</span> <span class="o">*</span><span class="n">new_value</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">mh_arg1</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">mh_arg2</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">mh_arg3</span><span class="p">,</span>
                      <span class="kt">int</span> <span class="n">stage</span><span class="p">);</span>
@@ -111,27 +102,27 @@ interest in, even if such a setting was part of an INI file parsing (like php.in
 </div>
 <p>Nothing really strong in such a structure.</p>
 <ul class="simple">
-<li>Setting’s <code class="docutils literal"><span class="pre">name</span></code> and <code class="docutils literal"><span class="pre">value</span></code> are the most commonly used fields. Note
-however that the value is a string (as <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string *</span></a>) and nothing else.</li>
-<li>Then, like we detailed in the introduction chapter above, we find the <code class="docutils literal"><span class="pre">orig_value</span></code>, <code class="docutils literal"><span class="pre">orig_modified</span></code>, <code class="docutils literal"><span class="pre">modifiable</span></code>
-and <code class="docutils literal"><span class="pre">modified</span></code> fields which are related to the modification of the setting’s value. The setting must keep in memory
-its original value (as “master value”).</li>
-<li><code class="docutils literal"><span class="pre">modifiable</span></code> tells if the setting is actually modifiable, and must pick some
-values from <code class="docutils literal"><span class="pre">ZEND_INI_USER</span></code>, <code class="docutils literal"><span class="pre">ZEND_INI_PERDIR</span></code>, <code class="docutils literal"><span class="pre">ZEND_INI_SYSTEM</span></code> or
-<code class="docutils literal"><span class="pre">ZEND_INI_ALL</span></code>, those may be flagued together and are detailed <a class="reference external" href="http://php.net/configuration.changes.modes">in the PHP manual</a>.</li>
-<li><code class="docutils literal"><span class="pre">modified</span></code> is set to one anytime the setting has been modified during a request so that the engine knows at request
-shutdown that it must restore that INI setting value to its master value for the next request to treat.</li>
-<li><code class="docutils literal"><span class="pre">on_modify()</span></code> is a handler called whenever the current setting’s value is modified, like f.e using a call
-to <code class="docutils literal"><span class="pre">ini_set()</span></code> (but not only). We’ll focus deeper on <code class="docutils literal"><span class="pre">on_modify()</span></code> later, but think of it as being a
+<li><p>Setting’s <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">value</span></code> are the most commonly used fields. Note
+however that the value is a string (as <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string *</span></a>) and nothing else.</p></li>
+<li><p>Then, like we detailed in the introduction chapter above, we find the <code class="docutils literal notranslate"><span class="pre">orig_value</span></code>, <code class="docutils literal notranslate"><span class="pre">orig_modified</span></code>, <code class="docutils literal notranslate"><span class="pre">modifiable</span></code>
+and <code class="docutils literal notranslate"><span class="pre">modified</span></code> fields which are related to the modification of the setting’s value. The setting must keep in memory
+its original value (as “master value”).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modifiable</span></code> tells if the setting is actually modifiable, and must pick some
+values from <code class="docutils literal notranslate"><span class="pre">ZEND_INI_USER</span></code>, <code class="docutils literal notranslate"><span class="pre">ZEND_INI_PERDIR</span></code>, <code class="docutils literal notranslate"><span class="pre">ZEND_INI_SYSTEM</span></code> or
+<code class="docutils literal notranslate"><span class="pre">ZEND_INI_ALL</span></code>, those may be flagued together and are detailed <a class="reference external" href="http://php.net/configuration.changes.modes">in the PHP manual</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modified</span></code> is set to one anytime the setting has been modified during a request so that the engine knows at request
+shutdown that it must restore that INI setting value to its master value for the next request to treat.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">on_modify()</span></code> is a handler called whenever the current setting’s value is modified, like f.e using a call
+to <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code> (but not only). We’ll focus deeper on <code class="docutils literal notranslate"><span class="pre">on_modify()</span></code> later, but think of it as being a
 <em>validator function</em> (f.e if the setting is expected to represent an integer, you may validate the values you’ll be
 given against integers). It also serve as a memory bridge to update global values, we’ll get back on that later as
-well.</li>
-<li><code class="docutils literal"><span class="pre">diplayer()</span></code> is less useful, and you usually don’t pass any. <code class="docutils literal"><span class="pre">displayer()</span></code> is about how to display your setting.
+well.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">diplayer()</span></code> is less useful, and you usually don’t pass any. <code class="docutils literal notranslate"><span class="pre">displayer()</span></code> is about how to display your setting.
 F.e, you may remember that PHP tends to display <em>On</em> for boolean values of <em>true</em>/<em>yes</em>/<em>on</em>/<em>1</em> etc. That’s the
-<code class="docutils literal"><span class="pre">displayer()</span></code> job : turn the current value into a “displayed” value.</li>
+<code class="docutils literal notranslate"><span class="pre">displayer()</span></code> job : turn the current value into a “displayed” value.</p></li>
 </ul>
-<p>You will also need to deal with this structure <code class="docutils literal"><span class="pre">zend_ini_entry_def</span></code>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_ini_entry_def</span> <span class="p">{</span>
+<p>You will also need to deal with this structure <code class="docutils literal notranslate"><span class="pre">zend_ini_entry_def</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_ini_entry_def</span> <span class="p">{</span>
     <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
     <span class="n">ZEND_INI_MH</span><span class="p">((</span><span class="o">*</span><span class="n">on_modify</span><span class="p">));</span>
     <span class="kt">void</span> <span class="o">*</span><span class="n">mh_arg1</span><span class="p">;</span>
@@ -146,21 +137,21 @@ F.e, you may remember that PHP tends to display <em>On</em> for boolean values o
 <span class="p">}</span> <span class="n">zend_ini_entry_def</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>Pretty much similar to <code class="docutils literal"><span class="pre">zend_ini_entry</span></code>, <code class="docutils literal"><span class="pre">zend_ini_entry_def</span></code> is used by the programmer (you) when he must register
-an INI setting against the engine. The engine reads a <code class="docutils literal"><span class="pre">zend_ini_entry_def</span></code>, and creates internally a
-<code class="docutils literal"><span class="pre">zend_ini_entry</span></code> for its own usage, based on the definition model you provide. Easy.</p>
+<p>Pretty much similar to <code class="docutils literal notranslate"><span class="pre">zend_ini_entry</span></code>, <code class="docutils literal notranslate"><span class="pre">zend_ini_entry_def</span></code> is used by the programmer (you) when he must register
+an INI setting against the engine. The engine reads a <code class="docutils literal notranslate"><span class="pre">zend_ini_entry_def</span></code>, and creates internally a
+<code class="docutils literal notranslate"><span class="pre">zend_ini_entry</span></code> for its own usage, based on the definition model you provide. Easy.</p>
 </div>
 <div class="section" id="registering-and-using-ini-entries">
 <h2>Registering and using INI entries<a class="headerlink" href="#registering-and-using-ini-entries" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="registration">
 <h3>Registration<a class="headerlink" href="#registration" title="Permalink to this headline">¶</a></h3>
 <p>INI settings are persistent through requests. They may change their value at runtime during a request, but they’ll go back
-to original value at request shutdown. Thus, registering INI settings is done once for all, in <code class="docutils literal"><span class="pre">MINIT()</span></code> hook of your
+to original value at request shutdown. Thus, registering INI settings is done once for all, in <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> hook of your
 extension.</p>
-<p>What you must do is declare a vector of <code class="docutils literal"><span class="pre">zend_ini_entry_def</span></code>, you’ll be helped with dedicated macros for that. Then,
+<p>What you must do is declare a vector of <code class="docutils literal notranslate"><span class="pre">zend_ini_entry_def</span></code>, you’ll be helped with dedicated macros for that. Then,
 you register your vector against the engine and you are done for the declaration. Let’s see that with our example taken
 for previous chapter about random number picking and guessing, once again only showing relevant parts for now:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_INI_BEGIN</span><span class="p">()</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_INI_BEGIN</span><span class="p">()</span>
 <span class="n">PHP_INI_ENTRY</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">,</span> <span class="s">&quot;100&quot;</span><span class="p">,</span> <span class="n">PHP_INI_ALL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span>
 <span class="n">PHP_INI_END</span><span class="p">()</span>
 
@@ -185,18 +176,18 @@ for previous chapter about random number picking and guessing, once again only s
 </pre></div>
 </div>
 <p>That was the easiest INI declaration, we won’t keep it as-is but the steps are trivial : you declare a
-<code class="docutils literal"><span class="pre">zend_ini_entry_def[]</span></code> vector using <code class="docutils literal"><span class="pre">PHP_INI_BEGIN</span></code> and <code class="docutils literal"><span class="pre">PHP_INI_END</span></code> macros. In the middle, you add your
-individual <code class="docutils literal"><span class="pre">zend_ini_entry_def</span></code> entries using here again macros. We used the simplest one : <code class="docutils literal"><span class="pre">PHP_INI_BEGIN()</span></code>, that
+<code class="docutils literal notranslate"><span class="pre">zend_ini_entry_def[]</span></code> vector using <code class="docutils literal notranslate"><span class="pre">PHP_INI_BEGIN</span></code> and <code class="docutils literal notranslate"><span class="pre">PHP_INI_END</span></code> macros. In the middle, you add your
+individual <code class="docutils literal notranslate"><span class="pre">zend_ini_entry_def</span></code> entries using here again macros. We used the simplest one : <code class="docutils literal notranslate"><span class="pre">PHP_INI_BEGIN()</span></code>, that
 takes only four parameters : the name of the entry to register, its default value given if it was not part of an INI
-file scanning (see above chapter for details), the modification level, <code class="docutils literal"><span class="pre">PHP_INI_ALL</span></code> says “everywhere”. We did not
+file scanning (see above chapter for details), the modification level, <code class="docutils literal notranslate"><span class="pre">PHP_INI_ALL</span></code> says “everywhere”. We did not
 play with validator yet, and passed NULL.</p>
-<p>In <code class="docutils literal"><span class="pre">MINIT</span></code> hook , we use the <code class="docutils literal"><span class="pre">REGISTER_INI_ENTRIES</span></code> macro which does its describing job whereas its counter-part
-<code class="docutils literal"><span class="pre">UNREGISTER_INI_ENTRIES</span></code> is used at module shutdown to free the allocated resources.</p>
-<p>Now, the new <em>“pib.rnd_max”</em> INI setting is declared - as <code class="docutils literal"><span class="pre">PHP_INI_ALL</span></code> - that means that the user may modify its
-value using <code class="docutils literal"><span class="pre">ini_set()</span></code> (and read it back with <code class="docutils literal"><span class="pre">ini_get()</span></code>).</p>
-<p>We did not forget to display those INI settings as part of our extension information, using <code class="docutils literal"><span class="pre">DISPLAY_INI_ENTRIES()</span></code>.
-Forgetting this in the declaration of the <code class="docutils literal"><span class="pre">MINFO()</span></code> hook will lead to our INI settings being hidden from the user in
-the information page (<code class="docutils literal"><span class="pre">phpinfo()</span></code>). Have a look at the <a class="reference internal" href="extension_infos.html"><span class="doc">extension information chapter</span></a> if
+<p>In <code class="docutils literal notranslate"><span class="pre">MINIT</span></code> hook , we use the <code class="docutils literal notranslate"><span class="pre">REGISTER_INI_ENTRIES</span></code> macro which does its describing job whereas its counter-part
+<code class="docutils literal notranslate"><span class="pre">UNREGISTER_INI_ENTRIES</span></code> is used at module shutdown to free the allocated resources.</p>
+<p>Now, the new <em>“pib.rnd_max”</em> INI setting is declared - as <code class="docutils literal notranslate"><span class="pre">PHP_INI_ALL</span></code> - that means that the user may modify its
+value using <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code> (and read it back with <code class="docutils literal notranslate"><span class="pre">ini_get()</span></code>).</p>
+<p>We did not forget to display those INI settings as part of our extension information, using <code class="docutils literal notranslate"><span class="pre">DISPLAY_INI_ENTRIES()</span></code>.
+Forgetting this in the declaration of the <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code> hook will lead to our INI settings being hidden from the user in
+the information page (<code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code>). Have a look at the <a class="reference internal" href="extension_infos.html"><span class="doc">extension information chapter</span></a> if
 you need.</p>
 </div>
 <div class="section" id="usage">
@@ -205,26 +196,26 @@ you need.</p>
 this into your extension is to use macros that will look for the value into the main array retaining all the INI
 settings, find it, and return it as the type you’ll ask for. We are provided several macros depending on what C type
 we want to be given back.</p>
-<p><code class="docutils literal"><span class="pre">INI_INT(val)</span></code>, <code class="docutils literal"><span class="pre">INI_FLT(val)</span></code>, <code class="docutils literal"><span class="pre">INI_STR(val)</span></code>, <code class="docutils literal"><span class="pre">INI_BOOL(val)</span></code> all four macros will look for the provided
+<p><code class="docutils literal notranslate"><span class="pre">INI_INT(val)</span></code>, <code class="docutils literal notranslate"><span class="pre">INI_FLT(val)</span></code>, <code class="docutils literal notranslate"><span class="pre">INI_STR(val)</span></code>, <code class="docutils literal notranslate"><span class="pre">INI_BOOL(val)</span></code> all four macros will look for the provided
 value from the INI settings array and return it (if found) with a cast to the type you ask.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Remember that into <code class="docutils literal"><span class="pre">zend_ini_entry</span></code>, the value is a <code class="docutils literal"><span class="pre">zend_string</span></code> type. For our example, we registered an
-INI setting of type ‘long’, our <code class="docutils literal"><span class="pre">pib.rnd_max</span></code> which default value is 100. But that one’s value is registered
-as a <code class="docutils literal"><span class="pre">zend_string</span></code> into the INI settings array, and thus needs to be casted to a ‘long’ every time we want
-to read its value back. <code class="docutils literal"><span class="pre">INI_INT()</span></code> does such a job.</p>
+<p class="admonition-title">Note</p>
+<p>Remember that into <code class="docutils literal notranslate"><span class="pre">zend_ini_entry</span></code>, the value is a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> type. For our example, we registered an
+INI setting of type ‘long’, our <code class="docutils literal notranslate"><span class="pre">pib.rnd_max</span></code> which default value is 100. But that one’s value is registered
+as a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> into the INI settings array, and thus needs to be casted to a ‘long’ every time we want
+to read its value back. <code class="docutils literal notranslate"><span class="pre">INI_INT()</span></code> does such a job.</p>
 </div>
 <p>Example:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;The value is : %lu&quot;</span><span class="p">,</span> <span class="n">INI_INT</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">));</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;The value is : %lu&quot;</span><span class="p">,</span> <span class="n">INI_INT</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">));</span>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If the value is not found, 0 is returned as we asked for a long. 0.0 would have been returned in the same
+<p class="admonition-title">Note</p>
+<p>If the value is not found, 0 is returned as we asked for a long. 0.0 would have been returned in the same
 case, but about a float conversion, etc.</p>
 </div>
 <p>If the user would have modified the setting, and we would have wanted to display the “master” original value (in our
-case : 100), then we would have used <code class="docutils literal"><span class="pre">INI_ORIG_INT()</span></code> instead of <code class="docutils literal"><span class="pre">INI_INT()</span></code>. Of course, such declinations macros
+case : 100), then we would have used <code class="docutils literal notranslate"><span class="pre">INI_ORIG_INT()</span></code> instead of <code class="docutils literal notranslate"><span class="pre">INI_INT()</span></code>. Of course, such declinations macros
 also exist for other types.</p>
 </div>
 </div>
@@ -234,23 +225,23 @@ also exist for other types.</p>
 previous above lines is far from being optimal.</p>
 <p>There are two problems that will get solved at the same time by using the ‘advanced’ INI settings API :</p>
 <ul class="simple">
-<li>Every time we want to read our value, a lookup into the main INI settings table is needed, as well as a cast to the
-right type (often). Those operations cost some CPU cycles.</li>
-<li>We did not provide any validator, thus the user could alter our setting and put anything he wants to as a value.</li>
+<li><p>Every time we want to read our value, a lookup into the main INI settings table is needed, as well as a cast to the
+right type (often). Those operations cost some CPU cycles.</p></li>
+<li><p>We did not provide any validator, thus the user could alter our setting and put anything he wants to as a value.</p></li>
 </ul>
-<p>The solution is to use an <code class="docutils literal"><span class="pre">on_modify()</span></code> validator and a memory bridge to update a global variable.</p>
+<p>The solution is to use an <code class="docutils literal notranslate"><span class="pre">on_modify()</span></code> validator and a memory bridge to update a global variable.</p>
 <p>By using the advanced INI settings management API, we can tell the engine to register our settings just normally, but
 we can also instruct it to update a global of our taste every time the INI setting value is changed. Hence, whenever we
 will want to read back our value, we’ll just need to read our global. This will provide a boost in performance in the
 case we need to read the INI setting value often, as a hashtable lookup and a cast operation won’t be needed anymore.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">You will need to feel comfortable with globals to continue reading the chapter. Global space management is
+<p class="admonition-title">Note</p>
+<p>You will need to feel comfortable with globals to continue reading the chapter. Global space management is
 treated <a class="reference internal" href="globals_management.html"><span class="doc">into its own chapter</span></a>.</p>
 </div>
 <p>To declare a memory bridge to a global, we need to create a request global, and to change the way our INI setting was
 declared. Like this:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
     <span class="n">zend_ulong</span> <span class="n">max_rnd</span><span class="p">;</span>
 <span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
@@ -268,41 +259,41 @@ declared. Like this:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>We declare a global named <code class="docutils literal"><span class="pre">max_rnd</span></code>, of type <code class="docutils literal"><span class="pre">zend_ulong</span></code>. Then, we register our <em>‘pib.rnd_max’</em> INI value using
-<code class="docutils literal"><span class="pre">STD_PHP_INI_ENTRY()</span></code> this time. That allows us to pass more parameters to the macro. The first four ones are known,
+<p>We declare a global named <code class="docutils literal notranslate"><span class="pre">max_rnd</span></code>, of type <code class="docutils literal notranslate"><span class="pre">zend_ulong</span></code>. Then, we register our <em>‘pib.rnd_max’</em> INI value using
+<code class="docutils literal notranslate"><span class="pre">STD_PHP_INI_ENTRY()</span></code> this time. That allows us to pass more parameters to the macro. The first four ones are known,
 we detailed them before in the chapter.</p>
-<p>The four last parameters represent the globals bridge. We tell that we want to update <code class="docutils literal"><span class="pre">max_rnd</span></code>, in the
-<code class="docutils literal"><span class="pre">zend_pib_globals</span></code> structure represented by the symbol <code class="docutils literal"><span class="pre">pib_globals</span></code>. Read the
+<p>The four last parameters represent the globals bridge. We tell that we want to update <code class="docutils literal notranslate"><span class="pre">max_rnd</span></code>, in the
+<code class="docutils literal notranslate"><span class="pre">zend_pib_globals</span></code> structure represented by the symbol <code class="docutils literal notranslate"><span class="pre">pib_globals</span></code>. Read the
 <a class="reference internal" href="globals_management.html"><span class="doc">global management chapter</span></a> if not comfortable. As a quick reminder,
-<code class="docutils literal"><span class="pre">ZEND_BEGIN_MODULE_GLOBALS()</span></code> declares the <code class="docutils literal"><span class="pre">zend_pib_globals</span></code> structure, and <code class="docutils literal"><span class="pre">ZEND_DECLARE_MODULE_GLOBALS()</span></code>
-declares a <code class="docutils literal"><span class="pre">pib_globals</span></code> symbol of such a type.</p>
+<code class="docutils literal notranslate"><span class="pre">ZEND_BEGIN_MODULE_GLOBALS()</span></code> declares the <code class="docutils literal notranslate"><span class="pre">zend_pib_globals</span></code> structure, and <code class="docutils literal notranslate"><span class="pre">ZEND_DECLARE_MODULE_GLOBALS()</span></code>
+declares a <code class="docutils literal notranslate"><span class="pre">pib_globals</span></code> symbol of such a type.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Internally, <a class="reference external" href="https://en.wikipedia.org/wiki/Offsetof">offsetof</a> will be used to compute the bytes slice of our
-<code class="docutils literal"><span class="pre">max_rnd</span></code> member into the <code class="docutils literal"><span class="pre">zend_pib_globals</span></code> structure, to be able to update that part of memory whenever the
+<p class="admonition-title">Note</p>
+<p>Internally, <a class="reference external" href="https://en.wikipedia.org/wiki/Offsetof">offsetof</a> will be used to compute the bytes slice of our
+<code class="docutils literal notranslate"><span class="pre">max_rnd</span></code> member into the <code class="docutils literal notranslate"><span class="pre">zend_pib_globals</span></code> structure, to be able to update that part of memory whenever the
 <em>‘pib.rnd_max’</em> will get changed.</p>
 </div>
-<p>The <code class="docutils literal"><span class="pre">on_modify()</span></code> validator used here, <code class="docutils literal"><span class="pre">onUpdateLongGEZero()</span></code>, is a default validator that exists in PHP and
+<p>The <code class="docutils literal notranslate"><span class="pre">on_modify()</span></code> validator used here, <code class="docutils literal notranslate"><span class="pre">onUpdateLongGEZero()</span></code>, is a default validator that exists in PHP and
 validates the value against a long greater than or equal to zero. The validator is needed for the global to be updated,
 as such a job is done into the validator.</p>
-<p>Now, to read back our INI setting value, we just need to read the value of our <code class="docutils literal"><span class="pre">max_rnd</span></code> global:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;The value is : %lu&quot;</span><span class="p">,</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">max_rnd</span><span class="p">));</span>
+<p>Now, to read back our INI setting value, we just need to read the value of our <code class="docutils literal notranslate"><span class="pre">max_rnd</span></code> global:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;The value is : %lu&quot;</span><span class="p">,</span> <span class="n">PIB_G</span><span class="p">(</span><span class="n">max_rnd</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>And we are done.</p>
-<p>Let’s go to see the validator now (<code class="docutils literal"><span class="pre">on_modify()</span></code> handler). The validator has two goals :</p>
+<p>Let’s go to see the validator now (<code class="docutils literal notranslate"><span class="pre">on_modify()</span></code> handler). The validator has two goals :</p>
 <ul class="simple">
-<li>Validate the passed value</li>
-<li>Update the global if the validation succeeds</li>
+<li><p>Validate the passed value</p></li>
+<li><p>Update the global if the validation succeeds</p></li>
 </ul>
 <p>The validator is only called when the INI setting is set or modified (written to), whenever this step happens.</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">If you want the global variable to be updated with the INI setting value, you’ll need a validator. Such a
+<p class="admonition-title">Warning</p>
+<p>If you want the global variable to be updated with the INI setting value, you’ll need a validator. Such a
 mechanism is not magicaly performed by the engine, but must be done explicitly into the validator.</p>
 </div>
-<p>Let’s see the <code class="docutils literal"><span class="pre">onUpdateLongGEZero()</span></code> source code:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#define ZEND_INI_MH(name) int name(zend_ini_entry *entry, zend_string *new_value,</span>
+<p>Let’s see the <code class="docutils literal notranslate"><span class="pre">onUpdateLongGEZero()</span></code> source code:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define ZEND_INI_MH(name) int name(zend_ini_entry *entry, zend_string *new_value,</span>
                                     <span class="kt">void</span> <span class="o">*</span><span class="n">mh_arg1</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">mh_arg2</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">mh_arg3</span><span class="p">,</span> <span class="kt">int</span> <span class="n">stage</span><span class="p">)</span>
 
 <span class="n">ZEND_API</span> <span class="n">ZEND_INI_MH</span><span class="p">(</span><span class="n">OnUpdateLongGEZero</span><span class="p">)</span>
@@ -328,30 +319,30 @@ mechanism is not magicaly performed by the engine, but must be done explicitly i
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Like you can see, there is nothing complex. Your validator is given the <code class="docutils literal"><span class="pre">new_value</span></code> and must validate against it.
-Remember that <code class="docutils literal"><span class="pre">new_value</span></code> is of type <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string *</span></a>. The
-<code class="docutils literal"><span class="pre">onUpdateLongGEZero()</span></code> takes the value as a long and checks if it is a positive integer. One must return <code class="docutils literal"><span class="pre">SUCCESS</span></code>
-from the validator if everything went right and <code class="docutils literal"><span class="pre">FAILURE</span></code> if not.</p>
-<p>Then comes the part to update the global. <code class="docutils literal"><span class="pre">mh_arg</span></code> variables are used to carry any type of information to your
+<p>Like you can see, there is nothing complex. Your validator is given the <code class="docutils literal notranslate"><span class="pre">new_value</span></code> and must validate against it.
+Remember that <code class="docutils literal notranslate"><span class="pre">new_value</span></code> is of type <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string *</span></a>. The
+<code class="docutils literal notranslate"><span class="pre">onUpdateLongGEZero()</span></code> takes the value as a long and checks if it is a positive integer. One must return <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code>
+from the validator if everything went right and <code class="docutils literal notranslate"><span class="pre">FAILURE</span></code> if not.</p>
+<p>Then comes the part to update the global. <code class="docutils literal notranslate"><span class="pre">mh_arg</span></code> variables are used to carry any type of information to your
 validator.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><em>‘mh’</em> stands for <em>modify handler</em>. Validators callbacks are also called <em>modification handler callbacks</em>.</p>
+<p class="admonition-title">Note</p>
+<p><em>‘mh’</em> stands for <em>modify handler</em>. Validators callbacks are also called <em>modification handler callbacks</em>.</p>
 </div>
-<p><code class="docutils literal"><span class="pre">mh_arg2</span></code> is a pointer to the memory area representing the beginning of your global structure memory, in our case, the
-beginning of the <code class="docutils literal"><span class="pre">pib_globals</span></code> allocated memory. Note that as we talk about request-global variable memory, that latter
+<p><code class="docutils literal notranslate"><span class="pre">mh_arg2</span></code> is a pointer to the memory area representing the beginning of your global structure memory, in our case, the
+beginning of the <code class="docutils literal notranslate"><span class="pre">pib_globals</span></code> allocated memory. Note that as we talk about request-global variable memory, that latter
 is accessed differently if you are using ZTS mode or not. More information about ZTS
 <a class="reference internal" href="globals_management.html"><span class="doc">can be found here</span></a>.</p>
-<p><code class="docutils literal"><span class="pre">mh_arg1</span></code> is passed the computed offset of your global member (<code class="docutils literal"><span class="pre">max_rnd</span></code> for us), and you must slice the memory
-yourself to get a pointer to it. That’s why we stored <code class="docutils literal"><span class="pre">mh_arg2</span></code> as a generic <code class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></code> pointer and casted
-<code class="docutils literal"><span class="pre">mh_arg1</span></code> to <code class="docutils literal"><span class="pre">size_t</span></code>.</p>
-<p>Then, you simply update the content with the validated value by writing into the pointer. <code class="docutils literal"><span class="pre">mh_arg3</span></code> is unused actually.</p>
-<p>Default validators from PHP are <code class="docutils literal"><span class="pre">OnUpdateLongGEZero()</span></code>, <code class="docutils literal"><span class="pre">OnUpdateLong()</span></code>, <code class="docutils literal"><span class="pre">OnUpdateBool()</span></code>, <code class="docutils literal"><span class="pre">OnUpdateReal()</span></code>,
-<code class="docutils literal"><span class="pre">OnUpdateString()</span></code>, and <code class="docutils literal"><span class="pre">OnUpdateStringUnempty()</span></code>. Their names are self describing and their source code as well
+<p><code class="docutils literal notranslate"><span class="pre">mh_arg1</span></code> is passed the computed offset of your global member (<code class="docutils literal notranslate"><span class="pre">max_rnd</span></code> for us), and you must slice the memory
+yourself to get a pointer to it. That’s why we stored <code class="docutils literal notranslate"><span class="pre">mh_arg2</span></code> as a generic <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">*</span></code> pointer and casted
+<code class="docutils literal notranslate"><span class="pre">mh_arg1</span></code> to <code class="docutils literal notranslate"><span class="pre">size_t</span></code>.</p>
+<p>Then, you simply update the content with the validated value by writing into the pointer. <code class="docutils literal notranslate"><span class="pre">mh_arg3</span></code> is unused actually.</p>
+<p>Default validators from PHP are <code class="docutils literal notranslate"><span class="pre">OnUpdateLongGEZero()</span></code>, <code class="docutils literal notranslate"><span class="pre">OnUpdateLong()</span></code>, <code class="docutils literal notranslate"><span class="pre">OnUpdateBool()</span></code>, <code class="docutils literal notranslate"><span class="pre">OnUpdateReal()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">OnUpdateString()</span></code>, and <code class="docutils literal notranslate"><span class="pre">OnUpdateStringUnempty()</span></code>. Their names are self describing and their source code as well
 (you may read it).</p>
 <p>Based on such a model, we could develop our own validator, that validates against a positive integer between 0 and 1000
 for example:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_INI_MH</span><span class="p">(</span><span class="n">onUpdateMaxRnd</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_INI_MH</span><span class="p">(</span><span class="n">onUpdateMaxRnd</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">zend_long</span> <span class="n">tmp</span><span class="p">;</span>
 
@@ -383,21 +374,21 @@ for example:</p>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">It is safe to write to an <em>unsigned long</em> from a <em>long</em>, as soon as the ranges are checked, which the validator
+<p class="admonition-title">Note</p>
+<p>It is safe to write to an <em>unsigned long</em> from a <em>long</em>, as soon as the ranges are checked, which the validator
 does.</p>
 </div>
-<p>Now, if the user wants to modify the setting and pass a wrong value that does not validate, <code class="docutils literal"><span class="pre">ini_set()</span></code> simply will
+<p>Now, if the user wants to modify the setting and pass a wrong value that does not validate, <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code> simply will
 return false to the userland, and will not modify the value:</p>
-<div class="highlight-php"><div class="highlight"><pre><span></span><span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;pib.rnd_max&#39;</span><span class="p">,</span> <span class="mi">2048</span><span class="p">);</span> <span class="cm">/* returns false as 2048 is &gt; 1000 */</span>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;pib.rnd_max&#39;</span><span class="p">,</span> <span class="mi">2048</span><span class="p">);</span> <span class="cm">/* returns false as 2048 is &gt; 1000 */</span>
 </pre></div>
 </div>
-<dl class="docutils">
-<dt>In the opposite case, <code class="docutils literal"><span class="pre">ini_set()</span></code> returns the old value and modifies current the value. The new provided value becomes</dt>
-<dd>the current “local” value whereas the default preceding value stays as the “master value”. <code class="docutils literal"><span class="pre">phpinfo()</span></code> or
-<code class="docutils literal"><span class="pre">ini_get_all()</span></code> detail such values. Example:</dd>
+<dl class="simple">
+<dt>In the opposite case, <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code> returns the old value and modifies current the value. The new provided value becomes</dt><dd><p>the current “local” value whereas the default preceding value stays as the “master value”. <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code> or
+<code class="docutils literal notranslate"><span class="pre">ini_get_all()</span></code> detail such values. Example:</p>
+</dd>
 </dl>
-<div class="highlight-php"><div class="highlight"><pre><span></span><span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;pib.rnd_max&#39;</span><span class="p">,</span> <span class="mi">500</span><span class="p">);</span>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;pib.rnd_max&#39;</span><span class="p">,</span> <span class="mi">500</span><span class="p">);</span>
 
 <span class="nb">var_dump</span><span class="p">(</span><span class="nb">ini_get_all</span><span class="p">(</span><span class="s1">&#39;pib&#39;</span><span class="p">));</span>
 
@@ -418,36 +409,36 @@ return false to the userland, and will not modify the value:</p>
 <p>Be advised that your validator callback will be called anytime the value is changed, and it is changed several times.
 For example, for our tiny example, the validator we designed is called three times :</p>
 <ul class="simple">
-<li>Once in <code class="docutils literal"><span class="pre">REGISTER_INI_ENTRY()</span></code>, in <code class="docutils literal"><span class="pre">MINIT()</span></code>. We set the default value to our setting here, hence this is done
-using our validator. Remember that the default value could come from INI files parsing.</li>
-<li>Once per <code class="docutils literal"><span class="pre">ini_set()</span></code> userland call.</li>
-<li>Once in <code class="docutils literal"><span class="pre">RSHUTDOWN()</span></code>, when the engine will attempt to restore the local value to its master value, if the value has
-been changed during the current request. Userland <code class="docutils literal"><span class="pre">ini_restore()</span></code> does the same job.</li>
+<li><p>Once in <code class="docutils literal notranslate"><span class="pre">REGISTER_INI_ENTRY()</span></code>, in <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code>. We set the default value to our setting here, hence this is done
+using our validator. Remember that the default value could come from INI files parsing.</p></li>
+<li><p>Once per <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code> userland call.</p></li>
+<li><p>Once in <code class="docutils literal notranslate"><span class="pre">RSHUTDOWN()</span></code>, when the engine will attempt to restore the local value to its master value, if the value has
+been changed during the current request. Userland <code class="docutils literal notranslate"><span class="pre">ini_restore()</span></code> does the same job.</p></li>
 </ul>
-<p>Keep also in mind that the value accessor is checked against by <code class="docutils literal"><span class="pre">ini_set()</span></code>. If we would have designed a
-<code class="docutils literal"><span class="pre">PHP_INI_SYSTEM</span></code> setting, then the user would not have been able to modify it using <code class="docutils literal"><span class="pre">ini_set()</span></code>, as <code class="docutils literal"><span class="pre">ini_set()</span></code>
-uses <code class="docutils literal"><span class="pre">PHP_INI_USER</span></code> as accessor. The mismatch would then have been detected and the validator would not have
+<p>Keep also in mind that the value accessor is checked against by <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code>. If we would have designed a
+<code class="docutils literal notranslate"><span class="pre">PHP_INI_SYSTEM</span></code> setting, then the user would not have been able to modify it using <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code>, as <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code>
+uses <code class="docutils literal notranslate"><span class="pre">PHP_INI_USER</span></code> as accessor. The mismatch would then have been detected and the validator would not have
 been called by the engine in such a case.</p>
 <p>If you need to change the INI setting value into your extension at runtime, the internal call is
-<code class="docutils literal"><span class="pre">zend_alter_ini_entry()</span></code>, this is what userland <code class="docutils literal"><span class="pre">ini_set()</span></code> uses.</p>
+<code class="docutils literal notranslate"><span class="pre">zend_alter_ini_entry()</span></code>, this is what userland <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code> uses.</p>
 </div>
 <div class="section" id="using-a-displayer">
 <h2>Using a displayer<a class="headerlink" href="#using-a-displayer" title="Permalink to this headline">¶</a></h2>
-<p>The last thing you need to know about INI settings is the <code class="docutils literal"><span class="pre">displayer()</span></code> callback. It is less used in practice, it is
+<p>The last thing you need to know about INI settings is the <code class="docutils literal notranslate"><span class="pre">displayer()</span></code> callback. It is less used in practice, it is
 triggered any time the userland asks to “print” your INI setting value, that is through the usage of
-<code class="docutils literal"><span class="pre">phpinfo()</span></code> or <code class="docutils literal"><span class="pre">php</span> <span class="pre">--ri</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code> or <code class="docutils literal notranslate"><span class="pre">php</span> <span class="pre">--ri</span></code>.</p>
 <p>If you provide no displayer, a default one will be used. See it:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">php</span> <span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span> <span class="o">-</span><span class="n">dpib</span><span class="p">.</span><span class="n">rnd_max</span><span class="o">=</span><span class="mi">120</span> <span class="o">--</span><span class="n">ri</span> <span class="n">pib</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">php</span> <span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span> <span class="o">-</span><span class="n">dpib</span><span class="p">.</span><span class="n">rnd_max</span><span class="o">=</span><span class="mi">120</span> <span class="o">--</span><span class="n">ri</span> <span class="n">pib</span>
 
 <span class="n">Directive</span> <span class="o">=&gt;</span> <span class="n">Local</span> <span class="n">Value</span> <span class="o">=&gt;</span> <span class="n">Master</span> <span class="n">Value</span>
 <span class="n">pib</span><span class="p">.</span><span class="n">rnd_max</span> <span class="o">=&gt;</span> <span class="mi">120</span> <span class="o">=&gt;</span> <span class="mi">120</span>
 </pre></div>
 </div>
-<p>The default displayer takes the INI setting value (which, as a reminder, is of type <code class="docutils literal"><span class="pre">zend_string</span> <span class="pre">*</span></code>), and simply
+<p>The default displayer takes the INI setting value (which, as a reminder, is of type <code class="docutils literal notranslate"><span class="pre">zend_string</span> <span class="pre">*</span></code>), and simply
 displays it. If no value were found or the value were the empty string, then it displays the string “no value”.</p>
-<p>To take hand on such a process, we must declare a <code class="docutils literal"><span class="pre">displayer()</span></code> callback that will be called. Let’s try to represent
+<p>To take hand on such a process, we must declare a <code class="docutils literal notranslate"><span class="pre">displayer()</span></code> callback that will be called. Let’s try to represent
 our <em>‘pib.rnd_max’</em> value as a percentage bar, with <em>‘#’</em> and <em>‘.’</em> chars. Just an example:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#define ZEND_INI_DISP(name) void name(zend_ini_entry *ini_entry, int type)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define ZEND_INI_DISP(name) void name(zend_ini_entry *ini_entry, int type)</span>
 
 <span class="n">ZEND_INI_DISP</span><span class="p">(</span><span class="n">MaxRnd</span><span class="p">)</span>
 <span class="p">{</span>
@@ -474,22 +465,22 @@ our <em>‘pib.rnd_max’</em> value as a percentage bar, with <em>‘#’</em> 
 <span class="n">PHP_INI_END</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>We use this time the <code class="docutils literal"><span class="pre">_EX()</span></code> macro counter-part to declare our INI setting. This macro accepts as last parameter the
-displayer function. <code class="docutils literal"><span class="pre">STD_PHP_INI_ENTRY_EX()</span></code> is then used.</p>
-<p><code class="docutils literal"><span class="pre">ZEND_INI_DISP()</span></code> is then used to declare our displayer function. It receives as argument the INI setting it’s been
-attached to, and the value PHP wants you to display : <code class="docutils literal"><span class="pre">ZEND_INI_DISPLAY_ORIG</span></code> means the master value, and
-<code class="docutils literal"><span class="pre">ZEND_INI_DISPLAY_ACTIVE</span></code> means the current request-bound local value.</p>
+<p>We use this time the <code class="docutils literal notranslate"><span class="pre">_EX()</span></code> macro counter-part to declare our INI setting. This macro accepts as last parameter the
+displayer function. <code class="docutils literal notranslate"><span class="pre">STD_PHP_INI_ENTRY_EX()</span></code> is then used.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ZEND_INI_DISP()</span></code> is then used to declare our displayer function. It receives as argument the INI setting it’s been
+attached to, and the value PHP wants you to display : <code class="docutils literal notranslate"><span class="pre">ZEND_INI_DISPLAY_ORIG</span></code> means the master value, and
+<code class="docutils literal notranslate"><span class="pre">ZEND_INI_DISPLAY_ACTIVE</span></code> means the current request-bound local value.</p>
 <p>Then we toy with the value, and represent it as ‘#’ and ‘.’ chars, something like this:</p>
-<div class="highlight-php"><div class="highlight"><pre><span></span><span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;pib.rnd_max&#39;</span><span class="p">,</span> <span class="mi">500</span><span class="p">);</span>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;pib.rnd_max&#39;</span><span class="p">,</span> <span class="mi">500</span><span class="p">);</span>
 <span class="nb">phpinfo</span><span class="p">(</span><span class="nx">INFO_MODULES</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>If we invoke it with:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">php</span> <span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">php</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">php</span> <span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">php</span>
 </pre></div>
 </div>
 <p>Then it displays:</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>pib
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pib
 
 Directive =&gt; Local Value =&gt; Master Value
 pib.rnd_max =&gt; ##################################################..................................................
@@ -497,11 +488,11 @@ pib.rnd_max =&gt; ##################################################............
 </pre></div>
 </div>
 <p>And if we invoke it with:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">php</span> <span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span> <span class="o">-</span><span class="n">dpib</span><span class="p">.</span><span class="n">rnd_max</span><span class="o">=</span><span class="mi">10</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">php</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">php</span> <span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span> <span class="o">-</span><span class="n">dpib</span><span class="p">.</span><span class="n">rnd_max</span><span class="o">=</span><span class="mi">10</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">php</span>
 </pre></div>
 </div>
 <p>Then it displays:</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>pib
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>pib
 
 Directive =&gt; Local Value =&gt; Master Value
 pib.rnd_max =&gt; ##################################################..................................................
@@ -510,9 +501,9 @@ pib.rnd_max =&gt; ##################################################............
 </div>
 <p>As PHP will display both our local and master value, our displayer callback will be called twice here. The local value
 is effectively representing the value of “500” whereas the master value shows the default hardcoded value of “100”
-if we don’t change it, and if we change it using <code class="docutils literal"><span class="pre">-d</span></code> from php-cli, it is effectively used.</p>
-<p>If you want to use one of the existing displayers from PHP, you may use <code class="docutils literal"><span class="pre">zend_ini_boolean_displayer_cb()</span></code>,
-<code class="docutils literal"><span class="pre">zend_ini_color_displayer_cb()</span></code> or <code class="docutils literal"><span class="pre">display_link_numbers()</span></code></p>
+if we don’t change it, and if we change it using <code class="docutils literal notranslate"><span class="pre">-d</span></code> from php-cli, it is effectively used.</p>
+<p>If you want to use one of the existing displayers from PHP, you may use <code class="docutils literal notranslate"><span class="pre">zend_ini_boolean_displayer_cb()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">zend_ini_color_displayer_cb()</span></code> or <code class="docutils literal notranslate"><span class="pre">display_link_numbers()</span></code></p>
 </div>
 </div>
 

@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hash algorithm and collisions &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Classes and objects" href="../classes_objects.html" />
     <link rel="prev" title="Symtable and array API" href="array_api.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Hash algorithm and collisions</span></h2>
@@ -43,7 +34,7 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="hash-algorithm-and-collisions">
@@ -53,10 +44,10 @@ the hashing function that PHP employs. While this knowledge is not necessary for
 should give you a better understanding of the hashtable structure and its limitations.</p>
 <div class="section" id="analyzing-collisions">
 <h2>Analyzing collisions<a class="headerlink" href="#analyzing-collisions" title="Permalink to this headline">¶</a></h2>
-<p>In order to simplify collision analysis, let’s first write a helper function <code class="docutils literal"><span class="pre">array_collision_info()</span></code> which will
-take an array and tell us which keys collide into which index. In order to do so we’ll go through the <code class="docutils literal"><span class="pre">arBuckets</span></code> and
+<p>In order to simplify collision analysis, let’s first write a helper function <code class="docutils literal notranslate"><span class="pre">array_collision_info()</span></code> which will
+take an array and tell us which keys collide into which index. In order to do so we’ll go through the <code class="docutils literal notranslate"><span class="pre">arBuckets</span></code> and
 for every index create an array that contains some information about all buckets at that index:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_collision_info</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_collision_info</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">HashTable</span> <span class="o">*</span><span class="n">hash</span><span class="p">;</span>
     <span class="n">zend_uint</span> <span class="n">i</span><span class="p">;</span>
 
@@ -110,8 +101,8 @@ for every index create an array that contains some information about all buckets
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The code is also a nice usage example for the <code class="docutils literal"><span class="pre">add_</span></code> functions from the previous section. Let’s try the function out:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">var_dump</span><span class="p">(</span><span class="n">array_collision_info</span><span class="p">([</span><span class="mi">2</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">]));</span>
+<p>The code is also a nice usage example for the <code class="docutils literal notranslate"><span class="pre">add_</span></code> functions from the previous section. Let’s try the function out:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">var_dump</span><span class="p">(</span><span class="n">array_collision_info</span><span class="p">([</span><span class="mi">2</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">]));</span>
 
 <span class="c1">// Output (reformatted a bit):</span>
 
@@ -146,13 +137,13 @@ for every index create an array that contains some information about all buckets
 </div>
 <p>There are several things you can see from this output (most of which you should already be aware of):</p>
 <ul class="simple">
-<li>The outer array has 8 elements, even though only 3 were inserted. This is because 8 is the default initial table
-size.</li>
-<li>For integers the hash and the key are always the same.</li>
-<li>Even though the hashes are all different, we still have a collision at <code class="docutils literal"><span class="pre">nIndex</span> <span class="pre">==</span> <span class="pre">2</span></code> because 2 % 8 is 2, but
-10 % 8 is also 2.</li>
-<li>The linked collision resolution lists contain the elements in reverse order of insertion. (This is the easiest way
-to implement it.)</li>
+<li><p>The outer array has 8 elements, even though only 3 were inserted. This is because 8 is the default initial table
+size.</p></li>
+<li><p>For integers the hash and the key are always the same.</p></li>
+<li><p>Even though the hashes are all different, we still have a collision at <code class="docutils literal notranslate"><span class="pre">nIndex</span> <span class="pre">==</span> <span class="pre">2</span></code> because 2 % 8 is 2, but
+10 % 8 is also 2.</p></li>
+<li><p>The linked collision resolution lists contain the elements in reverse order of insertion. (This is the easiest way
+to implement it.)</p></li>
 </ul>
 </div>
 <div class="section" id="index-collisions">
@@ -161,11 +152,11 @@ to implement it.)</li>
 accomplish this and we’ll start with the easier one: Rather than creating collisions in the hash function, we’ll
 create the collisions in the index (which is the hash modulo the table size).</p>
 <p>For integer keys this is particularly easy, because no real hashing operation is applied to them. The index will simply
-be <code class="docutils literal"><span class="pre">key</span> <span class="pre">%</span> <span class="pre">nTableSize</span></code>. Finding collisions for this expression is trivial, e.g. any key that is a multiple of the
+be <code class="docutils literal notranslate"><span class="pre">key</span> <span class="pre">%</span> <span class="pre">nTableSize</span></code>. Finding collisions for this expression is trivial, e.g. any key that is a multiple of the
 table size will collide. If the table size if 8, then the indices will be 0 % 8 = 0, 8 % 8 = 0, 16 % 8 = 0, 24 % 8 = 0,
 etc.</p>
 <p>Here is a PHP script demonstrating this scenario:</p>
-<div class="highlight-php"><div class="highlight"><pre><span></span><span class="nv">$size</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">);</span> <span class="c1">// any power of 2 will do</span>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$size</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">);</span> <span class="c1">// any power of 2 will do</span>
 
 <span class="nv">$startTime</span> <span class="o">=</span> <span class="nb">microtime</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
 
@@ -183,7 +174,7 @@ etc.</p>
 </pre></div>
 </div>
 <p>This is the output I get (the results will be different for your machine, but should have the same order of magnitude):</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Inserted 65536 elements in 34.05 seconds
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Inserted 65536 elements in 34.05 seconds
 There are 65536 collisions at index 0
 </pre></div>
 </div>
@@ -200,7 +191,7 @@ this is not a problem as the collision list contains only one or two buckets. In
 <p>Now that we successfully created a worst-case scenario using index collisions, let’s do the same using actual hash
 collisions. As this is not possible using integer keys, we’ll have to take a look at PHP’s string hashing function,
 which is defined as follows:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="n">ulong</span> <span class="nf">zend_inline_hash_func</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="n">ulong</span> <span class="nf">zend_inline_hash_func</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">register</span> <span class="n">ulong</span> <span class="n">hash</span> <span class="o">=</span> <span class="mi">5381</span><span class="p">;</span>
 
@@ -231,7 +222,7 @@ which is defined as follows:</p>
 </pre></div>
 </div>
 <p>After removing the manual loop-unrolling the function will look like this:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="n">ulong</span> <span class="nf">zend_inline_hash_func</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="n">ulong</span> <span class="nf">zend_inline_hash_func</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">register</span> <span class="n">ulong</span> <span class="n">hash</span> <span class="o">=</span> <span class="mi">5381</span><span class="p">;</span>
 
@@ -243,9 +234,9 @@ which is defined as follows:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">hash</span> <span class="pre">&lt;&lt;</span> <span class="pre">5</span> <span class="pre">+</span> <span class="pre">hash</span></code> expression is the same as <code class="docutils literal"><span class="pre">hash</span> <span class="pre">*</span> <span class="pre">32</span> <span class="pre">+</span> <span class="pre">hash</span></code> or just <code class="docutils literal"><span class="pre">hash</span> <span class="pre">*</span> <span class="pre">33</span></code>. Using this we can further
+<p>The <code class="docutils literal notranslate"><span class="pre">hash</span> <span class="pre">&lt;&lt;</span> <span class="pre">5</span> <span class="pre">+</span> <span class="pre">hash</span></code> expression is the same as <code class="docutils literal notranslate"><span class="pre">hash</span> <span class="pre">*</span> <span class="pre">32</span> <span class="pre">+</span> <span class="pre">hash</span></code> or just <code class="docutils literal notranslate"><span class="pre">hash</span> <span class="pre">*</span> <span class="pre">33</span></code>. Using this we can further
 simplify the function:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="n">ulong</span> <span class="nf">zend_inline_hash_func</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="n">ulong</span> <span class="nf">zend_inline_hash_func</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">register</span> <span class="n">ulong</span> <span class="n">hash</span> <span class="o">=</span> <span class="mi">5381</span><span class="p">;</span>
 
@@ -260,8 +251,8 @@ simplify the function:</p>
 <p>This hash function is called <em>DJBX33A</em>, which stands for “Daniel J. Bernstein, Times 33 with Addition”. It is one of the
 simplest (and as such also one of the fastest) string hashing functions there is.</p>
 <p>Thanks to the simplicity of the hash function finding collisions is not hard. We’ll start with two-character collisions,
-i.e. we are looking for two strings <code class="docutils literal"><span class="pre">ab</span></code> and <code class="docutils literal"><span class="pre">cd</span></code>, which have the same hash:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>    hash(ab) = hash(cd)
+i.e. we are looking for two strings <code class="docutils literal notranslate"><span class="pre">ab</span></code> and <code class="docutils literal notranslate"><span class="pre">cd</span></code>, which have the same hash:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    hash(ab) = hash(cd)
 &lt;=&gt; (5381 * 33 + a) * 33 + b = (5381 * 33 + c) * 33 + d
 &lt;=&gt; a * 33 + b = c * 33 + d
 &lt;=&gt; c = a + n
@@ -272,7 +263,7 @@ i.e. we are looking for two strings <code class="docutils literal"><span class="
 <p>This tells us that we can get a collision by taking a two-char string, incrementing the first char by one and
 decrementing the second char by 33. Using this technique we can create groups of 8 strings which all collide. Here is
 an example of such a collision group:</p>
-<div class="highlight-php"><div class="highlight"><pre><span></span><span class="nv">$array</span> <span class="o">=</span> <span class="p">[</span>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$array</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;E&quot;</span> <span class="o">.</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>  <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span>
     <span class="s2">&quot;F&quot;</span> <span class="o">.</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">89</span><span class="p">)</span>   <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
     <span class="s2">&quot;G&quot;</span> <span class="o">.</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">56</span><span class="p">)</span>   <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">,</span>
@@ -286,8 +277,8 @@ an example of such a collision group:</p>
 <span class="nb">var_dump</span><span class="p">(</span><span class="nx">array_collision_info</span><span class="p">(</span><span class="nv">$array</span><span class="p">));</span>
 </pre></div>
 </div>
-<p>The output shows that indeed all the keys collide with hash <code class="docutils literal"><span class="pre">193456164</span></code>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">array</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span>
+<p>The output shows that indeed all the keys collide with hash <code class="docutils literal notranslate"><span class="pre">193456164</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">array</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span>
   <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=&gt;</span> <span class="n">array</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{}</span>
   <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=&gt;</span> <span class="n">array</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{}</span>
   <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=&gt;</span> <span class="n">array</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{}</span>
@@ -341,9 +332,9 @@ an example of such a collision group:</p>
 </pre></div>
 </div>
 <p>Once we got one collision group, constructing more collisions is even easier. To do so we make use of the following
-property of DJBX33A: If two equal-length strings <code class="docutils literal"><span class="pre">$str1</span></code> and <code class="docutils literal"><span class="pre">$str2</span></code> collide, then <code class="docutils literal"><span class="pre">$prefix.$str1.$postfix</span></code> and
-<code class="docutils literal"><span class="pre">$prefix.$str2.$postfix</span></code> will collide as well. It’s easy to prove that this is indeed true:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>  hash(prefix . str1 . postfix)
+property of DJBX33A: If two equal-length strings <code class="docutils literal notranslate"><span class="pre">$str1</span></code> and <code class="docutils literal notranslate"><span class="pre">$str2</span></code> collide, then <code class="docutils literal notranslate"><span class="pre">$prefix.$str1.$postfix</span></code> and
+<code class="docutils literal notranslate"><span class="pre">$prefix.$str2.$postfix</span></code> will collide as well. It’s easy to prove that this is indeed true:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  hash(prefix . str1 . postfix)
 = hash(prefix) * 33^a + hash(str1) * 33^b + hash(postfix)
 = hash(prefix) * 33^a + hash(str2) * 33^b + hash(postfix)
 = hash(prefix . str2 . postfix)
@@ -351,12 +342,12 @@ property of DJBX33A: If two equal-length strings <code class="docutils literal">
   where a = strlen(str1 . postfix) and b = strlen(postfix)
 </pre></div>
 </div>
-<p>Thus, if <code class="docutils literal"><span class="pre">Ez</span></code> and <code class="docutils literal"><span class="pre">FY</span></code> collide, so will <code class="docutils literal"><span class="pre">abcEzefg</span></code> and <code class="docutils literal"><span class="pre">abcFYefg</span></code>. This is also the reason why we could ignore
+<p>Thus, if <code class="docutils literal notranslate"><span class="pre">Ez</span></code> and <code class="docutils literal notranslate"><span class="pre">FY</span></code> collide, so will <code class="docutils literal notranslate"><span class="pre">abcEzefg</span></code> and <code class="docutils literal notranslate"><span class="pre">abcFYefg</span></code>. This is also the reason why we could ignore
 the trailing NUL-byte that is also part of the hash in the previous considerations: It would result in a different hash,
 but the collisions would still be present.</p>
 <p>Using this property large sets of collisions can be created by taking a known set of collisions and concatenating them
-in every possible way. E.g. if we know that <code class="docutils literal"><span class="pre">Ez</span></code> and <code class="docutils literal"><span class="pre">FY</span></code> collide, then we also know that all of <code class="docutils literal"><span class="pre">EzEzEz</span></code>,
-<code class="docutils literal"><span class="pre">EzEzFY</span></code>, <code class="docutils literal"><span class="pre">EzFYEz</span></code>, <code class="docutils literal"><span class="pre">EzFYFY</span></code>, <code class="docutils literal"><span class="pre">FYEzEz</span></code>, <code class="docutils literal"><span class="pre">FYEzFY</span></code>, <code class="docutils literal"><span class="pre">FYFYEz</span></code> and <code class="docutils literal"><span class="pre">FYFYFY</span></code> will collide. With this method we
+in every possible way. E.g. if we know that <code class="docutils literal notranslate"><span class="pre">Ez</span></code> and <code class="docutils literal notranslate"><span class="pre">FY</span></code> collide, then we also know that all of <code class="docutils literal notranslate"><span class="pre">EzEzEz</span></code>,
+<code class="docutils literal notranslate"><span class="pre">EzEzFY</span></code>, <code class="docutils literal notranslate"><span class="pre">EzFYEz</span></code>, <code class="docutils literal notranslate"><span class="pre">EzFYFY</span></code>, <code class="docutils literal notranslate"><span class="pre">FYEzEz</span></code>, <code class="docutils literal notranslate"><span class="pre">FYEzFY</span></code>, <code class="docutils literal notranslate"><span class="pre">FYFYEz</span></code> and <code class="docutils literal notranslate"><span class="pre">FYFYFY</span></code> will collide. With this method we
 can create arbitrarily large sets of collisions.</p>
 </div>
 </div>

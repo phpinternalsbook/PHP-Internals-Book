@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zend Memory Manager &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Debugging memory" href="memory_debugging.html" />
     <link rel="prev" title="Memory management" href="../memory_management.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Zend Memory Manager</span></h2>
@@ -43,22 +34,22 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="zend-memory-manager">
-<h1>Zend Memory Manager<a class="headerlink" href="#zend-memory-manager" title="Permalink to this headline">¶</a></h1>
+<span id="zend-mm"></span><h1>Zend Memory Manager<a class="headerlink" href="#zend-memory-manager" title="Permalink to this headline">¶</a></h1>
 <p>Zend Memory Manager, often abbreviated as <em>ZendMM</em> or <em>ZMM</em>, is a C layer that aims to provide abilities to allocate
 and release dynamic <strong>request-bound</strong> memory.</p>
 <p>Note the “request-bound” in the above sentence.</p>
 <p>ZendMM is not just a classical layer over libc’s dynamic memory allocator, mainly represented by the couple API calls
-<code class="docutils literal"><span class="pre">malloc()/free()</span></code>. ZendMM is about request-bound memory that PHP must allocate while treating a request.</p>
+<code class="docutils literal notranslate"><span class="pre">malloc()/free()</span></code>. ZendMM is about request-bound memory that PHP must allocate while treating a request.</p>
 <div class="section" id="the-two-main-kind-of-dynamic-memory-pools-in-php">
 <h2>The two main kind of dynamic memory pools in PHP<a class="headerlink" href="#the-two-main-kind-of-dynamic-memory-pools-in-php" title="Permalink to this headline">¶</a></h2>
 <p>PHP is a share-nothing architecture. Well, not at 100%. Let us explain.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">You may need to read <a class="reference internal" href="../extensions_design/php_lifecycle.html"><span class="doc">the PHP lifecycle chapter</span></a> before continuing
+<p class="admonition-title">Note</p>
+<p>You may need to read <a class="reference internal" href="../extensions_design/php_lifecycle.html"><span class="doc">the PHP lifecycle chapter</span></a> before continuing
 here, you’ll get additional information about the different steps and cycles that can be drawn from PHP
 lifetime.</p>
 </div>
@@ -76,38 +67,35 @@ default, PHP forgets <em>a very huge number</em> of information from one request
 <p>There exists however some pretty rare information you need to persist across several requests. But that’s uncommon.</p>
 <p>What could be kept unchanged through requests ? What we call <strong>persistent</strong> objects. Once more let us insist : those
 are rare cases. For example, the current PHP executable path won’t change from requests to requests. That latter
-information is allocated permanently, that means it is allocated with a traditional libc’s <code class="docutils literal"><span class="pre">malloc()</span></code> call.</p>
+information is allocated permanently, that means it is allocated with a traditional libc’s <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> call.</p>
 <p>What else? Some strings. For example, the <em>“_SERVER”</em> string will be reused from request to request, as every request
-will create the <code class="docutils literal"><span class="pre">$_SERVER</span></code> PHP array. So the <em>“_SERVER”</em> string itself can be permanently allocated, because it will
+will create the <code class="docutils literal notranslate"><span class="pre">$_SERVER</span></code> PHP array. So the <em>“_SERVER”</em> string itself can be permanently allocated, because it will
 be allocated once.</p>
 <p>What you must remember:</p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>There exists two kinds of dynamic memory allocations while programming PHP Core or extensions:</dt>
-<dd><ul class="first last">
-<li>Request-bound dynamic allocations.</li>
-<li>Permanent dynamic allocations.</li>
+<li><dl class="simple">
+<dt>There exists two kinds of dynamic memory allocations while programming PHP Core or extensions:</dt><dd><ul>
+<li><p>Request-bound dynamic allocations.</p></li>
+<li><p>Permanent dynamic allocations.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>Request-bound dynamic memory allocations</dt>
-<dd><ul class="first last">
-<li>Must only be performed when PHP is treating a request (not before, nor after).</li>
-<li>Should only be performed using the ZendMM dynamic memory allocation API.</li>
-<li>Are very common in extensions design, basically 95% of your dynamic allocations will be request-bound.</li>
-<li>Are tracked by ZendMM, and you’ll be informed about leaking.</li>
+<li><dl class="simple">
+<dt>Request-bound dynamic memory allocations</dt><dd><ul>
+<li><p>Must only be performed when PHP is treating a request (not before, nor after).</p></li>
+<li><p>Should only be performed using the ZendMM dynamic memory allocation API.</p></li>
+<li><p>Are very common in extensions design, basically 95% of your dynamic allocations will be request-bound.</p></li>
+<li><p>Are tracked by ZendMM, and you’ll be informed about leaking.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>Permanent dynamic memory allocations</dt>
-<dd><ul class="first last">
-<li>Should not be performed while PHP is treating a request (not forbidden, but a bad idea).</li>
-<li>Are not tracked by ZendMM, and you won’t be informed about leaking.</li>
-<li>Should be pretty rare in an extension.</li>
+<li><dl class="simple">
+<dt>Permanent dynamic memory allocations</dt><dd><ul>
+<li><p>Should not be performed while PHP is treating a request (not forbidden, but a bad idea).</p></li>
+<li><p>Are not tracked by ZendMM, and you won’t be informed about leaking.</p></li>
+<li><p>Should be pretty rare in an extension.</p></li>
 </ul>
 </dd>
 </dl>
@@ -117,34 +105,34 @@ be allocated once.</p>
 allocated using the Zend Memory Manager. Most of them got a “persistent” API call, which when used, lead to
 traditional libc allocation.</p>
 <p>Here is a request-bound allocated <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string</span></a>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>And here is the persistent allocated one:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Same for <a class="reference internal" href="../internal_types/hashtables.html"><span class="doc">HashTable</span></a>. Request-bound allocated one:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_array</span> <span class="n">ar</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_array</span> <span class="n">ar</span><span class="p">;</span>
 <span class="n">zend_hash_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Persistent allocated one:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_array</span> <span class="n">ar</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_array</span> <span class="n">ar</span><span class="p">;</span>
 <span class="n">zend_hash_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>It is always the same in all the different Zend APIs. Usually, it is whether a <em>“0”</em> to pass as last parameter to mean
 “I want this structure to be allocated using ZendMM, so request-bound”, or <em>“1”</em> meaning “I want this structure to get
-allocated bypassing ZendMM and using a traditional libc’s <code class="docutils literal"><span class="pre">malloc()</span></code> call”.</p>
+allocated bypassing ZendMM and using a traditional libc’s <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> call”.</p>
 <p>Obviously, those structures provide an API that remembers how it did allocate the structure, to use the right
 deallocation function when destroyed. Hence in such a code:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
 <span class="n">zend_hash_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The API knows whether those structures were allocated using request-bound allocation, or permanent one, and in the
-first case will use <code class="docutils literal"><span class="pre">efree()</span></code> to release it, and in the second case libc’s <code class="docutils literal"><span class="pre">free()</span></code>.</p>
+first case will use <code class="docutils literal notranslate"><span class="pre">efree()</span></code> to release it, and in the second case libc’s <code class="docutils literal notranslate"><span class="pre">free()</span></code>.</p>
 </div>
 <div class="section" id="zend-memory-manager-api">
 <h2>Zend Memory Manager API<a class="headerlink" href="#zend-memory-manager-api" title="Permalink to this headline">¶</a></h2>
@@ -153,42 +141,42 @@ first case will use <code class="docutils literal"><span class="pre">efree()</sp
 <p>The API calls are mainly C macros and not functions, so get prepared if you debug them and want to look at how they
 work. Those calls copy libc’s calls, they usually add an “e” in the function name; So you should not be lost, and there
 is not many things to detail about the API.</p>
-<p>Basically what you’ll use most are <code class="docutils literal"><span class="pre">emalloc(size_t)</span></code> and <code class="docutils literal"><span class="pre">efree(void</span> <span class="pre">*)</span></code>.</p>
-<p>You are also provided with <code class="docutils literal"><span class="pre">ecalloc(size_t</span> <span class="pre">nmemb,</span> <span class="pre">size_t</span> <span class="pre">size)</span></code> that allocates <code class="docutils literal"><span class="pre">nmemb</span></code> of individual size <code class="docutils literal"><span class="pre">size</span></code>,
+<p>Basically what you’ll use most are <code class="docutils literal notranslate"><span class="pre">emalloc(size_t)</span></code> and <code class="docutils literal notranslate"><span class="pre">efree(void</span> <span class="pre">*)</span></code>.</p>
+<p>You are also provided with <code class="docutils literal notranslate"><span class="pre">ecalloc(size_t</span> <span class="pre">nmemb,</span> <span class="pre">size_t</span> <span class="pre">size)</span></code> that allocates <code class="docutils literal notranslate"><span class="pre">nmemb</span></code> of individual size <code class="docutils literal notranslate"><span class="pre">size</span></code>,
 and zeroes the area. If you are a strong C programmer with experience, you should know that whenever possible, it is
-better to use <code class="docutils literal"><span class="pre">ecalloc()</span></code> over <code class="docutils literal"><span class="pre">emalloc()</span></code> as <code class="docutils literal"><span class="pre">ecalloc()</span></code> will zero out the memory area which could help a lot in
-pointer bug detection. Remember that <code class="docutils literal"><span class="pre">emalloc()</span></code> works basically like the libc <code class="docutils literal"><span class="pre">malloc()</span></code>: it will look for a big
+better to use <code class="docutils literal notranslate"><span class="pre">ecalloc()</span></code> over <code class="docutils literal notranslate"><span class="pre">emalloc()</span></code> as <code class="docutils literal notranslate"><span class="pre">ecalloc()</span></code> will zero out the memory area which could help a lot in
+pointer bug detection. Remember that <code class="docutils literal notranslate"><span class="pre">emalloc()</span></code> works basically like the libc <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>: it will look for a big
 enough area in different pools, and return you the best fit. So you may be given a recycled pointer which points to
 garbage.</p>
-<p>Then comes <code class="docutils literal"><span class="pre">safe_emalloc(size_t</span> <span class="pre">nmemb,</span> <span class="pre">size_t</span> <span class="pre">size,</span> <span class="pre">size_t</span> <span class="pre">offset)</span></code>, which is an <code class="docutils literal"><span class="pre">emalloc(size</span> <span class="pre">*</span> <span class="pre">nmemb</span> <span class="pre">+</span> <span class="pre">offset)</span></code>
+<p>Then comes <code class="docutils literal notranslate"><span class="pre">safe_emalloc(size_t</span> <span class="pre">nmemb,</span> <span class="pre">size_t</span> <span class="pre">size,</span> <span class="pre">size_t</span> <span class="pre">offset)</span></code>, which is an <code class="docutils literal notranslate"><span class="pre">emalloc(size</span> <span class="pre">*</span> <span class="pre">nmemb</span> <span class="pre">+</span> <span class="pre">offset)</span></code>
 but that does check against overflows for you. You should use this API call if the numbers you must provide come from an
 untrusted source, like the userland.</p>
-<p>About string facilities, <code class="docutils literal"><span class="pre">estrdup(char</span> <span class="pre">*)</span></code> and <code class="docutils literal"><span class="pre">estrndup(char</span> <span class="pre">*,</span> <span class="pre">size_t</span> <span class="pre">len)</span></code> allow to duplicate strings or binary
+<p>About string facilities, <code class="docutils literal notranslate"><span class="pre">estrdup(char</span> <span class="pre">*)</span></code> and <code class="docutils literal notranslate"><span class="pre">estrndup(char</span> <span class="pre">*,</span> <span class="pre">size_t</span> <span class="pre">len)</span></code> allow to duplicate strings or binary
 strings.</p>
-<p>Whatever happens, pointers returned by ZendMM must be freed using ZendMM, aka <code class="docutils literal"><span class="pre">efree()</span></code> call and
+<p>Whatever happens, pointers returned by ZendMM must be freed using ZendMM, aka <code class="docutils literal notranslate"><span class="pre">efree()</span></code> call and
 <strong>not libc’s free()</strong>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">A note on persistent allocations. Persistent allocations stay alive between requests. You traditionnaly use
-the common libc <code class="docutils literal"><span class="pre">malloc/free</span></code> to perform that, but ZendMM has got some shortcuts to libc allocator : the
+<p class="admonition-title">Note</p>
+<p>A note on persistent allocations. Persistent allocations stay alive between requests. You traditionnaly use
+the common libc <code class="docutils literal notranslate"><span class="pre">malloc/free</span></code> to perform that, but ZendMM has got some shortcuts to libc allocator : the
 “persistent” API. This API starts by the <em>“p”</em> letter and let you choose between ZendMM alloc, or persistent
-alloc. Hence a <code class="docutils literal"><span class="pre">pemalloc(size_t,</span> <span class="pre">1)</span></code> is nothing more than a <code class="docutils literal"><span class="pre">malloc()</span></code>, a <code class="docutils literal"><span class="pre">pefree(void</span> <span class="pre">*,</span> <span class="pre">1)</span></code> is a
-<code class="docutils literal"><span class="pre">free()</span></code> and a <code class="docutils literal"><span class="pre">pestrdup(void</span> <span class="pre">*,</span> <span class="pre">1)</span></code> is a <code class="docutils literal"><span class="pre">strdup()</span></code>. Just to say.</p>
+alloc. Hence a <code class="docutils literal notranslate"><span class="pre">pemalloc(size_t,</span> <span class="pre">1)</span></code> is nothing more than a <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>, a <code class="docutils literal notranslate"><span class="pre">pefree(void</span> <span class="pre">*,</span> <span class="pre">1)</span></code> is a
+<code class="docutils literal notranslate"><span class="pre">free()</span></code> and a <code class="docutils literal notranslate"><span class="pre">pestrdup(void</span> <span class="pre">*,</span> <span class="pre">1)</span></code> is a <code class="docutils literal notranslate"><span class="pre">strdup()</span></code>. Just to say.</p>
 </div>
 </div>
 <div class="section" id="zend-memory-manager-debugging-shields">
 <h2>Zend Memory Manager debugging shields<a class="headerlink" href="#zend-memory-manager-debugging-shields" title="Permalink to this headline">¶</a></h2>
 <p>ZendMM provides the following abilities:</p>
 <ul class="simple">
-<li>Memory consumption management.</li>
-<li>Memory leak tracking and automatic-free.</li>
-<li>Speed up in allocations by pre-allocating well-known-sized buffers and keeping a warm cache on free</li>
+<li><p>Memory consumption management.</p></li>
+<li><p>Memory leak tracking and automatic-free.</p></li>
+<li><p>Speed up in allocations by pre-allocating well-known-sized buffers and keeping a warm cache on free</p></li>
 </ul>
 <div class="section" id="memory-consumption-management">
 <h3>Memory consumption management<a class="headerlink" href="#memory-consumption-management" title="Permalink to this headline">¶</a></h3>
 <p>ZendMM is the layer behind the PHP userland “memory_limit” feature. Every single byte allocated using the ZendMM layer
 is counted and added. When the INI’s <em>memory_limit</em> is reached, you know what happens.
-That also mean that any allocation you perform via ZendMM is reflected in the <code class="docutils literal"><span class="pre">memory_get_usage()</span></code> call from PHP
+That also mean that any allocation you perform via ZendMM is reflected in the <code class="docutils literal notranslate"><span class="pre">memory_get_usage()</span></code> call from PHP
 userland.</p>
 <p>As an extension developer, this is a good thing, because it helps mastering the PHP process’ heap size.</p>
 <p>If a memory limit error is launched, the engine will bail out from the current code position to a catch block, and will
@@ -196,15 +184,15 @@ terminate smoothly. But there is no chance it goes back to the location in your 
 You must be prepared to that.</p>
 <p>That means that in theory, ZendMM cannot return a NULL pointer to you. If the allocation fails from the OS, or if the
 allocation generates a memory limit error, the code will run into a catch block and won’t return to you allocation call.</p>
-<p>If for any reason you need to bypass that protection, you must then use a traditional libc call, like <code class="docutils literal"><span class="pre">malloc()</span></code>.
+<p>If for any reason you need to bypass that protection, you must then use a traditional libc call, like <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>.
 Take care however and know what you do. It may happen that you need to allocate lots of memory and could blow up the PHP
 <em>memory_limit</em> if using ZendMM. Thus use another allocator (like libc) but take care: your extension will grow the
-current process heap size. That cannot be seen using <code class="docutils literal"><span class="pre">memory_get_usage()</span></code> in PHP, but by analyzing the current heap
+current process heap size. That cannot be seen using <code class="docutils literal notranslate"><span class="pre">memory_get_usage()</span></code> in PHP, but by analyzing the current heap
 with the OS facilities (like <em>/proc/{pid}/maps</em>)</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you need to fully disable ZendMM, you can launch PHP with the <code class="docutils literal"><span class="pre">USE_ZEND_ALLOC=0</span></code> env var. This way, every
-call to the ZendMM API (like <code class="docutils literal"><span class="pre">emalloc()</span></code>) will be directed to a libc call, and ZendMM will be disabled.
+<p class="admonition-title">Note</p>
+<p>If you need to fully disable ZendMM, you can launch PHP with the <code class="docutils literal notranslate"><span class="pre">USE_ZEND_ALLOC=0</span></code> env var. This way, every
+call to the ZendMM API (like <code class="docutils literal notranslate"><span class="pre">emalloc()</span></code>) will be directed to a libc call, and ZendMM will be disabled.
 This is especially useful when <a class="reference internal" href="memory_debugging.html"><span class="doc">debugging memory</span></a>.</p>
 </div>
 </div>
@@ -220,18 +208,18 @@ allocated some should have freed them.</p>
 <p>If you forget to free blocks, they will all get displayed on <em>stderr</em>. This process of memory leak reporting only works
 in the following conditions:</p>
 <ul class="simple">
-<li>You are using <a class="reference internal" href="../build_system/building_php.html"><span class="doc">a debug build</span></a> of PHP</li>
-<li>You have <em>report_memleaks=On</em> in php.ini (default)</li>
+<li><p>You are using <a class="reference internal" href="../build_system/building_php.html"><span class="doc">a debug build</span></a> of PHP</p></li>
+<li><p>You have <em>report_memleaks=On</em> in php.ini (default)</p></li>
 </ul>
 <p>Here is an example of a simple leak into an extension:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="kt">void</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">emalloc</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>When launching PHP with that extension activated, on a debug build, that generates on stderr:</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>[Fri Jun 9 16:04:59 2017]  Script:  &#39;/tmp/foobar.php&#39;
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[Fri Jun 9 16:04:59 2017]  Script:  &#39;/tmp/foobar.php&#39;
 /path/to/extension/file.c(123) : Freeing 0x00007fffeee65000 (128 bytes), script=/tmp/foobar.php
 === Total 1 memory leaks detected ===
 </pre></div>
@@ -239,16 +227,16 @@ in the following conditions:</p>
 <p>Those lines are generated when the Zend Memory Manager shuts down, that is at the end of each treated request.</p>
 <p>Beware however:</p>
 <ul class="simple">
-<li>Obviously ZendMM doesn’t know anything about persistent allocations, or allocations that were performed in another way
+<li><p>Obviously ZendMM doesn’t know anything about persistent allocations, or allocations that were performed in another way
 than using it. Hence, ZendMM can only warn you about allocations it is aware of, every traditional libc allocation
-won’t be reported in here, f.e.</li>
-<li>If PHP shuts down in an incorrect maner (what we call an unclean shutdown), ZendMM will report tons of leaks. This is
+won’t be reported in here, f.e.</p></li>
+<li><p>If PHP shuts down in an incorrect maner (what we call an unclean shutdown), ZendMM will report tons of leaks. This is
 because when incorrectly shutdown, the engine uses a
 <a class="reference external" href="http://man7.org/linux/man-pages/man3/longjmp.3.html">longjmp()</a> call to a catch block, preventing every code that
 cleans memory to fire-in. Thus, many leaks get reported. This happens especially after a call to PHP’s exit()/die(),
-or if a fatal error gets triggered in some critical parts of PHP.</li>
-<li>If you use a non-debug build of PHP, nothing shows on <em>stderr</em>, ZendMM is dumb but will still clean any allocated
-request-bound buffer that’s not been explicitly freed by the programmer</li>
+or if a fatal error gets triggered in some critical parts of PHP.</p></li>
+<li><p>If you use a non-debug build of PHP, nothing shows on <em>stderr</em>, ZendMM is dumb but will still clean any allocated
+request-bound buffer that’s not been explicitly freed by the programmer</p></li>
 </ul>
 <p>What you must remember is that ZendMM leak tracking is a nice bonus tool to have, but it does not replace a
 <a class="reference internal" href="memory_debugging.html"><span class="doc">true C memory debugger</span></a>.</p>
@@ -261,14 +249,14 @@ request-bound buffer that’s not been explicitly freed by the programmer</li>
 <h2>Common errors and mistakes<a class="headerlink" href="#common-errors-and-mistakes" title="Permalink to this headline">¶</a></h2>
 <p>Here are the most common errors while using ZendMM, and what you should do about them.</p>
 <ol class="arabic simple">
-<li>Usage of ZendMM as you are not treating a request.</li>
+<li><p>Usage of ZendMM as you are not treating a request.</p></li>
 </ol>
 <p>Get infos about
 <a class="reference internal" href="../extensions_design/php_lifecycle.html"><span class="doc">the PHP lifecycle</span></a> to know in your extensions when you are treating a
-request, and when not. If you use ZendMM out of the scope of a request (like in <code class="docutils literal"><span class="pre">MINIT()</span></code>), the allocation will be
+request, and when not. If you use ZendMM out of the scope of a request (like in <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code>), the allocation will be
 silently cleared by ZendMM before treating the first request, and you’ll probably use-after-free : simply don’t.</p>
 <ol class="arabic simple" start="2">
-<li>Buffer overflow and underflows.</li>
+<li><p>Buffer overflow and underflows.</p></li>
 </ol>
 <p>Use a <a class="reference internal" href="memory_debugging.html"><span class="doc">memory debugger</span></a>. If you write below or past a memory area returned by ZendMM, you will
 overwrite crucial ZendMM structures and trigger a crash. It may happen that the <em>“zend_mm_heap corrupted”</em> message gets
@@ -277,10 +265,10 @@ ZendMM code. ZendMM code does not crash itself. If you get crashed in the middle
 means you messed up with a pointer somewhere. Kick in your favorite memory debugger and look for the guilty part and
 fix it.</p>
 <ol class="arabic simple" start="3">
-<li>Mix API calls</li>
+<li><p>Mix API calls</p></li>
 </ol>
-<p>If you allocate a ZendMM pointer (<code class="docutils literal"><span class="pre">emalloc()</span></code> f.e) and free it using libc (<code class="docutils literal"><span class="pre">free()</span></code>), or the opposite scenario:
-you will crash. Be rigorous. Also if you pass to ZendMM’s <code class="docutils literal"><span class="pre">efree()</span></code> any pointer it doesn’t know about: you will crash.</p>
+<p>If you allocate a ZendMM pointer (<code class="docutils literal notranslate"><span class="pre">emalloc()</span></code> f.e) and free it using libc (<code class="docutils literal notranslate"><span class="pre">free()</span></code>), or the opposite scenario:
+you will crash. Be rigorous. Also if you pass to ZendMM’s <code class="docutils literal notranslate"><span class="pre">efree()</span></code> any pointer it doesn’t know about: you will crash.</p>
 </div>
 </div>
 

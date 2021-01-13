@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Managing global state &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Publishing extension information" href="extension_infos.html" />
     <link rel="prev" title="Registering and using PHP functions" href="php_functions.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Managing global state</span></h2>
@@ -43,7 +34,7 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="managing-global-state">
@@ -65,7 +56,7 @@ Such cases should however never happen in PHP extensions programming.</p>
 <div class="section" id="managing-request-globals">
 <h2>Managing request globals<a class="headerlink" href="#managing-request-globals" title="Permalink to this headline">¶</a></h2>
 <p>Here is a simple example of a simple extension using a request global:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cm">/* true C global */</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* true C global */</span>
 <span class="k">static</span> <span class="n">zend_long</span> <span class="n">rnd</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
 <span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
@@ -113,13 +104,13 @@ Such cases should however never happen in PHP extensions programming.</p>
 </pre></div>
 </div>
 <p>Like you can see, this extension picks a random integer when a request starts, and then the user - through
-<code class="docutils literal"><span class="pre">pib_guess()</span></code> - can try to guess the number. Once guessed, the number resets. If the user wants to, he could also
-call <code class="docutils literal"><span class="pre">pib_reset()</span></code> to reset the number himself by hand.</p>
+<code class="docutils literal notranslate"><span class="pre">pib_guess()</span></code> - can try to guess the number. Once guessed, the number resets. If the user wants to, he could also
+call <code class="docutils literal notranslate"><span class="pre">pib_reset()</span></code> to reset the number himself by hand.</p>
 <p>That random number has been implemented as <strong>a true C global variable</strong>. While this is not a problem if PHP is used in
 processes as part of the <a class="reference internal" href="php_lifecycle.html"><span class="doc">multi-processing model</span></a>; <strong>this is a no-go</strong> if that later uses threads.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><a class="reference internal" href="php_lifecycle.html"><span class="doc">As a reminder</span></a>, you don’t master what multi-processing model will be used. You must be
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="php_lifecycle.html"><span class="doc">As a reminder</span></a>, you don’t master what multi-processing model will be used. You must be
 prepared to both models when you design extensions.</p>
 </div>
 <p>When threads are used, such a true C global is shared against every thread of the server. For our above example, what
@@ -136,7 +127,7 @@ request-bound global (read and write access).</p>
 multi-processing model uses processes. Like we saw, the above code is perfectly valid if no threads are used. So, when
 processes will be used, the macros we’ll see in a minute will expand to something similar.</p>
 <p>What you need to do first is to declare a structure that will be the root of all your globals:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
     <span class="n">zend_long</span> <span class="n">rnd</span><span class="p">;</span>
 <span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
@@ -149,14 +140,14 @@ processes will be used, the macros we’ll see in a minute will expand to someth
 </pre></div>
 </div>
 <p>Then, you create a true global variable of such a type:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
 <span class="cm">/* Resolved as zend_pib_globals pib_globals; */</span>
 </pre></div>
 </div>
 <p>Now, you may access your data using global macro accessor. This later macro has been created by the
 <a class="reference internal" href="extension_skeleton.html"><span class="doc">skeleton</span></a>, it should be defined in your <em>php_pib.h</em> header file. Here is what it looks like:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#ifdef ZTS</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef ZTS</span>
 <span class="cp">#define PIB_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(pib, v)</span>
 <span class="cp">#else</span>
 <span class="cp">#define PIB_G(v) (pib_globals.v)</span>
@@ -166,7 +157,7 @@ processes will be used, the macros we’ll see in a minute will expand to someth
 <p>Like you can see, if ZTS mode is not enabled, that is if you
 <a class="reference internal" href="../build_system/building_php.html"><span class="doc">compiled PHP and the extension with no Thread safety</span></a> (we call that mode <em>NTS</em> :
 Non-Thread-Safe), the macro simply resolves to the data declared into your structure. Hence the following changes:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
 <span class="p">}</span>
@@ -193,16 +184,16 @@ Non-Thread-Safe), the macro simply resolves to the data declared into your struc
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">When using a process model, the <em>TSRM</em> macros simply resolve to an access to a true C global variable.</p>
+<p class="admonition-title">Note</p>
+<p>When using a process model, the <em>TSRM</em> macros simply resolve to an access to a true C global variable.</p>
 </div>
 <p>Things get a lot more complicated when threads are used, that is when you
 <a class="reference internal" href="../build_system/building_php.html"><span class="doc">compile PHP with ZTS</span></a>. All the macros we saw then resolve to something totaly
 different and a bit hard to explain here. Basically, what happens is that <em>TSRM</em> does a hard job using TLS
 (Thread Local Storage) when compiled with ZTS.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">In a word, when compiled in ZTS, the globals will be bound to the current thread, whereas when compiled in
+<p class="admonition-title">Note</p>
+<p>In a word, when compiled in ZTS, the globals will be bound to the current thread, whereas when compiled in
 NTS, the globals will be bound to the current process. The TSRM macros take care of the hard job.
 You may be interested in how things work, <a class="reference external" href="https://github.com/php/php-src/tree/d0b7eed0c9d873a0606dbbc7e33f14492f1a3dd6/TSRM">then browse the /TSRM directory</a> of PHP source code to learn more about Thread Safety
 into PHP.</p>
@@ -213,11 +204,11 @@ into PHP.</p>
 <p>Sometimes, it may happen that you need your globals to be initialized to some default value, usually zero. The TSRM
 system helped by the engine provides a hook to give your globals default values, we call it <strong>GINIT</strong>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">For a full view of PHP hooks, refer to the <a class="reference internal" href="php_lifecycle.html"><span class="doc">PHP lifecycle chapter</span></a>.</p>
+<p class="admonition-title">Note</p>
+<p>For a full view of PHP hooks, refer to the <a class="reference internal" href="php_lifecycle.html"><span class="doc">PHP lifecycle chapter</span></a>.</p>
 </div>
 <p>Let’s zero our random value:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_GSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_GSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 <span class="p">{</span> <span class="p">}</span>
 
 <span class="n">PHP_GINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
@@ -243,29 +234,29 @@ system helped by the engine provides a hook to give your globals default values,
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>We chose to show only the relevant part of <code class="docutils literal"><span class="pre">zend_module_entry</span></code> (and <code class="docutils literal"><span class="pre">NULL</span></code> others). Like you can see, globals
-management hooks take place in the middle of the structure. The first <code class="docutils literal"><span class="pre">PHP_MODULE_GLOBALS()</span></code> figures out the size of
-the globals, then both our <code class="docutils literal"><span class="pre">GINIT</span></code> and <code class="docutils literal"><span class="pre">GSHUTDOWN</span></code> hooks. Then, to close the structure we used
-<code class="docutils literal"><span class="pre">STANDARD_MODULE_PROPERTIES_EX</span></code> instead of <code class="docutils literal"><span class="pre">STANDARD_MODULE_PROPERTIES</span></code>. Just a matter of finishing the structure
+<p>We chose to show only the relevant part of <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> (and <code class="docutils literal notranslate"><span class="pre">NULL</span></code> others). Like you can see, globals
+management hooks take place in the middle of the structure. The first <code class="docutils literal notranslate"><span class="pre">PHP_MODULE_GLOBALS()</span></code> figures out the size of
+the globals, then both our <code class="docutils literal notranslate"><span class="pre">GINIT</span></code> and <code class="docutils literal notranslate"><span class="pre">GSHUTDOWN</span></code> hooks. Then, to close the structure we used
+<code class="docutils literal notranslate"><span class="pre">STANDARD_MODULE_PROPERTIES_EX</span></code> instead of <code class="docutils literal notranslate"><span class="pre">STANDARD_MODULE_PROPERTIES</span></code>. Just a matter of finishing the structure
 the right way, see ?:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#define STANDARD_MODULE_PROPERTIES \</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define STANDARD_MODULE_PROPERTIES \</span>
 <span class="cp">    NO_MODULE_GLOBALS, NULL, STANDARD_MODULE_PROPERTIES_EX</span>
 </pre></div>
 </div>
-<p>In the <code class="docutils literal"><span class="pre">GINIT</span></code> function, you are passed a pointer to the current memory location of your globals. You use it to
+<p>In the <code class="docutils literal notranslate"><span class="pre">GINIT</span></code> function, you are passed a pointer to the current memory location of your globals. You use it to
 initialize your globals. Here, we put zero into our random value (not really useful, but let’s accept it).</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Don’t use <code class="docutils literal"><span class="pre">PIB_G()</span></code> macro in GINIT. Use the pointer you are given.</p>
+<p class="admonition-title">Warning</p>
+<p>Don’t use <code class="docutils literal notranslate"><span class="pre">PIB_G()</span></code> macro in GINIT. Use the pointer you are given.</p>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><code class="docutils literal"><span class="pre">GINIT()</span></code> is launched before <code class="docutils literal"><span class="pre">MINIT()</span></code> for the current process. In case of NTS, that’s all. In case of
-ZTS, <code class="docutils literal"><span class="pre">GINIT()</span></code> will be called additionally for every new thread spawned by the thread library.</p>
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">GINIT()</span></code> is launched before <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> for the current process. In case of NTS, that’s all. In case of
+ZTS, <code class="docutils literal notranslate"><span class="pre">GINIT()</span></code> will be called additionally for every new thread spawned by the thread library.</p>
 </div>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last"><code class="docutils literal"><span class="pre">GINIT()</span></code> is not called as part of <code class="docutils literal"><span class="pre">RINIT()</span></code>. If you need to clear your globals at every new request,
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">GINIT()</span></code> is not called as part of <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code>. If you need to clear your globals at every new request,
 you need to do that by hand, like we did in the example shown throughout the chapter.</p>
 </div>
 </div>
@@ -274,7 +265,7 @@ you need to do that by hand, like we did in the example shown throughout the cha
 <p>Here is a more advanced full example. If the player wins, its score (numbers of tries) is added to a score array that
 can be fetched from userland. Nothing really hard, the score array is initialized at request startup, then used
 anytime the player wins, and cleared at the end of the current request:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
     <span class="n">zend_long</span> <span class="n">rnd</span><span class="p">;</span>
     <span class="n">zend_ulong</span> <span class="n">cur_score</span><span class="p">;</span>
     <span class="n">zval</span> <span class="n">scores</span><span class="p">;</span>
@@ -384,11 +375,11 @@ anytime the player wins, and cleared at the end of the current request:</p>
 requests. That would have needed a persistent shared storage, such as a file, a database, some memory area, etc…
 PHP has not been designed to persist information across requests in its heart, so it provides nothing to do so, but
 provides utilities to access request-bound global space like we showed.</p>
-<p>Then, easy enough we initialize an array in <code class="docutils literal"><span class="pre">RINIT()</span></code>, and we destroy it in <code class="docutils literal"><span class="pre">RSHUTDOWN()</span></code>. Remember that
-<code class="docutils literal"><span class="pre">array_init()</span></code> creates a <a class="reference internal" href="../internal_types/hashtables.html"><span class="doc">zend_array</span></a> and puts it into a
+<p>Then, easy enough we initialize an array in <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code>, and we destroy it in <code class="docutils literal notranslate"><span class="pre">RSHUTDOWN()</span></code>. Remember that
+<code class="docutils literal notranslate"><span class="pre">array_init()</span></code> creates a <a class="reference internal" href="../internal_types/hashtables.html"><span class="doc">zend_array</span></a> and puts it into a
 <a class="reference internal" href="../internal_types/zvals.html"><span class="doc">zval</span></a>. But this is allocation-free, do not fear to allocate an array the user could not
-make use of (thus a waste in allocation), <code class="docutils literal"><span class="pre">array_init()</span></code> is very cheap (<a class="reference external" href="https://github.com/php/php-src/blob/d0b7eed0c9d873a0606dbbc7e33f14492f1a3dd6/Zend/zend_API.c#L1057">read the source</a>).</p>
-<p>When we return such an array to the user, we don’t forget to increment its refcount (in <code class="docutils literal"><span class="pre">RETVAL_ZVAL</span></code>) as we keep a
+make use of (thus a waste in allocation), <code class="docutils literal notranslate"><span class="pre">array_init()</span></code> is very cheap (<a class="reference external" href="https://github.com/php/php-src/blob/d0b7eed0c9d873a0606dbbc7e33f14492f1a3dd6/Zend/zend_API.c#L1057">read the source</a>).</p>
+<p>When we return such an array to the user, we don’t forget to increment its refcount (in <code class="docutils literal notranslate"><span class="pre">RETVAL_ZVAL</span></code>) as we keep a
 reference to such an array into our extension.</p>
 </div>
 </div>
@@ -397,13 +388,13 @@ reference to such an array into our extension.</p>
 <p>True globals are non-thread-protected-true-C-globals. It may happen sometimes that you need some of them. Remember
 however the main rule : you cannot safely write to such globals as you are treating a request. So usually with PHP, we
 need such variables and use them as read-only variable.</p>
-<p>Remember it is perfectly safe to write to true-globals as you are in the <code class="docutils literal"><span class="pre">MINIT()</span></code> or <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code> steps of PHP
+<p>Remember it is perfectly safe to write to true-globals as you are in the <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> or <code class="docutils literal notranslate"><span class="pre">MSHUTDOWN()</span></code> steps of PHP
 lifecycle. But you can’t write to them while treating a request (but reading from them is OK).</p>
-<p>So, a simple example is that you want to read an environment value to do something with it. Also, it is not uncomon to
+<p>So, a simple example is that you want to read an environment value to do something with it. Also, it is not uncommon to
 initialize persistent <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string</span></a> to make use of them later as you’ll
 treat some requests.</p>
 <p>Here is the patched example introducing true globals, we just show the diff about preceding code and not the full code:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">zend_string</span> <span class="o">*</span><span class="n">more</span><span class="p">,</span> <span class="o">*</span><span class="n">less</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">zend_string</span> <span class="o">*</span><span class="n">more</span><span class="p">,</span> <span class="o">*</span><span class="n">less</span><span class="p">;</span>
 <span class="k">static</span> <span class="n">zend_ulong</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
 
 <span class="k">static</span> <span class="kt">void</span> <span class="nf">register_persistent_string</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span> <span class="n">zend_string</span> <span class="o">**</span><span class="n">result</span><span class="p">)</span>
@@ -469,16 +460,16 @@ treat some requests.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>What happened here is that we created two <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string</span></a> variables <code class="docutils literal"><span class="pre">more</span></code>
-and <code class="docutils literal"><span class="pre">less</span></code>. Those strings don’t need to be created and destroyed anytime they are used like it was done before. Those
+<p>What happened here is that we created two <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string</span></a> variables <code class="docutils literal notranslate"><span class="pre">more</span></code>
+and <code class="docutils literal notranslate"><span class="pre">less</span></code>. Those strings don’t need to be created and destroyed anytime they are used like it was done before. Those
 are immutable strings that can be allocated once and reused anytime needed, as soon as they stay immutable
-(aka : read-only). We initialize those two strings in <code class="docutils literal"><span class="pre">MINIT()</span></code> using a persistent allocation in
-<code class="docutils literal"><span class="pre">zend_string_init()</span></code>, we precompute their hash now (instead of having the very first request doing it), and we tell
+(aka : read-only). We initialize those two strings in <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> using a persistent allocation in
+<code class="docutils literal notranslate"><span class="pre">zend_string_init()</span></code>, we precompute their hash now (instead of having the very first request doing it), and we tell
 the zval garbage collector those strings are interned so that it will never ever try to destroy them (however it could
 need to copy them if they were used as part of a write operation, such as a concatenation). Obviously we don’t forget
-to destroy such strings in <code class="docutils literal"><span class="pre">MSHUTDOWN()</span></code>.</p>
-<p>Then in <code class="docutils literal"><span class="pre">MINIT()</span></code> we probe for a <code class="docutils literal"><span class="pre">PIB_RAND_MAX</span></code> environment and use it as the maximum range value for our random
-number pick. As we use an unsigned integer and we know <code class="docutils literal"><span class="pre">strtoull()</span></code> won’t complain about negative numbers (and thus
+to destroy such strings in <code class="docutils literal notranslate"><span class="pre">MSHUTDOWN()</span></code>.</p>
+<p>Then in <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> we probe for a <code class="docutils literal notranslate"><span class="pre">PIB_RAND_MAX</span></code> environment and use it as the maximum range value for our random
+number pick. As we use an unsigned integer and we know <code class="docutils literal notranslate"><span class="pre">strtoull()</span></code> won’t complain about negative numbers (and thus
 wrap around integer bounds as sign mismatch), we just avoid using negative (classic libc workarounds).</p>
 </div>
 </div>

@@ -117,7 +117,7 @@ Building extensions using ``phpize``
 ------------------------------------
 
 It is also possible to build extensions separately from PHP by making use of the ``phpize`` script that was already
-mentioned in the :ref:`building_php` section.
+mentioned in the :ref:`building_php_5` section.
 
 ``phpize`` plays a similar role as the ``./buildconf`` script used for PHP builds: First it will import the PHP build
 system into your extension by copying files from ``$PREFIX/lib/php/build``. Among these files are ``acinclude.m4``

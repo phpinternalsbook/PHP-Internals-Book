@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Serialization &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Magic interfaces - Comparable" href="magic_interfaces_comparable.html" />
     <link rel="prev" title="Iterators" href="iterators.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Serialization</span></h2>
@@ -43,7 +34,7 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="serialization">
@@ -52,10 +43,10 @@
 object data. As usual we’ll use the typed arrays implementation as an example.</p>
 <div class="section" id="php-s-serialization-format">
 <h2>PHP’s serialization format<a class="headerlink" href="#php-s-serialization-format" title="Permalink to this headline">¶</a></h2>
-<p>You probably already know how the output of <code class="docutils literal"><span class="pre">serialize()</span></code> roughly looks like: It has some kind of type specifier (like
-<code class="docutils literal"><span class="pre">s</span></code> or <code class="docutils literal"><span class="pre">i</span></code>), followed by a colon, followed by the actual data, followed by a semicolon. As such the serialization
+<p>You probably already know how the output of <code class="docutils literal notranslate"><span class="pre">serialize()</span></code> roughly looks like: It has some kind of type specifier (like
+<code class="docutils literal notranslate"><span class="pre">s</span></code> or <code class="docutils literal notranslate"><span class="pre">i</span></code>), followed by a colon, followed by the actual data, followed by a semicolon. As such the serialization
 format for the “simple” types looks as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>NULL:         N;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>NULL:         N;
 true:         b:1;
 false:        b:0;
 42:           i:42;
@@ -71,7 +62,7 @@ resource:     i:0;
 </pre></div>
 </div>
 <p>For arrays a list of key-value pairs is contained in curly braces:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>[10, 11, 12]:     a:3:{i:0;i:10;i:1;i:11;i:2;i:12;}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[10, 11, 12]:     a:3:{i:0;i:10;i:1;i:11;i:2;i:12;}
                     ^-- count([10, 11, 12])
 
                                                  v-- key   v-- value
@@ -80,9 +71,9 @@ resource:     i:0;
 </pre></div>
 </div>
 <p>For objects there are two serialization mechanisms: The first one simply serializes the object properties just like it
-is done for arrays. This mechanism uses <code class="docutils literal"><span class="pre">O</span></code> as the type specifier.</p>
+is done for arrays. This mechanism uses <code class="docutils literal notranslate"><span class="pre">O</span></code> as the type specifier.</p>
 <p>Consider the following class:</p>
-<div class="highlight-php"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Test</span> <span class="p">{</span>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Test</span> <span class="p">{</span>
     <span class="k">public</span> <span class="nv">$public</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
     <span class="k">protected</span> <span class="nv">$protected</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
     <span class="k">private</span> <span class="nv">$private</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
@@ -90,17 +81,17 @@ is done for arrays. This mechanism uses <code class="docutils literal"><span cla
 </pre></div>
 </div>
 <p>This is serialized as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>  v-- strlen(&quot;Test&quot;)           v-- property          v-- value
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  v-- strlen(&quot;Test&quot;)           v-- property          v-- value
 O:4:&quot;Test&quot;:3:{s:6:&quot;public&quot;;i:1;s:12:&quot;\0*\0protected&quot;;i:2;s:13:&quot;\0Test\0private&quot;;i:3;}
               ^-- property ^-- value                     ^-- property           ^-- value
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">\0</span></code> in the above serialization string are NUL bytes. As you can see private and protected members are serialized
-with rather peculiar names: Private properties are prefixed with <code class="docutils literal"><span class="pre">\0ClassName\0</span></code> and protected properties with
-<code class="docutils literal"><span class="pre">\0*\0</span></code>. These names are the result of name mangling, which is something we’ll cover in a later section.</p>
-<p>The second mechanism allows for custom serialization formats. It delegates the actual serialization to the <code class="docutils literal"><span class="pre">serialize</span></code>
-method of the <code class="docutils literal"><span class="pre">Serializable</span></code> interface and uses the <code class="docutils literal"><span class="pre">C</span></code> type specifier. For example consider this class:</p>
-<div class="highlight-php"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Test2</span> <span class="k">implements</span> <span class="nx">Serializable</span> <span class="p">{</span>
+<p>The <code class="docutils literal notranslate"><span class="pre">\0</span></code> in the above serialization string are NUL bytes. As you can see private and protected members are serialized
+with rather peculiar names: Private properties are prefixed with <code class="docutils literal notranslate"><span class="pre">\0ClassName\0</span></code> and protected properties with
+<code class="docutils literal notranslate"><span class="pre">\0*\0</span></code>. These names are the result of name mangling, which is something we’ll cover in a later section.</p>
+<p>The second mechanism allows for custom serialization formats. It delegates the actual serialization to the <code class="docutils literal notranslate"><span class="pre">serialize</span></code>
+method of the <code class="docutils literal notranslate"><span class="pre">Serializable</span></code> interface and uses the <code class="docutils literal notranslate"><span class="pre">C</span></code> type specifier. For example consider this class:</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Test2</span> <span class="k">implements</span> <span class="nx">Serializable</span> <span class="p">{</span>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">serialize</span><span class="p">()</span> <span class="p">{</span>
         <span class="k">return</span> <span class="s2">&quot;foobar&quot;</span><span class="p">;</span>
     <span class="p">}</span>
@@ -111,50 +102,50 @@ method of the <code class="docutils literal"><span class="pre">Serializable</spa
 </pre></div>
 </div>
 <p>It will be serialized as follows:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>C:5:&quot;Test2&quot;:6:{foobar}
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>C:5:&quot;Test2&quot;:6:{foobar}
             ^-- strlen(&quot;foobar&quot;)
 </pre></div>
 </div>
-<p>In this case PHP will just put the result of the <code class="docutils literal"><span class="pre">Serializable::serialize()</span></code> call inside the curly braces.</p>
+<p>In this case PHP will just put the result of the <code class="docutils literal notranslate"><span class="pre">Serializable::serialize()</span></code> call inside the curly braces.</p>
 <p>Another feature of PHP’s serialization format is that it will properly preserve references:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$a = [&quot;foo&quot;];
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$a = [&quot;foo&quot;];
 $a[1] =&amp; $a[0];
 
 a:2:{i:0;s:3:&quot;foo&quot;;i:1;R:2;}
 </pre></div>
 </div>
-<p>The important part here is the <code class="docutils literal"><span class="pre">R:2;</span></code> element. It means “reference to the second value”. What is the second value?
-The whole array is the first value, the first index (<code class="docutils literal"><span class="pre">s:3:&quot;foo&quot;</span></code>) is the second value, so that’s what is referenced.</p>
-<p>As objects in PHP exhibit a reference-like behavior <code class="docutils literal"><span class="pre">serialize</span></code> also makes sure that the same object occurring twice
+<p>The important part here is the <code class="docutils literal notranslate"><span class="pre">R:2;</span></code> element. It means “reference to the second value”. What is the second value?
+The whole array is the first value, the first index (<code class="docutils literal notranslate"><span class="pre">s:3:&quot;foo&quot;</span></code>) is the second value, so that’s what is referenced.</p>
+<p>As objects in PHP exhibit a reference-like behavior <code class="docutils literal notranslate"><span class="pre">serialize</span></code> also makes sure that the same object occurring twice
 will really be the same object on unserialization:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$o = new stdClass;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$o = new stdClass;
 $o-&gt;foo = $o;
 
 O:8:&quot;stdClass&quot;:1:{s:3:&quot;foo&quot;;r:1;}
 </pre></div>
 </div>
-<p>As you can see it works the same way as with references, just using the small <code class="docutils literal"><span class="pre">r</span></code> instead of <code class="docutils literal"><span class="pre">R</span></code>.</p>
+<p>As you can see it works the same way as with references, just using the small <code class="docutils literal notranslate"><span class="pre">r</span></code> instead of <code class="docutils literal notranslate"><span class="pre">R</span></code>.</p>
 </div>
 <div class="section" id="serializing-internal-objects">
 <h2>Serializing internal objects<a class="headerlink" href="#serializing-internal-objects" title="Permalink to this headline">¶</a></h2>
 <p>As internal objects don’t store their data in ordinary properties PHP’s default serialization mechanism will not work.
-For example, if you try to serialize an <code class="docutils literal"><span class="pre">ArrayBuffer</span></code> all you’ll get is this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>O:11:&quot;ArrayBuffer&quot;:0:{}
+For example, if you try to serialize an <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> all you’ll get is this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>O:11:&quot;ArrayBuffer&quot;:0:{}
 </pre></div>
 </div>
 <p>Thus we’ll have to write a custom handler for serialization. As mentioned above there are two ways in which objects can
-be serialized (<code class="docutils literal"><span class="pre">O</span></code> and <code class="docutils literal"><span class="pre">C</span></code>). I’ll demonstrate how to use both, starting with the <code class="docutils literal"><span class="pre">C</span></code> format that uses the
-<code class="docutils literal"><span class="pre">Serializable</span></code> interface. For this method we’ll create our own serialization format based on the primitives that are
-provided by <code class="docutils literal"><span class="pre">serialize</span></code>. In order to do so we need to include two headers:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;ext/standard/php_var.h&quot;</span><span class="cp"></span>
+be serialized (<code class="docutils literal notranslate"><span class="pre">O</span></code> and <code class="docutils literal notranslate"><span class="pre">C</span></code>). I’ll demonstrate how to use both, starting with the <code class="docutils literal notranslate"><span class="pre">C</span></code> format that uses the
+<code class="docutils literal notranslate"><span class="pre">Serializable</span></code> interface. For this method we’ll create our own serialization format based on the primitives that are
+provided by <code class="docutils literal notranslate"><span class="pre">serialize</span></code>. In order to do so we need to include two headers:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;ext/standard/php_var.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;ext/standard/php_smart_str.h&quot;</span><span class="cp"></span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">php_var.h</span></code> header exports some serialization functions, the <code class="docutils literal"><span class="pre">php_smart_str.h</span></code> header contains PHPs
-<code class="docutils literal"><span class="pre">smart_str</span></code> API. This API provides a dynamically resized string structure, that allows us to easily create strings
+<p>The <code class="docutils literal notranslate"><span class="pre">php_var.h</span></code> header exports some serialization functions, the <code class="docutils literal notranslate"><span class="pre">php_smart_str.h</span></code> header contains PHPs
+<code class="docutils literal notranslate"><span class="pre">smart_str</span></code> API. This API provides a dynamically resized string structure, that allows us to easily create strings
 without concerning ourselves with allocation.</p>
-<p>Now let’s see how the <code class="docutils literal"><span class="pre">serialize</span></code> method for an <code class="docutils literal"><span class="pre">ArrayBuffer</span></code> could look like:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">serialize</span><span class="p">)</span>
+<p>Now let’s see how the <code class="docutils literal notranslate"><span class="pre">serialize</span></code> method for an <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> could look like:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">serialize</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">buffer_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
     <span class="n">smart_str</span> <span class="n">buf</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
@@ -192,25 +183,25 @@ without concerning ourselves with allocation.</p>
 </pre></div>
 </div>
 <p>Apart from the usual boilerplate this method contains a few interesting elements: Firstly, we declared a
-<code class="docutils literal"><span class="pre">php_serialize_data_t</span> <span class="pre">var_hash</span></code> variable, which is initialized with <code class="docutils literal"><span class="pre">PHP_VAR_SERIALIZE_INIT</span></code> and destroyed with
-<code class="docutils literal"><span class="pre">PHP_VAR_SERIALIZE_DESTROY</span></code>. This variable is really of type <code class="docutils literal"><span class="pre">HashTable*</span></code> and is used to remember the serialized
-values for the <code class="docutils literal"><span class="pre">R</span></code>/<code class="docutils literal"><span class="pre">r</span></code> reference preservation mechanism.</p>
-<p>Furthermore we create a smart string using <code class="docutils literal"><span class="pre">smart_str</span> <span class="pre">buf</span> <span class="pre">=</span> <span class="pre">{0}</span></code>. The <code class="docutils literal"><span class="pre">=</span> <span class="pre">{0}</span></code> initializes all members of the struct
+<code class="docutils literal notranslate"><span class="pre">php_serialize_data_t</span> <span class="pre">var_hash</span></code> variable, which is initialized with <code class="docutils literal notranslate"><span class="pre">PHP_VAR_SERIALIZE_INIT</span></code> and destroyed with
+<code class="docutils literal notranslate"><span class="pre">PHP_VAR_SERIALIZE_DESTROY</span></code>. This variable is really of type <code class="docutils literal notranslate"><span class="pre">HashTable*</span></code> and is used to remember the serialized
+values for the <code class="docutils literal notranslate"><span class="pre">R</span></code>/<code class="docutils literal notranslate"><span class="pre">r</span></code> reference preservation mechanism.</p>
+<p>Furthermore we create a smart string using <code class="docutils literal notranslate"><span class="pre">smart_str</span> <span class="pre">buf</span> <span class="pre">=</span> <span class="pre">{0}</span></code>. The <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">{0}</span></code> initializes all members of the struct
 with zero. This struct looks as follows:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
     <span class="kt">char</span> <span class="o">*</span><span class="n">c</span><span class="p">;</span>
     <span class="kt">size_t</span> <span class="n">len</span><span class="p">;</span>
     <span class="kt">size_t</span> <span class="n">a</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">smart_str</span><span class="p">;</span>
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">c</span></code> is the buffer of the string, <code class="docutils literal"><span class="pre">len</span></code> the currently used length and <code class="docutils literal"><span class="pre">a</span></code> the size of the current allocation (as
-this is smart string this doesn’t necessarily match <code class="docutils literal"><span class="pre">len</span></code>).</p>
-<p>The serialization itself happens by using a dummy zval (<code class="docutils literal"><span class="pre">zv_ptr</span></code>). We first write a value into it and then call
-<code class="docutils literal"><span class="pre">php_var_serialize</span></code>. The first serialized value is the actual buffer (as a string), the second value are the
+<p><code class="docutils literal notranslate"><span class="pre">c</span></code> is the buffer of the string, <code class="docutils literal notranslate"><span class="pre">len</span></code> the currently used length and <code class="docutils literal notranslate"><span class="pre">a</span></code> the size of the current allocation (as
+this is smart string this doesn’t necessarily match <code class="docutils literal notranslate"><span class="pre">len</span></code>).</p>
+<p>The serialization itself happens by using a dummy zval (<code class="docutils literal notranslate"><span class="pre">zv_ptr</span></code>). We first write a value into it and then call
+<code class="docutils literal notranslate"><span class="pre">php_var_serialize</span></code>. The first serialized value is the actual buffer (as a string), the second value are the
 properties (as an array).</p>
-<p>A bit more complicated is the <code class="docutils literal"><span class="pre">unserialize</span></code> method:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">unserialize</span><span class="p">)</span>
+<p>A bit more complicated is the <code class="docutils literal notranslate"><span class="pre">unserialize</span></code> method:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">unserialize</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">buffer_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
     <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">;</span>
@@ -267,25 +258,25 @@ properties (as an array).</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">unserialize</span></code> method again declares a <code class="docutils literal"><span class="pre">var_hash</span></code> variable, this time of type <code class="docutils literal"><span class="pre">php_unserialize_data_t</span></code>,
-initialized with <code class="docutils literal"><span class="pre">PHP_VAR_UNSERIALIZE_INIT</span></code> and destructed with <code class="docutils literal"><span class="pre">PHP_VAR_UNSERIALIZE_DESTROY</span></code>. It has pretty much
-the same function as its serialize equivalent: Storing variables for <code class="docutils literal"><span class="pre">R</span></code>/<code class="docutils literal"><span class="pre">r</span></code>.</p>
-<p>In order to use the <code class="docutils literal"><span class="pre">php_var_unserialize</span></code> function we need two pointers to the serialized string: The first one is
-<code class="docutils literal"><span class="pre">p</span></code>, which is the current position in the string. The second one is <code class="docutils literal"><span class="pre">max</span></code> and points to the end of the string. The
-<code class="docutils literal"><span class="pre">p</span></code> position is passed to <code class="docutils literal"><span class="pre">php_var_unserialize</span></code> by-reference and will be modified to point to the start of the next
+<p>The <code class="docutils literal notranslate"><span class="pre">unserialize</span></code> method again declares a <code class="docutils literal notranslate"><span class="pre">var_hash</span></code> variable, this time of type <code class="docutils literal notranslate"><span class="pre">php_unserialize_data_t</span></code>,
+initialized with <code class="docutils literal notranslate"><span class="pre">PHP_VAR_UNSERIALIZE_INIT</span></code> and destructed with <code class="docutils literal notranslate"><span class="pre">PHP_VAR_UNSERIALIZE_DESTROY</span></code>. It has pretty much
+the same function as its serialize equivalent: Storing variables for <code class="docutils literal notranslate"><span class="pre">R</span></code>/<code class="docutils literal notranslate"><span class="pre">r</span></code>.</p>
+<p>In order to use the <code class="docutils literal notranslate"><span class="pre">php_var_unserialize</span></code> function we need two pointers to the serialized string: The first one is
+<code class="docutils literal notranslate"><span class="pre">p</span></code>, which is the current position in the string. The second one is <code class="docutils literal notranslate"><span class="pre">max</span></code> and points to the end of the string. The
+<code class="docutils literal notranslate"><span class="pre">p</span></code> position is passed to <code class="docutils literal notranslate"><span class="pre">php_var_unserialize</span></code> by-reference and will be modified to point to the start of the next
 value that is to be unserialized.</p>
 <p>The first unserialization reads the buffer, the second the properties. The largest part of the code is various error
 handling. PHP has a long history of serialization related crashes (and security issues), so one should be careful to
-ensure all the data is valid. You should also not forget that methods like <code class="docutils literal"><span class="pre">unserialize</span></code> even though they have a
+ensure all the data is valid. You should also not forget that methods like <code class="docutils literal notranslate"><span class="pre">unserialize</span></code> even though they have a
 special meaning can still called as normal methods. In order to prevent such calls the above call aborts if
-<code class="docutils literal"><span class="pre">intern-&gt;buffer</span></code> is already set.</p>
+<code class="docutils literal notranslate"><span class="pre">intern-&gt;buffer</span></code> is already set.</p>
 <p>Now let’s look at the second serialization mechanism, which will be used for the buffer views. In order to implement the
-<code class="docutils literal"><span class="pre">O</span></code> serialization we’ll need a custom <code class="docutils literal"><span class="pre">get_properties</span></code> handler (which returns the “properties” to serialize)
-and a <code class="docutils literal"><span class="pre">__wakeup</span></code> method (which restores the state from the serialized properties).</p>
-<p>The <code class="docutils literal"><span class="pre">get_properties</span></code> handler allows you to fetch the properties of an object as a hashtable. The engine does this in
-various places, one of them being <code class="docutils literal"><span class="pre">O</span></code> serialization. Thus we can use this handler to return the view’s buffer object,
+<code class="docutils literal notranslate"><span class="pre">O</span></code> serialization we’ll need a custom <code class="docutils literal notranslate"><span class="pre">get_properties</span></code> handler (which returns the “properties” to serialize)
+and a <code class="docutils literal notranslate"><span class="pre">__wakeup</span></code> method (which restores the state from the serialized properties).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">get_properties</span></code> handler allows you to fetch the properties of an object as a hashtable. The engine does this in
+various places, one of them being <code class="docutils literal notranslate"><span class="pre">O</span></code> serialization. Thus we can use this handler to return the view’s buffer object,
 offset and length as properties, which will then be serialized just like any other property:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">HashTable</span> <span class="o">*</span><span class="nf">array_buffer_view_get_properties</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">HashTable</span> <span class="o">*</span><span class="nf">array_buffer_view_get_properties</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
     <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span> <span class="o">=</span> <span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">obj</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
@@ -312,11 +303,11 @@ offset and length as properties, which will then be serialized just like any oth
 </div>
 <p>Note that these magic properties will now also turn up in the debugging output, which in this case is probably a good
 idea. Also the properties will be accessible as “normal” properties, but only after this handler has been called. E.g.
-you would be able to access the <code class="docutils literal"><span class="pre">$view-&gt;buffer</span></code> property after serializing the object. We can’t really do anything
+you would be able to access the <code class="docutils literal notranslate"><span class="pre">$view-&gt;buffer</span></code> property after serializing the object. We can’t really do anything
 against this side-effect (other than using the other serialization method).</p>
-<p>In order to restore the state after unserialization we implement the <code class="docutils literal"><span class="pre">__wakeup</span></code> magic method. This method is called
+<p>In order to restore the state after unserialization we implement the <code class="docutils literal notranslate"><span class="pre">__wakeup</span></code> magic method. This method is called
 right after unserialization and allows you to read the object properties and reconstruct the internal state from them:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_wakeup</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_wakeup</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
     <span class="n">HashTable</span> <span class="o">*</span><span class="n">props</span><span class="p">;</span>
@@ -371,21 +362,21 @@ right after unserialization and allows you to read the object properties and rec
 </pre></div>
 </div>
 <p>The method is more or less pure error-checking boilerplate (as is usual when dealing with serialization). The only
-thing it really does is to fetch the three magic properties using <code class="docutils literal"><span class="pre">zend_hash_find</span></code>, check their validity and then
+thing it really does is to fetch the three magic properties using <code class="docutils literal notranslate"><span class="pre">zend_hash_find</span></code>, check their validity and then
 initialize the internal object from them.</p>
 </div>
 <div class="section" id="denying-serialization">
 <h2>Denying serialization<a class="headerlink" href="#denying-serialization" title="Permalink to this headline">¶</a></h2>
 <p>Sometimes objects can’t be reasonably serialized. In this case you can deny serialization by assigning special
 serialization handlers:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">serialize</span> <span class="o">=</span> <span class="n">zend_class_serialize_deny</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">serialize</span> <span class="o">=</span> <span class="n">zend_class_serialize_deny</span><span class="p">;</span>
 <span class="n">ce</span><span class="o">-&gt;</span><span class="n">unserialize</span> <span class="o">=</span> <span class="n">zend_class_unserialize_deny</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">serialize</span></code> and <code class="docutils literal"><span class="pre">unserialize</span></code> class handlers are used to implement the <code class="docutils literal"><span class="pre">Serializable</span></code> interface, i.e. the
-<code class="docutils literal"><span class="pre">C</span></code> serialization. As such assigning to them will deny serialization and <code class="docutils literal"><span class="pre">C</span></code> unserialization, but will still allow
-<code class="docutils literal"><span class="pre">O</span></code> unserialization. To disallow that case too, simply throw an error from <code class="docutils literal"><span class="pre">__wakeup</span></code>:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">,</span> <span class="n">__wakeup</span><span class="p">)</span>
+<p>The <code class="docutils literal notranslate"><span class="pre">serialize</span></code> and <code class="docutils literal notranslate"><span class="pre">unserialize</span></code> class handlers are used to implement the <code class="docutils literal notranslate"><span class="pre">Serializable</span></code> interface, i.e. the
+<code class="docutils literal notranslate"><span class="pre">C</span></code> serialization. As such assigning to them will deny serialization and <code class="docutils literal notranslate"><span class="pre">C</span></code> unserialization, but will still allow
+<code class="docutils literal notranslate"><span class="pre">O</span></code> unserialization. To disallow that case too, simply throw an error from <code class="docutils literal notranslate"><span class="pre">__wakeup</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">,</span> <span class="n">__wakeup</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span><span class="p">;</span>

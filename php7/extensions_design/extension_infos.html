@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Publishing extension information &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Hooks provided by PHP" href="hooks.html" />
     <link rel="prev" title="Managing global state" href="globals_management.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Publishing extension information</span></h2>
@@ -43,26 +34,26 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="publishing-extension-information">
 <h1>Publishing extension information<a class="headerlink" href="#publishing-extension-information" title="Permalink to this headline">¶</a></h1>
-<p>Extensions can publish information asked by <code class="docutils literal"><span class="pre">phpinfo()</span></code> or the Reflection API. Let’s see that together.</p>
+<p>Extensions can publish information asked by <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code> or the Reflection API. Let’s see that together.</p>
 <p>This chapter won’t be too long as there is really no difficulty.</p>
 <div class="section" id="minfo-hook">
 <h2>MINFO() hook<a class="headerlink" href="#minfo-hook" title="Permalink to this headline">¶</a></h2>
-<p>Everything takes place in the <code class="docutils literal"><span class="pre">MINFO()</span></code> hook you declared, if you declared one.  If you declared none, then the engine
+<p>Everything takes place in the <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code> hook you declared, if you declared one.  If you declared none, then the engine
 will run a default function to print information about your extension. That function will only print the version of
 your extension and the <a class="reference internal" href="ini_settings.html"><span class="doc">INI entries</span></a> you eventually declared. If you want to hook into such
-process, you must declare an <code class="docutils literal"><span class="pre">MINFO()</span></code> <a class="reference internal" href="php_lifecycle.html"><span class="doc">hook</span></a> in your extension structure.</p>
+process, you must declare an <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code> <a class="reference internal" href="php_lifecycle.html"><span class="doc">hook</span></a> in your extension structure.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Everything takes place in <a class="reference external" href="https://github.com/php/php-src/blob/ce64b82ebb2ac87e53cb85c312eafc8c5c37b112/ext/standard/info.c">ext/standard/info.c</a> , you may read that file. Printing
+<p class="admonition-title">Note</p>
+<p>Everything takes place in <a class="reference external" href="https://github.com/php/php-src/blob/ce64b82ebb2ac87e53cb85c312eafc8c5c37b112/ext/standard/info.c">ext/standard/info.c</a> , you may read that file. Printing
 information about PHP extensions is done by the engine by calling <a class="reference external" href="https://github.com/php/php-src/blob/ce64b82ebb2ac87e53cb85c312eafc8c5c37b112/ext/standard/info.c#L139">php_info_print_module()</a></p>
 </div>
-<p>Here is a simple <code class="docutils literal"><span class="pre">MINFO()</span></code> example:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;php/main/SAPI.h&quot;</span><span class="cp"></span>
+<p>Here is a simple <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code> example:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;php/main/SAPI.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;ext/standard/info.h&quot;</span><span class="cp"></span>
 
 <span class="cp">#define PIB_TXT  &quot;PHPInternalsBook Authors&quot;</span>
@@ -105,38 +96,38 @@ information about PHP extensions is done by the engine by calling <a class="refe
 </pre></div>
 </div>
 <img alt="../../_images/php_minfo.png" class="align-center" src="../../_images/php_minfo.png" />
-<p>What you basically have to do is to deal with <code class="docutils literal"><span class="pre">php_info_print_*()</span></code> API, that allows to print into the output stream
-that is generated. If you want to print some raw information, a simple <code class="docutils literal"><span class="pre">php_write()</span></code> is enough. <code class="docutils literal"><span class="pre">php_write()</span></code> just
-writes what you pass as argument onto the SAPI output stream, whereas <code class="docutils literal"><span class="pre">php_info_print_*()</span></code> API does as well, but
+<p>What you basically have to do is to deal with <code class="docutils literal notranslate"><span class="pre">php_info_print_*()</span></code> API, that allows to print into the output stream
+that is generated. If you want to print some raw information, a simple <code class="docutils literal notranslate"><span class="pre">php_write()</span></code> is enough. <code class="docutils literal notranslate"><span class="pre">php_write()</span></code> just
+writes what you pass as argument onto the SAPI output stream, whereas <code class="docutils literal notranslate"><span class="pre">php_info_print_*()</span></code> API does as well, but
 before formats the content using HTML <em>table-tr-td</em> tags if the output is expected to be HTML, or simple spaces if not.</p>
-<p>Like you can see, you need to include <em>ext/standard/info.h</em> to access the <code class="docutils literal"><span class="pre">php_info_print_*()</span></code> API, and you will need
-<em>php/main/SAPI.h</em> to access the <code class="docutils literal"><span class="pre">sapi_module</span></code> symbol. That symbol is global, it represents the current <em>SAPI</em> used by
-the PHP process. The <code class="docutils literal"><span class="pre">phpinfo_as_text</span></code> field inform if you are going to write in a “Web” SAPI like <em>php-fpm</em> f.e, or
+<p>Like you can see, you need to include <em>ext/standard/info.h</em> to access the <code class="docutils literal notranslate"><span class="pre">php_info_print_*()</span></code> API, and you will need
+<em>php/main/SAPI.h</em> to access the <code class="docutils literal notranslate"><span class="pre">sapi_module</span></code> symbol. That symbol is global, it represents the current <em>SAPI</em> used by
+the PHP process. The <code class="docutils literal notranslate"><span class="pre">phpinfo_as_text</span></code> field inform if you are going to write in a “Web” SAPI like <em>php-fpm</em> f.e, or
 in a “text” one, like <em>php-cli</em>.</p>
-<p>What will trigger your <code class="docutils literal"><span class="pre">MINFO()</span></code> hook are :</p>
+<p>What will trigger your <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code> hook are :</p>
 <ul class="simple">
-<li>Calls to userland <code class="docutils literal"><span class="pre">phpinfo()</span></code> function</li>
-<li><code class="docutils literal"><span class="pre">php</span> <span class="pre">-i</span></code>, <code class="docutils literal"><span class="pre">php-cgi</span> <span class="pre">-i</span></code>, <code class="docutils literal"><span class="pre">php-fpm</span> <span class="pre">-i</span></code>. More generally <code class="docutils literal"><span class="pre">&lt;SAPI_binary&gt;</span> <span class="pre">-</span> <span class="pre">i</span></code></li>
-<li><code class="docutils literal"><span class="pre">php</span> <span class="pre">--ri</span></code> or userland <code class="docutils literal"><span class="pre">ReflectionExtension::info()</span></code></li>
+<li><p>Calls to userland <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code> function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">php</span> <span class="pre">-i</span></code>, <code class="docutils literal notranslate"><span class="pre">php-cgi</span> <span class="pre">-i</span></code>, <code class="docutils literal notranslate"><span class="pre">php-fpm</span> <span class="pre">-i</span></code>. More generally <code class="docutils literal notranslate"><span class="pre">&lt;SAPI_binary&gt;</span> <span class="pre">-</span> <span class="pre">i</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">php</span> <span class="pre">--ri</span></code> or userland <code class="docutils literal notranslate"><span class="pre">ReflectionExtension::info()</span></code></p></li>
 </ul>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Take care of the output formatting. Probe for <code class="docutils literal"><span class="pre">sapi_module.phpinfo_as_text</span></code> if you need to change between
+<p class="admonition-title">Note</p>
+<p>Take care of the output formatting. Probe for <code class="docutils literal notranslate"><span class="pre">sapi_module.phpinfo_as_text</span></code> if you need to change between
 text and HTML formatting. You don’t know how your extensions’ infos will be called by userland.</p>
 </div>
-<p>If you need to display your INI settings, just call for the <code class="docutils literal"><span class="pre">DISPLAY_INI_ENTRIES()</span></code> macro into your <code class="docutils literal"><span class="pre">MINFO()</span></code>. This
+<p>If you need to display your INI settings, just call for the <code class="docutils literal notranslate"><span class="pre">DISPLAY_INI_ENTRIES()</span></code> macro into your <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code>. This
 macro resolves to <a class="reference external" href="https://github.com/php/php-src/blob/4903f044d3a65de5b1c457d9eb618c9e247f7086/main/php_ini.c#L167">display_ini_entries()</a>.</p>
 </div>
 <div class="section" id="a-note-about-the-reflection-api">
 <h2>A note about the Reflection API<a class="headerlink" href="#a-note-about-the-reflection-api" title="Permalink to this headline">¶</a></h2>
-<p>The Reflection heavily uses your <code class="docutils literal"><span class="pre">zend_module_entry</span></code> structure. For example, when you call
-<code class="docutils literal"><span class="pre">ReflectionExtension::getVersion()</span></code>, the API just reads the version field of your <code class="docutils literal"><span class="pre">zend_module_entry</span></code> structure.</p>
-<p>Same to discover functions, your <code class="docutils literal"><span class="pre">zend_module_entry</span></code> has got a <code class="docutils literal"><span class="pre">const</span> <span class="pre">struct</span> <span class="pre">_zend_function_entry</span> <span class="pre">*functions</span></code> member
+<p>The Reflection heavily uses your <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure. For example, when you call
+<code class="docutils literal notranslate"><span class="pre">ReflectionExtension::getVersion()</span></code>, the API just reads the version field of your <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure.</p>
+<p>Same to discover functions, your <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> has got a <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">struct</span> <span class="pre">_zend_function_entry</span> <span class="pre">*functions</span></code> member
 which is used to register PHP functions.</p>
-<p>Basically, the PHP userland Reflection API just reads your <code class="docutils literal"><span class="pre">zend_module_entry</span></code> structure and publishes those
-information. It may also use your <code class="docutils literal"><span class="pre">module_number</span></code> to gather back information your extension registered at different
-locations against the engine. For example, <code class="docutils literal"><span class="pre">ReflectionExtension::getINIentries()</span></code> or
-<code class="docutils literal"><span class="pre">ReflectionExtension::getClasses()</span></code> use this.</p>
+<p>Basically, the PHP userland Reflection API just reads your <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure and publishes those
+information. It may also use your <code class="docutils literal notranslate"><span class="pre">module_number</span></code> to gather back information your extension registered at different
+locations against the engine. For example, <code class="docutils literal notranslate"><span class="pre">ReflectionExtension::getINIentries()</span></code> or
+<code class="docutils literal notranslate"><span class="pre">ReflectionExtension::getClasses()</span></code> use this.</p>
 </div>
 </div>
 

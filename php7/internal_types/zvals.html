@@ -1,33 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zvals &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Basic structure" href="zvals/basic_structure.html" />
     <link rel="prev" title="Internal types" href="../internal_types.html" /> 
-  </head>
-  <body>
+  </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Zvals</span></h2>
@@ -43,23 +34,28 @@
         </p>
 
       </div>
-      <div class="content">
+      <div class="content" role="main">
         
         
   <div class="section" id="zvals">
 <h1>Zvals<a class="headerlink" href="#zvals" title="Permalink to this headline">¶</a></h1>
-<p>In this chapter the “zval” data structure, which is used to represent PHP values, is introduced. We explain the concepts
-behind zvals and how to use them in extension code.</p>
+<p>In this chapter the <code class="docutils literal notranslate"><span class="pre">zval</span></code> data structure, which is used to represent PHP values, is introduced. We explain the
+concepts behind zvals and how to use them in extension code.</p>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="zvals/basic_structure.html">Basic structure</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="zvals/basic_structure.html#types-and-values">Types and values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zvals/basic_structure.html#the-zval-struct">The zval struct</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zvals/basic_structure.html#access-macros">Access macros</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zvals/basic_structure.html#setting-the-value">Setting the value</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="zvals/memory_and_gc.html">Zval memory management and garbage collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zvals/memory_management.html">Memory management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="zvals/memory_management.html#reference-counted-values">Reference-counted values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zvals/memory_management.html#zval-memory-management">Zval memory management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zvals/memory_management.html#references">References</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="zvals/casts_and_operations.html">Casts and operations on zvals</a></li>
 </ul>
 </div>
