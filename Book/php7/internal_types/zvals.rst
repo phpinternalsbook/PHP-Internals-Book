@@ -11,4 +11,5 @@ Contents:
 
     zvals/basic_structure.rst
     zvals/memory_management.rst
+    zvals/references.rst
     zvals/casts_and_operations.rst

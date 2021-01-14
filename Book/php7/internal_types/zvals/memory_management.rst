@@ -392,14 +392,37 @@ Finally, resources are initialized using ``ZVAL_RES``::
 Separating zvals
 ~~~~~~~~~~~~~~~~
 
-References
-----------
+In PHP, all values follow by-value semantics by default. This means that if you write ``$a = $b``, then modification
+of ``$a`` will have no effect on ``$b`` and vice versa. At the same time, ``$a = $b`` is essentially implemented as::
 
-.. todo
+    zval_ptr_dtor(a);
+    ZVAL_COPY(a, b);
 
-    ZVAL_REF
-    ZVAL_NEW_EMPTY_REF
-    ZVAL_NEW_REF
-    ZVAL_MAKE_REF
-    ZVAL_AST
-    ZVAL_PTR
+That is, ``$a`` and ``$b`` will both point to the same structure with an incremented refcount. This means that a
+naive modification of ``$a`` would also modify ``$b``.
+
+This is where the copy-on-write concept comes in: You are only permitted to modify structures that you exclusively
+own, which means that they must have a refcount of one. If a structure has a refcount greater than one, it needs to
+be *separated* first. Separation is just a fancy word for duplicating the structure.
+
+In practice "structure" can be replaced with "array". While in theory the concept also applies to strings, strings
+are almost never mutated after construction in PHP. As such ``SEPARATE_ARRAY()`` is the main separation macro, which
+can only be applied to ``IS_ARRAY`` zvals::
+
+    zval a, b;
+    ZVAL_ARR(&b, zend_new_array(0));
+    ZVAL_COPY(&a, &b);
+
+    SEPARATE_ARRAY(&b); // b now holds a separate copy of the array.
+    // Modification of b will no longer affect a.
+
+The ``SEPARATE_ARRAY()`` macro takes care not only of shared arrays, but also of immutable ones::
+
+    zval val;
+    ZVAL_EMPTY_ARRAY(&val); // Immutable empty array.
+    SEPARATE_ARRAY(&val); // Mutable copy of empty array.
+
+The ``SEPARATE_ZVAL_NOREF()`` macro separates a generic zval, but is only rarely useful, as sepatation typically
+directly precedes a modification, and you need to know the zval type to perform any meaningful modification anyway.
+
+Objects and resources do not require separation, as they have reference-like semantics.
