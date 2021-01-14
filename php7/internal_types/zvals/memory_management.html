@@ -16,7 +16,7 @@
     <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Casts and operations on zvals" href="casts_and_operations.html" />
+    <link rel="next" title="References" href="references.html" />
     <link rel="prev" title="Basic structure" href="basic_structure.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../../index.html">
@@ -30,7 +30,7 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="casts_and_operations.html">Casts and operations on zvals</a>&#160;&#160;»
+        <a href="references.html">References</a>&#160;&#160;»
         </p>
 
       </div>
@@ -414,10 +414,38 @@ to create an object from scratch. This will covered in a later chapter on object
 </div>
 <div class="section" id="separating-zvals">
 <h3>Separating zvals<a class="headerlink" href="#separating-zvals" title="Permalink to this headline">¶</a></h3>
+<p>In PHP, all values follow by-value semantics by default. This means that if you write <code class="docutils literal notranslate"><span class="pre">$a</span> <span class="pre">=</span> <span class="pre">$b</span></code>, then modification
+of <code class="docutils literal notranslate"><span class="pre">$a</span></code> will have no effect on <code class="docutils literal notranslate"><span class="pre">$b</span></code> and vice versa. At the same time, <code class="docutils literal notranslate"><span class="pre">$a</span> <span class="pre">=</span> <span class="pre">$b</span></code> is essentially implemented as:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+<span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+</pre></div>
 </div>
+<p>That is, <code class="docutils literal notranslate"><span class="pre">$a</span></code> and <code class="docutils literal notranslate"><span class="pre">$b</span></code> will both point to the same structure with an incremented refcount. This means that a
+naive modification of <code class="docutils literal notranslate"><span class="pre">$a</span></code> would also modify <code class="docutils literal notranslate"><span class="pre">$b</span></code>.</p>
+<p>This is where the copy-on-write concept comes in: You are only permitted to modify structures that you exclusively
+own, which means that they must have a refcount of one. If a structure has a refcount greater than one, it needs to
+be <em>separated</em> first. Separation is just a fancy word for duplicating the structure.</p>
+<p>In practice “structure” can be replaced with “array”. While in theory the concept also applies to strings, strings
+are almost never mutated after construction in PHP. As such <code class="docutils literal notranslate"><span class="pre">SEPARATE_ARRAY()</span></code> is the main separation macro, which
+can only be applied to <code class="docutils literal notranslate"><span class="pre">IS_ARRAY</span></code> zvals:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">;</span>
+<span class="n">ZVAL_ARR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span> <span class="n">zend_new_array</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="n">ZVAL_COPY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
+
+<span class="n">SEPARATE_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">);</span> <span class="c1">// b now holds a separate copy of the array.</span>
+<span class="c1">// Modification of b will no longer affect a.</span>
+</pre></div>
 </div>
-<div class="section" id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">SEPARATE_ARRAY()</span></code> macro takes care not only of shared arrays, but also of immutable ones:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_EMPTY_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span> <span class="c1">// Immutable empty array.</span>
+<span class="n">SEPARATE_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span> <span class="c1">// Mutable copy of empty array.</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">SEPARATE_ZVAL_NOREF()</span></code> macro separates a generic zval, but is only rarely useful, as sepatation typically
+directly precedes a modification, and you need to know the zval type to perform any meaningful modification anyway.</p>
+<p>Objects and resources do not require separation, as they have reference-like semantics.</p>
+</div>
 </div>
 </div>
 
@@ -430,7 +458,7 @@ to create an object from scratch. This will covered in a later chapter on object
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="casts_and_operations.html">Casts and operations on zvals</a>&#160;&#160;»
+        <a href="references.html">References</a>&#160;&#160;»
         </p>
 
       </div>
