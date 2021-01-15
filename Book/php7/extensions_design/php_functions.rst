@@ -9,7 +9,7 @@ Registering and using new PHP functions in an extension is an easy step. Deeply 
 however pretty more complex. A first step :doc:`to the zend_function chapter<../internal_types/functions>` could help
 then.
 
-Obviously, you'll need to master :doc:`types<../internal_types>`, especially :doc:`zvals<../internal_types/zvals>` and
+Obviously, you'll need to master :doc:`types<../internal_types>`, especially :ref:`zvals <zvals>` and
 :doc:`memory management<../memory_management>` here. Also, know your :doc:`hooks<../extensions_design/php_lifecycle>`.
 
 zend_function_entry structure
@@ -256,7 +256,7 @@ Take a break and think about the major differences.
 First strange thing, in C, the function is not expected to return anything. That's a ``void`` declared function, you
 can't here in C return something. But we notice we receive an argument called ``return_value`` of type ``zval *``,
 which seems to smell very nice. In programming PHP function in C, you are given the return value as a pointer to a
-zval, and you are expected to play with it. :doc:`Here are more resources about zvals<../internal_types/zvals>`.
+zval, and you are expected to play with it. :ref:`Here are more resources about zvals<zvals>`.
 
 .. note:: While programming PHP functions in C extensions, you receive the return value as an argument, and you don't
           return anything from your C function body.
@@ -346,7 +346,7 @@ So far so good, we received a double. Let's now perform the math operations and 
         RETURN_DOUBLE(php_fahrenheit_to_celsius(f));
     }
 
-Returning values should be easy to you, as you know :doc:`how zvals work <../internal_types/zvals>`. You must fill-in
+Returning values should be easy to you, as you know :ref:`how zvals work <zvals>`. You must fill-in
 the ``return_value``.
 
 To do that, some ``RETURN_***()`` macros are dedicated as well as some ``RETVAL_***()`` ones.
@@ -630,7 +630,7 @@ make the maths operations and add the result in ``return_value``, as an array::
 
 
 .. note:: You need to know :doc:`how Hashtables work<../internal_types/hashtables>`, and the must-read
-          :doc:`zval chapter<../internal_types/zvals>`
+          :ref:`zval chapter<zvals>`
 
 Here, the C part will be faster, as you don't call a PHP function in the loop for the C code, but a static (and probably
 inlined by the compiler) C function, which is orders of magnitude faster and requires tons less of low-level CPU
@@ -640,7 +640,7 @@ remember one reason why we sometimes use the C language over PHP.
 Managing references
 *******************
 
-Now let's go to play with PHP references. You've learnt from :doc:`the zval chapter <../internal_types/zvals>` that
+Now let's go to play with PHP references. You've learnt from :ref:`the zval chapter <zvals>` that
 references are a special trick used into the engine. As a reminder, a reference (by that we mean a ``&$php_reference``)
 is a heap allocated ``zval`` stored into a ``zval`` container. Haha.
 

@@ -341,7 +341,7 @@ provides utilities to access request-bound global space like we showed.
 
 Then, easy enough we initialize an array in ``RINIT()``, and we destroy it in ``RSHUTDOWN()``. Remember that
 ``array_init()`` creates a :doc:`zend_array <../internal_types/hashtables>` and puts it into a
-:doc:`zval <../internal_types/zvals>`. But this is allocation-free, do not fear to allocate an array the user could not
+:ref:`zval <zvals>`. But this is allocation-free, do not fear to allocate an array the user could not
 make use of (thus a waste in allocation), ``array_init()`` is very cheap (`read the source
 <https://github.com/php/php-src/blob/d0b7eed0c9d873a0606dbbc7e33f14492f1a3dd6/Zend/zend_API.c#L1057>`_).
 

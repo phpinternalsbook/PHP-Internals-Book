@@ -77,16 +77,16 @@ The remaining four types will only be mentioned here quickly and discussed in gr
 
 Strings (``IS_STRING``) are stored in a ``zend_string`` structure, which combines the string length and the string
 constants in a single allocation. You will find more information about the ``zend_string`` structure and its
-dedicated API in the :doc:`string <../strings>` chapter.
+dedicated API in the :doc:`string <../internal_types/strings>` chapter.
 
 Arrays use the ``IS_ARRAY`` type tag and are stored in the ``zend_array *arr`` member. How the ``HashTable`` structure
-works will be discussed in the :doc:`Hashtables <../hashtables>` chapter.
+works will be discussed in the :doc:`Hashtables <../internal_types/hashtables>` chapter.
 
 Objects (``IS_OBJECT``) use the ``zend_object *obj`` member. PHP's class and object system will be described in the
-:doc:`objects <../objects>` chapter.
+:doc:`objects <../internal_types/objects>` chapter.
 
 Resources (``IS_RESOURCE``) are use the ``zend_resource *res`` member. Resources are covered in the
-:doc:`Resources <../zend_resources>` chapter.
+:doc:`Resources <../internal_types/zend_resources>` chapter.
 
 To summarize, here's a table with all the available "normal" type tags and the corresponding storage location for
 their values:
@@ -131,7 +131,7 @@ The ``zend_refcounted *counted`` member accesses a common header for all referen
 arrays, objects, resources and references. How this works is discussed in the :doc:`memory management <memory_management>` chapter.
 
 The ``IS_CONSTANT_AST`` type and ``zend_ast_ref *ast`` member are used to store unevaluated constant expression abstract syntax trees (ASTs). It can occur only in specific places, such as property default values. ASTs will be discussed
-in the :doc:`compiler <../../zend_engine/zend_compiler>` chapter.
+in the :doc:`compiler <../zend_engine/zend_compiler>` chapter.
 
 The ``IS_INDIRECT`` type and ``zval *zv`` member are used to store a direct pointer to another zval. This is used
 primarily for symbol types and dynamic property tables, in order to point to an actual value stored elsewhere.

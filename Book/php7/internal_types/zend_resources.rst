@@ -109,7 +109,7 @@ resource. Before that, we registered a destructor which when called will use lib
 we register the resource against the engine, and we pass the resource into a ``zval`` container that could get returned
 to userland.
 
-.. note:: Zvals chapter can be found :doc:`here <./zvals>`.
+.. note:: Zvals chapter can be found :ref:`here <zvals>`.
 
 What must be remembered is resource type. Here, we register a resource of type *"my_res"*. This is the type name. The
 engine does not really care about type name, but type identifier, the integer returned by
