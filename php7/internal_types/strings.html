@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strings management &#8212; PHP Internals Book</title>
+    <title>Strings &#8212; PHP Internals Book</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
@@ -16,12 +16,12 @@
     <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Strings management: zend_string" href="strings/zend_strings.html" />
+    <link rel="next" title="The zend_string API" href="strings/zend_strings.html" />
     <link rel="prev" title="Internal types" href="../internal_types.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
-        <h2 class="heading"><span>Strings management</span></h2>
+        <h2 class="heading"><span>Strings</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
@@ -30,26 +30,26 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="strings/zend_strings.html">Strings management: zend_string</a>&#160;&#160;»
+        <a href="strings/zend_strings.html">The zend_string API</a>&#160;&#160;»
         </p>
 
       </div>
       <div class="content" role="main">
         
         
-  <div class="section" id="strings-management">
-<h1>Strings management<a class="headerlink" href="#strings-management" title="Permalink to this headline">¶</a></h1>
-<p>Any program needs to manage strings. Managing is like allocating, searching, concatenating, extending, shrinking etc..</p>
-<p>Many operations are needed with strings. Although the C standard library provides many functions for such a goal,
-C classical strings, aka <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">*</span></code> (or <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">[]</span></code>) are usually a little bit weak to use as-is in a strong program
-like PHP is.</p>
-<p>Thus, PHP designed a layer on top of C strings: <code class="docutils literal notranslate"><span class="pre">zend_strings</span></code>. Also, another API exists that implements common string
-operations both for C classical strings, or for <code class="docutils literal notranslate"><span class="pre">zend_strings</span></code>: <code class="docutils literal notranslate"><span class="pre">smart_str</span></code> API.</p>
+  <div class="section" id="strings">
+<h1>Strings<a class="headerlink" href="#strings" title="Permalink to this headline">¶</a></h1>
+<p>Rather than using plain a plain <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">*</span></code> pointer, PHP uses a custom <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> type to
+represent strings. This chapter discusses how to work with this structure, as well as various
+string-related utilities.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="strings/zend_strings.html">Strings management: zend_string</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="strings/zend_strings.html#structure-and-access-macros">Structure and access macros</a></li>
-<li class="toctree-l2"><a class="reference internal" href="strings/zend_strings.html#using-zend-string-api">Using zend_string API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strings/zend_strings.html">The zend_string API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="strings/zend_strings.html#structure">Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strings/zend_strings.html#string-accessors">String accessors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strings/zend_strings.html#memory-management">Memory management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strings/zend_strings.html#other-operations">Other operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strings/zend_strings.html#interned-strings">Interned strings</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="strings/smart_str.html">smart_str API</a><ul>
@@ -75,7 +75,7 @@ operations both for C classical strings, or for <code class="docutils literal no
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="strings/zend_strings.html">Strings management: zend_string</a>&#160;&#160;»
+        <a href="strings/zend_strings.html">The zend_string API</a>&#160;&#160;»
         </p>
 
       </div>

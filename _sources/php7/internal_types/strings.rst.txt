@@ -1,14 +1,9 @@
-Strings management
-==================
+Strings
+=======
 
-Any program needs to manage strings. Managing is like allocating, searching, concatenating, extending, shrinking etc..
-
-Many operations are needed with strings. Although the C standard library provides many functions for such a goal,
-C classical strings, aka ``char *`` (or ``char []``) are usually a little bit weak to use as-is in a strong program
-like PHP is.
-
-Thus, PHP designed a layer on top of C strings: ``zend_strings``. Also, another API exists that implements common string
-operations both for C classical strings, or for ``zend_strings``: ``smart_str`` API.
+Rather than using plain a plain ``char *`` pointer, PHP uses a custom ``zend_string`` type to
+represent strings. This chapter discusses how to work with this structure, as well as various
+string-related utilities.
 
 .. toctree::
     :maxdepth: 2

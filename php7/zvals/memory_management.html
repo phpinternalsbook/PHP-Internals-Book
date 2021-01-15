@@ -43,7 +43,7 @@
 we can classify values into two categories: Simple values like integers, which are stored directly inside the zval, and
 complex values like strings, for which the zval only stores a pointer to a separate structure.</p>
 <div class="section" id="reference-counted-values">
-<h2>Reference-counted values<a class="headerlink" href="#reference-counted-values" title="Permalink to this headline">¶</a></h2>
+<span id="refcounting"></span><h2>Reference-counted values<a class="headerlink" href="#reference-counted-values" title="Permalink to this headline">¶</a></h2>
 <p>All complex values share a common header with the following structure:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_refcounted_h</span> <span class="p">{</span>
     <span class="kt">uint32_t</span> <span class="n">refcount</span><span class="p">;</span>
@@ -313,7 +313,7 @@ use if you know that the destroyed data is non-circular. <code class="docutils l
 have both inlined and outlined variants.</p>
 </div>
 <div class="section" id="initializing-zvals">
-<h3>Initializing zvals<a class="headerlink" href="#initializing-zvals" title="Permalink to this headline">¶</a></h3>
+<span id="id1"></span><h3>Initializing zvals<a class="headerlink" href="#initializing-zvals" title="Permalink to this headline">¶</a></h3>
 <p>Until now, we have been using an abstract <code class="docutils literal notranslate"><span class="pre">init_zval()</span></code> function that <em>somehow</em> initializes a zval. It will not
 come as a surprise that PHP handles zval initialization using a plethora of macros. The initialization of simple
 types is especially straightforward:</p>
