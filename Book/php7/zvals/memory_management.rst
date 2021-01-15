@@ -5,6 +5,8 @@ To work with zvals correctly and efficiently, it is important to understand how 
 we can classify values into two categories: Simple values like integers, which are stored directly inside the zval, and
 complex values like strings, for which the zval only stores a pointer to a separate structure.
 
+.. _refcounting:
+
 Reference-counted values
 ------------------------
 
@@ -286,6 +288,8 @@ use if you know that the destroyed data is non-circular. ``zval_dtor()`` is a le
 Another variant that can be encountered in internal code is ``i_zval_ptr_dtor()``, which is the same as
 ``zval_ptr_dtor()`` but using an inlined implementation. The ``i_`` prefix is a general convention for functions that
 have both inlined and outlined variants.
+
+.. _initializing_zvals:
 
 Initializing zvals
 ~~~~~~~~~~~~~~~~~~
