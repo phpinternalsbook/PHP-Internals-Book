@@ -235,7 +235,7 @@ Let’s launch that with valgrind, and see the result:</p>
 </div>
 <p>We destroy the persistent array at the end of PHP process, in <a class="reference internal" href="../extensions_design/php_lifecycle.html"><span class="doc">MSHUTDOWN</span></a>.
 As when we created it, we passed it <code class="docutils literal notranslate"><span class="pre">ZVAL_PTR_DTOR</span></code> as a destructor, it will run that callback on any items we
-inserted. This is the <a class="reference internal" href="../internal_types/zvals.html"><span class="doc">zval</span></a> destructor which will destroy zvals analyzing their content.
+inserted. This is the <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">zval</span></a> destructor which will destroy zvals analyzing their content.
 For <code class="docutils literal notranslate"><span class="pre">IS_STRING</span></code> types, the destructor will release the <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> and free it if necessary. Done.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

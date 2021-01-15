@@ -9,6 +9,7 @@ PHP 7 and PHP 8
 
     php7/introduction.rst
     php7/build_system.rst
+    php7/zvals.rst
     php7/internal_types.rst
     php7/extensions_design.rst
     php7/memory_management.rst

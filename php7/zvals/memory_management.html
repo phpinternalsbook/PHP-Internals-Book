@@ -6,20 +6,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memory management &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="References" href="references.html" />
     <link rel="prev" title="Basic structure" href="basic_structure.html" /> 
   </head><body>
-      <div class="header" role="banner"><h1 class="heading"><a href="../../../index.html">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Memory management</span></h2>
       </div>
@@ -28,7 +28,7 @@
         <p>
         «&#160;&#160;<a href="basic_structure.html">Basic structure</a>
         &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../../../index.html">Contents</a>
+        <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
         <a href="references.html">References</a>&#160;&#160;»
         </p>
@@ -159,7 +159,7 @@ the same.</p>
 <h3>Persistent structures<a class="headerlink" href="#persistent-structures" title="Permalink to this headline">¶</a></h3>
 <p>PHP makes use of two allocators: The per-request allocator, which releases all memory at the end of a request, and the
 persistent allocator, which retains allocations across multiple requests. The persistent allocator is effectively
-the same as the normal system allocator. See the <a class="reference internal" href="../../extensions_design/php_lifecycle.html#php-lifecycle"><span class="std std-ref">PHP Lifecycle</span></a> and <a class="reference internal" href="../../memory_management/zend_memory_manager.html#zend-mm"><span class="std std-ref">Zend Memory Manager</span></a> chapters for
+the same as the normal system allocator. See the <a class="reference internal" href="../extensions_design/php_lifecycle.html#php-lifecycle"><span class="std std-ref">PHP Lifecycle</span></a> and <a class="reference internal" href="../memory_management/zend_memory_manager.html#zend-mm"><span class="std std-ref">Zend Memory Manager</span></a> chapters for
 more information on PHP’s allocation management.</p>
 <p>Many functions that create refcounted structures will accept a <code class="docutils literal notranslate"><span class="pre">persistent</span></code> flag to determine which allocator to
 use. An example of this is the last argument of <code class="docutils literal notranslate"><span class="pre">zend_string_init()</span></code>. If a function exposes no <code class="docutils literal notranslate"><span class="pre">persistent</span></code> flag,
@@ -456,7 +456,7 @@ directly precedes a modification, and you need to know the zval type to perform 
         <p>
         «&#160;&#160;<a href="basic_structure.html">Basic structure</a>
         &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../../../index.html">Contents</a>
+        <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
         <a href="references.html">References</a>&#160;&#160;»
         </p>

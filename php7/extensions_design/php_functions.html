@@ -45,7 +45,7 @@ for our chapter, as the PHP extension mechanism provides many ways to abstract a
 <p>Registering and using new PHP functions in an extension is an easy step. Deeply understanding the big picture is
 however pretty more complex. A first step <a class="reference internal" href="../internal_types/functions.html"><span class="doc">to the zend_function chapter</span></a> could help
 then.</p>
-<p>Obviously, you’ll need to master <a class="reference internal" href="../internal_types.html"><span class="doc">types</span></a>, especially <a class="reference internal" href="../internal_types/zvals.html"><span class="doc">zvals</span></a> and
+<p>Obviously, you’ll need to master <a class="reference internal" href="../internal_types.html"><span class="doc">types</span></a>, especially <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">zvals</span></a> and
 <a class="reference internal" href="../memory_management.html"><span class="doc">memory management</span></a> here. Also, know your <a class="reference internal" href="php_lifecycle.html"><span class="doc">hooks</span></a>.</p>
 <div class="section" id="zend-function-entry-structure">
 <h2>zend_function_entry structure<a class="headerlink" href="#zend-function-entry-structure" title="Permalink to this headline">¶</a></h2>
@@ -277,7 +277,7 @@ Here is what it looks like when programmed in C:</p>
 <p>First strange thing, in C, the function is not expected to return anything. That’s a <code class="docutils literal notranslate"><span class="pre">void</span></code> declared function, you
 can’t here in C return something. But we notice we receive an argument called <code class="docutils literal notranslate"><span class="pre">return_value</span></code> of type <code class="docutils literal notranslate"><span class="pre">zval</span> <span class="pre">*</span></code>,
 which seems to smell very nice. In programming PHP function in C, you are given the return value as a pointer to a
-zval, and you are expected to play with it. <a class="reference internal" href="../internal_types/zvals.html"><span class="doc">Here are more resources about zvals</span></a>.</p>
+zval, and you are expected to play with it. <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">Here are more resources about zvals</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>While programming PHP functions in C extensions, you receive the return value as an argument, and you don’t
@@ -361,7 +361,7 @@ to return, abort the current function (you should return <code class="docutils l
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Returning values should be easy to you, as you know <a class="reference internal" href="../internal_types/zvals.html"><span class="doc">how zvals work</span></a>. You must fill-in
+<p>Returning values should be easy to you, as you know <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">how zvals work</span></a>. You must fill-in
 the <code class="docutils literal notranslate"><span class="pre">return_value</span></code>.</p>
 <p>To do that, some <code class="docutils literal notranslate"><span class="pre">RETURN_***()</span></code> macros are dedicated as well as some <code class="docutils literal notranslate"><span class="pre">RETVAL_***()</span></code> ones.
 Both just set the type and value of the <code class="docutils literal notranslate"><span class="pre">return_value</span></code> zval, but <code class="docutils literal notranslate"><span class="pre">RETURN_***()</span></code> ones will follow that by a C
@@ -632,7 +632,7 @@ make the maths operations and add the result in <code class="docutils literal no
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You need to know <a class="reference internal" href="../internal_types/hashtables.html"><span class="doc">how Hashtables work</span></a>, and the must-read
-<a class="reference internal" href="../internal_types/zvals.html"><span class="doc">zval chapter</span></a></p>
+<a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">zval chapter</span></a></p>
 </div>
 <p>Here, the C part will be faster, as you don’t call a PHP function in the loop for the C code, but a static (and probably
 inlined by the compiler) C function, which is orders of magnitude faster and requires tons less of low-level CPU
@@ -641,7 +641,7 @@ remember one reason why we sometimes use the C language over PHP.</p>
 </div>
 <div class="section" id="managing-references">
 <h2>Managing references<a class="headerlink" href="#managing-references" title="Permalink to this headline">¶</a></h2>
-<p>Now let’s go to play with PHP references. You’ve learnt from <a class="reference internal" href="../internal_types/zvals.html"><span class="doc">the zval chapter</span></a> that
+<p>Now let’s go to play with PHP references. You’ve learnt from <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">the zval chapter</span></a> that
 references are a special trick used into the engine. As a reminder, a reference (by that we mean a <code class="docutils literal notranslate"><span class="pre">&amp;$php_reference</span></code>)
 is a heap allocated <code class="docutils literal notranslate"><span class="pre">zval</span></code> stored into a <code class="docutils literal notranslate"><span class="pre">zval</span></code> container. Haha.</p>
 <p>So, it is not very hard to deal with those into PHP functions, as soon as you remember what references are, and what

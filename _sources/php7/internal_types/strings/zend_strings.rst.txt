@@ -53,7 +53,7 @@ Using zend_string API
 Simple use case
 ***************
 
-Like with :doc:`../zvals`, you don't manipulate the ``zend_string`` internals fields by hand, but always use macros
+Like with :ref:`zvals`, you don't manipulate the ``zend_string`` internals fields by hand, but always use macros
 for that. There also exists macros to trigger actions on strings. Those are not functions but macros, all stored into
 the required `Zend/zend_string.h <https://github.com/php/php-src/blob/PHP-7.0/Zend/zend_string.h>`_ header::
 
@@ -219,7 +219,7 @@ zend_string access with zvals
 Now that you know how to manage and manipulate ``zend_string``, let's see the interaction they got with the ``zval``
 container.
 
-.. note:: You need to be familiar with zvals, if not, read the :doc:`../zvals` dedicated chapter.
+.. note:: You need to be familiar with zvals, if not, read the :ref:`zvals` dedicated chapter.
 
 The macros will allow you to store a ``zend_string`` into a ``zval``, or to read the ``zend_string`` from a ``zval``::
 

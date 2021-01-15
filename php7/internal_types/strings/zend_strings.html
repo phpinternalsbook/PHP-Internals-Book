@@ -81,7 +81,7 @@ the API you’ll use when manipulating <code class="docutils literal notranslate
 <h2>Using zend_string API<a class="headerlink" href="#using-zend-string-api" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="simple-use-case">
 <h3>Simple use case<a class="headerlink" href="#simple-use-case" title="Permalink to this headline">¶</a></h3>
-<p>Like with <a class="reference internal" href="../zvals.html"><span class="doc">Zvals</span></a>, you don’t manipulate the <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> internals fields by hand, but always use macros
+<p>Like with <a class="reference internal" href="../../zvals.html#zvals"><span class="std std-ref">Zvals</span></a>, you don’t manipulate the <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> internals fields by hand, but always use macros
 for that. There also exists macros to trigger actions on strings. Those are not functions but macros, all stored into
 the required <a class="reference external" href="https://github.com/php/php-src/blob/PHP-7.0/Zend/zend_string.h">Zend/zend_string.h</a> header:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span><span class="p">;</span>
@@ -246,7 +246,7 @@ them. There is no concat operation available yet, but that is pretty easy to per
 container.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You need to be familiar with zvals, if not, read the <a class="reference internal" href="../zvals.html"><span class="doc">Zvals</span></a> dedicated chapter.</p>
+<p>You need to be familiar with zvals, if not, read the <a class="reference internal" href="../../zvals.html#zvals"><span class="std std-ref">Zvals</span></a> dedicated chapter.</p>
 </div>
 <p>The macros will allow you to store a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> into a <code class="docutils literal notranslate"><span class="pre">zval</span></code>, or to read the <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> from a <code class="docutils literal notranslate"><span class="pre">zval</span></code>:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">myval</span><span class="p">;</span>

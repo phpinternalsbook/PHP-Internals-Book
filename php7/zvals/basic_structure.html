@@ -6,20 +6,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basic structure &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Memory management" href="memory_management.html" />
     <link rel="prev" title="Zvals" href="../zvals.html" /> 
   </head><body>
-      <div class="header" role="banner"><h1 class="heading"><a href="../../../index.html">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Basic structure</span></h2>
       </div>
@@ -28,7 +28,7 @@
         <p>
         «&#160;&#160;<a href="../zvals.html">Zvals</a>
         &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../../../index.html">Contents</a>
+        <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
         <a href="memory_management.html">Memory management</a>&#160;&#160;»
         </p>
@@ -102,13 +102,13 @@ limited precision and commonly doesn’t store the exact value you want.</p>
 <p>The remaining four types will only be mentioned here quickly and discussed in greater detail in their own chapters:</p>
 <p>Strings (<code class="docutils literal notranslate"><span class="pre">IS_STRING</span></code>) are stored in a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> structure, which combines the string length and the string
 constants in a single allocation. You will find more information about the <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> structure and its
-dedicated API in the <a class="reference internal" href="../strings.html"><span class="doc">string</span></a> chapter.</p>
+dedicated API in the <a class="reference internal" href="../internal_types/strings.html"><span class="doc">string</span></a> chapter.</p>
 <p>Arrays use the <code class="docutils literal notranslate"><span class="pre">IS_ARRAY</span></code> type tag and are stored in the <code class="docutils literal notranslate"><span class="pre">zend_array</span> <span class="pre">*arr</span></code> member. How the <code class="docutils literal notranslate"><span class="pre">HashTable</span></code> structure
-works will be discussed in the <a class="reference internal" href="../hashtables.html"><span class="doc">Hashtables</span></a> chapter.</p>
+works will be discussed in the <a class="reference internal" href="../internal_types/hashtables.html"><span class="doc">Hashtables</span></a> chapter.</p>
 <p>Objects (<code class="docutils literal notranslate"><span class="pre">IS_OBJECT</span></code>) use the <code class="docutils literal notranslate"><span class="pre">zend_object</span> <span class="pre">*obj</span></code> member. PHP’s class and object system will be described in the
-<a class="reference internal" href="../objects.html"><span class="doc">objects</span></a> chapter.</p>
+<a class="reference internal" href="../internal_types/objects.html"><span class="doc">objects</span></a> chapter.</p>
 <p>Resources (<code class="docutils literal notranslate"><span class="pre">IS_RESOURCE</span></code>) are use the <code class="docutils literal notranslate"><span class="pre">zend_resource</span> <span class="pre">*res</span></code> member. Resources are covered in the
-<a class="reference internal" href="../zend_resources.html"><span class="doc">Resources</span></a> chapter.</p>
+<a class="reference internal" href="../internal_types/zend_resources.html"><span class="doc">Resources</span></a> chapter.</p>
 <p>To summarize, here’s a table with all the available “normal” type tags and the corresponding storage location for
 their values:</p>
 <table class="docutils align-default">
@@ -161,7 +161,7 @@ as a wrapper around another zval, that can be shared by multiple places.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">zend_refcounted</span> <span class="pre">*counted</span></code> member accesses a common header for all reference-counted types, including strings,
 arrays, objects, resources and references. How this works is discussed in the <a class="reference internal" href="memory_management.html"><span class="doc">memory management</span></a> chapter.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">IS_CONSTANT_AST</span></code> type and <code class="docutils literal notranslate"><span class="pre">zend_ast_ref</span> <span class="pre">*ast</span></code> member are used to store unevaluated constant expression abstract syntax trees (ASTs). It can occur only in specific places, such as property default values. ASTs will be discussed
-in the <a class="reference internal" href="../../zend_engine/zend_compiler.html"><span class="doc">compiler</span></a> chapter.</p>
+in the <a class="reference internal" href="../zend_engine/zend_compiler.html"><span class="doc">compiler</span></a> chapter.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">IS_INDIRECT</span></code> type and <code class="docutils literal notranslate"><span class="pre">zval</span> <span class="pre">*zv</span></code> member are used to store a direct pointer to another zval. This is used
 primarily for symbol types and dynamic property tables, in order to point to an actual value stored elsewhere.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">IS_PTR</span></code> type together with the <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">*ptr</span></code> field are used to store an arbitrary pointer. In C, any pointer
@@ -408,7 +408,7 @@ the implementation.</p>
         <p>
         «&#160;&#160;<a href="../zvals.html">Zvals</a>
         &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../../../index.html">Contents</a>
+        <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
         <a href="memory_management.html">Memory management</a>&#160;&#160;»
         </p>

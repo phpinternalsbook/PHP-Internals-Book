@@ -199,7 +199,7 @@ Let's fix them now::
 
 We destroy the persistent array at the end of PHP process, in :doc:`MSHUTDOWN <../extensions_design/php_lifecycle>`.
 As when we created it, we passed it ``ZVAL_PTR_DTOR`` as a destructor, it will run that callback on any items we
-inserted. This is the :doc:`zval<../internal_types/zvals>` destructor which will destroy zvals analyzing their content.
+inserted. This is the :ref:`zval<zvals>` destructor which will destroy zvals analyzing their content.
 For ``IS_STRING`` types, the destructor will release the ``zend_string`` and free it if necessary. Done.
 
 .. note:: As you can see, PHP - like any C strong program - is full of nested pointers. The ``zend_string`` is
