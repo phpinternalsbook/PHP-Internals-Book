@@ -94,7 +94,7 @@ already have the first three installed by default):
 
 On Debian/Ubuntu you can install all these with the following command::
 
-    ~/php-src> sudo apt-get install build-essential autoconf libtool bison re2c
+    ~/php-src> sudo apt-get install build-essential autoconf libtool bison re2c pkg-config
 
 Depending on the extensions that you enable during the ``./configure`` stage PHP will need a number of additional
 libraries. When installing these, check if there is a version of the package ending in ``-dev`` or ``-devel`` and
