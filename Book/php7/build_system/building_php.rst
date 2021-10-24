@@ -64,7 +64,7 @@ To clone the repository, run the following commands in your shell::
     ~> cd php-src
     # by default you will be on the master branch, which is the current
     # development version. You can check out a stable branch instead:
-    ~/php-src> git checkout PHP-8.0
+    ~/php-src> git checkout PHP-8.1
 
 If you have issues with the git checkout, take a look at the `Git FAQ`_ on the PHP wiki. The Git FAQ also explains how
 to setup git if you want to contribute to PHP itself. Furthermore it contains instructions on setting up multiple
