@@ -3,26 +3,25 @@
 Learning the PHP lifecycle
 ==========================
 
-PHP's a complex machinery which lifecycle should really be mastered by anyone pretending to hook into it.
-The main line is as follow :
+PHP is a complex piece of machinery whose lifecycle really should be understood by anyone who wants to understand how PHP operates. The main sequence is as follows:
 
 PHP starts up. If running CLI or FPM, it's C ``main()`` is run. If running as a module into a webserver, like using the
 apxs2 SAPI (Apache 2), PHP is started up just a little bit after Apache itself starts up and comes to run the startup
 sequence of its module which PHP is one. Starting up, is called internally **the module startup step**. We also
 abbreviate it as the **MINIT** step.
 
-Once started, PHP waits to treat one/several requests. When we talk about PHP CLI, there will be only one request: the
+Once started, PHP waits to handle one/several requests. When we talk about PHP CLI, there will be only one request: the
 current script to run. However, when we talk about a web environment- should it be PHP-FPM or webserver
 module- PHP could serve several requests one after the other. It all depends on how you did configure you webserver:
 you may tell it to serve an infinite number of requests, or a specific number before shutting down and recycling the
-process. Every time a new request shows in to be treated, PHP will run **a request startup step**. We call it the
+process. Every time a new request arrives to be handled, PHP will run **a request startup step**. We call it the
 **RINIT**.
 
 The request is served, some content is (probably) generated, OK. Time to shutdown the request and get prepared to
-eventually treat another one. Shutting down a request is called **the request shutdown step**.  We call
+eventually handle another one. Shutting down a request is called **the request shutdown step**.  We call
 it the **RSHUTDOWN**.
 
-After having treated X requests (one, several dozens, thousands etc..), PHP will finally shut down itself, and die.
+After having handled X requests (one, several dozens, thousands etc..), PHP will finally shut down itself, and die.
 Shutting down the PHP process is called **the module shutdown step**. We abbreviate it as **MSHUTDOWN**.
 
 If we would have drawn those steps, that could give something like this:
@@ -33,11 +32,11 @@ If we would have drawn those steps, that could give something like this:
 The parallelism models
 **********************
 
-In a CLI environment, everything is easy : one PHP process will treat one request : it will launch one solo PHP script,
+In a CLI environment, everything is easy : one PHP process will handle one request : it will launch one solo PHP script,
 then die.
 The CLI environment is a specialization of the Web environment, which is more complex.
 
-To treat several requests at the same time, you need to run a parallelism model. There exists two of them in PHP:
+To handle several requests at the same time, you need to run a parallelism model. There exists two of them in PHP:
 
 * The process-based model
 * The thread-based model
@@ -157,8 +156,8 @@ function.
 Request initialization: RINIT()
 -------------------------------
 
-A request just showed in, and PHP is about to treat it here. In ``RINIT()``, you bootstrap the resources you need to
-treat that precise request. PHP is a share-nothing architecture, and as-is, it provides
+A request just showed in, and PHP is about to handle it here. In ``RINIT()``, you bootstrap the resources you need to
+handle that precise request. PHP is a share-nothing architecture, and as-is, it provides
 :doc:`memory management <../memory_management>` facilities.
 
 In ``RINIT()``, if you need to allocate dynamic memory, you'll use
@@ -167,11 +166,11 @@ In ``RINIT()``, if you need to allocate dynamic memory, you'll use
 when the request shuts down, it will attempt to free the request-bound memory if you forgot to do so (you should not).
 
 You should not require persistent dynamic memory here, aka libc's ``malloc()`` or Zend's ``pemalloc()``. If you require
-persistent memory here, and forgets to free it, you'll create leaks that will stack as PHP treats more and more
+persistent memory here, and forgets to free it, you'll create leaks that will stack as PHP handles more and more
 requests, to finally crash the process (Kernel OOM) and starve the machine memory.
 
-Also, take really care not to write to global space here. If PHP is run into a thread as chosen parallelism model, then
-you'll modify the context for every thread of the pool (every other request treated in parallel to yours) and you could
+Also, take great care not to write to global space here. If PHP is run into a thread as chosen parallelism model, then
+you'll modify the context for every thread of the pool (every other request handled in parallel to yours) and you could
 also trigger race conditions if you don't lock the memory.
 If you need globals, you'll need to protect them.
 
@@ -184,7 +183,7 @@ function.
 Request termination: RSHUTDOWN()
 --------------------------------
 
-This is PHP request shutdown step. PHP just finished treating its request, and now it cleans up part of its memory as
+This is PHP request shutdown step. PHP just finished handling its request, and now it cleans up part of its memory as
 the share-nothing architecture. Further request to come should not remember anything from the current request.
 Easy enough, you basically perform here the exact opposite of what you used in ``RINIT()``. You free your request-bound
 resources.
@@ -269,11 +268,11 @@ Thoughts on PHP lifecycle
    :align: center
 
 As you may have spotted, ``RINIT()`` and ``RSHUTDOWN()`` are especially crucial as they could get triggered thousands
-of times on your extension. If the PHP setup is about Web (not CLI), and has been configured so that it can treat an
+of times on your extension. If the PHP setup is about Web (not CLI), and has been configured so that it can handle an
 infinite number of requests, thus your ``RINIT()/RSHUTDOWN()`` couple will be called an infinite amount of time.
 
 We'd like to once more get your attention about memory management. The little tiny byte you'll eventually leak while
-treating a request (between ``RINIT()`` and ``RSHUTDOWN()``) will have dramatic consequences on fully loaded servers.
+handling a request (between ``RINIT()`` and ``RSHUTDOWN()``) will have dramatic consequences on fully loaded servers.
 That's why you are advised to use :doc:`Zend Memory Manager <../memory_management/zend_memory_manager>` for such
 allocations and be ready to :doc:`debug your memory layout <../memory_management/memory_debugging>`. PHP will forget 
 and free the request memory at the end of every request as part of the share-nothing architecture, that's PHP's 
