@@ -90,7 +90,7 @@ You can specify multiple target folders or files to run by separating each path 
 Executing tests in parallel
 ---------------------------
 
-Since PHP 7.4 you are able to run tests in parallel by passing a ``-j<workers>`` flag, where workers is the number of parallel processes you want. e.g. ``-j4`` would run 4 tests at once. Note that this is experimental feature.
+Since PHP 7.4 you are able to run tests in parallel by passing a ``-j<workers>`` flag, where workers is the number of parallel processes you want. e.g. ``-j4`` would run 4 tests at once.
 
 More options
 ------------
