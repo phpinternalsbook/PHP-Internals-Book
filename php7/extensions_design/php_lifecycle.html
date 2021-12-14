@@ -39,31 +39,30 @@
         
   <div class="section" id="learning-the-php-lifecycle">
 <span id="php-lifecycle"></span><h1>Learning the PHP lifecycle<a class="headerlink" href="#learning-the-php-lifecycle" title="Permalink to this headline">¶</a></h1>
-<p>PHP’s a complex machinery which lifecycle should really be mastered by anyone pretending to hook into it.
-The main line is as follow :</p>
+<p>PHP is a complex piece of machinery whose lifecycle really should be understood by anyone who wants to understand how PHP operates. The main sequence is as follows:</p>
 <p>PHP starts up. If running CLI or FPM, it’s C <code class="docutils literal notranslate"><span class="pre">main()</span></code> is run. If running as a module into a webserver, like using the
 apxs2 SAPI (Apache 2), PHP is started up just a little bit after Apache itself starts up and comes to run the startup
 sequence of its module which PHP is one. Starting up, is called internally <strong>the module startup step</strong>. We also
 abbreviate it as the <strong>MINIT</strong> step.</p>
-<p>Once started, PHP waits to treat one/several requests. When we talk about PHP CLI, there will be only one request: the
+<p>Once started, PHP waits to handle one/several requests. When we talk about PHP CLI, there will be only one request: the
 current script to run. However, when we talk about a web environment- should it be PHP-FPM or webserver
 module- PHP could serve several requests one after the other. It all depends on how you did configure you webserver:
 you may tell it to serve an infinite number of requests, or a specific number before shutting down and recycling the
-process. Every time a new request shows in to be treated, PHP will run <strong>a request startup step</strong>. We call it the
+process. Every time a new request arrives to be handled, PHP will run <strong>a request startup step</strong>. We call it the
 <strong>RINIT</strong>.</p>
 <p>The request is served, some content is (probably) generated, OK. Time to shutdown the request and get prepared to
-eventually treat another one. Shutting down a request is called <strong>the request shutdown step</strong>.  We call
+eventually handle another one. Shutting down a request is called <strong>the request shutdown step</strong>.  We call
 it the <strong>RSHUTDOWN</strong>.</p>
-<p>After having treated X requests (one, several dozens, thousands etc..), PHP will finally shut down itself, and die.
+<p>After having handled X requests (one, several dozens, thousands etc..), PHP will finally shut down itself, and die.
 Shutting down the PHP process is called <strong>the module shutdown step</strong>. We abbreviate it as <strong>MSHUTDOWN</strong>.</p>
 <p>If we would have drawn those steps, that could give something like this:</p>
 <img alt="../../_images/php_classic_lifetime.png" class="align-center" src="../../_images/php_classic_lifetime.png" />
 <div class="section" id="the-parallelism-models">
 <h2>The parallelism models<a class="headerlink" href="#the-parallelism-models" title="Permalink to this headline">¶</a></h2>
-<p>In a CLI environment, everything is easy : one PHP process will treat one request : it will launch one solo PHP script,
+<p>In a CLI environment, everything is easy : one PHP process will handle one request : it will launch one solo PHP script,
 then die.
 The CLI environment is a specialization of the Web environment, which is more complex.</p>
-<p>To treat several requests at the same time, you need to run a parallelism model. There exists two of them in PHP:</p>
+<p>To handle several requests at the same time, you need to run a parallelism model. There exists two of them in PHP:</p>
 <ul class="simple">
 <li><p>The process-based model</p></li>
 <li><p>The thread-based model</p></li>
@@ -165,18 +164,18 @@ function.</p>
 </div>
 <div class="section" id="request-initialization-rinit">
 <h3>Request initialization: RINIT()<a class="headerlink" href="#request-initialization-rinit" title="Permalink to this headline">¶</a></h3>
-<p>A request just showed in, and PHP is about to treat it here. In <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code>, you bootstrap the resources you need to
-treat that precise request. PHP is a share-nothing architecture, and as-is, it provides
+<p>A request just showed in, and PHP is about to handle it here. In <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code>, you bootstrap the resources you need to
+handle that precise request. PHP is a share-nothing architecture, and as-is, it provides
 <a class="reference internal" href="../memory_management.html"><span class="doc">memory management</span></a> facilities.</p>
 <p>In <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code>, if you need to allocate dynamic memory, you’ll use
 <a class="reference internal" href="../memory_management/zend_memory_manager.html"><span class="doc">Zend Memory Manager</span></a>. You will call for <code class="docutils literal notranslate"><span class="pre">emalloc()</span></code>.
 <a class="reference internal" href="../memory_management/zend_memory_manager.html"><span class="doc">Zend Memory Manager</span></a> tracks the memory you allocate through it, and
 when the request shuts down, it will attempt to free the request-bound memory if you forgot to do so (you should not).</p>
 <p>You should not require persistent dynamic memory here, aka libc’s <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> or Zend’s <code class="docutils literal notranslate"><span class="pre">pemalloc()</span></code>. If you require
-persistent memory here, and forgets to free it, you’ll create leaks that will stack as PHP treats more and more
+persistent memory here, and forgets to free it, you’ll create leaks that will stack as PHP handles more and more
 requests, to finally crash the process (Kernel OOM) and starve the machine memory.</p>
-<p>Also, take really care not to write to global space here. If PHP is run into a thread as chosen parallelism model, then
-you’ll modify the context for every thread of the pool (every other request treated in parallel to yours) and you could
+<p>Also, take great care not to write to global space here. If PHP is run into a thread as chosen parallelism model, then
+you’ll modify the context for every thread of the pool (every other request handled in parallel to yours) and you could
 also trigger race conditions if you don’t lock the memory.
 If you need globals, you’ll need to protect them.</p>
 <div class="admonition note">
@@ -189,7 +188,7 @@ function.</p>
 </div>
 <div class="section" id="request-termination-rshutdown">
 <h3>Request termination: RSHUTDOWN()<a class="headerlink" href="#request-termination-rshutdown" title="Permalink to this headline">¶</a></h3>
-<p>This is PHP request shutdown step. PHP just finished treating its request, and now it cleans up part of its memory as
+<p>This is PHP request shutdown step. PHP just finished handling its request, and now it cleans up part of its memory as
 the share-nothing architecture. Further request to come should not remember anything from the current request.
 Easy enough, you basically perform here the exact opposite of what you used in <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code>. You free your request-bound
 resources.</p>
@@ -261,10 +260,10 @@ settings are not displayed as this happens as part of MINFO()).</p>
 <h3>Thoughts on PHP lifecycle<a class="headerlink" href="#thoughts-on-php-lifecycle" title="Permalink to this headline">¶</a></h3>
 <img alt="../../_images/php_extensions_lifecycle.png" class="align-center" src="../../_images/php_extensions_lifecycle.png" />
 <p>As you may have spotted, <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code> and <code class="docutils literal notranslate"><span class="pre">RSHUTDOWN()</span></code> are especially crucial as they could get triggered thousands
-of times on your extension. If the PHP setup is about Web (not CLI), and has been configured so that it can treat an
+of times on your extension. If the PHP setup is about Web (not CLI), and has been configured so that it can handle an
 infinite number of requests, thus your <code class="docutils literal notranslate"><span class="pre">RINIT()/RSHUTDOWN()</span></code> couple will be called an infinite amount of time.</p>
 <p>We’d like to once more get your attention about memory management. The little tiny byte you’ll eventually leak while
-treating a request (between <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code> and <code class="docutils literal notranslate"><span class="pre">RSHUTDOWN()</span></code>) will have dramatic consequences on fully loaded servers.
+handling a request (between <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code> and <code class="docutils literal notranslate"><span class="pre">RSHUTDOWN()</span></code>) will have dramatic consequences on fully loaded servers.
 That’s why you are advised to use <a class="reference internal" href="../memory_management/zend_memory_manager.html"><span class="doc">Zend Memory Manager</span></a> for such
 allocations and be ready to <a class="reference internal" href="../memory_management/memory_debugging.html"><span class="doc">debug your memory layout</span></a>. PHP will forget
 and free the request memory at the end of every request as part of the share-nothing architecture, that’s PHP’s

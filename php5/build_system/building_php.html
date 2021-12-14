@@ -73,8 +73,7 @@ supported version.</p>
 <div class="section" id="obtaining-the-source-code">
 <h2>Obtaining the source code<a class="headerlink" href="#obtaining-the-source-code" title="Permalink to this headline">¶</a></h2>
 <p>Before you can build PHP you first need to obtain its source code. There are two ways to do this: You can either
-download an archive from <a class="reference external" href="http://www.php.net/downloads.php">PHP’s download page</a> or clone the git repository from <a class="reference external" href="http://git.php.net">git.php.net</a> (or the mirror on
-<a class="reference external" href="http://www.github.com/php/php-src">Github</a>).</p>
+download an archive from <a class="reference external" href="http://www.php.net/downloads.php">PHP’s download page</a> or clone the git repository from <a class="reference external" href="http://www.github.com/php/php-src">Github</a>.</p>
 <p>The build process is slightly different for both cases: The git repository doesn’t bundle a <code class="docutils literal notranslate"><span class="pre">configure</span></code> script, so
 you’ll need to generate it using the <code class="docutils literal notranslate"><span class="pre">buildconf</span></code> script, which makes use of autoconf. Furthermore the git repository
 does not contain a pregenerated parser, so you’ll also need to have bison installed.</p>
@@ -82,7 +81,7 @@ does not contain a pregenerated parser, so you’ll also need to have bison inst
 installation updated and to try your code with different versions. A git checkout is also required if you want to
 submit patches or pull requests for PHP.</p>
 <p>To clone the repository, run the following commands in your shell:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~&gt; git clone http://git.php.net/repository/php-src.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~&gt; git clone https://github.com/php/php-src.git
 ~&gt; <span class="nb">cd</span> php-src
 <span class="c1"># by default you will be on the master branch, which is the current</span>
 <span class="c1"># development version. You can check out a stable branch instead:</span>
