@@ -88,7 +88,7 @@ exists::
     zend_string *tmp_str;
     zend_string *str = zval_get_tmp_string(val, &tmp_str);
     // Do something with str.
-    zend_tmp_string_release(str);
+    zend_tmp_string_release(tmp_str);
 
 This API works the same way as ``zval_get_string()``, but avoids a refcount increment and decrement for the common
 case where the value is already a string.
