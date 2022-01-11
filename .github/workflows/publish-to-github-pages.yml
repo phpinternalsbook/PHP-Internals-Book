@@ -12,6 +12,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
+
       - name: Setup Python 3.x
         uses: actions/setup-python@v2
         with:
@@ -32,7 +35,7 @@ jobs:
         run: ./build_release_html.sh
 
       - name: Publish generated content to GitHub Pages
-        uses: tsunematsu21/actions-publish-gh-pages@v1.0.2
+        uses: JamesIves/github-pages-deploy-action@v4.2.2
         with:
-          dir: BookHTML
+          folder: BookHTML
           branch: gh-pages
