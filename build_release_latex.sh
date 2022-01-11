@@ -1,3 +1,10 @@
+#!/usr/bin/env bash
+
+# https://sipb.mit.edu/doc/safe-shell/
+set -eufo pipefail
+
+shopt -s failglob
+
 rm -rf BookLatex
 # inkscape Book/hashtables/images/basic_hashtable.svg -D -A Book/hashtables/images/basic_hashtable.pdf
 # inkscape Book/hashtables/images/doubly_linked_hashtable.svg -D -A Book/hashtables/images/doubly_linked_hashtable.pdf
