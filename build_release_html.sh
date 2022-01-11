@@ -1,3 +1,10 @@
+#!/usr/bin/env bash
+
+# https://sipb.mit.edu/doc/safe-shell/
+set -eufo pipefail
+
+shopt -s failglob
+
 # get rid of old files, so we don't keep them around in the git repo
 # when a file or directory was renamed
 rm -rf BookHTML/*/
