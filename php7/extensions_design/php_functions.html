@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Registering and using PHP functions &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Managing global state" href="globals_management.html" />
@@ -37,7 +37,7 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="registering-and-using-php-functions">
+  <section id="registering-and-using-php-functions">
 <h1>Registering and using PHP functions<a class="headerlink" href="#registering-and-using-php-functions" title="Permalink to this headline">¶</a></h1>
 <p>The main goal of a PHP extension is to register new PHP functions for userland. PHP functions are complex to fully
 understand their mechanics that hook very deep into the Zend Engine, but fortunately we don’t need this knowledge
@@ -47,20 +47,20 @@ however pretty more complex. A first step <a class="reference internal" href="..
 then.</p>
 <p>Obviously, you’ll need to master <a class="reference internal" href="../internal_types.html"><span class="doc">types</span></a>, especially <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">zvals</span></a> and
 <a class="reference internal" href="../memory_management.html"><span class="doc">memory management</span></a> here. Also, know your <a class="reference internal" href="php_lifecycle.html"><span class="doc">hooks</span></a>.</p>
-<div class="section" id="zend-function-entry-structure">
+<section id="zend-function-entry-structure">
 <h2>zend_function_entry structure<a class="headerlink" href="#zend-function-entry-structure" title="Permalink to this headline">¶</a></h2>
 <p>Not to be confused with <a class="reference internal" href="../internal_types/functions.html"><span class="doc">the zend_function structure</span></a>, <code class="docutils literal notranslate"><span class="pre">zend_function_entry</span></code> is
 used to register functions against the engine while in an extension.
 Here it is:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define INTERNAL_FUNCTION_PARAMETERS zend_execute_data *execute_data, zval *return_value</span>
 
-<span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_function_entry</span> <span class="p">{</span>
-        <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">fname</span><span class="p">;</span>
-        <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">handler</span><span class="p">)(</span><span class="n">INTERNAL_FUNCTION_PARAMETERS</span><span class="p">);</span>
-        <span class="k">const</span> <span class="k">struct</span> <span class="n">_zend_internal_arg_info</span> <span class="o">*</span><span class="n">arg_info</span><span class="p">;</span>
-        <span class="kt">uint32_t</span> <span class="n">num_args</span><span class="p">;</span>
-        <span class="kt">uint32_t</span> <span class="n">flags</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">zend_function_entry</span><span class="p">;</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_function_entry</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">fname</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">handler</span><span class="p">)(</span><span class="n">INTERNAL_FUNCTION_PARAMETERS</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_internal_arg_info</span><span class="w"> </span><span class="o">*</span><span class="n">arg_info</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">num_args</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>You can spot that this structure is not complex. This is all you’ll need to declare and register a new function.
@@ -79,53 +79,53 @@ here for the function to work, but it is highly recommended. We’ll get back to
 <code class="docutils literal notranslate"><span class="pre">arg_info</span></code>, and thus its size is passed as <code class="docutils literal notranslate"><span class="pre">num_args</span></code>.</p>
 <p>Then come <code class="docutils literal notranslate"><span class="pre">flags</span></code>. We won’t detail flags in this chapter. Those are used internally, you’ll find some details in the
 dedicated <a class="reference internal" href="../internal_types/functions.html"><span class="doc">zend_function</span></a> chapter.</p>
-</div>
-<div class="section" id="registering-php-functions">
+</section>
+<section id="registering-php-functions">
 <h2>Registering PHP functions<a class="headerlink" href="#registering-php-functions" title="Permalink to this headline">¶</a></h2>
 <p>PHP functions are registered into the engine when the extension gets loaded. An extension may declare a function vector
 into the extension structure. Functions declared by extensions are called “internal” functions, and at the opposite of
 “user” functions (functions declared and used using PHP userland) they don’t get unregistered at the end of the
 current request: they are permanent.</p>
 <p>As a reminder, here is the PHP extension structure shorten for readability:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">_zend_module_entry</span> <span class="p">{</span>
-        <span class="kt">unsigned</span> <span class="kt">short</span> <span class="n">size</span><span class="p">;</span>
-        <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">zend_api</span><span class="p">;</span>
-        <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">zend_debug</span><span class="p">;</span>
-        <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">zts</span><span class="p">;</span>
-        <span class="k">const</span> <span class="k">struct</span> <span class="n">_zend_ini_entry</span> <span class="o">*</span><span class="n">ini_entry</span><span class="p">;</span>
-        <span class="k">const</span> <span class="k">struct</span> <span class="n">_zend_module_dep</span> <span class="o">*</span><span class="n">deps</span><span class="p">;</span>
-        <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
-        <span class="k">const</span> <span class="k">struct</span> <span class="n">_zend_function_entry</span> <span class="o">*</span><span class="n">functions</span><span class="p">;</span>     <span class="cm">/* function declaration vector */</span>
-        <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">module_startup_func</span><span class="p">)(</span><span class="n">INIT_FUNC_ARGS</span><span class="p">);</span>
-        <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">module_shutdown_func</span><span class="p">)(</span><span class="n">SHUTDOWN_FUNC_ARGS</span><span class="p">);</span>
-    <span class="cm">/* ... */</span>
-<span class="p">};</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_module_entry</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">zend_api</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">zend_debug</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">zts</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_ini_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ini_entry</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_module_dep</span><span class="w"> </span><span class="o">*</span><span class="n">deps</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_function_entry</span><span class="w"> </span><span class="o">*</span><span class="n">functions</span><span class="p">;</span><span class="w">     </span><span class="cm">/* function declaration vector */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">module_startup_func</span><span class="p">)(</span><span class="n">INIT_FUNC_ARGS</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">module_shutdown_func</span><span class="p">)(</span><span class="n">SHUTDOWN_FUNC_ARGS</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* ... */</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 <p>You’ll pass to the function vector a declared vector of functions. Let’s see together a simple example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* pib.c */</span>
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span>
-<span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* pib.c */</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
 
-<span class="p">}</span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="k">static</span> <span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">pib_functions</span><span class="p">[]</span> <span class="o">=</span>
-<span class="p">{</span>
-    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span>
-<span class="p">};</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">pib_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">zend_module_entry</span> <span class="n">pib_module_entry</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span>
-    <span class="s">&quot;pib&quot;</span><span class="p">,</span>
-    <span class="n">pib_functions</span><span class="p">,</span>
-    <span class="nb">NULL</span><span class="p">,</span>
-    <span class="nb">NULL</span><span class="p">,</span>
-    <span class="nb">NULL</span><span class="p">,</span>
-    <span class="nb">NULL</span><span class="p">,</span>
-    <span class="nb">NULL</span><span class="p">,</span>
-    <span class="s">&quot;0.1&quot;</span><span class="p">,</span>
-    <span class="n">STANDARD_MODULE_PROPERTIES</span>
-<span class="p">};</span>
+<span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">pib_functions</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Let’s play with a simple <code class="docutils literal notranslate"><span class="pre">fahrenheit_to_celsius()</span></code> function (which name tells us what it will perform).</p>
@@ -136,23 +136,23 @@ Then, we gather that function symbol and add it to the <code class="docutils lit
 functions using the <code class="docutils literal notranslate"><span class="pre">PHP_FE</span></code> macro. That latter needs the PHP function name, and an argument vector which we passed
 NULL for the moment.</p>
 <p>Into our <em>php_pib.h</em> header file, we should here declare our function, like the C language tells us to do so:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* pib.h */</span>
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* pib.h */</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Like you can see, it is really easy to declare functions. The macros do all the hard job for us.
 Here is the same code, but with the macros expanded, so that you can have a look at their job:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* pib.c */</span>
-<span class="kt">void</span> <span class="nf">zif_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">return_value</span><span class="p">)</span>
-<span class="p">{</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* pib.c */</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">zif_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">return_value</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
 
-<span class="p">}</span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="k">static</span> <span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">pib_functions</span><span class="p">[]</span> <span class="o">=</span>
-<span class="p">{</span>
-    <span class="p">{</span> <span class="s">&quot;fahrenheit_to_celsius&quot;</span><span class="p">,</span> <span class="n">zif_fahrenheit_to_celsius</span><span class="p">,</span> <span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">),</span>
-        <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="p">(</span><span class="k">sizeof</span><span class="p">(((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">))</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">_zend_internal_arg_info</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span> <span class="p">},</span>
-<span class="p">}</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">pib_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;fahrenheit_to_celsius&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">zif_fahrenheit_to_celsius</span><span class="p">,</span><span class="w"> </span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">),</span><span class="w"></span>
+<span class="w">        </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="k">sizeof</span><span class="p">(((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">))</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_internal_arg_info</span><span class="p">)</span><span class="mi">-1</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">},</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Notice how <code class="docutils literal notranslate"><span class="pre">PHP_FUNCTION()</span></code> expanded to a C symbol beginning by <code class="docutils literal notranslate"><span class="pre">zif_</span></code>. <em>‘zif’</em> stands for
@@ -160,8 +160,8 @@ Here is the same code, but with the macros expanded, so that you can have a look
 of PHP and its modules. Thus, our <code class="docutils literal notranslate"><span class="pre">fahrenheit_to_celsius()</span></code> PHP function uses a C handler named
 <code class="docutils literal notranslate"><span class="pre">zif_fahrenheit_to_celsius()</span></code>. It is the same for nearly every PHP function. If you look for “zif_var_dump”, you’ll
 read the PHP <code class="docutils literal notranslate"><span class="pre">var_dump()</span></code> source code function, etc…</p>
-</div>
-<div class="section" id="declaring-function-arguments">
+</section>
+<section id="declaring-function-arguments">
 <h2>Declaring function arguments<a class="headerlink" href="#declaring-function-arguments" title="Permalink to this headline">¶</a></h2>
 <p>So far so good, if <a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">you compile</span></a> the extension and load it into PHP, you can
 see with reflection that the function is present:</p>
@@ -185,33 +185,33 @@ information about the function. Arguments are also used by the engine, especiall
 arguments passed by reference, or functions returning references.</p>
 </div>
 <p>To declare arguments, we need to familiarize with the <code class="docutils literal notranslate"><span class="pre">zend_internal_arg_info</span></code> structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_internal_arg_info</span> <span class="p">{</span>
-        <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
-        <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">class_name</span><span class="p">;</span>
-        <span class="n">zend_uchar</span> <span class="n">type_hint</span><span class="p">;</span>
-        <span class="n">zend_uchar</span> <span class="n">pass_by_reference</span><span class="p">;</span>
-        <span class="n">zend_bool</span> <span class="n">allow_null</span><span class="p">;</span>
-        <span class="n">zend_bool</span> <span class="n">is_variadic</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">zend_internal_arg_info</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_internal_arg_info</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">class_name</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_uchar</span><span class="w"> </span><span class="n">type_hint</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_uchar</span><span class="w"> </span><span class="n">pass_by_reference</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">allow_null</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">is_variadic</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_internal_arg_info</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>No need to detail every field, but the understanding of the arguments is more complex than this solo structure.
 Fortunately, you are once more provided some macros to abstract the hard job for you:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">fahrenheit</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">fahrenheit</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The code above details how to create an argument, but when we expand macros, we can feel some difficulty:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="k">const</span> <span class="n">zend_internal_arg_info</span> <span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span> \
-            <span class="p">{</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">)(</span><span class="n">zend_uintptr_t</span><span class="p">)(</span><span class="mi">1</span><span class="p">),</span> <span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">},</span>
-            <span class="p">{</span> <span class="s">&quot;fahrenheit&quot;</span><span class="p">,</span> <span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">},</span>
-    <span class="p">};</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">zend_internal_arg_info</span><span class="w"> </span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>\
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">)(</span><span class="n">zend_uintptr_t</span><span class="p">)(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;fahrenheit&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 <p>As we can see, a <code class="docutils literal notranslate"><span class="pre">zend_internal_arg_info</span></code> structure is created by the macros.
 If you read the API of such macros, then all becomes clear to us:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* API only */</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* API only */</span><span class="w"></span>
 <span class="cp">#define ZEND_BEGIN_ARG_INFO_EX(name, _unused, return_reference, required_num_args)</span>
 <span class="cp">#define ZEND_ARG_INFO(pass_by_ref, name)</span>
 <span class="cp">#define ZEND_ARG_OBJ_INFO(pass_by_ref, name, classname, allow_null)</span>
@@ -237,7 +237,7 @@ allows to declare a <em>&amp;return_by_ref()</em> function.</p></li>
 use-case), with one argument called <code class="docutils literal notranslate"><span class="pre">fahrenheit</span></code>, not passed by reference (here again, very traditional).</p>
 <p>That created the <code class="docutils literal notranslate"><span class="pre">arginfo_fahrenheit_to_celsius</span></code> symbol of type <code class="docutils literal notranslate"><span class="pre">zend_internal_arg_info[]</span></code> (a vector, or an array,
 that is the same), and we must now use that back into our function declaration to attach it some args:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">,</span> <span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>And we are done, now the reflection sees the argument and the engine is told about what to do in case of reference
@@ -248,8 +248,8 @@ mismatch. Great!</p>
 the source code located in
 <a class="reference external" href="https://github.com/php/php-src/blob/648be8600ff89e1b0e4a4ad25cebad42b53bed6d/Zend/zend_API.h">Zend/zend_api.h</a></p>
 </div>
-</div>
-<div class="section" id="the-php-function-structure-and-api-in-c">
+</section>
+<section id="the-php-function-structure-and-api-in-c">
 <h2>The PHP function structure and API, in C<a class="headerlink" href="#the-php-function-structure-and-api-in-c" title="Permalink to this headline">¶</a></h2>
 <p>Ok. Here is a PHP function like you use it and declare it with the PHP language (userland):</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">fahrenheit_to_celsius</span><span class="p">(</span><span class="nv">$fahrenheit</span><span class="p">)</span>
@@ -260,17 +260,17 @@ the source code located in
 </div>
 <p>This is an easy function so that you understand things.
 Here is what it looks like when programmed in C:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="cm">/* code to go here */</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* code to go here */</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Macro expanded, that gives:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">zif_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">zend_execute_data</span> <span class="o">*</span><span class="n">execute_data</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">return_value</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="cm">/* code to go here */</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">zif_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">return_value</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* code to go here */</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Take a break and think about the major differences.</p>
@@ -296,7 +296,7 @@ been called. The engine takes care of everything for you.</p></li>
 the stack, to know until when you should end reading them.</p></li>
 <li><p>Everything goes by the <code class="docutils literal notranslate"><span class="pre">zend_execute_data</span> <span class="pre">*execute_data</span></code> you received as argument. But we can’t detail that now.</p></li>
 </ul>
-<div class="section" id="parsing-parameters-zend-parse-parameters">
+<section id="parsing-parameters-zend-parse-parameters">
 <h3>Parsing parameters : zend_parse_parameters()<a class="headerlink" href="#parsing-parameters-zend-parse-parameters" title="Permalink to this headline">¶</a></h3>
 <p>To read arguments, welcome <code class="docutils literal notranslate"><span class="pre">zend_parse_parameters()</span></code> API (called ‘zpp’).</p>
 <div class="admonition note">
@@ -310,16 +310,16 @@ argument to the type you ask, if that is needed, and possible, according to PHP 
 integer, and are given a float, and if no strict type hint rule would have blocked, then the engine will convert the
 float as an integer, and give it to you.</p>
 <p>Let’s see that function:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">double</span> <span class="n">f</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">f</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;d&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;d&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="cm">/* continue */</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="cm">/* continue */</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>We want to be given a double on the f variable. We then call <code class="docutils literal notranslate"><span class="pre">zend_parse_parameters()</span></code>.</p>
@@ -344,21 +344,21 @@ Be logical.</p>
 provided a value by hand (bad idea), or you did something wrong in argument parsing. If it is the case, it’s then time
 to return, abort the current function (you should return <code class="docutils literal notranslate"><span class="pre">void</span></code> from your C function, so just <code class="docutils literal notranslate"><span class="pre">return</span></code>).</p>
 <p>So far so good, we received a double. Let’s now perform the math operations and return a result:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">double</span> <span class="nf">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="kt">double</span> <span class="n">f</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="k">return</span> <span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="mi">5</span><span class="o">/</span><span class="mi">9</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="kt">double</span><span class="p">)(</span><span class="n">f</span> <span class="o">-</span> <span class="mi">32</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">f</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="mi">5</span><span class="o">/</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)(</span><span class="n">f</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">32</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">double</span> <span class="n">f</span><span class="p">;</span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">f</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;d&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;d&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">RETURN_DOUBLE</span><span class="p">(</span><span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">f</span><span class="p">));</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">RETURN_DOUBLE</span><span class="p">(</span><span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">f</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Returning values should be easy to you, as you know <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">how zvals work</span></a>. You must fill-in
@@ -369,99 +369,99 @@ Both just set the type and value of the <code class="docutils literal notranslat
 <p>Alternatively, the API provides a set of macros to handle and parse parameters. It’s more readable if you get
 messed with the python style specifiers.</p>
 <p>You will need to start and end function parameters parsing with the following macros:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_PARSE_PARAMETERS_START</span><span class="p">(</span><span class="n">min_argument_count</span><span class="p">,</span> <span class="n">max_argument_count</span><span class="p">)</span> <span class="cm">/* takes two parameters */</span>
-<span class="cm">/* here we will go with argument lists */</span>
-<span class="n">ZEND_PARSE_PARAMETERS_END</span><span class="p">();</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_PARSE_PARAMETERS_START</span><span class="p">(</span><span class="n">min_argument_count</span><span class="p">,</span><span class="w"> </span><span class="n">max_argument_count</span><span class="p">)</span><span class="w"> </span><span class="cm">/* takes two parameters */</span><span class="w"></span>
+<span class="cm">/* here we will go with argument lists */</span><span class="w"></span>
+<span class="n">ZEND_PARSE_PARAMETERS_END</span><span class="p">();</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The available parameters macros could be listed as follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_PARAM_ARRAY</span><span class="p">()</span>                <span class="cm">/* old &quot;a&quot; */</span>
-<span class="n">Z_PARAM_ARRAY_OR_OBJECT</span><span class="p">()</span>      <span class="cm">/* old &quot;A&quot; */</span>
-<span class="n">Z_PARAM_BOOL</span><span class="p">()</span>                 <span class="cm">/* old &quot;b&quot; */</span>
-<span class="n">Z_PARAM_CLASS</span><span class="p">()</span>                <span class="cm">/* old &quot;C&quot; */</span>
-<span class="n">Z_PARAM_DOUBLE</span><span class="p">()</span>               <span class="cm">/* old &quot;d&quot; */</span>
-<span class="n">Z_PARAM_FUNC</span><span class="p">()</span>                 <span class="cm">/* old &quot;f&quot; */</span>
-<span class="n">Z_PARAM_ARRAY_HT</span><span class="p">()</span>             <span class="cm">/* old &quot;h&quot; */</span>
-<span class="n">Z_PARAM_ARRAY_OR_OBJECT_HT</span><span class="p">()</span>   <span class="cm">/* old &quot;H&quot; */</span>
-<span class="n">Z_PARAM_LONG</span><span class="p">()</span>                 <span class="cm">/* old &quot;l&quot; */</span>
-<span class="n">Z_PARAM_STRICT_LONG</span><span class="p">()</span>          <span class="cm">/* old &quot;L&quot; */</span>
-<span class="n">Z_PARAM_OBJECT</span><span class="p">()</span>               <span class="cm">/* old &quot;o&quot; */</span>
-<span class="n">Z_PARAM_OBJECT_OF_CLASS</span><span class="p">()</span>      <span class="cm">/* old &quot;O&quot; */</span>
-<span class="n">Z_PARAM_PATH</span><span class="p">()</span>                 <span class="cm">/* old &quot;p&quot; */</span>
-<span class="n">Z_PARAM_PATH_STR</span><span class="p">()</span>             <span class="cm">/* old &quot;P&quot; */</span>
-<span class="n">Z_PARAM_RESOURCE</span><span class="p">()</span>             <span class="cm">/* old &quot;r&quot; */</span>
-<span class="n">Z_PARAM_STRING</span><span class="p">()</span>               <span class="cm">/* old &quot;s&quot; */</span>
-<span class="n">Z_PARAM_STR</span><span class="p">()</span>                  <span class="cm">/* old &quot;S&quot; */</span>
-<span class="n">Z_PARAM_ZVAL</span><span class="p">()</span>                 <span class="cm">/* old &quot;z&quot; */</span>
-<span class="n">Z_PARAM_VARIADIC</span><span class="p">()</span>             <span class="cm">/* old &quot;+&quot; and &quot;*&quot; */</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_PARAM_ARRAY</span><span class="p">()</span><span class="w">                </span><span class="cm">/* old &quot;a&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_ARRAY_OR_OBJECT</span><span class="p">()</span><span class="w">      </span><span class="cm">/* old &quot;A&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_BOOL</span><span class="p">()</span><span class="w">                 </span><span class="cm">/* old &quot;b&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_CLASS</span><span class="p">()</span><span class="w">                </span><span class="cm">/* old &quot;C&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_DOUBLE</span><span class="p">()</span><span class="w">               </span><span class="cm">/* old &quot;d&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_FUNC</span><span class="p">()</span><span class="w">                 </span><span class="cm">/* old &quot;f&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_ARRAY_HT</span><span class="p">()</span><span class="w">             </span><span class="cm">/* old &quot;h&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_ARRAY_OR_OBJECT_HT</span><span class="p">()</span><span class="w">   </span><span class="cm">/* old &quot;H&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_LONG</span><span class="p">()</span><span class="w">                 </span><span class="cm">/* old &quot;l&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_STRICT_LONG</span><span class="p">()</span><span class="w">          </span><span class="cm">/* old &quot;L&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_OBJECT</span><span class="p">()</span><span class="w">               </span><span class="cm">/* old &quot;o&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_OBJECT_OF_CLASS</span><span class="p">()</span><span class="w">      </span><span class="cm">/* old &quot;O&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_PATH</span><span class="p">()</span><span class="w">                 </span><span class="cm">/* old &quot;p&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_PATH_STR</span><span class="p">()</span><span class="w">             </span><span class="cm">/* old &quot;P&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_RESOURCE</span><span class="p">()</span><span class="w">             </span><span class="cm">/* old &quot;r&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_STRING</span><span class="p">()</span><span class="w">               </span><span class="cm">/* old &quot;s&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_STR</span><span class="p">()</span><span class="w">                  </span><span class="cm">/* old &quot;S&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_ZVAL</span><span class="p">()</span><span class="w">                 </span><span class="cm">/* old &quot;z&quot; */</span><span class="w"></span>
+<span class="n">Z_PARAM_VARIADIC</span><span class="p">()</span><span class="w">             </span><span class="cm">/* old &quot;+&quot; and &quot;*&quot; */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>And to add a parameter as an optional parameter we use the following macro:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_PARAM_OPTIONAL</span>              <span class="cm">/* old &quot;|&quot; */</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_PARAM_OPTIONAL</span><span class="w">              </span><span class="cm">/* old &quot;|&quot; */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Here is our example with the macro-based parameters parsing style:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">double</span> <span class="n">f</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">f</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">ZEND_PARSE_PARAMETERS_START</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">Z_PARAM_DOUBLE</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
-    <span class="n">ZEND_PARSE_PARAMETERS_END</span><span class="p">();</span>
+<span class="w">    </span><span class="n">ZEND_PARSE_PARAMETERS_START</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">Z_PARAM_DOUBLE</span><span class="p">(</span><span class="n">f</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_PARSE_PARAMETERS_END</span><span class="p">();</span><span class="w"></span>
 
-    <span class="n">RETURN_DOUBLE</span><span class="p">(</span><span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">f</span><span class="p">));</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">RETURN_DOUBLE</span><span class="p">(</span><span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">f</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="adding-tests">
+</section>
+</section>
+<section id="adding-tests">
 <h2>Adding tests<a class="headerlink" href="#adding-tests" title="Permalink to this headline">¶</a></h2>
 <p>If you have read the chapter about tests (see <a class="reference internal" href="../../tests/introduction.html#tests-introduction"><span class="std std-ref">Testing with .phpt files</span></a>), you should now write a simple test:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">TEST</span><span class="o">--</span>
-<span class="n">Test</span> <span class="n">fahrenheit_to_celsius</span>
-<span class="o">--</span><span class="n">SKIPIF</span><span class="o">--</span>
-<span class="o">&lt;?</span><span class="n">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">extension_loaded</span><span class="p">(</span><span class="s">&quot;pib&quot;</span><span class="p">))</span> <span class="n">print</span> <span class="s">&quot;skip&quot;</span><span class="p">;</span> <span class="o">?&gt;</span>
-<span class="o">--</span><span class="kt">FILE</span><span class="o">--</span>
-<span class="o">&lt;?</span><span class="n">php</span>
-<span class="n">printf</span><span class="p">(</span><span class="s">&quot;%.2f&quot;</span><span class="p">,</span> <span class="n">fahrenheit_to_celsius</span><span class="p">(</span><span class="mi">70</span><span class="p">));</span>
-<span class="o">?&gt;</span>
-<span class="o">--</span><span class="n">EXPECTF</span><span class="o">--</span>
-<span class="mf">21.11</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">TEST</span><span class="o">--</span><span class="w"></span>
+<span class="n">Test</span><span class="w"> </span><span class="n">fahrenheit_to_celsius</span><span class="w"></span>
+<span class="o">--</span><span class="n">SKIPIF</span><span class="o">--</span><span class="w"></span>
+<span class="o">&lt;?</span><span class="n">php</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">extension_loaded</span><span class="p">(</span><span class="s">&quot;pib&quot;</span><span class="p">))</span><span class="w"> </span><span class="n">print</span><span class="w"> </span><span class="s">&quot;skip&quot;</span><span class="p">;</span><span class="w"> </span><span class="o">?&gt;</span><span class="w"></span>
+<span class="o">--</span><span class="kt">FILE</span><span class="o">--</span><span class="w"></span>
+<span class="o">&lt;?</span><span class="n">php</span><span class="w"></span>
+<span class="n">printf</span><span class="p">(</span><span class="s">&quot;%.2f&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fahrenheit_to_celsius</span><span class="p">(</span><span class="mi">70</span><span class="p">));</span><span class="w"></span>
+<span class="o">?&gt;</span><span class="w"></span>
+<span class="o">--</span><span class="n">EXPECTF</span><span class="o">--</span><span class="w"></span>
+<span class="mf">21.11</span><span class="w"></span>
 </pre></div>
 </div>
 <p>... and launch <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test</span></code></p>
-</div>
-<div class="section" id="playing-with-constants">
+</section>
+<section id="playing-with-constants">
 <h2>Playing with constants<a class="headerlink" href="#playing-with-constants" title="Permalink to this headline">¶</a></h2>
 <p>Let’s go with an advanced example.
 Let’s add the opposite function: <code class="docutils literal notranslate"><span class="pre">celsius_to_fahrenheit($celsius)</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_celsius_to_fahrenheit</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">celsius</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_celsius_to_fahrenheit</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">celsius</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span><span class="w"></span>
 
-<span class="k">static</span> <span class="kt">double</span> <span class="nf">php_celsius_to_fahrenheit</span><span class="p">(</span><span class="kt">double</span> <span class="n">c</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="k">return</span> <span class="p">(((</span><span class="kt">double</span><span class="p">)</span><span class="mi">9</span><span class="o">/</span><span class="mi">5</span><span class="p">)</span> <span class="o">*</span> <span class="n">c</span><span class="p">)</span> <span class="o">+</span> <span class="mi">32</span> <span class="p">;</span>
-<span class="p">}</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">php_celsius_to_fahrenheit</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(((</span><span class="kt">double</span><span class="p">)</span><span class="mi">9</span><span class="o">/</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">32</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">celsius_to_fahrenheit</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">double</span> <span class="n">c</span><span class="p">;</span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">celsius_to_fahrenheit</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">c</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;d&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;d&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">RETURN_DOUBLE</span><span class="p">(</span><span class="n">php_celsius_to_fahrenheit</span><span class="p">(</span><span class="n">c</span><span class="p">));</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">RETURN_DOUBLE</span><span class="p">(</span><span class="n">php_celsius_to_fahrenheit</span><span class="p">(</span><span class="n">c</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="k">static</span> <span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">pib_functions</span><span class="p">[]</span> <span class="o">=</span>
-<span class="p">{</span>
-    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">,</span> <span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">)</span> <span class="cm">/* Done above */</span>
-    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">celsius_to_fahrenheit</span><span class="p">,</span><span class="n">arginfo_celsius_to_fahrenheit</span><span class="p">)</span> <span class="cm">/* just added */</span>
-    <span class="n">PHP_FE_END</span>
-<span class="p">};</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">pib_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">)</span><span class="w"> </span><span class="cm">/* Done above */</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">celsius_to_fahrenheit</span><span class="p">,</span><span class="n">arginfo_celsius_to_fahrenheit</span><span class="p">)</span><span class="w"> </span><span class="cm">/* just added */</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Now a more complex use case, we show it in PHP before implementing it as a C extension:</p>
@@ -490,12 +490,12 @@ most often, that means that they should persist their value across requests. If 
 <a class="reference internal" href="php_lifecycle.html"><span class="doc">the PHP lifecycle</span></a>, you should have guessed that <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> is the right stage to register
 constants against the engine.</p>
 <p>Here is a constant, internally, a <code class="docutils literal notranslate"><span class="pre">zend_constant</span></code> structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_constant</span> <span class="p">{</span>
-    <span class="n">zval</span> <span class="n">value</span><span class="p">;</span>
-    <span class="n">zend_string</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">flags</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">module_number</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">zend_constant</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_constant</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">value</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">module_number</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_constant</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Really an easy structure (that could become a nightmare if you deeply look at how constants are managed into the
@@ -505,13 +505,13 @@ to your extension number (no need to take care of that).</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define TEMP_CONVERTER_TO_FAHRENHEIT 2</span>
 <span class="cp">#define TEMP_CONVERTER_TO_CELSIUS 1</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">REGISTER_LONG_CONSTANT</span><span class="p">(</span><span class="s">&quot;TEMP_CONVERTER_TO_CELSIUS&quot;</span><span class="p">,</span> <span class="n">TEMP_CONVERTER_TO_CELSIUS</span><span class="p">,</span> <span class="n">CONST_CS</span><span class="o">|</span><span class="n">CONST_PERSISTENT</span><span class="p">);</span>
-    <span class="n">REGISTER_LONG_CONSTANT</span><span class="p">(</span><span class="s">&quot;TEMP_CONVERTER_TO_FAHRENHEIT&quot;</span><span class="p">,</span> <span class="n">TEMP_CONVERTER_TO_FAHRENHEIT</span><span class="p">,</span> <span class="n">CONST_CS</span><span class="o">|</span><span class="n">CONST_PERSISTENT</span><span class="p">);</span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">REGISTER_LONG_CONSTANT</span><span class="p">(</span><span class="s">&quot;TEMP_CONVERTER_TO_CELSIUS&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">TEMP_CONVERTER_TO_CELSIUS</span><span class="p">,</span><span class="w"> </span><span class="n">CONST_CS</span><span class="o">|</span><span class="n">CONST_PERSISTENT</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">REGISTER_LONG_CONSTANT</span><span class="p">(</span><span class="s">&quot;TEMP_CONVERTER_TO_FAHRENHEIT&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">TEMP_CONVERTER_TO_FAHRENHEIT</span><span class="p">,</span><span class="w"> </span><span class="n">CONST_CS</span><span class="o">|</span><span class="n">CONST_PERSISTENT</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -524,46 +524,46 @@ API and macros are located into
 <p>The flags are mixed <em>OR</em> operation between <code class="docutils literal notranslate"><span class="pre">CONST_CS</span></code> (case-sensitive constant, what we want), and
 <code class="docutils literal notranslate"><span class="pre">CONST_PERSISTENT</span></code> (a persistent constant, across requests, what we want as well).</p>
 <p>Now our <code class="docutils literal notranslate"><span class="pre">temperature_converter($temp,</span> <span class="pre">$type</span> <span class="pre">=</span> <span class="pre">TEMP_CONVERTER_TO_CELSIUS)</span></code> function in C:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_temperature_converter</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_temperature_converter</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">temperature</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span><span class="w"></span>
 </pre></div>
 </div>
 <p>We got one mandatory argument, out of two. That’s what we declared. Its default value is not a deal argument
 declaration can solve, that will be done in a second.</p>
 <p>Then we add our new function to the function registration vector:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">pib_functions</span><span class="p">[]</span> <span class="o">=</span>
-<span class="p">{</span>
-    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">,</span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">)</span> <span class="cm">/* seen above */</span>
-    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">celsius_to_fahrenheit</span><span class="p">,</span><span class="n">arginfo_celsius_to_fahrenheit</span><span class="p">)</span> <span class="cm">/* seen above */</span>
-    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">temperature_converter</span><span class="p">,</span> <span class="n">arginfo_temperature_converter</span><span class="p">)</span> <span class="cm">/* our new function */</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">pib_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">,</span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">)</span><span class="w"> </span><span class="cm">/* seen above */</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">celsius_to_fahrenheit</span><span class="p">,</span><span class="n">arginfo_celsius_to_fahrenheit</span><span class="p">)</span><span class="w"> </span><span class="cm">/* seen above */</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">temperature_converter</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_temperature_converter</span><span class="p">)</span><span class="w"> </span><span class="cm">/* our new function */</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>And, the function body:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">temperature_converter</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">double</span> <span class="n">t</span><span class="p">;</span>
-    <span class="n">zend_long</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">TEMP_CONVERTER_TO_CELSIUS</span><span class="p">;</span>
-    <span class="n">zend_string</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">temperature_converter</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TEMP_CONVERTER_TO_CELSIUS</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;d|l&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">t</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mode</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;d|l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mode</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">switch</span> <span class="p">(</span><span class="n">mode</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="k">case</span> <span class="nl">TEMP_CONVERTER_TO_CELSIUS</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">strpprintf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;%.2f degrees fahrenheit gives %.2f degrees celsius&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">t</span><span class="p">));</span>
-            <span class="n">RETURN_STR</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
-        <span class="k">case</span> <span class="nl">TEMP_CONVERTER_TO_FAHRENHEIT</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">strpprintf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;%.2f degrees celsius gives %.2f degrees fahrenheit&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">php_celsius_to_fahrenheit</span><span class="p">(</span><span class="n">t</span><span class="p">));</span>
-            <span class="n">RETURN_STR</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
-        <span class="k">default</span><span class="o">:</span>
-            <span class="n">php_error</span><span class="p">(</span><span class="n">E_WARNING</span><span class="p">,</span> <span class="s">&quot;Invalid mode provided, accepted values are 1 or 2&quot;</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">TEMP_CONVERTER_TO_CELSIUS</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strpprintf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%.2f degrees fahrenheit gives %.2f degrees celsius&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">t</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="n">RETURN_STR</span><span class="p">(</span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">TEMP_CONVERTER_TO_FAHRENHEIT</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strpprintf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%.2f degrees celsius gives %.2f degrees fahrenheit&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">php_celsius_to_fahrenheit</span><span class="p">(</span><span class="n">t</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="n">RETURN_STR</span><span class="p">(</span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">default</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_error</span><span class="p">(</span><span class="n">E_WARNING</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid mode provided, accepted values are 1 or 2&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Remember to well look at <a class="reference external" href="https://github.com/php/php-src/blob/ef4b2fc283ddaf9bd692015f1db6dad52171c3ce/README.PARAMETER_PARSING_API">README.PARAMETER_PARSING_API</a>. It’s not a hard API, you must familiarize
@@ -579,8 +579,8 @@ the <code class="docutils literal notranslate"><span class="pre">return_value</s
 <p><code class="docutils literal notranslate"><span class="pre">strpprintf()</span></code> and its sisters are explained in
 <a class="reference internal" href="../internal_types/strings/printing_functions.html"><span class="doc">the chapter about printing functions</span></a>.</p>
 </div>
-</div>
-<div class="section" id="a-go-with-hashtables-php-arrays">
+</section>
+<section id="a-go-with-hashtables-php-arrays">
 <h2>A go with Hashtables (PHP arrays)<a class="headerlink" href="#a-go-with-hashtables-php-arrays" title="Permalink to this headline">¶</a></h2>
 <p>Let’s go now for a play with <em>PHP arrays</em> and design:</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">multiple_fahrenheit_to_celsius</span><span class="p">(</span><span class="k">array</span> <span class="nv">$temperatures</span><span class="p">)</span>
@@ -595,38 +595,38 @@ the <code class="docutils literal notranslate"><span class="pre">return_value</s
 </div>
 <p>So thinking at the C implementation, we need to <code class="docutils literal notranslate"><span class="pre">zend_parse_parameters()</span></code> and ask for just one array, iterate over it,
 make the maths operations and add the result in <code class="docutils literal notranslate"><span class="pre">return_value</span></code>, as an array:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_multiple_fahrenheit_to_celsius</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_ARRAY_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_multiple_fahrenheit_to_celsius</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_ARRAY_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">temperatures</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span><span class="w"></span>
 
-<span class="k">static</span> <span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">pib_functions</span><span class="p">[]</span> <span class="o">=</span>
-<span class="p">{</span>
-        <span class="cm">/* ... */</span>
-    <span class="n">PHP_FE</span><span class="p">(</span><span class="n">multiple_fahrenheit_to_celsius</span><span class="p">,</span> <span class="n">arginfo_multiple_fahrenheit_to_celsius</span><span class="p">)</span>
-    <span class="n">PHP_FE_END</span>
-<span class="p">};</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">pib_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* ... */</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">multiple_fahrenheit_to_celsius</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_multiple_fahrenheit_to_celsius</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">multiple_fahrenheit_to_celsius</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">temperatures</span><span class="p">;</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">data</span><span class="p">;</span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">multiple_fahrenheit_to_celsius</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">temperatures</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;h&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">temperatures</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;h&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">temperatures</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">array_init_size</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">temperatures</span><span class="p">));</span>
+<span class="w">    </span><span class="n">array_init_size</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">temperatures</span><span class="p">));</span><span class="w"></span>
 
-    <span class="n">ZEND_HASH_FOREACH_VAL</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-        <span class="n">zval</span> <span class="n">dup</span><span class="p">;</span>
-        <span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dup</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
-        <span class="n">convert_to_double</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dup</span><span class="p">);</span>
-    <span class="n">add_next_index_double</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">Z_DVAL</span><span class="p">(</span><span class="n">dup</span><span class="p">)));</span>
-    <span class="n">ZEND_HASH_FOREACH_END</span><span class="p">();</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">ZEND_HASH_FOREACH_VAL</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">zval</span><span class="w"> </span><span class="n">dup</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dup</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">convert_to_double</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dup</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">add_next_index_double</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">Z_DVAL</span><span class="p">(</span><span class="n">dup</span><span class="p">)));</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_HASH_FOREACH_END</span><span class="p">();</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -638,8 +638,8 @@ make the maths operations and add the result in <code class="docutils literal no
 inlined by the compiler) C function, which is orders of magnitude faster and requires tons less of low-level CPU
 instructions to run. It’s not about that little demo function needs so much love in code performance, it’s just to
 remember one reason why we sometimes use the C language over PHP.</p>
-</div>
-<div class="section" id="managing-references">
+</section>
+<section id="managing-references">
 <h2>Managing references<a class="headerlink" href="#managing-references" title="Permalink to this headline">¶</a></h2>
 <p>Now let’s go to play with PHP references. You’ve learnt from <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">the zval chapter</span></a> that
 references are a special trick used into the engine. As a reminder, a reference (by that we mean a <code class="docutils literal notranslate"><span class="pre">&amp;$php_reference</span></code>)
@@ -655,9 +655,9 @@ reference from your <code class="docutils literal notranslate"><span class="pre"
 </pre></div>
 </div>
 <p>So now in C, first we must change our <code class="docutils literal notranslate"><span class="pre">arg_info</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">fahrenheit</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_fahrenheit_to_celsius</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">fahrenheit</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">();</span><span class="w"></span>
 </pre></div>
 </div>
 <p><em>1</em>, passed in the <code class="docutils literal notranslate"><span class="pre">ZEND_ARG_INFO()</span></code> macro tells the engine that argument must be passed by reference.</p>
@@ -666,20 +666,20 @@ As we did hint the engine about the fact that it should pass us a reference, we�
 aka it will be of type <code class="docutils literal notranslate"><span class="pre">IS_REFERENCE</span></code>. We just need to dereference it (that is to fetch the zval stored into the
 zval), and modify it as-is, as the expected behavior of references is that you must modify the value carried by the
 reference:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">double</span> <span class="n">result</span><span class="p">;</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">param</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">fahrenheit_to_celsius</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">result</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">param</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;z&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">param</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;z&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">param</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">ZVAL_DEREF</span><span class="p">(</span><span class="n">param</span><span class="p">);</span>
-    <span class="n">convert_to_double</span><span class="p">(</span><span class="n">param</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ZVAL_DEREF</span><span class="p">(</span><span class="n">param</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">convert_to_double</span><span class="p">(</span><span class="n">param</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">param</span><span class="p">)));</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">param</span><span class="p">,</span><span class="w"> </span><span class="n">php_fahrenheit_to_celsius</span><span class="p">(</span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">param</span><span class="p">)));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Done.</p>
@@ -687,8 +687,8 @@ reference:</p>
 <p class="admonition-title">Note</p>
 <p>The default <code class="docutils literal notranslate"><span class="pre">return_value</span></code> value is <code class="docutils literal notranslate"><span class="pre">NULL</span></code>. If we don’t touch it, the function will return PHP’s <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

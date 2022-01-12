@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Publishing extension information &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Hooks provided by PHP" href="hooks.html" />
@@ -37,11 +37,11 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="publishing-extension-information">
+  <section id="publishing-extension-information">
 <h1>Publishing extension information<a class="headerlink" href="#publishing-extension-information" title="Permalink to this headline">¶</a></h1>
 <p>Extensions can publish information asked by <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code> or the Reflection API. Let’s see that together.</p>
 <p>This chapter won’t be too long as there is really no difficulty.</p>
-<div class="section" id="minfo-hook">
+<section id="minfo-hook">
 <h2>MINFO() hook<a class="headerlink" href="#minfo-hook" title="Permalink to this headline">¶</a></h2>
 <p>Everything takes place in the <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code> hook you declared, if you declared one.  If you declared none, then the engine
 will run a default function to print information about your extension. That function will only print the version of
@@ -53,46 +53,46 @@ process, you must declare an <code class="docutils literal notranslate"><span cl
 information about PHP extensions is done by the engine by calling <a class="reference external" href="https://github.com/php/php-src/blob/ce64b82ebb2ac87e53cb85c312eafc8c5c37b112/ext/standard/info.c#L139">php_info_print_module()</a></p>
 </div>
 <p>Here is a simple <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code> example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;php/main/SAPI.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;ext/standard/info.h&quot;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php/main/SAPI.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ext/standard/info.h&quot;</span><span class="cp"></span>
 
 <span class="cp">#define PIB_TXT  &quot;PHPInternalsBook Authors&quot;</span>
 <span class="cp">#define PIB_HTML &quot;&lt;h3&gt;&quot; PIB_TXT &quot;&lt;/h3&gt;&quot;</span>
 
-<span class="n">PHP_MINFO_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">time_t</span> <span class="n">t</span><span class="p">;</span>
-    <span class="kt">char</span> <span class="n">cur_time</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+<span class="n">PHP_MINFO_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">time_t</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">cur_time</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span><span class="w"></span>
 
-    <span class="n">time</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">);</span>
-    <span class="n">php_asctime_r</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">),</span> <span class="n">cur_time</span><span class="p">);</span>
+<span class="w">    </span><span class="n">time</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_asctime_r</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">),</span><span class="w"> </span><span class="n">cur_time</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">php_info_print_table_start</span><span class="p">();</span>
-        <span class="n">php_info_print_table_colspan_header</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&quot;PHPInternalsBook&quot;</span><span class="p">);</span>
-        <span class="n">php_info_print_table_row</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&quot;Current time&quot;</span><span class="p">,</span> <span class="n">cur_time</span><span class="p">);</span>
-    <span class="n">php_info_print_table_end</span><span class="p">();</span>
+<span class="w">    </span><span class="n">php_info_print_table_start</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="n">php_info_print_table_colspan_header</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PHPInternalsBook&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">php_info_print_table_row</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Current time&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cur_time</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_info_print_table_end</span><span class="p">();</span><span class="w"></span>
 
-    <span class="n">php_info_print_box_start</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">sapi_module</span><span class="p">.</span><span class="n">phpinfo_as_text</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">php_write</span><span class="p">(</span><span class="n">PIB_HTML</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">PIB_HTML</span><span class="p">));</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="n">php_write</span><span class="p">(</span><span class="n">PIB_TXT</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">PIB_TXT</span><span class="p">));</span>
-        <span class="p">}</span>
-    <span class="n">php_info_print_box_end</span><span class="p">();</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">php_info_print_box_start</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">sapi_module</span><span class="p">.</span><span class="n">phpinfo_as_text</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_write</span><span class="p">(</span><span class="n">PIB_HTML</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">PIB_HTML</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_write</span><span class="p">(</span><span class="n">PIB_TXT</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">PIB_TXT</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_info_print_box_end</span><span class="p">();</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">zend_module_entry</span> <span class="n">pib_module_entry</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span>
-    <span class="s">&quot;pib&quot;</span><span class="p">,</span>
-    <span class="nb">NULL</span><span class="p">,</span> <span class="cm">/* Function entries */</span>
-    <span class="nb">NULL</span><span class="p">,</span> <span class="cm">/* Module init */</span>
-    <span class="nb">NULL</span><span class="p">,</span> <span class="cm">/* Module shutdown */</span>
-    <span class="nb">NULL</span><span class="p">,</span> <span class="cm">/* Request init */</span>
-    <span class="nb">NULL</span><span class="p">,</span> <span class="cm">/* Request shutdown */</span>
-    <span class="n">PHP_MINFO</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span> <span class="cm">/* Module information */</span>
-    <span class="s">&quot;0.1&quot;</span><span class="p">,</span> <span class="cm">/* Replace with version number for your extension */</span>
-    <span class="n">STANDARD_MODULE_PROPERTIES</span>
-<span class="p">};</span>
+<span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Function entries */</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module init */</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module shutdown */</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Request init */</span><span class="w"></span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Request shutdown */</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_MINFO</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Module information */</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Replace with version number for your extension */</span><span class="w"></span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 <img alt="../../_images/php_minfo.png" class="align-center" src="../../_images/php_minfo.png" />
@@ -117,8 +117,8 @@ text and HTML formatting. You don’t know how your extensions’ infos will be 
 </div>
 <p>If you need to display your INI settings, just call for the <code class="docutils literal notranslate"><span class="pre">DISPLAY_INI_ENTRIES()</span></code> macro into your <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code>. This
 macro resolves to <a class="reference external" href="https://github.com/php/php-src/blob/4903f044d3a65de5b1c457d9eb618c9e247f7086/main/php_ini.c#L167">display_ini_entries()</a>.</p>
-</div>
-<div class="section" id="a-note-about-the-reflection-api">
+</section>
+<section id="a-note-about-the-reflection-api">
 <h2>A note about the Reflection API<a class="headerlink" href="#a-note-about-the-reflection-api" title="Permalink to this headline">¶</a></h2>
 <p>The Reflection heavily uses your <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure. For example, when you call
 <code class="docutils literal notranslate"><span class="pre">ReflectionExtension::getVersion()</span></code>, the API just reads the version field of your <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure.</p>
@@ -128,8 +128,8 @@ which is used to register PHP functions.</p>
 information. It may also use your <code class="docutils literal notranslate"><span class="pre">module_number</span></code> to gather back information your extension registered at different
 locations against the engine. For example, <code class="docutils literal notranslate"><span class="pre">ReflectionExtension::getINIentries()</span></code> or
 <code class="docutils literal notranslate"><span class="pre">ReflectionExtension::getClasses()</span></code> use this.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

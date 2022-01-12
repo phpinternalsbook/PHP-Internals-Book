@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Casts and operations &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Hashtables" href="../hashtables.html" />
@@ -37,9 +37,9 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="casts-and-operations">
+  <section id="casts-and-operations">
 <h1>Casts and operations<a class="headerlink" href="#casts-and-operations" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="basic-operations">
+<section id="basic-operations">
 <h2>Basic operations<a class="headerlink" href="#basic-operations" title="Permalink to this headline">¶</a></h2>
 <p>As zvals are complex structures you can’t directly perform basic operations like <code class="docutils literal notranslate"><span class="pre">zv1</span> <span class="pre">+</span> <span class="pre">zv2</span></code> on them. Doing something
 like this will either give you an error or end up adding together two pointers rather than their values.</p>
@@ -48,42 +48,42 @@ many types. For example PHP allows you to add together a double with a string co
 or even adding two arrays (<code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span> <span class="pre">+</span> <span class="pre">[4,</span> <span class="pre">5,</span> <span class="pre">6]</span></code>).</p>
 <p>For this reason PHP provides special functions for performing operations on zvals. Addition for example is handled by
 <code class="docutils literal notranslate"><span class="pre">add_function()</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">;</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">b</span><span class="p">);</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">result</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mf">3.14</span><span class="p">);</span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="s">&quot;17&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mf">3.14</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;17&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 
-<span class="cm">/* result = a + b */</span>
-<span class="n">add_function</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="cm">/* result = a + b */</span><span class="w"></span>
+<span class="n">add_function</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span> <span class="cm">/* 20.14 */</span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">);</span><span class="w"> </span><span class="cm">/* 20.14 */</span><span class="w"></span>
 
-<span class="cm">/* zvals a, b, result need to be dtored */</span>
+<span class="cm">/* zvals a, b, result need to be dtored */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Apart from <code class="docutils literal notranslate"><span class="pre">add_function()</span></code> there are several other functions implementing binary (two-operand) operations, all with
 the same signature:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">add_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>                 <span class="cm">/*  +  */</span>
-<span class="kt">int</span> <span class="nf">sub_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>                 <span class="cm">/*  -  */</span>
-<span class="kt">int</span> <span class="nf">mul_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>                 <span class="cm">/*  *  */</span>
-<span class="kt">int</span> <span class="nf">div_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>                 <span class="cm">/*  /  */</span>
-<span class="kt">int</span> <span class="nf">mod_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>                 <span class="cm">/*  %  */</span>
-<span class="kt">int</span> <span class="nf">concat_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>              <span class="cm">/*  .  */</span>
-<span class="kt">int</span> <span class="nf">bitwise_or_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>          <span class="cm">/*  |  */</span>
-<span class="kt">int</span> <span class="nf">bitwise_and_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>         <span class="cm">/*  &amp;  */</span>
-<span class="kt">int</span> <span class="nf">bitwise_xor_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>         <span class="cm">/*  ^  */</span>
-<span class="kt">int</span> <span class="nf">shift_left_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>          <span class="cm">/*  &lt;&lt; */</span>
-<span class="kt">int</span> <span class="nf">shift_right_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>         <span class="cm">/*  &gt;&gt; */</span>
-<span class="kt">int</span> <span class="nf">boolean_xor_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>         <span class="cm">/* xor */</span>
-<span class="kt">int</span> <span class="nf">is_equal_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>            <span class="cm">/*  == */</span>
-<span class="kt">int</span> <span class="nf">is_not_equal_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>        <span class="cm">/*  != */</span>
-<span class="kt">int</span> <span class="nf">is_identical_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>        <span class="cm">/* === */</span>
-<span class="kt">int</span> <span class="nf">is_not_identical_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>    <span class="cm">/* !== */</span>
-<span class="kt">int</span> <span class="nf">is_smaller_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>          <span class="cm">/*  &lt;  */</span>
-<span class="kt">int</span> <span class="nf">is_smaller_or_equal_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span> <span class="cm">/*  &lt;= */</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">add_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">                 </span><span class="cm">/*  +  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">sub_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">                 </span><span class="cm">/*  -  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">mul_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">                 </span><span class="cm">/*  *  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">div_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">                 </span><span class="cm">/*  /  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">mod_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">                 </span><span class="cm">/*  %  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">concat_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">              </span><span class="cm">/*  .  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">bitwise_or_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">          </span><span class="cm">/*  |  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">bitwise_and_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">         </span><span class="cm">/*  &amp;  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">bitwise_xor_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">         </span><span class="cm">/*  ^  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">shift_left_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">          </span><span class="cm">/*  &lt;&lt; */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">shift_right_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">         </span><span class="cm">/*  &gt;&gt; */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">boolean_xor_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">         </span><span class="cm">/* xor */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">is_equal_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">            </span><span class="cm">/*  == */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">is_not_equal_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">        </span><span class="cm">/*  != */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">is_identical_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">        </span><span class="cm">/* === */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">is_not_identical_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">    </span><span class="cm">/* !== */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">is_smaller_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w">          </span><span class="cm">/*  &lt;  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">is_smaller_or_equal_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"> </span><span class="cm">/*  &lt;= */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>All functions take a <code class="docutils literal notranslate"><span class="pre">result</span></code> zval into which the result of the operation on <code class="docutils literal notranslate"><span class="pre">op1</span></code> and <code class="docutils literal notranslate"><span class="pre">op2</span></code> is stored. The
@@ -91,19 +91,19 @@ the same signature:</p>
 <code class="docutils literal notranslate"><span class="pre">result</span></code> will always be set to some value (like <code class="docutils literal notranslate"><span class="pre">false</span></code>) even if the operations was not successful.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">result</span></code> zval needs to be allocated and initialized prior to calling one of the functions. Alternatively
 <code class="docutils literal notranslate"><span class="pre">result</span></code> and <code class="docutils literal notranslate"><span class="pre">op1</span></code> can be the same, in which case effectively a compound assignment operation is performed:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">b</span><span class="p">;</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">;</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">b</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="s">&quot;3&quot;</span><span class="p">);</span>
+<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3&quot;</span><span class="p">);</span><span class="w"></span>
 
-<span class="cm">/* a += b */</span>
-<span class="n">add_function</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="cm">/* a += b */</span><span class="w"></span>
+<span class="n">add_function</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="cm">/* 45 */</span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">);</span><span class="w"> </span><span class="cm">/* 45 */</span><span class="w"></span>
 
-<span class="cm">/* zvals a, b need to be dtored */</span>
+<span class="cm">/* zvals a, b need to be dtored */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Some binary operators are missing from the above list. For example there are no functions for <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code>. The
@@ -113,60 +113,60 @@ simply by swapping the operands.</p>
 those operators provide is short-circuiting, which you can’t implement with a simple function. If you take
 short-circuiting away, both operators are just boolean casts followed by a <code class="docutils literal notranslate"><span class="pre">&amp;&amp;</span></code> or <code class="docutils literal notranslate"><span class="pre">||</span></code> C-operation.</p>
 <p>Apart from the binary operators there are also two unary (single operand) functions:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">boolean_not_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span> <span class="n">TSRMLS_DC</span><span class="p">);</span> <span class="cm">/*  !  */</span>
-<span class="kt">int</span> <span class="nf">bitwise_not_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span> <span class="n">TSRMLS_DC</span><span class="p">);</span> <span class="cm">/*  ~  */</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">boolean_not_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"> </span><span class="cm">/*  !  */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">bitwise_not_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"> </span><span class="cm">/*  ~  */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>They work in the same way the other functions, but accept only one operand. The unary <code class="docutils literal notranslate"><span class="pre">+</span></code> and <code class="docutils literal notranslate"><span class="pre">-</span></code> operations are
 missing, because they can be implemented as <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">+</span> <span class="pre">$value</span></code> and <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">-</span> <span class="pre">$value</span></code> respectively, by making use of
 <code class="docutils literal notranslate"><span class="pre">add_function()</span></code> and <code class="docutils literal notranslate"><span class="pre">sub_function()</span></code>.</p>
 <p>The last two functions implement the <code class="docutils literal notranslate"><span class="pre">++</span></code> and <code class="docutils literal notranslate"><span class="pre">--</span></code> operators:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">increment_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">);</span> <span class="cm">/* ++ */</span>
-<span class="kt">int</span> <span class="nf">decrement_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">);</span> <span class="cm">/* -- */</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">increment_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">);</span><span class="w"> </span><span class="cm">/* ++ */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">decrement_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">);</span><span class="w"> </span><span class="cm">/* -- */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>These functions don’t take a result zval and instead directly modify the passed operand. Note that using these is
 different from performing a <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">-</span> <span class="pre">1</span></code> with <code class="docutils literal notranslate"><span class="pre">add_function()</span></code>/<code class="docutils literal notranslate"><span class="pre">sub_function()</span></code>. For example incrementing
 <code class="docutils literal notranslate"><span class="pre">&quot;a&quot;</span></code> will result in <code class="docutils literal notranslate"><span class="pre">&quot;b&quot;</span></code>, but adding <code class="docutils literal notranslate"><span class="pre">&quot;a&quot;</span> <span class="pre">+</span> <span class="pre">1</span></code> will result in <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
-</div>
-<div class="section" id="comparisons">
+</section>
+<section id="comparisons">
 <h2>Comparisons<a class="headerlink" href="#comparisons" title="Permalink to this headline">¶</a></h2>
 <p>The comparison functions introduced above all perform some specific operation, e.g. <code class="docutils literal notranslate"><span class="pre">is_equal_function()</span></code> corresponds
 to <code class="docutils literal notranslate"><span class="pre">==</span></code> and <code class="docutils literal notranslate"><span class="pre">is_smaller_function()</span></code> performs a <code class="docutils literal notranslate"><span class="pre">&lt;</span></code>. An alternative to these is <code class="docutils literal notranslate"><span class="pre">compare_function()</span></code> which
 computes a more generic result:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">;</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">b</span><span class="p">);</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">result</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="s">&quot;24&quot;</span><span class="p">);</span>
+<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;24&quot;</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">compare_function</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="n">compare_function</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-<span class="k">if</span> <span class="p">(</span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;a is smaller than b</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;a is greater than b</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-<span class="p">}</span> <span class="k">else</span> <span class="cm">/*if (Z_LVAL_P(result) == 0)*/</span> <span class="p">{</span>
-    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;a is equal to b</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;a is smaller than b</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;a is greater than b</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="cm">/*if (Z_LVAL_P(result) == 0)*/</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;a is equal to b</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="cm">/* zvals a, b, result need to be dtored */</span>
+<span class="cm">/* zvals a, b, result need to be dtored */</span><span class="w"></span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">compare_function()</span></code> will set the <code class="docutils literal notranslate"><span class="pre">result</span></code> zval to one of -1, 1 or 0 corresponding to the relations “smaller than”,
 “greater than” or “equal” between the passed values. It is also part of a larger family of comparison functions:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">compare_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">compare_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"></span>
 
-<span class="kt">int</span> <span class="nf">numeric_compare_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">numeric_compare_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"></span>
 
-<span class="kt">int</span> <span class="nf">string_compare_function_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span><span class="p">,</span> <span class="n">zend_bool</span> <span class="n">case_insensitive</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
-<span class="kt">int</span> <span class="nf">string_compare_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
-<span class="kt">int</span> <span class="nf">string_case_compare_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">string_compare_function_ex</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="p">,</span><span class="w"> </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">case_insensitive</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">string_compare_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">string_case_compare_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"></span>
 
 <span class="cp">#ifdef HAVE_STRCOLL</span>
-<span class="kt">int</span> <span class="nf">string_locale_compare_function</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">result</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">op2</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">string_locale_compare_function</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif</span>
 </pre></div>
 </div>
@@ -181,8 +181,8 @@ strings.</p>
 <p><code class="docutils literal notranslate"><span class="pre">string_locale_compare_function()</span></code> performs a string comparison according to the current locale and is only available
 if <code class="docutils literal notranslate"><span class="pre">HAVE_STRCOLL</span></code> is defined. As such you must use <code class="docutils literal notranslate"><span class="pre">#ifdef</span> <span class="pre">HAVE_STRCOLL</span></code> guards whenever you employ the function.
 As with anything related to locales, it’s best to avoid its use.</p>
-</div>
-<div class="section" id="casts">
+</section>
+<section id="casts">
 <h2>Casts<a class="headerlink" href="#casts" title="Permalink to this headline">¶</a></h2>
 <p>When implementing your own code you will very often deal with only one particular type of zval. E.g. if you are
 implementing some string handling code, you’ll want to deal only with string zvals and not bother with everything else.
@@ -190,16 +190,16 @@ On the other hand you likely also want to support PHPs dynamic type system: PHP 
 strings and extension code should honor this as well.</p>
 <p>The solution is to cast a zval of arbitrary type to the specific type you’ll be working with. In order to support this
 PHP provides a <code class="docutils literal notranslate"><span class="pre">convert_to_*</span></code> function for every type (apart from resources, as there is no <code class="docutils literal notranslate"><span class="pre">(resource)</span></code> cast):</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">convert_to_null</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_boolean</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_long</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_double</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_string</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_array</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_object</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_null</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_boolean</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_long</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_double</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_string</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_array</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_object</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
 
-<span class="kt">void</span> <span class="nf">convert_to_long_base</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_cstring</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">op</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_long_base</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">base</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_cstring</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The last two functions implement non-standard casts: <code class="docutils literal notranslate"><span class="pre">convert_to_long_base()</span></code> is the same as <code class="docutils literal notranslate"><span class="pre">convert_to_long()</span></code>,
@@ -208,28 +208,28 @@ but it will make use of a particular base for string to long conversions (e.g. <
 This means that the result will always use <code class="docutils literal notranslate"><span class="pre">.</span></code> as the decimal separator rather than creating locale-specific strings
 like <code class="docutils literal notranslate"><span class="pre">&quot;3,14&quot;</span></code> (Germany).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">convert_to_*</span></code> functions will directly modify the passed zval:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="s">&quot;123 foobar&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;123 foobar&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">convert_to_long</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">convert_to_long</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 
-<span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>If the zval is used in more than one place (refcount &gt; 1) chances are that directly modifying it would result in
 incorrect behavior. E.g. if you receive a zval by-value and directly apply a <code class="docutils literal notranslate"><span class="pre">convert_to_*</span></code> function to it, you will
 modify not only the reference to the zval inside the function but also the reference outside of it.</p>
 <p>To solve this issue PHP provides an additional set of <code class="docutils literal notranslate"><span class="pre">convert_to_*_ex</span></code> macros:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">convert_to_null_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">**</span><span class="n">ppzv</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_boolean_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">**</span><span class="n">ppzv</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_long_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">**</span><span class="n">ppzv</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_double_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">**</span><span class="n">ppzv</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_string_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">**</span><span class="n">ppzv</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_array_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">**</span><span class="n">ppzv</span><span class="p">);</span>
-<span class="kt">void</span> <span class="nf">convert_to_object_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">**</span><span class="n">ppzv</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_null_ex</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">ppzv</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_boolean_ex</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">ppzv</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_long_ex</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">ppzv</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_double_ex</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">ppzv</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_string_ex</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">ppzv</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_array_ex</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">ppzv</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convert_to_object_ex</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">ppzv</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>These macros take a <code class="docutils literal notranslate"><span class="pre">zval**</span></code> and are implemented by performing a <code class="docutils literal notranslate"><span class="pre">SEPARATE_ZVAL_IF_NOT_REF()</span></code> before the type
@@ -242,47 +242,47 @@ conversion:</p>
 </pre></div>
 </div>
 <p>Apart from this the usage is similar to the normal <code class="docutils literal notranslate"><span class="pre">convert_to_*</span></code> functions:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">**</span><span class="n">zv_ptr_ptr</span> <span class="o">=</span> <span class="cm">/* get function argument */</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">zv_ptr_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* get function argument */</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">convert_to_long_ex</span><span class="p">(</span><span class="n">zv_ptr_ptr</span><span class="p">);</span>
+<span class="n">convert_to_long_ex</span><span class="p">(</span><span class="n">zv_ptr_ptr</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">zv_ptr_ptr</span><span class="p">));</span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">zv_ptr_ptr</span><span class="p">));</span><span class="w"></span>
 
-<span class="cm">/* No need to dtor as function arguments are dtored automatically */</span>
+<span class="cm">/* No need to dtor as function arguments are dtored automatically */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>But even this will not always be enough. Lets consider a very similar case where a value is fetched from an array:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">array_zv</span> <span class="o">=</span> <span class="cm">/* get array from somewhere */</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">array_zv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* get array from somewhere */</span><span class="p">;</span><span class="w"></span>
 
-<span class="cm">/* Fetch array index 42 into zv_dest (how this works is not relevant here) */</span>
-<span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">array_zv</span><span class="p">),</span> <span class="mi">42</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-    <span class="cm">/* Error: Index not found */</span>
-    <span class="k">return</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="cm">/* Fetch array index 42 into zv_dest (how this works is not relevant here) */</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">array_zv</span><span class="p">),</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Error: Index not found */</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">convert_to_long_ex</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">convert_to_long_ex</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">));</span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">));</span><span class="w"></span>
 
-<span class="cm">/* No need to dtor because array values are dtored automatically */</span>
+<span class="cm">/* No need to dtor because array values are dtored automatically */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The use of <code class="docutils literal notranslate"><span class="pre">convert_to_long_ex()</span></code> in the above code will prevent modification of references to the value outside the
 array, but it will still change the value inside the array itself. In some cases this is the correct behavior, but
 typically you want to avoid modifying the array when fetching values from it.</p>
 <p>In cases like these there is no way around copying the zval before converting it:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span> <span class="o">=</span> <span class="cm">/* get array value */</span><span class="p">;</span>
-<span class="n">zval</span> <span class="n">tmp_zv</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">zv_dest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* get array value */</span><span class="p">;</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">tmp_zv</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">,</span> <span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span>
-<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">);</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">convert_to_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">);</span>
+<span class="n">convert_to_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_LVAL</span><span class="p">(</span><span class="n">tmp_zv</span><span class="p">));</span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL</span><span class="p">(</span><span class="n">tmp_zv</span><span class="p">));</span><span class="w"></span>
 
-<span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">);</span>
+<span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The last <code class="docutils literal notranslate"><span class="pre">zval_dtor()</span></code> call in the above code is not strictly necessary, because we know that <code class="docutils literal notranslate"><span class="pre">tmp_zv</span></code> will be
@@ -290,72 +290,72 @@ of type <code class="docutils literal notranslate"><span class="pre">IS_LONG</sp
 arrays the dtor call is necessary though.</p>
 <p>If the use of to-long or to-double conversions is common in your code, it can make sense to create helper functions which
 perform casts without modifying any zval. A sample implementation for long casts:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">long</span> <span class="nf">zval_get_long</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">switch</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv</span><span class="p">))</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="nl">IS_NULL</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_BOOL</span><span class="p">:</span>
-        <span class="k">case</span> <span class="nl">IS_LONG</span><span class="p">:</span>
-        <span class="k">case</span> <span class="nl">IS_RESOURCE</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-        <span class="k">case</span> <span class="nl">IS_DOUBLE</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">zend_dval_to_lval</span><span class="p">(</span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">));</span>
-        <span class="k">case</span> <span class="nl">IS_STRING</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">strtol</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
-        <span class="k">case</span> <span class="nl">IS_ARRAY</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">))</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_OBJECT</span><span class="p">:</span> <span class="p">{</span>
-            <span class="n">zval</span> <span class="n">tmp_zv</span><span class="p">;</span>
-            <span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">,</span> <span class="n">zv</span><span class="p">);</span>
-            <span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span>
-            <span class="n">convert_to_long_base</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
-            <span class="k">return</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">tmp_zv</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">long</span><span class="w"> </span><span class="nf">zval_get_long</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_NULL</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_BOOL</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_LONG</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_RESOURCE</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">zend_dval_to_lval</span><span class="p">(</span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_STRING</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">strtol</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">))</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_OBJECT</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">zval</span><span class="w"> </span><span class="n">tmp_zv</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">,</span><span class="w"> </span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">convert_to_long_base</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">tmp_zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The above code will directly return the result of the cast without performing any zval copies (apart from the
 <code class="docutils literal notranslate"><span class="pre">IS_OBJECT</span></code> case where the copy is unavoidable). By making use of the function the array value cast example becomes
 much simpler:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span> <span class="o">=</span> <span class="cm">/* get array value */</span><span class="p">;</span>
-<span class="kt">long</span> <span class="n">lval</span> <span class="o">=</span> <span class="n">zval_get_long</span><span class="p">(</span><span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">zv_dest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* get array value */</span><span class="p">;</span><span class="w"></span>
+<span class="kt">long</span><span class="w"> </span><span class="n">lval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zval_get_long</span><span class="p">(</span><span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">lval</span><span class="p">);</span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lval</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>PHPs standard library already contains one function of this type, namely <code class="docutils literal notranslate"><span class="pre">zend_is_true()</span></code>. This function is
 functionally equivalent to a bool cast from which the value is returned directly:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">zend_is_true</span><span class="p">(</span><span class="n">zv</span><span class="p">));</span> <span class="c1">// 0</span>
-<span class="n">zval_dtor</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">zend_is_true</span><span class="p">(</span><span class="n">zv</span><span class="p">));</span><span class="w"> </span><span class="c1">// 0</span>
+<span class="n">zval_dtor</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span> <span class="s">&quot;foobar&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">zend_is_true</span><span class="p">(</span><span class="n">zv</span><span class="p">));</span> <span class="c1">// 1</span>
-<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foobar&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">zend_is_true</span><span class="p">(</span><span class="n">zv</span><span class="p">));</span><span class="w"> </span><span class="c1">// 1</span>
+<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Another function which avoids unnecessary copies during casting is <code class="docutils literal notranslate"><span class="pre">zend_make_printable_zval()</span></code>. This function
 performs the same string cast as <code class="docutils literal notranslate"><span class="pre">convert_to_string()</span></code> but makes use of a different API. The typical usage is as
 follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* get zval from somewhere */</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* get zval from somewhere */</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">zval</span> <span class="n">tmp_zval</span><span class="p">;</span>
-<span class="kt">int</span> <span class="n">tmp_zval_used</span><span class="p">;</span>
-<span class="n">zend_make_printable_zval</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tmp_zval</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tmp_zval_used</span><span class="p">);</span>
+<span class="n">zval</span><span class="w"> </span><span class="n">tmp_zval</span><span class="p">;</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">tmp_zval_used</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_make_printable_zval</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tmp_zval</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tmp_zval_used</span><span class="p">);</span><span class="w"></span>
 
-<span class="k">if</span> <span class="p">(</span><span class="n">tmp_zval_used</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">zv_ptr</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">tmp_zval</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp_zval_used</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tmp_zval</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">PHPWRITE</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span> <span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
+<span class="n">PHPWRITE</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 
-<span class="k">if</span> <span class="p">(</span><span class="n">tmp_zval_used</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zval</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp_zval_used</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zval</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The second parameter to this function is a pointer to a temporary zval and the third parameter is a pointer to an
@@ -366,19 +366,19 @@ with <code class="docutils literal notranslate"><span class="pre">zv_ptr</span><
 <p>Finally you need to dtor the temporary zval using <code class="docutils literal notranslate"><span class="pre">zval_dtor(&amp;tmp_zval)</span></code>, but only if it was actually used.</p>
 <p>Another function that is related to casting is <code class="docutils literal notranslate"><span class="pre">is_numeric_string()</span></code>. This function checks whether a string is
 “numeric” and extracts the value into either a long or a double:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">long</span> <span class="n">lval</span><span class="p">;</span>
-<span class="kt">double</span> <span class="n">dval</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">long</span><span class="w"> </span><span class="n">lval</span><span class="p">;</span><span class="w"></span>
+<span class="kt">double</span><span class="w"> </span><span class="n">dval</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">switch</span> <span class="p">(</span><span class="n">is_numeric_string</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span> <span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">lval</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">dval</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="nl">IS_LONG</span><span class="p">:</span>
-        <span class="cm">/* String is an integer those value was put into `lval` */</span>
-        <span class="k">break</span><span class="p">;</span>
-    <span class="k">case</span> <span class="nl">IS_DOUBLE</span><span class="p">:</span>
-        <span class="cm">/* String is a double those value was put into `dval` */</span>
-        <span class="k">break</span><span class="p">;</span>
-    <span class="k">default</span><span class="o">:</span>
-        <span class="cm">/* String is not numeric */</span>
-<span class="p">}</span>
+<span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">is_numeric_string</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">lval</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dval</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_LONG</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* String is an integer those value was put into `lval` */</span><span class="w"></span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* String is a double those value was put into `dval` */</span><span class="w"></span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">default</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* String is not numeric */</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The last argument to this function is called <code class="docutils literal notranslate"><span class="pre">allow_errors</span></code>. Setting it to <code class="docutils literal notranslate"><span class="pre">0</span></code> will reject strings like
@@ -391,32 +391,32 @@ but don’t want to incur the precision loss associated with using doubles for b
 is an additional <code class="docutils literal notranslate"><span class="pre">convert_scalar_to_number()</span></code> function, which accepts a zval and converts non-array values to either
 a long or a double (using <code class="docutils literal notranslate"><span class="pre">is_numeric_string()</span></code> for strings). This means that the converted zval will have type
 <code class="docutils literal notranslate"><span class="pre">IS_LONG</span></code>, <code class="docutils literal notranslate"><span class="pre">IS_DOUBLE</span></code> or <code class="docutils literal notranslate"><span class="pre">IS_ARRAY</span></code>. The usage is the same as for the <code class="docutils literal notranslate"><span class="pre">convert_to_*()</span></code> functions:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="s">&quot;3.141&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3.141&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">convert_scalar_to_number</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
-<span class="k">switch</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="nl">IS_LONG</span><span class="p">:</span>
-        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Long: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-        <span class="k">break</span><span class="p">;</span>
-    <span class="k">case</span> <span class="nl">IS_DOUBLE</span><span class="p">:</span>
-        <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Double: %G</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-        <span class="k">break</span><span class="p">;</span>
-    <span class="k">case</span> <span class="nl">IS_ARRAY</span><span class="p">:</span>
-        <span class="cm">/* Likely throw an error here */</span>
-        <span class="k">break</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="n">convert_scalar_to_number</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_LONG</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Long: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Double: %G</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* Likely throw an error here */</span><span class="w"></span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
 
-<span class="cm">/* Double: 3.141 */</span>
+<span class="cm">/* Double: 3.141 */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Once again there also is a <code class="docutils literal notranslate"><span class="pre">convert_scalar_to_number_ex()</span></code> variant of this function, which accepts a <code class="docutils literal notranslate"><span class="pre">zval**</span></code> and
 will separate it before the conversion.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

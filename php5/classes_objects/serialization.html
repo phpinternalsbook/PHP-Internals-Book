@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Serialization &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Magic interfaces - Comparable" href="magic_interfaces_comparable.html" />
@@ -37,11 +37,11 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="serialization">
+  <section id="serialization">
 <h1>Serialization<a class="headerlink" href="#serialization" title="Permalink to this headline">¶</a></h1>
 <p>In this section we’ll have a look at PHP’s serialization format and the different mechanisms PHP provides to serialize
 object data. As usual we’ll use the typed arrays implementation as an example.</p>
-<div class="section" id="php-s-serialization-format">
+<section id="php-s-serialization-format">
 <h2>PHP’s serialization format<a class="headerlink" href="#php-s-serialization-format" title="Permalink to this headline">¶</a></h2>
 <p>You probably already know how the output of <code class="docutils literal notranslate"><span class="pre">serialize()</span></code> roughly looks like: It has some kind of type specifier (like
 <code class="docutils literal notranslate"><span class="pre">s</span></code> or <code class="docutils literal notranslate"><span class="pre">i</span></code>), followed by a colon, followed by the actual data, followed by a semicolon. As such the serialization
@@ -125,8 +125,8 @@ O:8:&quot;stdClass&quot;:1:{s:3:&quot;foo&quot;;r:1;}
 </pre></div>
 </div>
 <p>As you can see it works the same way as with references, just using the small <code class="docutils literal notranslate"><span class="pre">r</span></code> instead of <code class="docutils literal notranslate"><span class="pre">R</span></code>.</p>
-</div>
-<div class="section" id="serializing-internal-objects">
+</section>
+<section id="serializing-internal-objects">
 <h2>Serializing internal objects<a class="headerlink" href="#serializing-internal-objects" title="Permalink to this headline">¶</a></h2>
 <p>As internal objects don’t store their data in ordinary properties PHP’s default serialization mechanism will not work.
 For example, if you try to serialize an <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> all you’ll get is this:</p>
@@ -137,49 +137,49 @@ For example, if you try to serialize an <code class="docutils literal notranslat
 be serialized (<code class="docutils literal notranslate"><span class="pre">O</span></code> and <code class="docutils literal notranslate"><span class="pre">C</span></code>). I’ll demonstrate how to use both, starting with the <code class="docutils literal notranslate"><span class="pre">C</span></code> format that uses the
 <code class="docutils literal notranslate"><span class="pre">Serializable</span></code> interface. For this method we’ll create our own serialization format based on the primitives that are
 provided by <code class="docutils literal notranslate"><span class="pre">serialize</span></code>. In order to do so we need to include two headers:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;ext/standard/php_var.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;ext/standard/php_smart_str.h&quot;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ext/standard/php_var.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ext/standard/php_smart_str.h&quot;</span><span class="cp"></span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">php_var.h</span></code> header exports some serialization functions, the <code class="docutils literal notranslate"><span class="pre">php_smart_str.h</span></code> header contains PHPs
 <code class="docutils literal notranslate"><span class="pre">smart_str</span></code> API. This API provides a dynamically resized string structure, that allows us to easily create strings
 without concerning ourselves with allocation.</p>
 <p>Now let’s see how the <code class="docutils literal notranslate"><span class="pre">serialize</span></code> method for an <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> could look like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">serialize</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
-    <span class="n">smart_str</span> <span class="n">buf</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
-    <span class="n">php_serialize_data_t</span> <span class="n">var_hash</span><span class="p">;</span>
-    <span class="n">zval</span> <span class="n">zv</span><span class="p">,</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span><span class="w"> </span><span class="n">serialize</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">smart_str</span><span class="w"> </span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_serialize_data_t</span><span class="w"> </span><span class="n">var_hash</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">PHP_VAR_SERIALIZE_INIT</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span>
+<span class="w">    </span><span class="n">PHP_VAR_SERIALIZE_INIT</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">INIT_PZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">INIT_PZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
 
-    <span class="cm">/* Serialize buffer as string */</span>
-    <span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="n">php_var_serialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buf</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">var_hash</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="cm">/* Serialize buffer as string */</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_var_serialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">var_hash</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="cm">/* Serialize properties as array */</span>
-    <span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">=</span> <span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">=</span> <span class="n">IS_ARRAY</span><span class="p">;</span>
-    <span class="n">php_var_serialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buf</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">var_hash</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="cm">/* Serialize properties as array */</span><span class="w"></span>
+<span class="w">    </span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IS_ARRAY</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_var_serialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">var_hash</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">PHP_VAR_SERIALIZE_DESTROY</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span>
+<span class="w">    </span><span class="n">PHP_VAR_SERIALIZE_DESTROY</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">buf</span><span class="p">.</span><span class="n">c</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">RETURN_STRINGL</span><span class="p">(</span><span class="n">buf</span><span class="p">.</span><span class="n">c</span><span class="p">,</span> <span class="n">buf</span><span class="p">.</span><span class="n">len</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">buf</span><span class="p">.</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">RETURN_STRINGL</span><span class="p">(</span><span class="n">buf</span><span class="p">.</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">buf</span><span class="p">.</span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Apart from the usual boilerplate this method contains a few interesting elements: Firstly, we declared a
@@ -188,11 +188,11 @@ without concerning ourselves with allocation.</p>
 values for the <code class="docutils literal notranslate"><span class="pre">R</span></code>/<code class="docutils literal notranslate"><span class="pre">r</span></code> reference preservation mechanism.</p>
 <p>Furthermore we create a smart string using <code class="docutils literal notranslate"><span class="pre">smart_str</span> <span class="pre">buf</span> <span class="pre">=</span> <span class="pre">{0}</span></code>. The <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">{0}</span></code> initializes all members of the struct
 with zero. This struct looks as follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
-    <span class="kt">char</span> <span class="o">*</span><span class="n">c</span><span class="p">;</span>
-    <span class="kt">size_t</span> <span class="n">len</span><span class="p">;</span>
-    <span class="kt">size_t</span> <span class="n">a</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">smart_str</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">a</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">smart_str</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">c</span></code> is the buffer of the string, <code class="docutils literal notranslate"><span class="pre">len</span></code> the currently used length and <code class="docutils literal notranslate"><span class="pre">a</span></code> the size of the current allocation (as
@@ -201,61 +201,61 @@ this is smart string this doesn’t necessarily match <code class="docutils lite
 <code class="docutils literal notranslate"><span class="pre">php_var_serialize</span></code>. The first serialized value is the actual buffer (as a string), the second value are the
 properties (as an array).</p>
 <p>A bit more complicated is the <code class="docutils literal notranslate"><span class="pre">unserialize</span></code> method:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">unserialize</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
-    <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">str_len</span><span class="p">;</span>
-    <span class="n">php_unserialize_data_t</span> <span class="n">var_hash</span><span class="p">;</span>
-    <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">max</span><span class="p">;</span>
-    <span class="n">zval</span> <span class="n">zv</span><span class="p">,</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span><span class="w"> </span><span class="n">unserialize</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">str_len</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_unserialize_data_t</span><span class="w"> </span><span class="n">var_hash</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">max</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="s">&quot;s&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">str</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">str_len</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;s&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">str_len</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span>
-            <span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Cannot call unserialize() on an already constructed object&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span>
-        <span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Cannot call unserialize() on an already constructed object&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">        </span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">PHP_VAR_UNSERIALIZE_INIT</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span>
+<span class="w">    </span><span class="n">PHP_VAR_UNSERIALIZE_INIT</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="n">str</span><span class="p">;</span>
-    <span class="n">max</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="n">str</span> <span class="o">+</span> <span class="n">str_len</span><span class="p">;</span>
+<span class="w">    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">str</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">str_len</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">INIT_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">php_var_unserialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">,</span> <span class="n">max</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">var_hash</span> <span class="n">TSRMLS_CC</span><span class="p">)</span>
-        <span class="o">||</span> <span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">!=</span> <span class="n">IS_STRING</span> <span class="o">||</span> <span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Could not unserialize buffer&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">goto</span> <span class="n">exit</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">INIT_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">php_var_unserialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">var_hash</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">IS_STRING</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Could not unserialize buffer&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">goto</span><span class="w"> </span><span class="n">exit</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
-    <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">INIT_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">php_var_unserialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">,</span> <span class="n">max</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">var_hash</span> <span class="n">TSRMLS_CC</span><span class="p">)</span>
-        <span class="o">||</span> <span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">!=</span> <span class="n">IS_ARRAY</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Could not unserialize properties&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">goto</span> <span class="n">exit</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">INIT_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">php_var_unserialize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">var_hash</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">IS_ARRAY</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Could not unserialize properties&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">goto</span><span class="w"> </span><span class="n">exit</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_hash_copy</span><span class="p">(</span>
-            <span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">),</span> <span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span>
-            <span class="p">(</span><span class="n">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">)</span>
-        <span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_hash_copy</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">),</span><span class="w"> </span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"></span>
+<span class="w">            </span><span class="p">(</span><span class="n">copy_ctor_func_t</span><span class="p">)</span><span class="w"> </span><span class="n">zval_add_ref</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="nl">exit</span><span class="p">:</span>
-    <span class="n">zval_dtor</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
-    <span class="n">PHP_VAR_UNSERIALIZE_DESTROY</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="nl">exit</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval_dtor</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_VAR_UNSERIALIZE_DESTROY</span><span class="p">(</span><span class="n">var_hash</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">unserialize</span></code> method again declares a <code class="docutils literal notranslate"><span class="pre">var_hash</span></code> variable, this time of type <code class="docutils literal notranslate"><span class="pre">php_unserialize_data_t</span></code>,
@@ -276,29 +276,29 @@ and a <code class="docutils literal notranslate"><span class="pre">__wakeup</spa
 <p>The <code class="docutils literal notranslate"><span class="pre">get_properties</span></code> handler allows you to fetch the properties of an object as a hashtable. The engine does this in
 various places, one of them being <code class="docutils literal notranslate"><span class="pre">O</span></code> serialization. Thus we can use this handler to return the view’s buffer object,
 offset and length as properties, which will then be serialized just like any other property:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">HashTable</span> <span class="o">*</span><span class="nf">array_buffer_view_get_properties</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span> <span class="o">=</span> <span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">obj</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="nf">array_buffer_view_get_properties</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">obj</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">ht</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ht</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">);</span>
-    <span class="n">zend_hash_update</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="s">&quot;buffer&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;buffer&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_hash_update</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;buffer&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;buffer&quot;</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-    <span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
-    <span class="n">zend_hash_update</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="s">&quot;offset&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;offset&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_hash_update</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;offset&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;offset&quot;</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-    <span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">);</span>
-    <span class="n">zend_hash_update</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="s">&quot;length&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;length&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_hash_update</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;length&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;length&quot;</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">ht</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ht</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Note that these magic properties will now also turn up in the debugging output, which in this case is probably a good
@@ -307,88 +307,88 @@ you would be able to access the <code class="docutils literal notranslate"><span
 against this side-effect (other than using the other serialization method).</p>
 <p>In order to restore the state after unserialization we implement the <code class="docutils literal notranslate"><span class="pre">__wakeup</span></code> magic method. This method is called
 right after unserialization and allows you to read the object properties and reconstruct the internal state from them:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_wakeup</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">props</span><span class="p">;</span>
-    <span class="n">zval</span> <span class="o">**</span><span class="n">buffer_zv</span><span class="p">,</span> <span class="o">**</span><span class="n">offset_zv</span><span class="p">,</span> <span class="o">**</span><span class="n">length_zv</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_wakeup</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">props</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">buffer_zv</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">offset_zv</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">length_zv</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span>
-            <span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Cannot call __wakeup() on an already constructed object&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span>
-        <span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Cannot call __wakeup() on an already constructed object&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">        </span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">props</span> <span class="o">=</span> <span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">props</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="s">&quot;buffer&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;buffer&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">buffer_zv</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span>
-     <span class="o">&amp;&amp;</span> <span class="n">zend_hash_find</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="s">&quot;offset&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;offset&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">offset_zv</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span>
-     <span class="o">&amp;&amp;</span> <span class="n">zend_hash_find</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="s">&quot;length&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;length&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">length_zv</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span>
-     <span class="o">&amp;&amp;</span> <span class="n">Z_TYPE_PP</span><span class="p">(</span><span class="n">buffer_zv</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_OBJECT</span>
-     <span class="o">&amp;&amp;</span> <span class="n">Z_TYPE_PP</span><span class="p">(</span><span class="n">offset_zv</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_LONG</span> <span class="o">&amp;&amp;</span> <span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">offset_zv</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-     <span class="o">&amp;&amp;</span> <span class="n">Z_TYPE_PP</span><span class="p">(</span><span class="n">length_zv</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_LONG</span> <span class="o">&amp;&amp;</span> <span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">length_zv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-     <span class="o">&amp;&amp;</span> <span class="n">instanceof_function</span><span class="p">(</span><span class="n">Z_OBJCE_PP</span><span class="p">(</span><span class="n">buffer_zv</span><span class="p">),</span> <span class="n">array_buffer_ce</span> <span class="n">TSRMLS_CC</span><span class="p">)</span>
-    <span class="p">)</span> <span class="p">{</span>
-        <span class="n">buffer_object</span> <span class="o">*</span><span class="n">buffer_intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="o">*</span><span class="n">buffer_zv</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="kt">size_t</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">offset_zv</span><span class="p">),</span> <span class="n">length</span> <span class="o">=</span> <span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">length_zv</span><span class="p">);</span>
-        <span class="kt">size_t</span> <span class="n">bytes_per_element</span> <span class="o">=</span> <span class="n">buffer_view_get_bytes_per_element</span><span class="p">(</span><span class="n">intern</span><span class="p">);</span>
-        <span class="kt">size_t</span> <span class="n">max_length</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">-</span> <span class="n">offset</span><span class="p">)</span> <span class="o">/</span> <span class="n">bytes_per_element</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">props</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;buffer&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;buffer&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buffer_zv</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SUCCESS</span><span class="w"></span>
+<span class="w">     </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">props</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;offset&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;offset&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset_zv</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SUCCESS</span><span class="w"></span>
+<span class="w">     </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">props</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;length&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;length&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length_zv</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SUCCESS</span><span class="w"></span>
+<span class="w">     </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Z_TYPE_PP</span><span class="p">(</span><span class="n">buffer_zv</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_OBJECT</span><span class="w"></span>
+<span class="w">     </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Z_TYPE_PP</span><span class="p">(</span><span class="n">offset_zv</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_LONG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">offset_zv</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">     </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Z_TYPE_PP</span><span class="p">(</span><span class="n">length_zv</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_LONG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">length_zv</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">     </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">instanceof_function</span><span class="p">(</span><span class="n">Z_OBJCE_PP</span><span class="p">(</span><span class="n">buffer_zv</span><span class="p">),</span><span class="w"> </span><span class="n">array_buffer_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">buffer_object</span><span class="w"> </span><span class="o">*</span><span class="n">buffer_intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="o">*</span><span class="n">buffer_zv</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">offset_zv</span><span class="p">),</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_LVAL_PP</span><span class="p">(</span><span class="n">length_zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">bytes_per_element</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_get_bytes_per_element</span><span class="p">(</span><span class="n">intern</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">max_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">bytes_per_element</span><span class="p">;</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">&amp;&amp;</span> <span class="n">length</span> <span class="o">&lt;=</span> <span class="n">max_length</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">Z_ADDREF_PP</span><span class="p">(</span><span class="n">buffer_zv</span><span class="p">);</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span> <span class="o">=</span> <span class="o">*</span><span class="n">buffer_zv</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">offset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">max_length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">Z_ADDREF_PP</span><span class="p">(</span><span class="n">buffer_zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">buffer_zv</span><span class="p">;</span><span class="w"></span>
 
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span><span class="p">;</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span><span class="p">;</span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"></span>
 
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span> <span class="o">=</span> <span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">;</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span> <span class="o">+=</span> <span class="n">offset</span><span class="p">;</span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
 
-            <span class="k">return</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+<span class="w">            </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">zend_throw_exception</span><span class="p">(</span>
-        <span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Invalid serialization data&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid serialization data&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The method is more or less pure error-checking boilerplate (as is usual when dealing with serialization). The only
 thing it really does is to fetch the three magic properties using <code class="docutils literal notranslate"><span class="pre">zend_hash_find</span></code>, check their validity and then
 initialize the internal object from them.</p>
-</div>
-<div class="section" id="denying-serialization">
+</section>
+<section id="denying-serialization">
 <h2>Denying serialization<a class="headerlink" href="#denying-serialization" title="Permalink to this headline">¶</a></h2>
 <p>Sometimes objects can’t be reasonably serialized. In this case you can deny serialization by assigning special
 serialization handlers:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">serialize</span> <span class="o">=</span> <span class="n">zend_class_serialize_deny</span><span class="p">;</span>
-<span class="n">ce</span><span class="o">-&gt;</span><span class="n">unserialize</span> <span class="o">=</span> <span class="n">zend_class_unserialize_deny</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">serialize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_class_serialize_deny</span><span class="p">;</span><span class="w"></span>
+<span class="n">ce</span><span class="o">-&gt;</span><span class="n">unserialize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_class_unserialize_deny</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">serialize</span></code> and <code class="docutils literal notranslate"><span class="pre">unserialize</span></code> class handlers are used to implement the <code class="docutils literal notranslate"><span class="pre">Serializable</span></code> interface, i.e. the
 <code class="docutils literal notranslate"><span class="pre">C</span></code> serialization. As such assigning to them will deny serialization and <code class="docutils literal notranslate"><span class="pre">C</span></code> unserialization, but will still allow
 <code class="docutils literal notranslate"><span class="pre">O</span></code> unserialization. To disallow that case too, simply throw an error from <code class="docutils literal notranslate"><span class="pre">__wakeup</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">,</span> <span class="n">__wakeup</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">,</span><span class="w"> </span><span class="n">__wakeup</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Unserialization of SomeClass is not allowed&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Unserialization of SomeClass is not allowed&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>And with this we leave the array buffers behind and turn towards magic interfaces as the next topic.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

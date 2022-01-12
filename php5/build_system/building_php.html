@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Building PHP &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Building PHP extensions" href="building_extensions.html" />
@@ -37,7 +37,7 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="building-php">
+  <section id="building-php">
 <span id="building-php-5"></span><h1>Building PHP<a class="headerlink" href="#building-php" title="Permalink to this headline">¶</a></h1>
 <p>This chapter explains how you can compile PHP in a way that is suitable for development of extensions or core
 modifications. We will only cover builds on Unixoid systems. If you wish to build PHP on Windows, you should take a look
@@ -49,7 +49,7 @@ description is outside the scope of this book.</p>
 <dd><p>Disclaimer: We are not liable for any adverse health effects caused by the attempt to compile PHP on Windows.</p>
 </dd>
 </dl>
-<div class="section" id="why-not-use-packages">
+<section id="why-not-use-packages">
 <h2>Why not use packages?<a class="headerlink" href="#why-not-use-packages" title="Permalink to this headline">¶</a></h2>
 <p>If you are currently using PHP, you likely installed it through your package manager, using a command like
 <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">php</span></code>. Before explaining the actual compilation you should first understand why doing your own
@@ -69,8 +69,8 @@ Suhosin. Some of these patches are known to introduce incompatibilities with low
 you want to report bugs, submit patches or make use of our help channels for extension-writing, you should always work
 against the official PHP version. When we talk about “PHP” in this book, we’re always referring to the officially
 supported version.</p>
-</div>
-<div class="section" id="obtaining-the-source-code">
+</section>
+<section id="obtaining-the-source-code">
 <h2>Obtaining the source code<a class="headerlink" href="#obtaining-the-source-code" title="Permalink to this headline">¶</a></h2>
 <p>Before you can build PHP you first need to obtain its source code. There are two ways to do this: You can either
 download an archive from <a class="reference external" href="http://www.php.net/downloads.php">PHP’s download page</a> or clone the git repository from <a class="reference external" href="http://www.github.com/php/php-src">Github</a>.</p>
@@ -115,8 +115,8 @@ install them instead. The packages without <code class="docutils literal notrans
 default PHP build will require libxml, which you can install via the <code class="docutils literal notranslate"><span class="pre">libxml2-dev</span></code> package.</p>
 <p>If you are using Debian or Ubuntu you can use <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">build-dep</span> <span class="pre">php5</span></code> to install a large number of optional
 build-dependencies in one go. If you are only aiming for a default build, many of them will not be necessary though.</p>
-</div>
-<div class="section" id="build-overview">
+</section>
+<section id="build-overview">
 <h2>Build overview<a class="headerlink" href="#build-overview" title="Permalink to this headline">¶</a></h2>
 <p>Before taking a closer look at what the individual build steps do, here are the commands you need to execute for a
 “default” PHP build:</p>
@@ -139,8 +139,8 @@ by specifying a <code class="docutils literal notranslate"><span class="pre">--p
 installing PHP is not necessary, but can be convenient if you want to use your PHP build outside of extension
 development.</p>
 <p>Now lets take a closer look at the individual build steps!</p>
-</div>
-<div class="section" id="the-buildconf-script">
+</section>
+<section id="the-buildconf-script">
 <h2>The <code class="docutils literal notranslate"><span class="pre">./buildconf</span></code> script<a class="headerlink" href="#the-buildconf-script" title="Permalink to this headline">¶</a></h2>
 <p>If you are building from the git repository, the first thing you’ll have to do is run the <code class="docutils literal notranslate"><span class="pre">./buildconf</span></code> script. This
 script does little more than invoking the <code class="docutils literal notranslate"><span class="pre">build/build.mk</span></code> makefile, which in turn calls <code class="docutils literal notranslate"><span class="pre">build/build2.mk</span></code>.</p>
@@ -160,8 +160,8 @@ the packaged source code and want to generate a new <code class="docutils litera
 <code class="docutils literal notranslate"><span class="pre">config.cache</span></code> and <code class="docutils literal notranslate"><span class="pre">autom4te.cache/</span></code>.</p>
 <p>If you update your git repository using <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> (or some other command) and get weird errors during the <code class="docutils literal notranslate"><span class="pre">make</span></code>
 step, this usually means that something in the build configuration changed and you need to run <code class="docutils literal notranslate"><span class="pre">./buildconf</span> <span class="pre">--force</span></code>.</p>
-</div>
-<div class="section" id="the-configure-script">
+</section>
+<section id="the-configure-script">
 <h2>The <code class="docutils literal notranslate"><span class="pre">./configure</span></code> script<a class="headerlink" href="#the-configure-script" title="Permalink to this headline">¶</a></h2>
 <p>Once the <code class="docutils literal notranslate"><span class="pre">./configure</span></code> script is generated you can make use of it to customize your PHP build. You can list all
 supported options using <code class="docutils literal notranslate"><span class="pre">--help</span></code>:</p>
@@ -276,8 +276,8 @@ important ones are documented at the end of the configure help output (<code cla
 </div>
 <p>In this configuration the build will make use of clang (instead of gcc) and use a very high optimization level
 (<code class="docutils literal notranslate"><span class="pre">-O3</span> <span class="pre">-march=native</span></code>).</p>
-</div>
-<div class="section" id="make-and-make-install">
+</section>
+<section id="make-and-make-install">
 <h2><code class="docutils literal notranslate"><span class="pre">make</span></code> and <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code><a class="headerlink" href="#make-and-make-install" title="Permalink to this headline">¶</a></h2>
 <p>After everything is configured, you can use <code class="docutils literal notranslate"><span class="pre">make</span></code> to perform the actual compilation:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; make -jN    <span class="c1"># where N is the number of cores</span>
@@ -392,8 +392,8 @@ Options:
 build process to obtain information about compiler options and paths. You can also use it to quickly get information
 about your build, e.g. your configure options or the default extension directory. This information is also provided by
 <code class="docutils literal notranslate"><span class="pre">./php</span> <span class="pre">-i</span></code> (phpinfo), but <code class="docutils literal notranslate"><span class="pre">php-config</span></code> provides it in a simpler form (which can be easily used by automated tools).</p>
-</div>
-<div class="section" id="running-the-test-suite">
+</section>
+<section id="running-the-test-suite">
 <h2>Running the test suite<a class="headerlink" href="#running-the-test-suite" title="Permalink to this headline">¶</a></h2>
 <p>If the <code class="docutils literal notranslate"><span class="pre">make</span></code> command finishes successfully, it will print a message encouraging you to run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test</span></code>:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Build complete.
@@ -436,8 +436,8 @@ be:</p>
 </div>
 <p>We will take a more detailed look at the <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code> system later, in particular also talk about how to write your
 own tests and how to debug test failures.</p>
-</div>
-<div class="section" id="fixing-compilation-problems-and-make-clean">
+</section>
+<section id="fixing-compilation-problems-and-make-clean">
 <h2>Fixing compilation problems and <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code><a class="headerlink" href="#fixing-compilation-problems-and-make-clean" title="Permalink to this headline">¶</a></h2>
 <p>As you may know <code class="docutils literal notranslate"><span class="pre">make</span></code> performs an incremental build, i.e. it will not recompile all files, but only those <code class="docutils literal notranslate"><span class="pre">.c</span></code>
 files that changed since the last invocation. This is a great way to shorten build times, but it doesn’t always work
@@ -468,8 +468,8 @@ can make use of the <code class="docutils literal notranslate"><span class="pre"
 <p>One last cleaning script that PHP provides is <code class="docutils literal notranslate"><span class="pre">./vcsclean</span></code>. This will only work if you checked out the source code
 from git. It effectively boils down to a call to <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clean</span> <span class="pre">-X</span> <span class="pre">-f</span> <span class="pre">-d</span></code>, which will remove all untracked files and
 directories that are ignored by git. You should use this with care.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

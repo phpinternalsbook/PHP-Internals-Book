@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>The zend_string API &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="smart_str API" href="smart_str.html" />
@@ -37,20 +37,20 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="the-zend-string-api">
+  <section id="the-zend-string-api">
 <span id="zend-strings"></span><h1>The zend_string API<a class="headerlink" href="#the-zend-string-api" title="Permalink to this headline">¶</a></h1>
 <p>Strings in C are usually represented as null-terminated <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">*</span></code> pointers. As PHP supports strings that contain
 null bytes, PHP needs to explicitly store the length of the string. Additionally, PHP needs strings to fit into its
 general framework of reference-counted structures. This is the purpose of the <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> type.</p>
-<div class="section" id="structure">
+<section id="structure">
 <h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
 <p>A <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> has the following structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">_zend_string</span> <span class="p">{</span>
-    <span class="n">zend_refcounted_h</span> <span class="n">gc</span><span class="p">;</span>
-    <span class="n">zend_ulong</span>        <span class="n">h</span><span class="p">;</span>
-    <span class="kt">size_t</span>            <span class="n">len</span><span class="p">;</span>
-    <span class="kt">char</span>              <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-<span class="p">};</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_string</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_refcounted_h</span><span class="w"> </span><span class="n">gc</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_ulong</span><span class="w">        </span><span class="n">h</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">            </span><span class="n">len</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w">              </span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Like many other structures in PHP, it embeds a <code class="docutils literal notranslate"><span class="pre">zend_refcounted_h</span></code> header, which stores the
@@ -70,15 +70,15 @@ null-terminated copy of the string.  To give an example, the PHP string <code cl
 <p>Finally, the string stores a cache of the hash value <code class="docutils literal notranslate"><span class="pre">h</span></code>, which is used when using strings as
 <a class="reference internal" href="../hashtables.html"><span class="doc">hashtable</span></a> keys. It starts with value <code class="docutils literal notranslate"><span class="pre">0</span></code> to indicate that the hash has not been computed
 yet, while the real hash is computed on first use.</p>
-</div>
-<div class="section" id="string-accessors">
+</section>
+<section id="string-accessors">
 <h2>String accessors<a class="headerlink" href="#string-accessors" title="Permalink to this headline">¶</a></h2>
 <p>Just like with <a class="reference internal" href="../../zvals.html#zvals"><span class="std std-ref">zvals</span></a>, you don’t manipulate <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> fields by hand and use a number of access
 macros instead:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;This is my string: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">));</span>
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;It is %zd char long</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">str</span><span class="p">));</span> <span class="c1">// %zd is the printf format for size_t</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;This is my string: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">));</span><span class="w"></span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;It is %zd char long</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">str</span><span class="p">));</span><span class="w"> </span><span class="c1">// %zd is the printf format for size_t</span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The two most important ones are <code class="docutils literal notranslate"><span class="pre">ZSTR_VAL()</span></code>, which returns the string contents as <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">*</span></code>, and <code class="docutils literal notranslate"><span class="pre">ZSTR_LEN()</span></code>,
@@ -86,37 +86,37 @@ which returns the string length as <code class="docutils literal notranslate"><s
 <p>The naming of these macros is slightly unfortunate in that both <code class="docutils literal notranslate"><span class="pre">ZSTR_VAL</span></code>/<code class="docutils literal notranslate"><span class="pre">ZSTR_LEN</span></code>, as well as
 <code class="docutils literal notranslate"><span class="pre">Z_STRVAL</span></code>/<code class="docutils literal notranslate"><span class="pre">Z_STRLEN</span></code> exist, and both only differ by the position of the underscore. Remember that <code class="docutils literal notranslate"><span class="pre">ZSTR_*</span></code>
 macros work on <code class="docutils literal notranslate"><span class="pre">zend_string</span></code>, while <code class="docutils literal notranslate"><span class="pre">Z_</span></code> macros work on <code class="docutils literal notranslate"><span class="pre">zval</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">val</span><span class="p">;</span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">);</span><span class="w"></span>
 
 <span class="c1">// Z_STRLEN, Z_STRVAL work on zval.</span>
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;string(%zd) </span><span class="se">\&quot;</span><span class="s">%s</span><span class="se">\&quot;\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_STRLEN</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">Z_STRVAL</span><span class="p">(</span><span class="n">val</span><span class="p">));</span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;string(%zd) </span><span class="se">\&quot;</span><span class="s">%s</span><span class="se">\&quot;\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_STRLEN</span><span class="p">(</span><span class="n">val</span><span class="p">),</span><span class="w"> </span><span class="n">Z_STRVAL</span><span class="p">(</span><span class="n">val</span><span class="p">));</span><span class="w"></span>
 
 <span class="c1">// ZSTR_LEN, ZSTR_VAL work on zend_string.</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="n">Z_STR</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;string(%zd) </span><span class="se">\&quot;</span><span class="s">%s</span><span class="se">\&quot;\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">str</span><span class="p">),</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">));</span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_STR</span><span class="p">(</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;string(%zd) </span><span class="se">\&quot;</span><span class="s">%s</span><span class="se">\&quot;\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">str</span><span class="p">),</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">));</span><span class="w"></span>
 
-<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The hash value cache of the string can be accessed using <code class="docutils literal notranslate"><span class="pre">ZSTR_H()</span></code>. However, this accesses the raw cache, which
 will be zero if the hash has not been computed yet. Instead, <code class="docutils literal notranslate"><span class="pre">ZSTR_HASH()</span></code> or <code class="docutils literal notranslate"><span class="pre">zend_string_hash_val()</span></code> should be
 used to either get the pre-cached hash, or compute it. In the very rare case where a string is modified after initial
 construction, it is possible to discard the cached value using <code class="docutils literal notranslate"><span class="pre">zend_string_forget_hash_val()</span></code>.</p>
-</div>
-<div class="section" id="memory-management">
+</section>
+<section id="memory-management">
 <h2>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h2>
 <p>While we already know how to <a class="reference internal" href="../../zvals/memory_management.html#initializing-zvals"><span class="std std-ref">initialize string zvals</span></a>, the only direct string creation
 API that has been introduced until now is <code class="docutils literal notranslate"><span class="pre">zend_string_init()</span></code>, which is used to create a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> from an
 existing string and length.</p>
 <p>The most fundamental string creation function on which all others are based is <code class="docutils literal notranslate"><span class="pre">zend_string_alloc()</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span> <span class="n">len</span> <span class="o">=</span> <span class="mi">40</span><span class="p">;</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="n">zend_string_alloc</span><span class="p">(</span><span class="n">len</span><span class="p">,</span> <span class="cm">/* persistent */</span> <span class="mi">0</span><span class="p">);</span>
-<span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;a&#39;</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">40</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_alloc</span><span class="p">(</span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="cm">/* persistent */</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;a&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 <span class="c1">// Don&#39;t forget to null-terminate!</span>
-<span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">str</span><span class="p">)[</span><span class="n">len</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+<span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">str</span><span class="p">)[</span><span class="n">len</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This function allocates a string of a certain length (as always, the length does not include the trailing null byte),
@@ -124,18 +124,18 @@ and leaves its initialization to you. Like all string allocation functions, it a
 whether to use the per-request allocator, or the persistent one.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">zend_string_safe_alloc(n,</span> <span class="pre">m,</span> <span class="pre">l,</span> <span class="pre">persistent)</span></code> function allocates a string of length <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">*</span> <span class="pre">m</span> <span class="pre">+</span> <span class="pre">l</span></code>. This
 function is commonly useful for encoding changes. For example, this is how we could hex encode a string:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="nf">convert_to_hex</span><span class="p">(</span><span class="n">zend_string</span> <span class="o">*</span><span class="n">orig_str</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">zend_string</span> <span class="o">*</span><span class="n">hex_str</span> <span class="o">=</span> <span class="n">zend_string_safe_alloc</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">orig_str</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="cm">/* persistent */</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="kt">char</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">orig_str</span><span class="p">),</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">to_hex</span> <span class="o">=</span> <span class="s">&quot;0123456789abcdef&quot;</span><span class="p">;</span>
-        <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">orig_str</span><span class="p">)[</span><span class="n">i</span><span class="p">];</span>
-        <span class="o">*</span><span class="n">p</span><span class="o">++</span> <span class="o">=</span> <span class="n">to_hex</span><span class="p">[</span><span class="n">c</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">];</span>
-        <span class="o">*</span><span class="n">p</span><span class="o">++</span> <span class="o">=</span> <span class="n">to_hex</span><span class="p">[</span><span class="n">c</span> <span class="o">&amp;</span> <span class="mh">0xf</span><span class="p">];</span>
-    <span class="p">}</span>
-    <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
-    <span class="k">return</span> <span class="n">hex_str</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="nf">convert_to_hex</span><span class="p">(</span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">orig_str</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">hex_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_safe_alloc</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">orig_str</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="cm">/* persistent */</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">orig_str</span><span class="p">),</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">to_hex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0123456789abcdef&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">orig_str</span><span class="p">)[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="o">*</span><span class="n">p</span><span class="o">++</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_hex</span><span class="p">[</span><span class="n">c</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">4</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="o">*</span><span class="n">p</span><span class="o">++</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_hex</span><span class="p">[</span><span class="n">c</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xf</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">hex_str</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Why can’t we simply use <code class="docutils literal notranslate"><span class="pre">zend_string_alloc(2</span> <span class="pre">*</span> <span class="pre">ZSTR_LEN(orig_str),</span> <span class="pre">0)</span></code> instead? The reason is that the
@@ -144,31 +144,31 @@ example, if you are on a 32-bit system, and the string is exactly 2GB large, the
 overflow and result in a zero length. The following code will exceed the bounds of the allocation and corrupt
 unrelated memory. The <code class="docutils literal notranslate"><span class="pre">zend_string_safe_alloc()</span></code> API detects this situation and throws a fatal error in this case.</p>
 <p>It is also possible to change the size of a string using <code class="docutils literal notranslate"><span class="pre">zend_string_realloc()</span></code> and its variations:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="nf">zend_string_realloc</span><span class="p">(</span><span class="n">zend_string</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">persistent</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="nf">zend_string_realloc</span><span class="p">(</span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">persistent</span><span class="p">);</span><span class="w"></span>
 <span class="c1">// Requires new length larger old length.</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="nf">zend_string_extend</span><span class="p">(</span><span class="n">zend_string</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">persistent</span><span class="p">);</span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="nf">zend_string_extend</span><span class="p">(</span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">persistent</span><span class="p">);</span><span class="w"></span>
 <span class="c1">// Requires new length smaller new length.</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="nf">zend_string_truncate</span><span class="p">(</span><span class="n">zend_string</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">persistent</span><span class="p">)</span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="nf">zend_string_truncate</span><span class="p">(</span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">persistent</span><span class="p">)</span><span class="w"></span>
 <span class="c1">// n * m + l safe variant of zend_string_realloc.</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="n">zend_string_safe_realloc</span><span class="p">(</span><span class="n">zend_string</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">m</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">l</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">persistent</span><span class="p">);</span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">zend_string_safe_realloc</span><span class="p">(</span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">persistent</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>As strings are refcounted structures, the realloc functions also take the refcount into account. While this is not
 how these functions are implemented, their semantics are equivalent to doing something like this:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">new_str</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">persistent</span><span class="p">);</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
-<span class="k">return</span> <span class="n">new_str</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">new_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">s</span><span class="p">),</span><span class="w"> </span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">s</span><span class="p">),</span><span class="w"> </span><span class="n">persistent</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">s</span><span class="p">);</span><span class="w"></span>
+<span class="k">return</span><span class="w"> </span><span class="n">new_str</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>That is, these functions release the string passed to them, but it is safe to use them with shared (or immutable)
 strings. If the strings is shared, the refcount is decremented, but the string is not destroyed.</p>
 <p>This also brings us to the next topic: refcount management. Rather than using raw <code class="docutils literal notranslate"><span class="pre">GC_*</span></code> macros, the
 <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> API contains two helpers to increase the refcount:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string_addref</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
-<span class="k">return</span> <span class="n">str</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string_addref</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
+<span class="k">return</span><span class="w"> </span><span class="n">str</span><span class="p">;</span><span class="w"></span>
 
 <span class="c1">// More compact:</span>
-<span class="k">return</span> <span class="nf">zend_string_copy</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+<span class="k">return</span><span class="w"> </span><span class="n">zend_string_copy</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Unlike <code class="docutils literal notranslate"><span class="pre">GC_ADDREF()</span></code>, the <code class="docutils literal notranslate"><span class="pre">zend_string_addref()</span></code> function will handle immutable strings properly. However, the
@@ -179,12 +179,12 @@ increment) also exists, the behavior is often considered confusing, because it o
 If you want to force a copy of a string, you are better off creating a new one using <code class="docutils literal notranslate"><span class="pre">zend_string_init()</span></code>.</p>
 <p>If the duplication is for the purpose of modifying an already existing string, <code class="docutils literal notranslate"><span class="pre">zend_string_separate()</span></code> can be
 used instead:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="nf">modify_char</span><span class="p">(</span><span class="n">zend_string</span> <span class="o">*</span><span class="n">orig_str</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">zend_string</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="n">zend_string_separate</span><span class="p">(</span><span class="n">orig_str</span><span class="p">,</span> <span class="cm">/* persistent */</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="n">ZEND_ASSERT</span><span class="p">(</span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;A&#39;</span><span class="p">;</span>
-    <span class="k">return</span> <span class="n">str</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="nf">modify_char</span><span class="p">(</span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">orig_str</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_separate</span><span class="p">(</span><span class="n">orig_str</span><span class="p">,</span><span class="w"> </span><span class="cm">/* persistent */</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ASSERT</span><span class="p">(</span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">str</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Just like the general zval separation concept, this will return the original string (with discarded hash cache) if it
@@ -194,84 +194,84 @@ API, which will decrement the refcount, and free the string if it drops to zero.
 this function.</p>
 <p>However, you may also encounter a number of optimized variations. The most common is <code class="docutils literal notranslate"><span class="pre">zend_string_release_ex()</span></code>,
 which allows you to specify whether the passed string is persistent or non-persistent:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string_release_ex</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="cm">/* persistent */</span> <span class="mi">0</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string_release_ex</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="cm">/* persistent */</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Normally, this would be determined base on the string flags. This avoids the runtime check, and generates less code.
 Finally, there are two more functions that only work on strings with refcount one:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Requires refcount 1 or immutable.</span>
-<span class="n">zend_string_free</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+<span class="n">zend_string_free</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
 <span class="c1">// Requires refcount 1 and not immutable.</span>
-<span class="n">zend_string_efree</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+<span class="n">zend_string_efree</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>You should avoid using these functions, as it is easy to introduce critical bugs when some API changes from returning
 new strings to reusing existing ones.</p>
-</div>
-<div class="section" id="other-operations">
+</section>
+<section id="other-operations">
 <h2>Other operations<a class="headerlink" href="#other-operations" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> API supports a few additional operations. The most common one is comparing strings:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="n">FOO</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">FOO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 
 <span class="c1">// Case-sensitive comparison between zend_strings.</span>
-<span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">zend_string_equals</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">FOO</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_equals</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="n">FOO</span><span class="p">);</span><span class="w"> </span><span class="c1">// false</span>
 <span class="c1">// Case-insensitive comparison between zend_strings.</span>
-<span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">zend_string_equals_ci</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">FOO</span><span class="p">);</span> <span class="c1">// true</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_equals_ci</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="n">FOO</span><span class="p">);</span><span class="w"> </span><span class="c1">// true</span>
 
 <span class="c1">// Case-sensitive comparison with a string literal.</span>
-<span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">zend_string_equals_literal</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="s">&quot;FOO&quot;</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_equals_literal</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;FOO&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// false</span>
 <span class="c1">// Case-insensitive comparison with a string literal.</span>
-<span class="kt">bool</span> <span class="n">result</span> <span class="o">=</span> <span class="n">zend_string_equals_literal_ci</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="s">&quot;FOO&quot;</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_equals_literal_ci</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;FOO&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// false</span>
 
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">FOO</span><span class="p">);</span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">FOO</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>There are also helpers to concatenate two or three strings. If you need to concatenate more strings, you should use
 the <code class="docutils literal notranslate"><span class="pre">smart_str</span></code> API discussed in the next chapter instead.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="n">bar</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">bar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;bar&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 
 <span class="c1">// Creates &quot;foobar&quot;</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="n">foobar</span> <span class="o">=</span> <span class="n">zend_string_concat2</span><span class="p">(</span>
-    <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span> <span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span>
-    <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">bar</span><span class="p">),</span> <span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">bar</span><span class="p">));</span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foobar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_concat2</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"> </span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">bar</span><span class="p">),</span><span class="w"> </span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">bar</span><span class="p">));</span><span class="w"></span>
 <span class="c1">// Creates &quot;foo::bar&quot;</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="n">foo_bar</span> <span class="o">=</span> <span class="n">zend_string_concat3</span><span class="p">(</span>
-    <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span> <span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span>
-    <span class="s">&quot;::&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;::&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">bar</span><span class="p">),</span> <span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">bar</span><span class="p">));</span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo_bar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_concat3</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"> </span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;::&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;::&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">bar</span><span class="p">),</span><span class="w"> </span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">bar</span><span class="p">));</span><span class="w"></span>
 
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">bar</span><span class="p">);</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foobar</span><span class="p">);</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo_bar</span><span class="p">);</span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">bar</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foobar</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo_bar</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>As you can see, these APIs accept pairs of <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">*</span></code> and lengths, rather than <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> structures. This
 allows parts of the concatenation to be provided using string literals, without having to allocate a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code>
 for them.</p>
 <p>Finally, the <code class="docutils literal notranslate"><span class="pre">zend_string_tolower()</span></code> API can be used to lower-case a string:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">FOO</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-<span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_tolower</span><span class="p">(</span><span class="n">FOO</span><span class="p">);</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">FOO</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">FOO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_tolower</span><span class="p">(</span><span class="n">FOO</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">FOO</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The lower-casing uses ASCII rules and is not locale dependent. It is commonly used as a way to make hashtable keys
 case-insensitive.</p>
-</div>
-<div class="section" id="interned-strings">
+</section>
+<section id="interned-strings">
 <h2>Interned strings<a class="headerlink" href="#interned-strings" title="Permalink to this headline">¶</a></h2>
 <p>Just a quick word here about <a class="reference external" href="https://en.wikipedia.org/wiki/String_interning">interned strings</a>. You could
 need such a concept in extension development. Interned strings also interact with OPCache extension.</p>
 <p>Interned strings are deduplicated strings. When used with OPCache, they also get reused from request to request.</p>
 <p>Say you want to create the string “foo”. What you tend to do is simply create a new string “foo”:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span><span class="p">;</span>
-<span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="p">;</span><span class="w"></span>
+<span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 
-<span class="cm">/* ... */</span>
+<span class="cm">/* ... */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>But a question arises : Hasn’t that piece of string already been created before you need it?
@@ -281,14 +281,14 @@ before yours may have needed the exact same piece of string (“foo” for our e
 if it could find your string. If not : create a new string and “intern” it, that is make it available to other parts
 of PHP source code (other extensions, the engine itself, etc…).</p>
 <p>Here is an example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span><span class="p">;</span>
-<span class="n">foo</span> <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="p">;</span><span class="w"></span>
+<span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">foo</span> <span class="o">=</span> <span class="n">zend_new_interned_string</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
+<span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_new_interned_string</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;This string is interned : %s&quot;</span><span class="p">,</span> <span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">foo</span><span class="p">));</span>
+<span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;This string is interned : %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">foo</span><span class="p">));</span><span class="w"></span>
 
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>What we do in the code above, is we create a new <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> very classically. Then, we pass that created
@@ -299,23 +299,23 @@ it adds it to the interned string buffer and so makes it available for future us
 <p>You must take care about memory allocation. Interned strings always have a refcount set to one, because they don’t need
 to be refcounted, as they will get shared with the interned strings buffer, and thus they can’t be destroyed out of it.</p>
 <p>Example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span> <span class="o">*</span><span class="n">foo</span><span class="p">,</span> <span class="o">*</span><span class="n">foo2</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">foo2</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">foo</span>  <span class="o">=</span> <span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
-<span class="n">foo2</span> <span class="o">=</span> <span class="n">zend_string_copy</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span> <span class="cm">/* increments refcount of foo */</span>
+<span class="n">foo</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">foo2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_copy</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span><span class="w"> </span><span class="cm">/* increments refcount of foo */</span><span class="w"></span>
 
- <span class="cm">/* foo points to the interned string buffer, and refcount</span>
-<span class="cm">  * in original zend_string falls back to 1 */</span>
-<span class="n">foo</span> <span class="o">=</span> <span class="n">zend_new_interned_string</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
+<span class="w"> </span><span class="cm">/* foo points to the interned string buffer, and refcount</span>
+<span class="cm">  * in original zend_string falls back to 1 */</span><span class="w"></span>
+<span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_new_interned_string</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span><span class="w"></span>
 
-<span class="cm">/* This doesn&#39;t do anything, as foo is interned */</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
+<span class="cm">/* This doesn&#39;t do anything, as foo is interned */</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span><span class="w"></span>
 
-<span class="cm">/* The original buffer referenced by foo2 is released */</span>
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo2</span><span class="p">);</span>
+<span class="cm">/* The original buffer referenced by foo2 is released */</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo2</span><span class="p">);</span><span class="w"></span>
 
 <span class="cm">/* At the end of the process, PHP will purge its interned</span>
-<span class="cm">  string buffer, and thus free() our &quot;foo&quot; string itself */</span>
+<span class="cm">  string buffer, and thus free() our &quot;foo&quot; string itself */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>It’s all about garbage collection.</p>
@@ -355,8 +355,8 @@ use an interned string.</p></li>
 <p>Never ever try to modify (write to) an interned string, you’ll likely crash.</p>
 </div>
 <p>Interned strings are detailed in <a class="reference external" href="https://github.com/php/php-src/blob/PHP-7.0/Zend/zend_string.c">Zend/zend_string.c</a></p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

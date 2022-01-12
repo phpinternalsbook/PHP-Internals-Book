@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Basic structure &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Memory management" href="memory_management.html" />
@@ -37,11 +37,11 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="basic-structure">
+  <section id="basic-structure">
 <h1>Basic structure<a class="headerlink" href="#basic-structure" title="Permalink to this headline">¶</a></h1>
 <p>A zval (short for “Zend value”) represents an arbitrary PHP value. As such it is likely the most important structure in
 all of PHP and you’ll be working with it a lot. This section describes the basic concepts behind zvals and their use.</p>
-<div class="section" id="types-and-values">
+<section id="types-and-values">
 <h2>Types and values<a class="headerlink" href="#types-and-values" title="Permalink to this headline">¶</a></h2>
 <p>Among other things, every zval stores some value and the type this value has. This is necessary because PHP is a
 dynamically typed language and as such variable types are only known at run-time and not at compile-time. Furthermore,
@@ -51,25 +51,25 @@ later point in time.</p>
 types available in PHP, others are used for internal engine purposes only. These values are referred to using constants
 of the form <code class="docutils literal notranslate"><span class="pre">IS_TYPE</span></code>. E.g. <code class="docutils literal notranslate"><span class="pre">IS_NULL</span></code> corresponds to the null type and <code class="docutils literal notranslate"><span class="pre">IS_STRING</span></code> corresponds to the string type.</p>
 <p>The actual value is stored in a union, which is defined as follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">union</span> <span class="n">_zend_value</span> <span class="p">{</span>
-    <span class="n">zend_long</span>         <span class="n">lval</span><span class="p">;</span>    <span class="c1">// For IS_LONG</span>
-    <span class="kt">double</span>            <span class="n">dval</span><span class="p">;</span>    <span class="c1">// For IS_DOUBLE</span>
-    <span class="n">zend_refcounted</span>  <span class="o">*</span><span class="n">counted</span><span class="p">;</span>
-    <span class="n">zend_string</span>      <span class="o">*</span><span class="n">str</span><span class="p">;</span>     <span class="c1">// For IS_STRING</span>
-    <span class="n">zend_array</span>       <span class="o">*</span><span class="n">arr</span><span class="p">;</span>     <span class="c1">// For IS_ARRAY</span>
-    <span class="n">zend_object</span>      <span class="o">*</span><span class="n">obj</span><span class="p">;</span>     <span class="c1">// For IS_OBJECT</span>
-    <span class="n">zend_resource</span>    <span class="o">*</span><span class="n">res</span><span class="p">;</span>     <span class="c1">// For IS_RESOURCE</span>
-    <span class="n">zend_reference</span>   <span class="o">*</span><span class="n">ref</span><span class="p">;</span>     <span class="c1">// For IS_REFERENCE</span>
-    <span class="n">zend_ast_ref</span>     <span class="o">*</span><span class="n">ast</span><span class="p">;</span>     <span class="c1">// For IS_CONSTANT_AST (special)</span>
-    <span class="n">zval</span>             <span class="o">*</span><span class="n">zv</span><span class="p">;</span>      <span class="c1">// For IS_INDIRECT (special)</span>
-    <span class="kt">void</span>             <span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
-    <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">;</span>
-    <span class="n">zend_function</span>    <span class="o">*</span><span class="n">func</span><span class="p">;</span>
-    <span class="k">struct</span> <span class="p">{</span>
-        <span class="kt">uint32_t</span> <span class="n">w1</span><span class="p">;</span>
-        <span class="kt">uint32_t</span> <span class="n">w2</span><span class="p">;</span>
-    <span class="p">}</span> <span class="n">ww</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">zend_value</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="nc">_zend_value</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w">         </span><span class="n">lval</span><span class="p">;</span><span class="w">    </span><span class="c1">// For IS_LONG</span>
+<span class="w">    </span><span class="kt">double</span><span class="w">            </span><span class="n">dval</span><span class="p">;</span><span class="w">    </span><span class="c1">// For IS_DOUBLE</span>
+<span class="w">    </span><span class="n">zend_refcounted</span><span class="w">  </span><span class="o">*</span><span class="n">counted</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_string</span><span class="w">      </span><span class="o">*</span><span class="n">str</span><span class="p">;</span><span class="w">     </span><span class="c1">// For IS_STRING</span>
+<span class="w">    </span><span class="n">zend_array</span><span class="w">       </span><span class="o">*</span><span class="n">arr</span><span class="p">;</span><span class="w">     </span><span class="c1">// For IS_ARRAY</span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w">      </span><span class="o">*</span><span class="n">obj</span><span class="p">;</span><span class="w">     </span><span class="c1">// For IS_OBJECT</span>
+<span class="w">    </span><span class="n">zend_resource</span><span class="w">    </span><span class="o">*</span><span class="n">res</span><span class="p">;</span><span class="w">     </span><span class="c1">// For IS_RESOURCE</span>
+<span class="w">    </span><span class="n">zend_reference</span><span class="w">   </span><span class="o">*</span><span class="n">ref</span><span class="p">;</span><span class="w">     </span><span class="c1">// For IS_REFERENCE</span>
+<span class="w">    </span><span class="n">zend_ast_ref</span><span class="w">     </span><span class="o">*</span><span class="n">ast</span><span class="p">;</span><span class="w">     </span><span class="c1">// For IS_CONSTANT_AST (special)</span>
+<span class="w">    </span><span class="n">zval</span><span class="w">             </span><span class="o">*</span><span class="n">zv</span><span class="p">;</span><span class="w">      </span><span class="c1">// For IS_INDIRECT (special)</span>
+<span class="w">    </span><span class="kt">void</span><span class="w">             </span><span class="o">*</span><span class="n">ptr</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ce</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_function</span><span class="w">    </span><span class="o">*</span><span class="n">func</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">w1</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">w2</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">ww</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_value</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>To those not familiar with the concept of unions: A union defines multiple members of different types, but only one of
@@ -148,7 +148,7 @@ their values:</p>
 </tr>
 </tbody>
 </table>
-<div class="section" id="special-types">
+<section id="special-types">
 <h3>Special types<a class="headerlink" href="#special-types" title="Permalink to this headline">¶</a></h3>
 <p>There are a number of additional types that do not have a directly corresponding userland type, and are only used
 internally. Of these, <code class="docutils literal notranslate"><span class="pre">IS_UNDEF</span></code> and <code class="docutils literal notranslate"><span class="pre">IS_REFERENCE</span></code> are the only types you will encounter routinely.</p>
@@ -169,38 +169,38 @@ type can be converted into <code class="docutils literal notranslate"><span clas
 only accept zvals, such as hashtable values.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">zend_class_entry</span> <span class="pre">*ce</span></code> and <code class="docutils literal notranslate"><span class="pre">zend_function</span> <span class="pre">*func</span></code> members just specify a more precise type, but otherwise
 serve the same purpose as <code class="docutils literal notranslate"><span class="pre">ptr</span></code>.</p>
-</div>
-</div>
-<div class="section" id="the-zval-struct">
+</section>
+</section>
+<section id="the-zval-struct">
 <h2>The zval struct<a class="headerlink" href="#the-zval-struct" title="Permalink to this headline">¶</a></h2>
 <p>Let’s now have a look at how the <code class="docutils literal notranslate"><span class="pre">zval</span></code> struct actually looks like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">_zval_struct</span> <span class="p">{</span>
-    <span class="n">zend_value</span> <span class="n">value</span><span class="p">;</span>
-    <span class="k">union</span> <span class="p">{</span>
-        <span class="kt">uint32_t</span> <span class="n">type_info</span><span class="p">;</span>
-        <span class="k">struct</span> <span class="p">{</span>
-            <span class="n">ZEND_ENDIAN_LOHI_3</span><span class="p">(</span>
-                <span class="n">zend_uchar</span>    <span class="n">type</span><span class="p">,</span>
-                <span class="n">zend_uchar</span>    <span class="n">type_flags</span><span class="p">,</span>
-                <span class="k">union</span> <span class="p">{</span>
-                    <span class="kt">uint16_t</span>  <span class="n">extra</span><span class="p">;</span>
-                <span class="p">}</span> <span class="n">u</span><span class="p">)</span>
-        <span class="p">}</span> <span class="n">v</span><span class="p">;</span>
-    <span class="p">}</span> <span class="n">u1</span><span class="p">;</span>
-    <span class="k">union</span> <span class="p">{</span>
-        <span class="kt">uint32_t</span> <span class="n">next</span><span class="p">;</span>                 <span class="cm">/* hash collision chain */</span>
-        <span class="kt">uint32_t</span> <span class="n">cache_slot</span><span class="p">;</span>           <span class="cm">/* cache slot (for RECV_INIT) */</span>
-        <span class="kt">uint32_t</span> <span class="n">opline_num</span><span class="p">;</span>           <span class="cm">/* opline number (for FAST_CALL) */</span>
-        <span class="kt">uint32_t</span> <span class="n">lineno</span><span class="p">;</span>               <span class="cm">/* line number (for ast nodes) */</span>
-        <span class="kt">uint32_t</span> <span class="n">num_args</span><span class="p">;</span>             <span class="cm">/* arguments number for EX(This) */</span>
-        <span class="kt">uint32_t</span> <span class="n">fe_pos</span><span class="p">;</span>               <span class="cm">/* foreach position */</span>
-        <span class="kt">uint32_t</span> <span class="n">fe_iter_idx</span><span class="p">;</span>          <span class="cm">/* foreach iterator index */</span>
-        <span class="kt">uint32_t</span> <span class="n">access_flags</span><span class="p">;</span>         <span class="cm">/* class constant access flags */</span>
-        <span class="kt">uint32_t</span> <span class="n">property_guard</span><span class="p">;</span>       <span class="cm">/* single property guard */</span>
-        <span class="kt">uint32_t</span> <span class="n">constant_flags</span><span class="p">;</span>       <span class="cm">/* constant flags */</span>
-        <span class="kt">uint32_t</span> <span class="n">extra</span><span class="p">;</span>                <span class="cm">/* not further specified */</span>
-    <span class="p">}</span> <span class="n">u2</span><span class="p">;</span>
-<span class="p">};</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zval_struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_value</span><span class="w"> </span><span class="n">value</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">type_info</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZEND_ENDIAN_LOHI_3</span><span class="p">(</span><span class="w"></span>
+<span class="w">                </span><span class="n">zend_uchar</span><span class="w">    </span><span class="n">type</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="n">zend_uchar</span><span class="w">    </span><span class="n">type_flags</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="k">union</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="kt">uint16_t</span><span class="w">  </span><span class="n">extra</span><span class="p">;</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">u1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">next</span><span class="p">;</span><span class="w">                 </span><span class="cm">/* hash collision chain */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">cache_slot</span><span class="p">;</span><span class="w">           </span><span class="cm">/* cache slot (for RECV_INIT) */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">opline_num</span><span class="p">;</span><span class="w">           </span><span class="cm">/* opline number (for FAST_CALL) */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">lineno</span><span class="p">;</span><span class="w">               </span><span class="cm">/* line number (for ast nodes) */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">num_args</span><span class="p">;</span><span class="w">             </span><span class="cm">/* arguments number for EX(This) */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">fe_pos</span><span class="p">;</span><span class="w">               </span><span class="cm">/* foreach position */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">fe_iter_idx</span><span class="p">;</span><span class="w">          </span><span class="cm">/* foreach iterator index */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">access_flags</span><span class="p">;</span><span class="w">         </span><span class="cm">/* class constant access flags */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">property_guard</span><span class="p">;</span><span class="w">       </span><span class="cm">/* single property guard */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">constant_flags</span><span class="p">;</span><span class="w">       </span><span class="cm">/* constant flags */</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">extra</span><span class="p">;</span><span class="w">                </span><span class="cm">/* not further specified */</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">u2</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This structure looks a bit more complicated than it really is. At its core, it stores an 8 byte <code class="docutils literal notranslate"><span class="pre">value</span></code> and a
@@ -218,98 +218,98 @@ usages as well. It should be noted that standard zval macros will never modify o
 <p>The <code class="docutils literal notranslate"><span class="pre">u1.v.u.extra</span></code> field that is part of the type is very rarely used to also store additional information.
 However, use of this field is only possible in very specific circumstances, as PHP will usually assume that it is
 zero.</p>
-</div>
-<div class="section" id="access-macros">
+</section>
+<section id="access-macros">
 <h2>Access macros<a class="headerlink" href="#access-macros" title="Permalink to this headline">¶</a></h2>
 <p>Knowing the zval structure you can now write code making use of it:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... get zval from somewhere */</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... get zval from somewhere */</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">if</span> <span class="p">(</span><span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">u1</span><span class="p">.</span><span class="n">v</span><span class="p">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">IS_LONG</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value &quot;</span> <span class="n">ZEND_LONG_FMT</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">lval</span><span class="p">);</span>
-<span class="p">}</span> <span class="k">else</span> <span class="cm">/* ... handle other types */</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">u1</span><span class="p">.</span><span class="n">v</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_LONG</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value &quot;</span><span class="w"> </span><span class="n">ZEND_LONG_FMT</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">lval</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="cm">/* ... handle other types */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>While the above code works, this is not the idiomatic way to write it. It directly accesses the zval members rather
 than using a special set of access macros for this purpose:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span> <span class="o">=</span> <span class="cm">/* ... */</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">if</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_LONG</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value &quot;</span> <span class="n">ZEND_LONG_FMT</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-<span class="p">}</span> <span class="k">else</span> <span class="cm">/* ... */</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_LONG</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value &quot;</span><span class="w"> </span><span class="n">ZEND_LONG_FMT</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The above code uses the <code class="docutils literal notranslate"><span class="pre">Z_TYPE_P()</span></code> macro for retrieving the type tag and <code class="docutils literal notranslate"><span class="pre">Z_LVAL_P()</span></code> to get the long (integer)
 value. All the access macros have variants with a <code class="docutils literal notranslate"><span class="pre">_P</span></code> (for “pointer”) suffix or no suffix at all. Which one you
 use depends on whether you are working on a <code class="docutils literal notranslate"><span class="pre">zval</span></code> or a <code class="docutils literal notranslate"><span class="pre">zval*</span></code></p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="n">zv</span><span class="p">;</span>
-<span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">zv</span><span class="p">;</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">Z_TYPE</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>       <span class="c1">// Same as Z_TYPE_P(&amp;zv).</span>
-<span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span> <span class="c1">// Same as Z_TYPE(*zv_ptr).</span>
+<span class="n">Z_TYPE</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w">       </span><span class="c1">// Same as Z_TYPE_P(&amp;zv).</span>
+<span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"> </span><span class="c1">// Same as Z_TYPE(*zv_ptr).</span>
 </pre></div>
 </div>
 <p>Similarly to <code class="docutils literal notranslate"><span class="pre">Z_LVAL</span></code> there are also macros for fetching values of all the other types. To demonstrate their usage
 we’ll create a simple function for dumping a zval:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span> <span class="s">&quot;z&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;z&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="nl">try_again</span><span class="p">:</span>
-    <span class="k">switch</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="nl">IS_NULL</span><span class="p">:</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;NULL: null</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_TRUE</span><span class="p">:</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: true</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_FALSE</span><span class="p">:</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: false</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_LONG</span><span class="p">:</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;LONG: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_DOUBLE</span><span class="p">:</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;DOUBLE: %g</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_STRING</span><span class="p">:</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;STRING: value=</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">);</span>
-            <span class="n">PHPWRITE</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span> <span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">, length=%zd</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_RESOURCE</span><span class="p">:</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;RESOURCE: id=%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_RES_HANDLE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_ARRAY</span><span class="p">:</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;ARRAY: hashtable=%p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_OBJECT</span><span class="p">:</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;OBJECT: object=%p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Z_OBJ_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">IS_REFERENCE</span><span class="p">:</span>
-            <span class="c1">// For references, remove the reference wrapper and try again.</span>
-            <span class="c1">// Yes, you are allowed to use goto for this purpose!</span>
-            <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;REFERENCE: &quot;</span><span class="p">);</span>
-            <span class="n">zv_ptr</span> <span class="o">=</span> <span class="n">Z_REFVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
-            <span class="k">goto</span> <span class="n">try_again</span><span class="p">;</span>
-        <span class="n">EMPTY_SWITCH_DEFAULT_CASE</span><span class="p">()</span> <span class="c1">// Assert that all types are handled.</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="nl">try_again</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_NULL</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;NULL: null</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_TRUE</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: true</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_FALSE</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: false</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_LONG</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;LONG: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;DOUBLE: %g</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_STRING</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;STRING: value=</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">PHPWRITE</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">, length=%zd</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_RESOURCE</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;RESOURCE: id=%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_RES_HANDLE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;ARRAY: hashtable=%p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_OBJECT</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;OBJECT: object=%p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_OBJ_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_REFERENCE</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="c1">// For references, remove the reference wrapper and try again.</span>
+<span class="w">            </span><span class="c1">// Yes, you are allowed to use goto for this purpose!</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;REFERENCE: &quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_REFVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">goto</span><span class="w"> </span><span class="n">try_again</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">EMPTY_SWITCH_DEFAULT_CASE</span><span class="p">()</span><span class="w"> </span><span class="c1">// Assert that all types are handled.</span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Lets try it out:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">dump</span><span class="p">(</span><span class="n">null</span><span class="p">);</span>                 <span class="c1">// NULL: null</span>
-<span class="n">dump</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>                 <span class="c1">// BOOL: true</span>
-<span class="n">dump</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>                <span class="c1">// BOOL: false</span>
-<span class="n">dump</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>                   <span class="c1">// LONG: 42</span>
-<span class="n">dump</span><span class="p">(</span><span class="mf">4.2</span><span class="p">);</span>                  <span class="c1">// DOUBLE: 4.2</span>
-<span class="n">dump</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">);</span>                <span class="c1">// STRING: value=&quot;foo&quot;, length=3</span>
-<span class="n">dump</span><span class="p">(</span><span class="n">fopen</span><span class="p">(</span><span class="n">__FILE__</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">));</span> <span class="c1">// RESOURCE: id=???</span>
-<span class="n">dump</span><span class="p">(</span><span class="n">array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">));</span>       <span class="c1">// ARRAY: hashtable=0x???</span>
-<span class="n">dump</span><span class="p">(</span><span class="n">new</span> <span class="n">stdClass</span><span class="p">);</span>         <span class="c1">// OBJECT: object=0x???</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">dump</span><span class="p">(</span><span class="n">null</span><span class="p">);</span><span class="w">                 </span><span class="c1">// NULL: null</span>
+<span class="n">dump</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span><span class="w">                 </span><span class="c1">// BOOL: true</span>
+<span class="n">dump</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w">                </span><span class="c1">// BOOL: false</span>
+<span class="n">dump</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span><span class="w">                   </span><span class="c1">// LONG: 42</span>
+<span class="n">dump</span><span class="p">(</span><span class="mf">4.2</span><span class="p">);</span><span class="w">                  </span><span class="c1">// DOUBLE: 4.2</span>
+<span class="n">dump</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">);</span><span class="w">                </span><span class="c1">// STRING: value=&quot;foo&quot;, length=3</span>
+<span class="n">dump</span><span class="p">(</span><span class="n">fopen</span><span class="p">(</span><span class="n">__FILE__</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">));</span><span class="w"> </span><span class="c1">// RESOURCE: id=???</span>
+<span class="n">dump</span><span class="p">(</span><span class="n">array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">));</span><span class="w">       </span><span class="c1">// ARRAY: hashtable=0x???</span>
+<span class="n">dump</span><span class="p">(</span><span class="n">new</span><span class="w"> </span><span class="n">stdClass</span><span class="p">);</span><span class="w">         </span><span class="c1">// OBJECT: object=0x???</span>
 </pre></div>
 </div>
 <p>The following table summarizes the most commonly used accessor macros, though there are quite a few more than that.</p>
@@ -398,8 +398,8 @@ we’ll create a simple function for dumping a zval:</p>
 <p>When you want to access the contents of a zval, you should always go through these macros, rather than directly
 accessing its members. This maintains a level of abstraction and will, to some degree, insulate you from changes in
 the implementation.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

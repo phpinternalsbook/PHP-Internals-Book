@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Simple classes &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Custom object storage" href="custom_object_storage.html" />
@@ -37,16 +37,16 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="simple-classes">
+  <section id="simple-classes">
 <h1>Simple classes<a class="headerlink" href="#simple-classes" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="basic-concepts">
+<section id="basic-concepts">
 <h2>Basic concepts<a class="headerlink" href="#basic-concepts" title="Permalink to this headline">¶</a></h2>
 <p>Zvals store objects using the <code class="docutils literal notranslate"><span class="pre">IS_OBJECT</span></code> type tag and the <code class="docutils literal notranslate"><span class="pre">zend_object_value</span></code> structure in the union, which is
 defined as follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_object_value</span> <span class="p">{</span>
-    <span class="n">zend_object_handle</span> <span class="n">handle</span><span class="p">;</span>
-    <span class="k">const</span> <span class="n">zend_object_handlers</span> <span class="o">*</span><span class="n">handlers</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">zend_object_value</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object_value</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object_handle</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">zend_object_handlers</span><span class="w"> </span><span class="o">*</span><span class="n">handlers</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_object_value</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The first part of the structure, the <code class="docutils literal notranslate"><span class="pre">zend_object_handle</span></code>, is just a typedef for an unsigned integer. It is an ID
@@ -60,26 +60,26 @@ operations on it.</p>
 <p>The complementary structure to the object value is the class entry (<code class="docutils literal notranslate"><span class="pre">zend_class_entry</span></code>). Class entries contain a large
 amount of information, including the class methods and static properties as well as various handlers, in particular a
 handler for creating objects from the class.</p>
-</div>
-<div class="section" id="class-registration">
+</section>
+<section id="class-registration">
 <h2>Class registration<a class="headerlink" href="#class-registration" title="Permalink to this headline">¶</a></h2>
 <p>Just like functions classes are registered in the extension’s <code class="docutils literal notranslate"><span class="pre">MINIT</span></code> handler. Here is a snippet for declaring an
 empty <code class="docutils literal notranslate"><span class="pre">Test</span></code> class:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">test_ce</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">test_ce</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">test_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">PHP_FE_END</span>
-<span class="p">};</span>
+<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">test_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_class_entry</span> <span class="n">tmp_ce</span><span class="p">;</span>
-    <span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="s">&quot;Test&quot;</span><span class="p">,</span> <span class="n">test_functions</span><span class="p">);</span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="n">tmp_ce</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Test&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_functions</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">test_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">test_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The first line declares a global variable <code class="docutils literal notranslate"><span class="pre">test_ce</span></code>, which will hold the class entry of the <code class="docutils literal notranslate"><span class="pre">Test</span></code> class. It is a
@@ -106,27 +106,27 @@ following lines:</p>
 </pre></div>
 </div>
 <p>As expected what you get is a totally empty class.</p>
-</div>
-<div class="section" id="method-definition-and-declaration">
+</section>
+<section id="method-definition-and-declaration">
 <h2>Method definition and declaration<a class="headerlink" href="#method-definition-and-declaration" title="Permalink to this headline">¶</a></h2>
 <p>To bring it to life let’s add a method:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">helloWorld</span><span class="p">)</span> <span class="cm">/* {{{ */</span>
-<span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">helloWorld</span><span class="p">)</span><span class="w"> </span><span class="cm">/* {{{ */</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;Hello World</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="cm">/* }}} */</span>
+<span class="w">    </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;Hello World</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="cm">/* }}} */</span><span class="w"></span>
 
-<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_void</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_void</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span><span class="w"></span>
 
-<span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">test_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">PHP_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">helloWorld</span><span class="p">,</span> <span class="n">arginfo_void</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-    <span class="n">PHP_FE_END</span>
-<span class="p">};</span>
+<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">test_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">helloWorld</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_void</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 <p>As you can see a method declaration looks very similar to a function declaration. Instead of <code class="docutils literal notranslate"><span class="pre">PHP_FUNCTION</span></code> we use
@@ -136,40 +136,40 @@ flags.</p>
 <p>The flags parameter allows you to specify the usual PHP method modifiers using a combination of <code class="docutils literal notranslate"><span class="pre">ZEND_ACC_PUBLIC</span></code>,
 <code class="docutils literal notranslate"><span class="pre">ZEND_ACC_PROTECTED</span></code>, <code class="docutils literal notranslate"><span class="pre">ZEND_ACC_PRIVATE</span></code>, <code class="docutils literal notranslate"><span class="pre">ZEND_ACC_STATIC</span></code>, <code class="docutils literal notranslate"><span class="pre">ZEND_ACC_FINAL</span></code> and <code class="docutils literal notranslate"><span class="pre">ZEND_ACC_ABSTRACT</span></code>. For
 example a protected final static method would be declared as follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_ME</span><span class="p">(</span>
-    <span class="n">Test</span><span class="p">,</span> <span class="n">protectedFinalStaticMethod</span><span class="p">,</span> <span class="n">arginfo_xyz</span><span class="p">,</span>
-    <span class="n">ZEND_ACC_PROTECTED</span> <span class="o">|</span> <span class="n">ZEND_ACC_FINAL</span> <span class="o">|</span> <span class="n">ZEND_ACC_STATIC</span>
-<span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_ME</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">protectedFinalStaticMethod</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_xyz</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ACC_PROTECTED</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ZEND_ACC_FINAL</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ZEND_ACC_STATIC</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>As abstract methods do not have an associated implementation the <code class="docutils literal notranslate"><span class="pre">ZEND_ACC_ABSTRACT</span></code> flag is not used directly.
 Instead a special macro is provided:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_ABSTRACT_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">abstractMethod</span><span class="p">,</span> <span class="n">arginfo_abc</span><span class="p">)</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_ABSTRACT_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">abstractMethod</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_abc</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Analogous to what happens for <code class="docutils literal notranslate"><span class="pre">PHP_FUNCTION</span></code> the <code class="docutils literal notranslate"><span class="pre">PHP_METHOD</span></code> macro expands into a function declaration with a
 special name, which you may encounter when looking at backtraces within method calls:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ClassName</span><span class="p">,</span> <span class="n">methodName</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
-<span class="cm">/* expands to */</span>
-<span class="kt">void</span> <span class="n">zim_ClassName_methodName</span><span class="p">(</span><span class="n">INTERNAL_FUNCTION_PARAMETERS</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ClassName</span><span class="p">,</span><span class="w"> </span><span class="n">methodName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="cm">/* expands to */</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">zim_ClassName_methodName</span><span class="p">(</span><span class="n">INTERNAL_FUNCTION_PARAMETERS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>But now, let’s get back to writing methods. Here is another one:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">getOwnObjectHandle</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">obj</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">getOwnObjectHandle</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">obj</span> <span class="o">=</span> <span class="n">getThis</span><span class="p">();</span>
+<span class="w">    </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getThis</span><span class="p">();</span><span class="w"></span>
 
-    <span class="n">RETURN_LONG</span><span class="p">(</span><span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">obj</span><span class="p">));</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">RETURN_LONG</span><span class="p">(</span><span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">obj</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
 <span class="c1">//...</span>
-    <span class="n">PHP_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">getOwnObjectHandle</span><span class="p">,</span> <span class="n">arginfo_void</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
+<span class="w">    </span><span class="n">PHP_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">getOwnObjectHandle</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_void</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span><span class="w"></span>
 <span class="c1">//...</span>
 </pre></div>
 </div>
@@ -184,50 +184,50 @@ using the <code class="docutils literal notranslate"><span class="pre">getThis()
 <p>This will (probably) output the numbers 1 and 3, so you can see that the object handle is basically just a number
 which is incremented with every new object. (This isn’t exactly true because object handles can be reused again once the
 associated objects are destroyed.)</p>
-</div>
-<div class="section" id="properties-and-constants">
+</section>
+<section id="properties-and-constants">
 <h2>Properties and constants<a class="headerlink" href="#properties-and-constants" title="Permalink to this headline">¶</a></h2>
 <p>To do something more useful, let’s create two methods for reading from and writing to a property:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">getFoo</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">foo_value</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">getFoo</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">foo_value</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">obj</span> <span class="o">=</span> <span class="n">getThis</span><span class="p">();</span>
+<span class="w">    </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getThis</span><span class="p">();</span><span class="w"></span>
 
-    <span class="n">foo_value</span> <span class="o">=</span> <span class="n">zend_read_property</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">foo_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_read_property</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span><span class="w"> </span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">RETURN_ZVAL</span><span class="p">(</span><span class="n">foo_value</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">RETURN_ZVAL</span><span class="p">(</span><span class="n">foo_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">setFoo</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">new_foo_value</span><span class="p">;</span>
+<span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">setFoo</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">new_foo_value</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="s">&quot;z&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">new_foo_value</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;z&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">new_foo_value</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">obj</span> <span class="o">=</span> <span class="n">getThis</span><span class="p">();</span>
+<span class="w">    </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getThis</span><span class="p">();</span><span class="w"></span>
 
-    <span class="n">zend_update_property</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">new_foo_value</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="c1">// ...</span>
-
-<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_void</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
-
-<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_set</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+<span class="w">    </span><span class="n">zend_update_property</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span><span class="w"> </span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">new_foo_value</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
 <span class="c1">// ...</span>
-    <span class="n">PHP_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">getFoo</span><span class="p">,</span> <span class="n">arginfo_void</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-    <span class="n">PHP_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span> <span class="n">setFoo</span><span class="p">,</span> <span class="n">arginfo_set</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
+
+<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_void</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span><span class="w"></span>
+
+<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_set</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span><span class="w"></span>
+
+<span class="c1">// ...</span>
+<span class="w">    </span><span class="n">PHP_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">getFoo</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_void</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ME</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">setFoo</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_set</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span><span class="w"></span>
 <span class="c1">// ...</span>
 </pre></div>
 </div>
@@ -271,13 +271,13 @@ registered, just like you would write <code class="docutils literal notranslate"
 <p>This is done using the <code class="docutils literal notranslate"><span class="pre">zend_declare_property()</span></code> function family, which features the same variants as
 <code class="docutils literal notranslate"><span class="pre">zend_update_property()</span></code>. For example to declare a public <code class="docutils literal notranslate"><span class="pre">foo</span></code> property with a <code class="docutils literal notranslate"><span class="pre">null</span></code> default value we have to add
 the following line after the class registration in <code class="docutils literal notranslate"><span class="pre">MINIT</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_declare_property_null</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_declare_property_null</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>To create a protected property defaulting to the string <code class="docutils literal notranslate"><span class="pre">&quot;bar&quot;</span></code> you instead write:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_declare_property_string</span><span class="p">(</span>
-    <span class="n">test_ce</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="n">ZEND_ACC_PROTECTED</span> <span class="n">TSRMLS_CC</span>
-<span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_declare_property_string</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">test_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bar&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PROTECTED</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>If you want to use properties (and you will soon find that this is only rarely necessary for internal classes) it is
@@ -285,10 +285,10 @@ always good practice to properly declare properties. This way you have an explic
 and you also benefit from memory optimizations for declared properties.</p>
 <p>Static properties are also declared using the same family of functions by additionally specifying the
 <code class="docutils literal notranslate"><span class="pre">ZEND_ACC_STATIC</span></code> flag. A public static <code class="docutils literal notranslate"><span class="pre">$pi</span></code> property:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_declare_property_double</span><span class="p">(</span>
-    <span class="n">test_ce</span><span class="p">,</span> <span class="s">&quot;pi&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;pi&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">3.141</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span> <span class="o">|</span> <span class="n">ZEND_ACC_STATIC</span> <span class="n">TSRMLS_CC</span>
-<span class="p">);</span>
-<span class="cm">/* All digits of pi I remember :( */</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_declare_property_double</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">test_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;pi&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;pi&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mf">3.141</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ZEND_ACC_STATIC</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+<span class="cm">/* All digits of pi I remember :( */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>To read and update static properties there are the <code class="docutils literal notranslate"><span class="pre">zend_read_static_property()</span></code> function and the
@@ -296,27 +296,27 @@ and you also benefit from memory optimizations for declared properties.</p>
 only difference being that no object is passed (only the scope).</p>
 <p>To declare constants the <code class="docutils literal notranslate"><span class="pre">zend_declare_class_constant_*()</span></code> family of functions is used. They have the same variations and
 signatures as <code class="docutils literal notranslate"><span class="pre">zend_declare_property_*()</span></code>, only without the flags argument. To declare a constant ‘’Test::PI’’:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_declare_class_constant_double</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span> <span class="s">&quot;PI&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;PI&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">3.141</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_declare_class_constant_double</span><span class="p">(</span><span class="n">test_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PI&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;PI&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mf">3.141</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="inheritance-and-interfaces">
+</section>
+<section id="inheritance-and-interfaces">
 <h2>Inheritance and interfaces<a class="headerlink" href="#inheritance-and-interfaces" title="Permalink to this headline">¶</a></h2>
 <p>Just like their userland equivalents internal classes can also inherit from other classes and/or implement interfaces.</p>
 <p>A very simple (and quite common) example of inheritance in the PHP tree is creating some custom subtype of
 <code class="docutils literal notranslate"><span class="pre">Exception</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">custom_exception_ce</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">custom_exception_ce</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">Test</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_class_entry</span> <span class="n">tmp_ce</span><span class="p">;</span>
-    <span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="s">&quot;CustomException&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
-    <span class="n">custom_exception_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_class_ex</span><span class="p">(</span>
-        <span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="n">zend_exception_get_default</span><span class="p">(</span><span class="n">TSRMLS_C</span><span class="p">),</span> <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">Test</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="n">tmp_ce</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;CustomException&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">custom_exception_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class_ex</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="n">zend_exception_get_default</span><span class="p">(</span><span class="n">TSRMLS_C</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The new thing here is the use of <code class="docutils literal notranslate"><span class="pre">zend_register_internal_class_ex()</span></code> (with the <code class="docutils literal notranslate"><span class="pre">_ex</span></code>), which does the same thing as
@@ -326,28 +326,28 @@ function structure and instead just passed <code class="docutils literal notrans
 don’t want any additional methods, apart from those that are inherited from <code class="docutils literal notranslate"><span class="pre">Exception</span></code>.</p>
 <p>If you want to extend a more specific SPL extension class like <code class="docutils literal notranslate"><span class="pre">RuntimeException</span></code> you can also do so:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef HAVE_SPL</span>
-<span class="cp">#include</span> <span class="cpf">&quot;ext/spl/spl_exceptions.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ext/spl/spl_exceptions.h&quot;</span><span class="cp"></span>
 <span class="cp">#endif</span>
 
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">custom_exception_ce</span><span class="p">;</span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">custom_exception_ce</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">Test</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_class_entry</span> <span class="n">tmp_ce</span><span class="p">;</span>
-    <span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="s">&quot;CustomException&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">Test</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="n">tmp_ce</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;CustomException&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
 
 <span class="cp">#ifdef HAVE_SPL</span>
-    <span class="n">custom_exception_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_class_ex</span><span class="p">(</span>
-        <span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="n">spl_ce_RuntimeException</span><span class="p">,</span> <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
+<span class="w">    </span><span class="n">custom_exception_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class_ex</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="n">spl_ce_RuntimeException</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
 <span class="cp">#else</span>
-    <span class="n">custom_exception_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_class_ex</span><span class="p">(</span>
-        <span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="n">zend_exception_get_default</span><span class="p">(</span><span class="n">TSRMLS_C</span><span class="p">),</span> <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
+<span class="w">    </span><span class="n">custom_exception_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class_ex</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="n">zend_exception_get_default</span><span class="p">(</span><span class="n">TSRMLS_C</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif</span>
 
-    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The above code conditionally either inherits from <code class="docutils literal notranslate"><span class="pre">RuntimeException</span></code> or - if SPL is not compiled in - from just
@@ -356,86 +356,86 @@ has to be included as well.</p>
 <p>The last parameter of <code class="docutils literal notranslate"><span class="pre">zend_register_internal_class_ex()</span></code> which was set to <code class="docutils literal notranslate"><span class="pre">NULL</span></code> in the above cases, is an
 alternative way to specify the parent class: If you don’t have the class entry available you can specify the class
 name:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">custom_exception_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_class_ex</span><span class="p">(</span>
-    <span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="n">spl_ce_RuntimeException</span><span class="p">,</span> <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
-<span class="p">);</span>
-<span class="cm">/* can also be written as */</span>
-<span class="n">custom_exception_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_class_ex</span><span class="p">(</span>
-    <span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;RuntimeException&quot;</span> <span class="n">TSRMLS_CC</span>
-<span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">custom_exception_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class_ex</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="n">spl_ce_RuntimeException</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+<span class="cm">/* can also be written as */</span><span class="w"></span>
+<span class="n">custom_exception_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class_ex</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;RuntimeException&quot;</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>In practice you should prefer the first variant though. The second form is only useful if you have some misbehaved
 extension that forgot to export the class entry.</p>
 <p>Just like you can inherit from other classes you can also implement interfaces. For this the variadic
 <code class="docutils literal notranslate"><span class="pre">zend_class_implements()</span></code> functions is used:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;ext/spl/spl_iterators.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&quot;zend_interfaces.h&quot;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ext/spl/spl_iterators.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zend_interfaces.h&quot;</span><span class="cp"></span>
 
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">data_class_ce</span><span class="p">;</span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">data_class_ce</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">DataClass</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+<span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">DataClass</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-<span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">data_class_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">PHP_ME</span><span class="p">(</span><span class="n">DataClass</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">arginfo_void</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-    <span class="cm">/* ... */</span>
-    <span class="n">PHP_FE_END</span>
-<span class="p">};</span>
+<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">data_class_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ME</span><span class="p">(</span><span class="n">DataClass</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_void</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* ... */</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_class_entry</span> <span class="n">tmp_ce</span><span class="p">;</span>
-    <span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="s">&quot;DataClass&quot;</span><span class="p">,</span> <span class="n">data_class_functions</span><span class="p">);</span>
-    <span class="n">data_class_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="n">tmp_ce</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;DataClass&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">data_class_functions</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">data_class_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="cm">/* DataClass implements Countable, ArrayAccess, IteratorAggregate */</span>
-    <span class="n">zend_class_implements</span><span class="p">(</span>
-        <span class="n">data_class_ce</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">spl_ce_Countable</span><span class="p">,</span> <span class="n">zend_ce_arrayaccess</span><span class="p">,</span> <span class="n">zend_ce_aggregate</span>
-    <span class="p">);</span>
+<span class="w">    </span><span class="cm">/* DataClass implements Countable, ArrayAccess, IteratorAggregate */</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_implements</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">data_class_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">spl_ce_Countable</span><span class="p">,</span><span class="w"> </span><span class="n">zend_ce_arrayaccess</span><span class="p">,</span><span class="w"> </span><span class="n">zend_ce_aggregate</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>As you can see <code class="docutils literal notranslate"><span class="pre">zend_class_implements()</span></code> takes the class entry, TSRMLS_CC, the number of interfaces to implement and
 then the class entries of the interfaces. E.g. if you wanted to additionally implement <code class="docutils literal notranslate"><span class="pre">Serializable</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_implements</span><span class="p">(</span>
-    <span class="n">data_class_ce</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
-    <span class="n">spl_ce_Countable</span><span class="p">,</span> <span class="n">zend_ce_arrayaccess</span><span class="p">,</span> <span class="n">zend_ce_aggregate</span><span class="p">,</span> <span class="n">zend_ce_serializable</span>
-<span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_implements</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">data_class_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">spl_ce_Countable</span><span class="p">,</span><span class="w"> </span><span class="n">zend_ce_arrayaccess</span><span class="p">,</span><span class="w"> </span><span class="n">zend_ce_aggregate</span><span class="p">,</span><span class="w"> </span><span class="n">zend_ce_serializable</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>You can obviously also create your own interfaces. Interfaces are registered in the same way as classes are, but using
 the <code class="docutils literal notranslate"><span class="pre">zend_register_internal_interface()</span></code> function and declaring all methods as abstract. E.g. if you wanted to create a
 new <code class="docutils literal notranslate"><span class="pre">ReversibleIterator</span></code> interface that extends <code class="docutils literal notranslate"><span class="pre">Iterator</span></code> and additionally specifies a <code class="docutils literal notranslate"><span class="pre">prev</span></code> method, this is how
 you would do it:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;zend_interfaces.h&quot;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zend_interfaces.h&quot;</span><span class="cp"></span>
 
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">reversible_iterator_ce</span><span class="p">;</span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">reversible_iterator_ce</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">reversible_iterator_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">PHP_ABSTRACT_ME</span><span class="p">(</span><span class="n">ReversibleIterator</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">arginfo_void</span><span class="p">)</span>
-    <span class="n">PHP_FE_END</span>
-<span class="p">};</span>
+<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">reversible_iterator_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ABSTRACT_ME</span><span class="p">(</span><span class="n">ReversibleIterator</span><span class="p">,</span><span class="w"> </span><span class="n">prev</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_void</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_class_entry</span> <span class="n">tmp_ce</span><span class="p">;</span>
-    <span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="s">&quot;ReversibleIterator&quot;</span><span class="p">,</span> <span class="n">reversible_iterator_functions</span><span class="p">);</span>
-    <span class="n">reversible_iterator_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_interface</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="n">tmp_ce</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ReversibleIterator&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">reversible_iterator_functions</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">reversible_iterator_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_interface</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="cm">/* ReversibleIterator extends Iterator. For interface inheritance the zend_class_implements()</span>
-<span class="cm">     * function is used. */</span>
-    <span class="n">zend_class_implements</span><span class="p">(</span><span class="n">reversible_iterator_ce</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">zend_ce_iterator</span><span class="p">);</span>
+<span class="w">    </span><span class="cm">/* ReversibleIterator extends Iterator. For interface inheritance the zend_class_implements()</span>
+<span class="cm">     * function is used. */</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_implements</span><span class="p">(</span><span class="n">reversible_iterator_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">zend_ce_iterator</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Internal interfaces have a bit of additional power that userland interfaces don’t have - but I’ll leave that for a bit
 later.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

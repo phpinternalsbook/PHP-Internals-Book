@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Symtable and array API &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Hash algorithm and collisions" href="hash_algorithm.html" />
@@ -37,13 +37,13 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="symtable-and-array-api">
+  <section id="symtable-and-array-api">
 <h1>Symtable and array API<a class="headerlink" href="#symtable-and-array-api" title="Permalink to this headline">¶</a></h1>
 <p>The hashtable API allows you to work with values of any type, but in the vast majority of cases the values will be
 zvals. Using the <code class="docutils literal notranslate"><span class="pre">zend_hash</span></code> API with zvals can often be somewhat cumbersome, as you need to handle zval allocation
 and initialization yourself. This is why PHP provides a second set of APIs specifically aimed at this use case. Before
 introducing these simplified APIs we will have a look at a special kind of hashtable that PHP arrays make use of.</p>
-<div class="section" id="symtables">
+<section id="symtables">
 <h2>Symtables<a class="headerlink" href="#symtables" title="Permalink to this headline">¶</a></h2>
 <p>One of the core concepts behind the design of PHP is that integers and strings containing integers should be
 interchangeable. This also applies to arrays where the keys <code class="docutils literal notranslate"><span class="pre">42</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;42&quot;</span></code> should be considered the same. This is
@@ -52,12 +52,12 @@ key <code class="docutils literal notranslate"><span class="pre">42</span></code
 <p>This is why there is an additional <em>symtable</em> (symbol table) API, which is a thin wrapper around some hashtable
 functions which converts integral string keys to actual integer keys. For example, this is how the
 <code class="docutils literal notranslate"><span class="pre">zend_symtable_find()</span></code> function is defined:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_find</span><span class="p">(</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span><span class="n">pData</span>
-<span class="p">)</span> <span class="p">{</span>
-    <span class="n">ZEND_HANDLE_NUMERIC</span><span class="p">(</span><span class="n">arKey</span><span class="p">,</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">pData</span><span class="p">));</span>
-    <span class="k">return</span> <span class="n">zend_hash_find</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">arKey</span><span class="p">,</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="n">pData</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">zend_symtable_find</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">arKey</span><span class="p">,</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">nKeyLength</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">pData</span><span class="w"></span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_HANDLE_NUMERIC</span><span class="p">(</span><span class="n">arKey</span><span class="p">,</span><span class="w"> </span><span class="n">nKeyLength</span><span class="p">,</span><span class="w"> </span><span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="n">pData</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">zend_hash_find</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="n">arKey</span><span class="p">,</span><span class="w"> </span><span class="n">nKeyLength</span><span class="p">,</span><span class="w"> </span><span class="n">pData</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The implementation of the <code class="docutils literal notranslate"><span class="pre">ZEND_HANDLE_NUMERIC()</span></code> macro will not be considered in detail here, only the functionality
@@ -66,14 +66,14 @@ integer is written into <code class="docutils literal notranslate"><span class="
 continue to the next line, where <code class="docutils literal notranslate"><span class="pre">zend_hash_find()</span></code> will be invoked.</p>
 <p>Apart from <code class="docutils literal notranslate"><span class="pre">zend_symtable_find()</span></code> the following functions are part of the symtable API, again with the same behavior
 as their hashtable counterparts, but including string to integer normalization:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_exists</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">);</span>
-<span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_del</span><span class="p">(</span><span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">);</span>
-<span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_update</span><span class="p">(</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">pData</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nDataSize</span><span class="p">,</span> <span class="kt">void</span> <span class="o">**</span><span class="n">pDest</span>
-<span class="p">);</span>
-<span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="nf">zend_symtable_update_current_key_ex</span><span class="p">(</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arKey</span><span class="p">,</span> <span class="n">uint</span> <span class="n">nKeyLength</span><span class="p">,</span> <span class="kt">int</span> <span class="n">mode</span><span class="p">,</span> <span class="n">HashPosition</span> <span class="o">*</span><span class="n">pos</span>
-<span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">zend_symtable_exists</span><span class="p">(</span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">arKey</span><span class="p">,</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">nKeyLength</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">zend_symtable_del</span><span class="p">(</span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">arKey</span><span class="p">,</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">nKeyLength</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">zend_symtable_update</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">arKey</span><span class="p">,</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">nKeyLength</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">pData</span><span class="p">,</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">nDataSize</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">pDest</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">zend_symtable_update_current_key_ex</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">arKey</span><span class="p">,</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">nKeyLength</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">HashPosition</span><span class="w"> </span><span class="o">*</span><span class="n">pos</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Additionally there are two macros for creating symtables:</p>
@@ -87,32 +87,32 @@ as their hashtable counterparts, but including string to integer normalization:<
 <p>As you can see these macros are just <code class="docutils literal notranslate"><span class="pre">zend_hash_init()</span></code> calls using <code class="docutils literal notranslate"><span class="pre">ZVAL_PTR_DTOR</span></code> as the destructor. As such
 these macros are not directly related to the string to integer casting behavior described above.</p>
 <p>Let’s give this new set of functions a try:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">HashTable</span> <span class="o">*</span><span class="n">myht</span><span class="p">;</span>
-<span class="n">zval</span> <span class="o">*</span><span class="n">zv1</span><span class="p">,</span> <span class="o">*</span><span class="n">zv2</span><span class="p">;</span>
-<span class="n">zval</span> <span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">myht</span><span class="p">;</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv1</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">zv2</span><span class="p">;</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">zv_dest</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
-<span class="n">ZEND_INIT_SYMTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+<span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZEND_INIT_SYMTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv1</span><span class="p">);</span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv1</span><span class="p">,</span> <span class="s">&quot;zv1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv1</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zv1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv2</span><span class="p">);</span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv2</span><span class="p">,</span> <span class="s">&quot;zv2&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv2</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zv2&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">zv1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
-<span class="n">zend_symtable_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;42&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;42&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">zv2</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_symtable_update</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;42&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;42&quot;</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv2</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
 
-<span class="k">if</span> <span class="p">(</span><span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Value at key 42 is %Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_hash_index_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Value at key 42 is %Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="k">if</span> <span class="p">(</span><span class="n">zend_symtable_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span> <span class="s">&quot;42&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;42&quot;</span><span class="p">),</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Value at key </span><span class="se">\&quot;</span><span class="s">42</span><span class="se">\&quot;</span><span class="s"> is %Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_symtable_find</span><span class="p">(</span><span class="n">myht</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;42&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;42&quot;</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv_dest</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Value at key </span><span class="se">\&quot;</span><span class="s">42</span><span class="se">\&quot;</span><span class="s"> is %Z</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">zend_hash_destroy</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
-<span class="n">FREE_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span>
+<span class="n">zend_hash_destroy</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span><span class="w"></span>
+<span class="n">FREE_HASHTABLE</span><span class="p">(</span><span class="n">myht</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This code will print:</p>
@@ -122,30 +122,30 @@ Value at key &quot;42&quot; is zv2
 </div>
 <p>Thus both <code class="docutils literal notranslate"><span class="pre">update</span></code> calls wrote to the same element (the second one overwriting the first one) and both <code class="docutils literal notranslate"><span class="pre">find</span></code> calls
 also found the same element.</p>
-</div>
-<div class="section" id="array-api">
+</section>
+<section id="array-api">
 <h2>Array API<a class="headerlink" href="#array-api" title="Permalink to this headline">¶</a></h2>
 <p>Now we have all the prerequisites to look at the array API. This API no longer works directly on hashtables, but rather
 accepts zvals from which the hashtable is extracted using <code class="docutils literal notranslate"><span class="pre">Z_ARRVAL_P()</span></code>.</p>
 <p>The first two functions from this API are <code class="docutils literal notranslate"><span class="pre">array_init()</span></code> and <code class="docutils literal notranslate"><span class="pre">array_init_size()</span></code>, which initialize a hashtable
 into a zval. The former function takes only the target zval, whereas the latter takes an additional size hint:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Create empty array into return_value */</span>
-<span class="n">array_init</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Create empty array into return_value */</span><span class="w"></span>
+<span class="n">array_init</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span><span class="w"></span>
 
-<span class="cm">/* Create empty array with expected size 1000000 into return_value */</span>
-<span class="n">array_init_size</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">);</span>
+<span class="cm">/* Create empty array with expected size 1000000 into return_value */</span><span class="w"></span>
+<span class="n">array_init_size</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1000000</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The remaining functions of this API all deal with inserting values into an array. There are four families of functions
 which look as follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Insert at next index */</span>
-<span class="kt">int</span> <span class="n">add_next_index_</span><span class="o">*</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="p">...);</span>
-<span class="cm">/* Insert at specific index */</span>
-<span class="kt">int</span> <span class="n">add_index_</span><span class="o">*</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">ulong</span> <span class="n">idx</span><span class="p">,</span> <span class="p">...);</span>
-<span class="cm">/* Insert at specific key */</span>
-<span class="kt">int</span> <span class="n">add_assoc_</span><span class="o">*</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span> <span class="p">...);</span>
-<span class="cm">/* Insert at specific key of length key_len (for binary safety) */</span>
-<span class="kt">int</span> <span class="n">add_assoc_</span><span class="o">*</span><span class="nf">_ex</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span> <span class="n">uint</span> <span class="n">key_len</span><span class="p">,</span> <span class="p">...);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Insert at next index */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">add_next_index_</span><span class="o">*</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span><span class="w"></span>
+<span class="cm">/* Insert at specific index */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">add_index_</span><span class="o">*</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="n">ulong</span><span class="w"> </span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span><span class="w"></span>
+<span class="cm">/* Insert at specific key */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">add_assoc_</span><span class="o">*</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span><span class="w"></span>
+<span class="cm">/* Insert at specific key of length key_len (for binary safety) */</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">add_assoc_</span><span class="o">*</span><span class="nf">_ex</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">key_len</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Here <code class="docutils literal notranslate"><span class="pre">*</span></code> is a placeholder for a type and <code class="docutils literal notranslate"><span class="pre">...</span></code> a placeholder for the type-specific arguments. The valid values for
@@ -188,28 +188,28 @@ them are listed in the following table:</p>
 </tbody>
 </table>
 <p>As an example for the usage of these functions, let’s just create a dummy array with elements of various types:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">make_array</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">make_array</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">array_init</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
+<span class="w">    </span><span class="n">array_init</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">add_index_long</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span>
-    <span class="n">add_index_double</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">3.141</span><span class="p">);</span>
-    <span class="n">add_index_string</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">add_index_long</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">add_index_double</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mf">3.141</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">add_index_string</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">add_next_index_bool</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-    <span class="n">add_next_index_stringl</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">add_next_index_bool</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">add_next_index_stringl</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">add_assoc_null</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">);</span>
-    <span class="n">add_assoc_long</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+<span class="w">    </span><span class="n">add_assoc_null</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">add_assoc_long</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bar&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">add_assoc_double_ex</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">),</span> <span class="mf">1.61</span><span class="p">);</span>
+<span class="w">    </span><span class="n">add_assoc_double_ex</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\0</span><span class="s">bar&quot;</span><span class="p">),</span><span class="w"> </span><span class="mf">1.61</span><span class="p">);</span><span class="w"></span>
 
-    <span class="cm">/* For some things you still have to manually create a zval... */</span>
-    <span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-    <span class="n">object_init</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-    <span class="n">add_next_index_zval</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span> <span class="n">zv</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="cm">/* For some things you still have to manually create a zval... */</span><span class="w"></span>
+<span class="w">    </span><span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">object_init</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">add_next_index_zval</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">var_dump()</span></code> output of this array looks as follows (with NUL-bytes replaced by <code class="docutils literal notranslate"><span class="pre">\0</span></code>):</p>
@@ -245,8 +245,8 @@ that they overwrite previously existing keys.</p>
 parameter of the <code class="docutils literal notranslate"><span class="pre">zend_hash_update</span></code> functions). As they are virtually never used they will not be discussed here and
 are mentioned only for the sake of completeness.</p>
 <p>This concludes our walk through the hashtable, symtable and array APIs.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

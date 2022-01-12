@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Examining failed test output &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../_static/style.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="The .phpt file structure" href="phpt_file_structure.html" /> 
@@ -34,11 +34,11 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="examining-failed-test-output">
+  <section id="examining-failed-test-output">
 <span id="id1"></span><h1>Examining failed test output<a class="headerlink" href="#examining-failed-test-output" title="Permalink to this headline">¶</a></h1>
 <p>We’ve learned how to create and run tests and have had great success with passing tests, but what happens when things go
 wrong? We’ll examine how to help ourselves debug failed tests using the failed-test output files.</p>
-<div class="section" id="failed-test-output-files">
+<section id="failed-test-output-files">
 <h2>Failed test output files<a class="headerlink" href="#failed-test-output-files" title="Permalink to this headline">¶</a></h2>
 <p>If a test would fail, the test results will be dumped in the directory where the test file resides. This happens for
 each failed test. For example for a failed test <code class="docutils literal notranslate"><span class="pre">001.phpt</span></code> you will get this output:</p>
@@ -52,8 +52,8 @@ each failed test. For example for a failed test <code class="docutils literal no
 </ul>
 <p>The <code class="docutils literal notranslate"><span class="pre">.sh</span></code> bash script is a wrapper around the failed php script that makes it easy to re-run the failed script with
 the same runtime conditions as the test run. With all this information at hand, you can start debugging your code.</p>
-</div>
-<div class="section" id="examine-failed-test-output-inline">
+</section>
+<section id="examine-failed-test-output-inline">
 <h2>Examine failed test output inline<a class="headerlink" href="#examine-failed-test-output-inline" title="Permalink to this headline">¶</a></h2>
 <p>Having all these files on your filesystem is not always convenient. Sometimes you might just want to see the failed
 test output on your screen, inline with the failed test. The <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code> script accepts flags to enable such
@@ -81,7 +81,7 @@ criteria or the clean scripts <code class="docutils literal notranslate"><span c
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php --show-clean
 ...
-PASS Test <span class="k">for</span> buffering in core functions with implicit flush on <span class="o">[</span>tests/func/009.phpt<span class="o">]</span>
+PASS Test <span class="k">for</span> buffering <span class="k">in</span> core functions with implicit flush on <span class="o">[</span>tests/func/009.phpt<span class="o">]</span>
 TEST <span class="m">399</span>/14433 <span class="o">[</span>tests/func/010.phpt<span class="o">]</span>
 <span class="o">========</span><span class="nv">CLEAN</span><span class="o">========</span>
 &lt;?php
@@ -89,7 +89,7 @@ TEST <span class="m">399</span>/14433 <span class="o">[</span>tests/func/010.php
 ?&gt;
 <span class="o">========</span><span class="nv">DONE</span><span class="o">========</span>
 PASS <span class="k">function</span> with many parameters <span class="o">[</span>tests/func/010.phpt<span class="o">]</span>
-PASS Test bitwise AND, OR, XOR, NOT and logical NOT in INI via error_reporting <span class="o">[</span>tests/func/011.phpt<span class="o">]</span>
+PASS Test bitwise AND, OR, XOR, NOT and logical NOT <span class="k">in</span> INI via error_reporting <span class="o">[</span>tests/func/011.phpt<span class="o">]</span>
 ...
 </pre></div>
 </div>
@@ -114,8 +114,8 @@ by abusing the <code class="docutils literal notranslate"><span class="pre">TEST
 </pre></div>
 </div>
 </div></blockquote>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

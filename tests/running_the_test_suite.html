@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Running the test suite &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../_static/style.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="The .phpt file structure" href="phpt_file_structure.html" />
@@ -37,13 +37,13 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="running-the-test-suite">
+  <section id="running-the-test-suite">
 <span id="id1"></span><h1>Running the test suite<a class="headerlink" href="#running-the-test-suite" title="Permalink to this headline">¶</a></h1>
 <p>Now that we have an basic understanding of what kind of testing we’re doing, let’s run the test suite. Before we can run
 the tests, make sure you have successfully built php from source (see <a class="reference internal" href="../php7/build_system/building_php.html#building-php"><span class="std std-ref">Building PHP</span></a>) and you have an executable
 at <code class="docutils literal notranslate"><span class="pre">sapi/cli/php</span></code>.</p>
 <p>There are two ways to run the test suite.</p>
-<div class="section" id="running-tests-directly-with-run-tests-php">
+<section id="running-tests-directly-with-run-tests-php">
 <h2>Running tests directly with <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code><a class="headerlink" href="#running-tests-directly-with-run-tests-php" title="Permalink to this headline">¶</a></h2>
 <p>You can run the test suite directly with run-tests.php. At minimum you’ll need to specify the php executable that you
 wish to test against which you can do with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag. Note that in order to run all tests correctly this should be
@@ -80,8 +80,8 @@ associated with <a class="reference external" href="http://php.net/csprng">PHP 7
 <p>If you run the full test suite, and there are failing tests, the script will ask if you want to send a report to the
 PHP QA team. This can be annoying sometimes. It is possible suppress this question by setting the <code class="docutils literal notranslate"><span class="pre">-q</span></code> flag, or by
 setting environment variable <code class="docutils literal notranslate"><span class="pre">NO_INTERACTION=1</span></code>.</p>
-</div>
-<div class="section" id="running-tests-via-the-makefile-recommended">
+</section>
+<section id="running-tests-via-the-makefile-recommended">
 <h2>Running tests via the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> (recommended)<a class="headerlink" href="#running-tests-via-the-makefile-recommended" title="Permalink to this headline">¶</a></h2>
 <p>The recommended way of running the test suite is via the <code class="docutils literal notranslate"><span class="pre">test</span></code> target which is defined in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>. The
 <code class="docutils literal notranslate"><span class="pre">test</span></code> target does all the hard work of specifying the PHP executable for you (the one you compiled), setting up some
@@ -99,12 +99,12 @@ can pass <code class="docutils literal notranslate"><span class="pre">make</span
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;Zend/ ext/reflection/ ext/standard/tests/array/&quot;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="executing-tests-in-parallel">
+</section>
+<section id="executing-tests-in-parallel">
 <h2>Executing tests in parallel<a class="headerlink" href="#executing-tests-in-parallel" title="Permalink to this headline">¶</a></h2>
 <p>You can’t.</p>
-</div>
-<div class="section" id="more-options">
+</section>
+<section id="more-options">
 <h2>More options<a class="headerlink" href="#more-options" title="Permalink to this headline">¶</a></h2>
 <p>Tests that passed are usually not that interesting. You can filter what tests to show with the <code class="docutils literal notranslate"><span class="pre">-g</span></code> flag. Possible
 values are <code class="docutils literal notranslate"><span class="pre">PASS</span></code>, <code class="docutils literal notranslate"><span class="pre">FAIL</span></code>, <code class="docutils literal notranslate"><span class="pre">XFAIL</span></code>, <code class="docutils literal notranslate"><span class="pre">SKIP</span></code>, <code class="docutils literal notranslate"><span class="pre">BORK</span></code>, <code class="docutils literal notranslate"><span class="pre">WARN</span></code>, <code class="docutils literal notranslate"><span class="pre">LEAK</span></code>, <code class="docutils literal notranslate"><span class="pre">REDIRECT</span></code> For example to only
@@ -118,8 +118,8 @@ show failing tests:</p>
 </div>
 <p>For example <code class="docutils literal notranslate"><span class="pre">-x</span></code> to skip slow tests, <code class="docutils literal notranslate"><span class="pre">--offline</span></code> to skip online tests or <code class="docutils literal notranslate"><span class="pre">-m</span></code> for testing memory leaks with
 Valgrind can be very useful.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

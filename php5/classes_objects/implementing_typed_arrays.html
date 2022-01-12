@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Implementing typed arrays &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Object handlers" href="object_handlers.html" />
@@ -37,7 +37,7 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="implementing-typed-arrays">
+  <section id="implementing-typed-arrays">
 <h1>Implementing typed arrays<a class="headerlink" href="#implementing-typed-arrays" title="Permalink to this headline">¶</a></h1>
 <p>The previous two sections have been talking about the class system rather abstractly. In this section on the other hand
 I’d like to guide you through the implementation of a “real” class: A typed array. I use this as an example for two
@@ -45,7 +45,7 @@ reasons: Firstly, typed arrays are something where it really makes sense to impl
 hard to implement in userland PHP and an internal implementation can use both less memory and be a lot faster. Secondly,
 typed arrays are good to show off some of PHP’s object and class handlers. For example they need offset access, element
 counting, iteration, serialization and debug information.</p>
-<div class="section" id="array-buffers-and-views">
+<section id="array-buffers-and-views">
 <h2>Array buffers and views<a class="headerlink" href="#array-buffers-and-views" title="Permalink to this headline">¶</a></h2>
 <p>What we’ll implement in this section is a reduced version of JavaScript’s ArrayBuffer system. An <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> is just
 a chunk of memory with a fixed size. The <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> by itself cannot be read or written to, it is just an object
@@ -80,83 +80,83 @@ not make this overly long we won’t implement the whole JS API, only the most i
 spend much time considering details of the implementations like overflow behavior and endianness. Those are very
 important considerations for a “real” implementation, but for our purposes it’s not really relevant, so I’ll just stick
 with the behaviors that you get “by default” (i.e. with least code).</p>
-</div>
-<div class="section" id="the-arraybuffer">
+</section>
+<section id="the-arraybuffer">
 <h2>The <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code><a class="headerlink" href="#the-arraybuffer" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> is a very simple object, that only needs to allocate and store a buffer and its length. Thus the
 internal structure could look like this:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_buffer_object</span> <span class="p">{</span>
-    <span class="n">zend_object</span> <span class="n">std</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_buffer_object</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="n">std</span><span class="p">;</span><span class="w"></span>
 
-    <span class="kt">void</span> <span class="o">*</span><span class="n">buffer</span><span class="p">;</span>
-    <span class="kt">size_t</span> <span class="n">length</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">buffer_object</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buffer</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">buffer_object</span><span class="p">;</span><span class="w"></span>
 
-<span class="cm">/* Use the chance to declare CE and handlers too */</span>
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">array_buffer_ce</span><span class="p">;</span>
-<span class="n">zend_object_handlers</span> <span class="n">array_buffer_handlers</span><span class="p">;</span>
+<span class="cm">/* Use the chance to declare CE and handlers too */</span><span class="w"></span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">array_buffer_ce</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_object_handlers</span><span class="w"> </span><span class="n">array_buffer_handlers</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The create and free handlers are similarly simple and look nearly the same as the ones in the previous section:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">array_buffer_free_object_storage</span><span class="p">(</span><span class="n">buffer_object</span> <span class="o">*</span><span class="n">intern</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_object_std_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">array_buffer_free_object_storage</span><span class="p">(</span><span class="n">buffer_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object_std_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">efree</span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">efree</span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">efree</span><span class="p">(</span><span class="n">intern</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">efree</span><span class="p">(</span><span class="n">intern</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">zend_object_value</span> <span class="nf">array_buffer_create_object</span><span class="p">(</span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">class_type</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_object_value</span> <span class="n">retval</span><span class="p">;</span>
+<span class="n">zend_object_value</span><span class="w"> </span><span class="nf">array_buffer_create_object</span><span class="p">(</span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">buffer_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_object</span><span class="p">));</span>
-    <span class="n">memset</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_object</span><span class="p">));</span>
+<span class="w">    </span><span class="n">buffer_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_object</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_object</span><span class="p">));</span><span class="w"></span>
 
-    <span class="n">zend_object_std_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span> <span class="n">class_type</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">object_properties_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span> <span class="n">class_type</span><span class="p">);</span>
+<span class="w">    </span><span class="n">zend_object_std_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">object_properties_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">retval</span><span class="p">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">zend_objects_store_put</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">array_buffer_free_object_storage</span><span class="p">,</span>
-        <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
-    <span class="n">retval</span><span class="p">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">array_buffer_handlers</span><span class="p">;</span>
+<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_put</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_destroy_object</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span><span class="w"> </span><span class="n">array_buffer_free_object_storage</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handlers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">array_buffer_handlers</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">create_object</span></code> handler does not yet allocate the buffer, this is done in the constructor (because it depends on
 the buffer length, which is a ctor parameter):</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">__construct</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
-    <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>
-    <span class="n">zend_error_handling</span> <span class="n">error_handling</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span><span class="w"> </span><span class="n">__construct</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_error_handling</span><span class="w"> </span><span class="n">error_handling</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">zend_replace_error_handling</span><span class="p">(</span><span class="n">EH_THROW</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="s">&quot;l&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">length</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">zend_replace_error_handling</span><span class="p">(</span><span class="n">EH_THROW</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_handling</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Buffer length must be positive&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">length</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Buffer length must be positive&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">emalloc</span><span class="p">(</span><span class="n">length</span><span class="p">);</span>
-    <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span><span class="p">;</span>
+<span class="w">    </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="n">length</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">memset</span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">length</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>As we are now writing object-oriented code we no longer throw errors, but rather exceptions. This is done using
@@ -175,82 +175,82 @@ passed, into which the previous error mode is backed up. This structure is later
 <code class="docutils literal notranslate"><span class="pre">zend_restore_error_handling</span></code> to get the old mode back.</p>
 <p>Apart from the create handler you also have to handle cloning. For the <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> this is as simple as copying the
 allocated buffer:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">zend_object_value</span> <span class="nf">array_buffer_clone</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_object</span> <span class="o">*</span><span class="n">old_object</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">zend_object_value</span> <span class="n">new_object_val</span> <span class="o">=</span> <span class="n">array_buffer_create_object</span><span class="p">(</span><span class="n">Z_OBJCE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">buffer_object</span> <span class="o">*</span><span class="n">new_object</span> <span class="o">=</span> <span class="n">zend_object_store_get_object_by_handle</span><span class="p">(</span>
-        <span class="n">new_object_val</span><span class="p">.</span><span class="n">handle</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_object_value</span><span class="w"> </span><span class="nf">array_buffer_clone</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_object</span><span class="w"> </span><span class="o">*</span><span class="n">old_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">new_object_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_create_object</span><span class="p">(</span><span class="n">Z_OBJCE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_object</span><span class="w"> </span><span class="o">*</span><span class="n">new_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object_by_handle</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">new_object_val</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">zend_objects_clone_members</span><span class="p">(</span>
-        <span class="o">&amp;</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span> <span class="n">new_object_val</span><span class="p">,</span>
-        <span class="o">&amp;</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span> <span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
+<span class="w">    </span><span class="n">zend_objects_clone_members</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">new_object_val</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">;</span>
-    <span class="n">new_object</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">;</span>
+<span class="w">    </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">emalloc</span><span class="p">(</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">);</span>
-        <span class="n">memcpy</span><span class="p">(</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">memcpy</span><span class="p">(</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">memcpy</span><span class="p">(</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">);</span>
+<span class="w">    </span><span class="n">memcpy</span><span class="p">(</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">new_object_val</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">new_object_val</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>And finally getting everything together in <code class="docutils literal notranslate"><span class="pre">MINIT</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_buffer_ctor</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_buffer_ctor</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span><span class="w"></span>
 
-<span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">array_buffer_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">PHP_ME</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span> <span class="n">__construct</span><span class="p">,</span> <span class="n">arginfo_buffer_ctor</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-    <span class="n">PHP_FE_END</span>
-<span class="p">};</span>
+<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">array_buffer_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ME</span><span class="p">(</span><span class="n">ArrayBuffer</span><span class="p">,</span><span class="w"> </span><span class="n">__construct</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_buffer_ctor</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 
-<span class="n">MINIT_FUNCTION</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_class_entry</span> <span class="n">tmp_ce</span><span class="p">;</span>
+<span class="n">MINIT_FUNCTION</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="n">tmp_ce</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span> <span class="s">&quot;ArrayBuffer&quot;</span><span class="p">,</span> <span class="n">array_buffer_functions</span><span class="p">);</span>
-    <span class="n">array_buffer_ce</span> <span class="o">=</span> <span class="n">zend_register_internal_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">array_buffer_ce</span><span class="o">-&gt;</span><span class="n">create_object</span> <span class="o">=</span> <span class="n">array_buffer_create_object</span><span class="p">;</span>
+<span class="w">    </span><span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ArrayBuffer&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">array_buffer_functions</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">array_buffer_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">array_buffer_ce</span><span class="o">-&gt;</span><span class="n">create_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_create_object</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array_buffer_handlers</span><span class="p">,</span> <span class="n">zend_get_std_object_handlers</span><span class="p">(),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
-    <span class="n">array_buffer_handlers</span><span class="p">.</span><span class="n">clone_obj</span> <span class="o">=</span> <span class="n">array_buffer_clone</span><span class="p">;</span>
+<span class="w">    </span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array_buffer_handlers</span><span class="p">,</span><span class="w"> </span><span class="n">zend_get_std_object_handlers</span><span class="p">(),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">array_buffer_handlers</span><span class="p">.</span><span class="n">clone_obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_clone</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="the-buffer-views">
+</section>
+<section id="the-buffer-views">
 <h2>The buffer views<a class="headerlink" href="#the-buffer-views" title="Permalink to this headline">¶</a></h2>
 <p>The buffer views will be a good bit more work. We’ll implement 8 different view classes which all share one
 implementation, namely <code class="docutils literal notranslate"><span class="pre">Int8Array</span></code>, <code class="docutils literal notranslate"><span class="pre">UInt8Array</span></code>, <code class="docutils literal notranslate"><span class="pre">Int16Array</span></code>, <code class="docutils literal notranslate"><span class="pre">UInt16Array</span></code>, <code class="docutils literal notranslate"><span class="pre">Int32Array</span></code>, <code class="docutils literal notranslate"><span class="pre">UInt32Array</span></code>,
 <code class="docutils literal notranslate"><span class="pre">FloatArray</span></code> and <code class="docutils literal notranslate"><span class="pre">DoubleArray</span></code>. The class registration code looks as follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">int8_array_ce</span><span class="p">;</span>
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">uint8_array_ce</span><span class="p">;</span>
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">int16_array_ce</span><span class="p">;</span>
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">uint16_array_ce</span><span class="p">;</span>
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">int32_array_ce</span><span class="p">;</span>
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">uint32_array_ce</span><span class="p">;</span>
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">float_array_ce</span><span class="p">;</span>
-<span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">double_array_ce</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">int8_array_ce</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">uint8_array_ce</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">int16_array_ce</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">uint16_array_ce</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">int32_array_ce</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">uint32_array_ce</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">float_array_ce</span><span class="p">;</span><span class="w"></span>
+<span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">double_array_ce</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">zend_object_handlers</span> <span class="n">array_buffer_view_handlers</span><span class="p">;</span>
+<span class="n">zend_object_handlers</span><span class="w"> </span><span class="n">array_buffer_view_handlers</span><span class="p">;</span><span class="w"></span>
 
-<span class="cm">/* ... There will be a lot more code coming in between ... */</span>
+<span class="cm">/* ... There will be a lot more code coming in between ... */</span><span class="w"></span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_class_entry</span> <span class="n">tmp_ce</span><span class="p">;</span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="n">tmp_ce</span><span class="p">;</span><span class="w"></span>
 
-    <span class="cm">/* ... ArrayBuffer stuff here ... */</span>
+<span class="w">    </span><span class="cm">/* ... ArrayBuffer stuff here ... */</span><span class="w"></span>
 
 <span class="cp">#define DEFINE_ARRAY_BUFFER_VIEW_CLASS(class_name, type)                      \</span>
 <span class="cp">    INIT_CLASS_ENTRY(tmp_ce, #class_name, array_buffer_view_functions);       \</span>
@@ -258,22 +258,22 @@ implementation, namely <code class="docutils literal notranslate"><span class="p
 <span class="cp">    type##_array_ce-&gt;create_object = array_buffer_view_create_object;         \</span>
 <span class="cp">    zend_class_implements(type##_array_ce TSRMLS_CC, 1, zend_ce_arrayaccess);</span>
 
-    <span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">Int8Array</span><span class="p">,</span>   <span class="n">int8</span><span class="p">);</span>
-    <span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">UInt8Array</span><span class="p">,</span>  <span class="n">uint8</span><span class="p">);</span>
-    <span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">Int16Array</span><span class="p">,</span>  <span class="n">int16</span><span class="p">);</span>
-    <span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">Uint16Array</span><span class="p">,</span> <span class="n">uint16</span><span class="p">);</span>
-    <span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">Int32Array</span><span class="p">,</span>  <span class="n">int32</span><span class="p">);</span>
-    <span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">UInt32Array</span><span class="p">,</span> <span class="n">uint32</span><span class="p">);</span>
-    <span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">FloatArray</span><span class="p">,</span>  <span class="kt">float</span><span class="p">);</span>
-    <span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">DoubleArray</span><span class="p">,</span> <span class="kt">double</span><span class="p">);</span>
+<span class="w">    </span><span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">Int8Array</span><span class="p">,</span><span class="w">   </span><span class="n">int8</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">UInt8Array</span><span class="p">,</span><span class="w">  </span><span class="n">uint8</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">Int16Array</span><span class="p">,</span><span class="w">  </span><span class="n">int16</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">Uint16Array</span><span class="p">,</span><span class="w"> </span><span class="n">uint16</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">Int32Array</span><span class="p">,</span><span class="w">  </span><span class="n">int32</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">UInt32Array</span><span class="p">,</span><span class="w"> </span><span class="n">uint32</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">FloatArray</span><span class="p">,</span><span class="w">  </span><span class="kt">float</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">DEFINE_ARRAY_BUFFER_VIEW_CLASS</span><span class="p">(</span><span class="n">DoubleArray</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="p">);</span><span class="w"></span>
 
 <span class="cp">#undef DEFINE_ARRAY_BUFFER_VIEW_CLASS</span>
 
-    <span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">,</span> <span class="n">zend_get_std_object_handlers</span><span class="p">(),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
-    <span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">clone_obj</span> <span class="o">=</span> <span class="n">array_buffer_view_clone</span><span class="p">;</span>
+<span class="w">    </span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">,</span><span class="w"> </span><span class="n">zend_get_std_object_handlers</span><span class="p">(),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">clone_obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_view_clone</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>To avoid typing out the same code again and a again a temporary macro is used. It initializes the class entry (always
@@ -282,51 +282,51 @@ implements the <code class="docutils literal notranslate"><span class="pre">Arra
 operators. [Note: Those will have to be explained somewhere. For now just Google them if you don’t already know their
 meaning.]</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">array_buffer_view_functions</span></code> are declared as follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_buffer_view_ctor</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_buffer_view_ctor</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span><span class="w"></span>
 
-<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_buffer_view_offset</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span><span class="w"></span>
 
-<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_buffer_view_offset_set</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-    <span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
+<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_buffer_view_offset_set</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span><span class="w"></span>
 
-<span class="k">const</span> <span class="n">zend_function_entry</span> <span class="n">array_buffer_view_functions</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">__construct</span><span class="p">,</span> <span class="n">array_buffer_view_ctor</span><span class="p">,</span> <span class="n">arginfo_buffer_view_ctor</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
+<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">array_buffer_view_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="n">__construct</span><span class="p">,</span><span class="w"> </span><span class="n">array_buffer_view_ctor</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_buffer_view_ctor</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span><span class="w"></span>
 
-    <span class="cm">/* ArrayAccess */</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
-        <span class="n">offsetGet</span><span class="p">,</span> <span class="n">array_buffer_view_offset_get</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
-    <span class="p">)</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
-        <span class="n">offsetSet</span><span class="p">,</span> <span class="n">array_buffer_view_offset_set</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset_set</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
-    <span class="p">)</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
-        <span class="n">offsetExists</span><span class="p">,</span> <span class="n">array_buffer_view_offset_exists</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
-    <span class="p">)</span>
-    <span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
-        <span class="n">offsetUnset</span><span class="p">,</span> <span class="n">array_buffer_view_offset_unset</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
-    <span class="p">)</span>
+<span class="w">    </span><span class="cm">/* ArrayAccess */</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">offsetGet</span><span class="p">,</span><span class="w"> </span><span class="n">array_buffer_view_offset_get</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_buffer_view_offset</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">offsetSet</span><span class="p">,</span><span class="w"> </span><span class="n">array_buffer_view_offset_set</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_buffer_view_offset_set</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">offsetExists</span><span class="p">,</span><span class="w"> </span><span class="n">array_buffer_view_offset_exists</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_buffer_view_offset</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">offsetUnset</span><span class="p">,</span><span class="w"> </span><span class="n">array_buffer_view_offset_unset</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_buffer_view_offset</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"></span>
 
-    <span class="n">PHP_FE_END</span>
-<span class="p">};</span>
+<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
 <p>One new thing here is that instead of <code class="docutils literal notranslate"><span class="pre">PHP_ME</span></code> the macro <code class="docutils literal notranslate"><span class="pre">PHP_ME_MAPPING</span></code> is used. The difference is that
 <code class="docutils literal notranslate"><span class="pre">PHP_ME</span></code> maps to a <code class="docutils literal notranslate"><span class="pre">PHP_METHOD</span></code> whereas <code class="docutils literal notranslate"><span class="pre">PHP_ME_MAPPING</span></code> maps to a <code class="docutils literal notranslate"><span class="pre">PHP_FUNCTION</span></code>. An example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_ME</span><span class="p">(</span><span class="n">ArrayBufferView</span><span class="p">,</span> <span class="n">offsetGet</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span>
-<span class="cm">/* maps to */</span>
-<span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBufferView</span><span class="p">,</span> <span class="n">offsetGet</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_ME</span><span class="p">(</span><span class="n">ArrayBufferView</span><span class="p">,</span><span class="w"> </span><span class="n">offsetGet</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_buffer_view_offset</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="p">)</span><span class="w"></span>
+<span class="cm">/* maps to */</span><span class="w"></span>
+<span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">ArrayBufferView</span><span class="p">,</span><span class="w"> </span><span class="n">offsetGet</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-<span class="n">PHP_ME_MAPPING</span><span class="p">(</span>
-    <span class="n">offsetGet</span><span class="p">,</span> <span class="n">array_buffer_view_offset_get</span><span class="p">,</span> <span class="n">arginfo_buffer_view_offset</span><span class="p">,</span> <span class="n">ZEND_ACC_PUBLIC</span>
-<span class="p">)</span>
-<span class="cm">/* maps to */</span>
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_offset_get</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+<span class="n">PHP_ME_MAPPING</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">offsetGet</span><span class="p">,</span><span class="w"> </span><span class="n">array_buffer_view_offset_get</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_buffer_view_offset</span><span class="p">,</span><span class="w"> </span><span class="n">ZEND_ACC_PUBLIC</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+<span class="cm">/* maps to */</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_offset_get</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>What you have to realize here is that <code class="docutils literal notranslate"><span class="pre">PHP_FUNCTION</span></code> and <code class="docutils literal notranslate"><span class="pre">PHP_METHOD</span></code> really have nothing to do with PHP functions
@@ -343,329 +343,329 @@ as different types.</p>
 use the entire buffer. E.g. <code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">Int32Array($buffer,</span> <span class="pre">18,</span> <span class="pre">24)</span></code> should create a view that starts 18 bytes into the
 buffer and contains a total of 24 elements.</p>
 <p>This is how the resulting structure could look like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">enum</span> <span class="n">_buffer_view_type</span> <span class="p">{</span>
-    <span class="n">buffer_view_int8</span><span class="p">,</span>
-    <span class="n">buffer_view_uint8</span><span class="p">,</span>
-    <span class="n">buffer_view_int16</span><span class="p">,</span>
-    <span class="n">buffer_view_uint16</span><span class="p">,</span>
-    <span class="n">buffer_view_int32</span><span class="p">,</span>
-    <span class="n">buffer_view_uint32</span><span class="p">,</span>
-    <span class="n">buffer_view_float</span><span class="p">,</span>
-    <span class="n">buffer_view_double</span>
-<span class="p">}</span> <span class="n">buffer_view_type</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">_buffer_view_type</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_int8</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_uint8</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_int16</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_uint16</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_int32</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_uint32</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_float</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_double</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">buffer_view_type</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">typedef</span> <span class="k">struct</span> <span class="n">_buffer_view_object</span> <span class="p">{</span>
-    <span class="n">zend_object</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_buffer_view_object</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="n">std</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">zval</span> <span class="o">*</span><span class="n">buffer_zval</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">buffer_zval</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">union</span> <span class="p">{</span>
-        <span class="kt">int8_t</span>   <span class="o">*</span><span class="n">as_int8</span><span class="p">;</span>
-        <span class="kt">uint8_t</span>  <span class="o">*</span><span class="n">as_uint8</span><span class="p">;</span>
-        <span class="kt">int16_t</span>  <span class="o">*</span><span class="n">as_int16</span><span class="p">;</span>
-        <span class="kt">uint16_t</span> <span class="o">*</span><span class="n">as_uint16</span><span class="p">;</span>
-        <span class="kt">int32_t</span>  <span class="o">*</span><span class="n">as_int32</span><span class="p">;</span>
-        <span class="kt">uint32_t</span> <span class="o">*</span><span class="n">as_uint32</span><span class="p">;</span>
-        <span class="kt">float</span>    <span class="o">*</span><span class="n">as_float</span><span class="p">;</span>
-        <span class="kt">double</span>   <span class="o">*</span><span class="n">as_double</span><span class="p">;</span>
-    <span class="p">}</span> <span class="n">buf</span><span class="p">;</span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kt">int8_t</span><span class="w">   </span><span class="o">*</span><span class="n">as_int8</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w">  </span><span class="o">*</span><span class="n">as_uint8</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">int16_t</span><span class="w">  </span><span class="o">*</span><span class="n">as_int16</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint16_t</span><span class="w"> </span><span class="o">*</span><span class="n">as_uint16</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">int32_t</span><span class="w">  </span><span class="o">*</span><span class="n">as_int32</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*</span><span class="n">as_uint32</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">float</span><span class="w">    </span><span class="o">*</span><span class="n">as_float</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="kt">double</span><span class="w">   </span><span class="o">*</span><span class="n">as_double</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">buf</span><span class="p">;</span><span class="w"></span>
 
-    <span class="kt">size_t</span> <span class="n">offset</span><span class="p">;</span>
-    <span class="kt">size_t</span> <span class="n">length</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">buffer_view_type</span> <span class="n">type</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">buffer_view_object</span><span class="p">;</span>
+<span class="w">    </span><span class="n">buffer_view_type</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">buffer_view_object</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The exact-width integer types used above (<code class="docutils literal notranslate"><span class="pre">int8_t</span></code>, …) are part of the <code class="docutils literal notranslate"><span class="pre">stdint.h</span></code> header. Sadly this header isn’t
 always available on Windows, so a replacement header (that PHP natively provides) has to be included in this case:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#if defined(PHP_WIN32)</span>
-<span class="cp"># include &quot;win32/php_stdint.h&quot;</span>
+<span class="cp">#</span><span class="w"> </span><span class="cp">include</span><span class="w"> </span><span class="cpf">&quot;win32/php_stdint.h&quot;</span><span class="cp"></span>
 <span class="cp">#elif defined(HAVE_STDINT_H)</span>
-<span class="cp"># include &lt;stdint.h&gt;</span>
+<span class="cp">#</span><span class="w"> </span><span class="cp">include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span><span class="cp"></span>
 <span class="cp">#endif</span>
 </pre></div>
 </div>
 <p>The free and create handlers for the above data structure are rather straightforward again:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">array_buffer_view_free_object_storage</span><span class="p">(</span><span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_object_std_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">array_buffer_view_free_object_storage</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object_std_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">efree</span><span class="p">(</span><span class="n">intern</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">efree</span><span class="p">(</span><span class="n">intern</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">zend_object_value</span> <span class="nf">array_buffer_view_create_object</span><span class="p">(</span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">class_type</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_object_value</span> <span class="n">retval</span><span class="p">;</span>
+<span class="n">zend_object_value</span><span class="w"> </span><span class="nf">array_buffer_view_create_object</span><span class="p">(</span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="p">));</span>
-    <span class="n">memset</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="p">));</span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="p">));</span><span class="w"></span>
 
-    <span class="n">zend_object_std_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span> <span class="n">class_type</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">object_properties_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span> <span class="n">class_type</span><span class="p">);</span>
+<span class="w">    </span><span class="n">zend_object_std_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">object_properties_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="p">);</span><span class="w"></span>
 
-    <span class="p">{</span>
-        <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">base_class_type</span> <span class="o">=</span> <span class="n">class_type</span><span class="p">;</span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">base_class_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">class_type</span><span class="p">;</span><span class="w"></span>
 
-        <span class="k">while</span> <span class="p">(</span><span class="n">base_class_type</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">base_class_type</span> <span class="o">=</span> <span class="n">base_class_type</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
-        <span class="p">}</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">base_class_type</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">base_class_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base_class_type</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">base_class_type</span> <span class="o">==</span> <span class="n">int8_array_ce</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="n">buffer_view_int8</span><span class="p">;</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">base_class_type</span> <span class="o">==</span> <span class="n">uint8_array_ce</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="n">buffer_view_uint8</span><span class="p">;</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">base_class_type</span> <span class="o">==</span> <span class="n">int16_array_ce</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="n">buffer_view_uint16</span><span class="p">;</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">base_class_type</span> <span class="o">==</span> <span class="n">int32_array_ce</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="n">buffer_view_int32</span><span class="p">;</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">base_class_type</span> <span class="o">==</span> <span class="n">uint32_array_ce</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="n">buffer_view_uint32</span><span class="p">;</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">base_class_type</span> <span class="o">==</span> <span class="n">float_array_ce</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="n">buffer_view_float</span><span class="p">;</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">base_class_type</span> <span class="o">==</span> <span class="n">double_array_ce</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="n">buffer_view_double</span><span class="p">;</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="cm">/* Should never happen */</span>
-            <span class="n">zend_error</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span> <span class="s">&quot;Buffer view does not have a valid base class&quot;</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base_class_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">int8_array_ce</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_int8</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base_class_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">uint8_array_ce</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_uint8</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base_class_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">int16_array_ce</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_uint16</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base_class_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">int32_array_ce</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_int32</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base_class_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">uint32_array_ce</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_uint32</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base_class_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">float_array_ce</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_float</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base_class_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">double_array_ce</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_double</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="cm">/* Should never happen */</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_error</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Buffer view does not have a valid base class&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">retval</span><span class="p">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">zend_objects_store_put</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span> <span class="n">zend_objects_destroy_object</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span> <span class="n">array_buffer_view_free_object_storage</span><span class="p">,</span>
-        <span class="nb">NULL</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
-    <span class="n">retval</span><span class="p">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">;</span>
+<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_put</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_destroy_object</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span><span class="w"> </span><span class="n">array_buffer_view_free_object_storage</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handlers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">create_object</span></code> handler contains some extra code to first find the base class of the instantiated class and then
 figure out which buffer view type it corresponds to. It’s necessary to go up the <code class="docutils literal notranslate"><span class="pre">parent</span></code> chain to make sure that
 everything will work fine if one of the classes is extended. The creation handler doesn’t do particularly much, the main
 work happens in the constructor:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_ctor</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">buffer_zval</span><span class="p">;</span>
-    <span class="kt">long</span> <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">view_intern</span><span class="p">;</span>
-    <span class="n">buffer_object</span> <span class="o">*</span><span class="n">buffer_intern</span><span class="p">;</span>
-    <span class="n">zend_error_handling</span> <span class="n">error_handling</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_ctor</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">buffer_zval</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">view_intern</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_object</span><span class="w"> </span><span class="o">*</span><span class="n">buffer_intern</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_error_handling</span><span class="w"> </span><span class="n">error_handling</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">zend_replace_error_handling</span><span class="p">(</span><span class="n">EH_THROW</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span>
-            <span class="n">ZEND_NUM_ARGS</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="s">&quot;O|ll&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">buffer_zval</span><span class="p">,</span> <span class="n">array_buffer_ce</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">offset</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">length</span>
-        <span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span>
-    <span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">zend_replace_error_handling</span><span class="p">(</span><span class="n">EH_THROW</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_handling</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;O|ll&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buffer_zval</span><span class="p">,</span><span class="w"> </span><span class="n">array_buffer_ce</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="w"></span>
+<span class="w">        </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_restore_error_handling</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_handling</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">view_intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">buffer_intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">buffer_zval</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">view_intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">buffer_zval</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Offset must be non-negative&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&gt;=</span> <span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Offset has to be smaller than the buffer length&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Length must be positive or zero&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">offset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Offset must be non-negative&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">offset</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Offset has to be smaller than the buffer length&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">length</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Length must be positive or zero&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span><span class="p">;</span>
-    <span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span> <span class="o">=</span> <span class="n">buffer_zval</span><span class="p">;</span>
-    <span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">buffer_zval</span><span class="p">);</span>
+<span class="w">    </span><span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_zval</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">buffer_zval</span><span class="p">);</span><span class="w"></span>
 
-    <span class="p">{</span>
-        <span class="kt">size_t</span> <span class="n">bytes_per_element</span> <span class="o">=</span> <span class="n">buffer_view_get_bytes_per_element</span><span class="p">(</span><span class="n">view_intern</span><span class="p">);</span>
-        <span class="kt">size_t</span> <span class="n">max_length</span> <span class="o">=</span> <span class="p">(</span><span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">-</span> <span class="n">offset</span><span class="p">)</span> <span class="o">/</span> <span class="n">bytes_per_element</span><span class="p">;</span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">bytes_per_element</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_get_bytes_per_element</span><span class="p">(</span><span class="n">view_intern</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">max_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">bytes_per_element</span><span class="p">;</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="n">max_length</span><span class="p">;</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">&gt;</span> <span class="n">max_length</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Length is larger than the buffer&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-            <span class="k">return</span><span class="p">;</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">length</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">max_length</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">max_length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Length is larger than the buffer&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span> <span class="o">=</span> <span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">;</span>
-    <span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span> <span class="o">+=</span> <span class="n">offset</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_intern</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">view_intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The code is mostly error checking, with a few assignments to the internal structure sprinkled in between. The code also
 uses the helper function <code class="docutils literal notranslate"><span class="pre">buffer_view_get_bytes_per_element</span></code> which does exactly what it says:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span> <span class="nf">buffer_view_get_bytes_per_element</span><span class="p">(</span><span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="k">switch</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="k">case</span> <span class="nl">buffer_view_int8</span><span class="p">:</span>
-        <span class="k">case</span> <span class="nl">buffer_view_uint8</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">buffer_view_int16</span><span class="p">:</span>
-        <span class="k">case</span> <span class="nl">buffer_view_uint16</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">2</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">buffer_view_int32</span><span class="p">:</span>
-        <span class="k">case</span> <span class="nl">buffer_view_uint32</span><span class="p">:</span>
-        <span class="k">case</span> <span class="nl">buffer_view_float</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">4</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">buffer_view_double</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">8</span><span class="p">;</span>
-        <span class="k">default</span><span class="o">:</span>
-            <span class="cm">/* Should never happen */</span>
-            <span class="n">zend_error_noreturn</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span> <span class="s">&quot;Invalid buffer view type&quot;</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span><span class="w"> </span><span class="nf">buffer_view_get_bytes_per_element</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_int8</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_uint8</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_int16</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_uint16</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_int32</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_uint32</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_float</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_double</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">default</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="cm">/* Should never happen */</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_error_noreturn</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid buffer view type&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The only missing piece from the construction logic is the clone handler, which copies all internal members and adds a
 ref to the buffer zval:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">zend_object_value</span> <span class="nf">array_buffer_view_clone</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">old_object</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">zend_object_value</span> <span class="n">new_object_val</span> <span class="o">=</span> <span class="n">array_buffer_view_create_object</span><span class="p">(</span>
-        <span class="n">Z_OBJCE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">new_object</span> <span class="o">=</span> <span class="n">zend_object_store_get_object_by_handle</span><span class="p">(</span>
-        <span class="n">new_object_val</span><span class="p">.</span><span class="n">handle</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_object_value</span><span class="w"> </span><span class="nf">array_buffer_view_clone</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">old_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">new_object_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_view_create_object</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">Z_OBJCE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">new_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object_by_handle</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">new_object_val</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">zend_objects_clone_members</span><span class="p">(</span>
-        <span class="o">&amp;</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span> <span class="n">new_object_val</span><span class="p">,</span>
-        <span class="o">&amp;</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span> <span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span> <span class="n">TSRMLS_CC</span>
-    <span class="p">);</span>
+<span class="w">    </span><span class="n">zend_objects_clone_members</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">new_object_val</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
+<span class="w">    </span><span class="p">);</span><span class="w"></span>
 
-    <span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer_zval</span> <span class="o">=</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buffer_zval</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span> <span class="o">=</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="p">;</span>
-    <span class="n">new_object</span><span class="o">-&gt;</span><span class="n">offset</span> <span class="o">=</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">;</span>
-    <span class="n">new_object</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">;</span>
-    <span class="n">new_object</span><span class="o">-&gt;</span><span class="n">type</span>   <span class="o">=</span> <span class="n">old_object</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">type</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">new_object_val</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">new_object_val</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Now that all the formalisms are out of the way, we can start working on the actual functionality: Accessing values at
 certain offsets. For that we need two helper functions for getting and setting the offset depending on the type of the
 view. This basically comes down to switching through all the different types and using the respective member from
 the buffer union:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span> <span class="o">*</span><span class="nf">buffer_view_offset_get</span><span class="p">(</span><span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">offset</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">retval</span><span class="p">;</span>
-    <span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">retval</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="nf">buffer_view_offset_get</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">retval</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">switch</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="nl">buffer_view_int8</span><span class="p">:</span>
-            <span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span> <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">buffer_view_uint8</span><span class="p">:</span>
-            <span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint8</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span> <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">buffer_view_int16</span><span class="p">:</span>
-            <span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int16</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span> <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">buffer_view_uint16</span><span class="p">:</span>
-            <span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint16</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span> <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">buffer_view_int32</span><span class="p">:</span>
-            <span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int32</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span> <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">buffer_view_uint32</span><span class="p">:</span> <span class="p">{</span>
-            <span class="kt">uint32_t</span> <span class="n">value</span> <span class="o">=</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint32</span><span class="p">[</span><span class="n">offset</span><span class="p">];</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;=</span> <span class="n">LONG_MAX</span><span class="p">)</span> <span class="p">{</span>
-                <span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
-            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-                <span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
-            <span class="p">}</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="p">}</span>
-        <span class="k">case</span> <span class="nl">buffer_view_float</span><span class="p">:</span>
-            <span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_float</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span> <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="nl">buffer_view_double</span><span class="p">:</span>
-            <span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_double</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span> <span class="k">break</span><span class="p">;</span>
-        <span class="k">default</span><span class="o">:</span>
-            <span class="cm">/* Should never happen */</span>
-            <span class="n">zend_error_noreturn</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span> <span class="s">&quot;Invalid buffer view type&quot;</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_int8</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_uint8</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint8</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_int16</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int16</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_uint16</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint16</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_int32</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int32</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_uint32</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint32</span><span class="p">[</span><span class="n">offset</span><span class="p">];</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">LONG_MAX</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_float</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_float</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_double</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_double</span><span class="p">[</span><span class="n">offset</span><span class="p">]);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">default</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="cm">/* Should never happen */</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_error_noreturn</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid buffer view type&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="kt">void</span> <span class="nf">buffer_view_offset_set</span><span class="p">(</span><span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">,</span> <span class="kt">long</span> <span class="n">offset</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">value</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">==</span> <span class="n">buffer_view_float</span> <span class="o">||</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">==</span> <span class="n">buffer_view_double</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-        <span class="n">convert_to_double_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">buffer_view_offset_set</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">buffer_view_float</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">buffer_view_double</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">convert_to_double_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">==</span> <span class="n">buffer_view_float</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_float</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_double</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-        <span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">buffer_view_float</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_float</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_double</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
 
-        <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-        <span class="n">convert_to_long_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span>
+<span class="w">        </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">convert_to_long_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
 
-        <span class="k">switch</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">case</span> <span class="nl">buffer_view_int8</span><span class="p">:</span>
-                <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
-            <span class="k">case</span> <span class="nl">buffer_view_uint8</span><span class="p">:</span>
-                <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint8</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
-            <span class="k">case</span> <span class="nl">buffer_view_int16</span><span class="p">:</span>
-                <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int16</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
-            <span class="k">case</span> <span class="nl">buffer_view_uint16</span><span class="p">:</span>
-                <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint16</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
-            <span class="k">case</span> <span class="nl">buffer_view_int32</span><span class="p">:</span>
-                <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int32</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
-            <span class="k">case</span> <span class="nl">buffer_view_uint32</span><span class="p">:</span>
-                <span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint32</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
-            <span class="k">default</span><span class="o">:</span>
-                <span class="cm">/* Should never happen */</span>
-                <span class="n">zend_error</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span> <span class="s">&quot;Invalid buffer view type&quot;</span><span class="p">);</span>
-        <span class="p">}</span>
+<span class="w">        </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_int8</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int8</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_uint8</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint8</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_int16</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int16</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_uint16</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint16</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_int32</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_int32</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="nl">buffer_view_uint32</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">buf</span><span class="p">.</span><span class="n">as_uint32</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="k">default</span><span class="o">:</span><span class="w"></span>
+<span class="w">                </span><span class="cm">/* Should never happen */</span><span class="w"></span>
+<span class="w">                </span><span class="n">zend_error</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid buffer view type&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
 
-        <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">        </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Implementing the <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code> interface is now only matter of doing a bit of bounds checking and dispatching to the
 above helpers (as well as the usual method boilerplate). Here’s how the <code class="docutils literal notranslate"><span class="pre">offsetGet</span></code> method could be implemented:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_offset_get</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span><span class="p">;</span>
-    <span class="kt">long</span> <span class="n">offset</span><span class="p">;</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">retval</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">array_buffer_view_offset_get</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">,</span> <span class="s">&quot;l&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">offset</span><span class="p">)</span> <span class="o">==</span> <span class="n">FAILURE</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">getThis</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">offset</span> <span class="o">&gt;=</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Offset is outside the buffer range&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">offset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Offset is outside the buffer range&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">retval</span> <span class="o">=</span> <span class="n">buffer_view_offset_get</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span> <span class="n">offset</span><span class="p">);</span>
-    <span class="n">RETURN_ZVAL</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">retval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_offset_get</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">RETURN_ZVAL</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The remaining three <code class="docutils literal notranslate"><span class="pre">offsetSet</span></code>, <code class="docutils literal notranslate"><span class="pre">offsetExists</span></code> and <code class="docutils literal notranslate"><span class="pre">offsetUnset</span></code> methods are pretty much the same, so I’ll just
@@ -674,8 +674,8 @@ leave them as an exercise to the reader.</p>
 JavaScript’s pretty awesome buffer/view system.</p>
 <p>But the current implementation does not yet integrate well with PHP. It only implements <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code>, but it can’t
 be iterated over, can’t be counted and so on. Implementing those interactions is what the next section is about.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

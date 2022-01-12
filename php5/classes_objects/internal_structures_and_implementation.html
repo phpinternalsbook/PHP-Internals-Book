@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Internal structures and implementation &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Testing with .phpt files" href="../../tests/introduction.html" />
@@ -37,25 +37,25 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="internal-structures-and-implementation">
+  <section id="internal-structures-and-implementation">
 <h1>Internal structures and implementation<a class="headerlink" href="#internal-structures-and-implementation" title="Permalink to this headline">¶</a></h1>
 <p>In this (last) section on object orientation in PHP we’ll have a look at some of the internal structures that were
 previously only mentioned in passing. In particular we’ll see more thoroughly the default object structure and the object
 store.</p>
-<div class="section" id="object-properties">
+<section id="object-properties">
 <h2>Object properties<a class="headerlink" href="#object-properties" title="Permalink to this headline">¶</a></h2>
 <p>The probably by far most complicated part of PHP’s object orientation system is the handling of object properties. In
 the following we’ll take a look at some of its parts in more detail.</p>
-<div class="section" id="property-storage">
+<section id="property-storage">
 <h3>Property storage<a class="headerlink" href="#property-storage" title="Permalink to this headline">¶</a></h3>
 <p>In PHP object properties can be declared, but don’t have to. How can one efficiently handle such a situation? To find
 out let’s recall the standard <code class="docutils literal notranslate"><span class="pre">zend_object</span></code> structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_object</span> <span class="p">{</span>
-    <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">;</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">properties</span><span class="p">;</span>
-    <span class="n">zval</span> <span class="o">**</span><span class="n">properties_table</span><span class="p">;</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">guards</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">zend_object</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ce</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">properties</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">properties_table</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">guards</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_object</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This structure contains two fields for storing properties: The <code class="docutils literal notranslate"><span class="pre">properties</span></code> hash table and the <code class="docutils literal notranslate"><span class="pre">properties_table</span></code>
@@ -71,16 +71,16 @@ fetching the property value, first the property offset is fetched and that offse
 value.</p>
 <p>Property information (including the storage offset) is stored in <code class="docutils literal notranslate"><span class="pre">class_entry-&gt;properties_info</span></code>. This hash table
 is a map of property names to <code class="docutils literal notranslate"><span class="pre">zend_property_info</span></code> structs:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_property_info</span> <span class="p">{</span>
-    <span class="n">zend_uint</span> <span class="n">flags</span><span class="p">;</span>
-    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">name_length</span><span class="p">;</span>
-    <span class="n">ulong</span> <span class="n">h</span><span class="p">;</span>                 <span class="cm">/* hash of name */</span>
-    <span class="kt">int</span> <span class="n">offset</span><span class="p">;</span>              <span class="cm">/* storage offset */</span>
-    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">doc_comment</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">doc_comment_len</span><span class="p">;</span>
-    <span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">;</span>    <span class="cm">/* CE of declaring class */</span>
-<span class="p">}</span> <span class="n">zend_property_info</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_property_info</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_uint</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">name_length</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">ulong</span><span class="w"> </span><span class="n">h</span><span class="p">;</span><span class="w">                 </span><span class="cm">/* hash of name */</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w">              </span><span class="cm">/* storage offset */</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">doc_comment</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">doc_comment_len</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ce</span><span class="p">;</span><span class="w">    </span><span class="cm">/* CE of declaring class */</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_property_info</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>One remaining question is what happens when both types of properties exist. In this case both structures will be used
@@ -90,19 +90,19 @@ contain pointers to them. Note though that if both are used the properties table
 <p>Sometimes PHP needs the properties as a hashtable even if they are all declared, e.g. when the <code class="docutils literal notranslate"><span class="pre">get_properties</span></code>
 handler is used. In this case PHP also switches to using <code class="docutils literal notranslate"><span class="pre">properties</span></code> (or rather the hybrid approach described above).
 This is done using the <code class="docutils literal notranslate"><span class="pre">rebuild_object_properties</span></code> function:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span> <span class="n">HashTable</span> <span class="o">*</span><span class="nf">zend_std_get_properties</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_object</span> <span class="o">*</span><span class="n">zobj</span><span class="p">;</span>
-    <span class="n">zobj</span> <span class="o">=</span> <span class="n">Z_OBJ_P</span><span class="p">(</span><span class="n">object</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">zobj</span><span class="o">-&gt;</span><span class="n">properties</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">rebuild_object_properties</span><span class="p">(</span><span class="n">zobj</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">zobj</span><span class="o">-&gt;</span><span class="n">properties</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">zend_std_get_properties</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">zobj</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zobj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_OBJ_P</span><span class="p">(</span><span class="n">object</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">zobj</span><span class="o">-&gt;</span><span class="n">properties</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">rebuild_object_properties</span><span class="p">(</span><span class="n">zobj</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">zobj</span><span class="o">-&gt;</span><span class="n">properties</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="property-name-mangling">
+</section>
+<section id="property-name-mangling">
 <h3>Property name mangling<a class="headerlink" href="#property-name-mangling" title="Permalink to this headline">¶</a></h3>
 <p>Consider the following code snippet:</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">A</span> <span class="p">{</span>
@@ -151,29 +151,29 @@ you.</p>
 you try to directly access the <code class="docutils literal notranslate"><span class="pre">zobj-&gt;properties</span></code> hash. In this cases you can use the
 <code class="docutils literal notranslate"><span class="pre">zend_(un)mangle_property_name</span></code> APIs:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Unmangling</span>
-<span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">class_name</span><span class="p">,</span> <span class="o">*</span><span class="n">property_name</span><span class="p">;</span>
-<span class="kt">int</span> <span class="n">property_name_len</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">class_name</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">property_name</span><span class="p">;</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">property_name_len</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">if</span> <span class="p">(</span><span class="n">zend_unmangle_property_name_ex</span><span class="p">(</span>
-        <span class="n">mangled_property_name</span><span class="p">,</span> <span class="n">mangled_property_name_len</span><span class="p">,</span>
-        <span class="o">&amp;</span><span class="n">class_name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">property_name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">property_name_len</span>
-    <span class="p">)</span> <span class="o">==</span> <span class="n">SUCCESS</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// ...</span>
-<span class="p">}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_unmangle_property_name_ex</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">mangled_property_name</span><span class="p">,</span><span class="w"> </span><span class="n">mangled_property_name_len</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">class_name</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">property_name</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">property_name_len</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">}</span><span class="w"></span>
 
 <span class="c1">// Mangling</span>
-<span class="kt">char</span> <span class="o">*</span><span class="n">mangled_property_name</span><span class="p">;</span>
-<span class="kt">int</span> <span class="n">mangled_property_name_len</span><span class="p">;</span>
+<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">mangled_property_name</span><span class="p">;</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">mangled_property_name_len</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">zend_mangle_property_name</span><span class="p">(</span>
-    <span class="o">&amp;</span><span class="n">mangled_property_name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mangled_property_name_len</span><span class="p">,</span>
-    <span class="n">class_name</span><span class="p">,</span> <span class="n">class_name_len</span><span class="p">,</span> <span class="n">property_name</span><span class="p">,</span> <span class="n">property_name_len</span><span class="p">,</span>
-    <span class="n">should_do_persistent_alloc</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="mi">0</span>
-<span class="p">);</span>
+<span class="n">zend_mangle_property_name</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">mangled_property_name</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mangled_property_name_len</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">class_name</span><span class="p">,</span><span class="w"> </span><span class="n">class_name_len</span><span class="p">,</span><span class="w"> </span><span class="n">property_name</span><span class="p">,</span><span class="w"> </span><span class="n">property_name_len</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">should_do_persistent_alloc</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="property-recursion-guards">
+</section>
+<section id="property-recursion-guards">
 <h3>Property recursion guards<a class="headerlink" href="#property-recursion-guards" title="Permalink to this headline">¶</a></h3>
 <p>The last member in <code class="docutils literal notranslate"><span class="pre">zend_object</span></code> is the <code class="docutils literal notranslate"><span class="pre">HashTable</span> <span class="pre">*guards</span></code> field. To find out what it is used for, consider what
 happens in the following code using magic <code class="docutils literal notranslate"><span class="pre">__set</span></code> properties:</p>
@@ -196,26 +196,26 @@ again?</p>
 it actually creates the new <code class="docutils literal notranslate"><span class="pre">$bar</span></code> property. In order to implement this behavior PHP uses recursion guards which
 remember whether PHP is already in <code class="docutils literal notranslate"><span class="pre">__set</span></code> etc for a certain property. These guards are stored in the <code class="docutils literal notranslate"><span class="pre">guards</span></code> hash
 table, which maps property names to <code class="docutils literal notranslate"><span class="pre">zend_guard</span></code> structures:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_guard</span> <span class="p">{</span>
-    <span class="n">zend_bool</span> <span class="n">in_get</span><span class="p">;</span>
-    <span class="n">zend_bool</span> <span class="n">in_set</span><span class="p">;</span>
-    <span class="n">zend_bool</span> <span class="n">in_unset</span><span class="p">;</span>
-    <span class="n">zend_bool</span> <span class="n">in_isset</span><span class="p">;</span>
-    <span class="n">zend_bool</span> <span class="n">dummy</span><span class="p">;</span> <span class="cm">/* sizeof(zend_guard) must not be equal to sizeof(void*) */</span>
-<span class="p">}</span> <span class="n">zend_guard</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_guard</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">in_get</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">in_set</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">in_unset</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">in_isset</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">dummy</span><span class="p">;</span><span class="w"> </span><span class="cm">/* sizeof(zend_guard) must not be equal to sizeof(void*) */</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_guard</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="object-store">
+</section>
+</section>
+<section id="object-store">
 <h2>Object store<a class="headerlink" href="#object-store" title="Permalink to this headline">¶</a></h2>
 <p>We already made a lot of use of the object store, so let’s have a closer look at it now:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_objects_store</span> <span class="p">{</span>
-    <span class="n">zend_object_store_bucket</span> <span class="o">*</span><span class="n">object_buckets</span><span class="p">;</span>
-    <span class="n">zend_uint</span> <span class="n">top</span><span class="p">;</span>
-    <span class="n">zend_uint</span> <span class="n">size</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">free_list_head</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">zend_objects_store</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_objects_store</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object_store_bucket</span><span class="w"> </span><span class="o">*</span><span class="n">object_buckets</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_uint</span><span class="w"> </span><span class="n">top</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_uint</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">free_list_head</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_objects_store</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The object store is basically a dynamically resized array of <code class="docutils literal notranslate"><span class="pre">object_buckets</span></code>. <code class="docutils literal notranslate"><span class="pre">size</span></code> specifies the size of the
@@ -226,25 +226,25 @@ all handles are “truthy”. Thus if <code class="docutils literal notranslate"
 an unused bucket, which is then put in this list. If a new object is created and such a bucket exists (i.e.
 <code class="docutils literal notranslate"><span class="pre">free_list_head</span></code> is not <code class="docutils literal notranslate"><span class="pre">-1</span></code>), then this bucket is used instead of the <code class="docutils literal notranslate"><span class="pre">top</span></code> one.</p>
 <p>To see how this linked list is maintained have a look at the <code class="docutils literal notranslate"><span class="pre">zend_object_store_bucket</span></code> structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_zend_object_store_bucket</span> <span class="p">{</span>
-    <span class="n">zend_bool</span> <span class="n">destructor_called</span><span class="p">;</span>
-    <span class="n">zend_bool</span> <span class="n">valid</span><span class="p">;</span>
-    <span class="n">zend_uchar</span> <span class="n">apply_count</span><span class="p">;</span>
-    <span class="k">union</span> <span class="n">_store_bucket</span> <span class="p">{</span>
-        <span class="k">struct</span> <span class="n">_store_object</span> <span class="p">{</span>
-            <span class="kt">void</span> <span class="o">*</span><span class="n">object</span><span class="p">;</span>
-            <span class="n">zend_objects_store_dtor_t</span> <span class="n">dtor</span><span class="p">;</span>
-            <span class="n">zend_objects_free_object_storage_t</span> <span class="n">free_storage</span><span class="p">;</span>
-            <span class="n">zend_objects_store_clone_t</span> <span class="n">clone</span><span class="p">;</span>
-            <span class="k">const</span> <span class="n">zend_object_handlers</span> <span class="o">*</span><span class="n">handlers</span><span class="p">;</span>
-            <span class="n">zend_uint</span> <span class="n">refcount</span><span class="p">;</span>
-            <span class="n">gc_root_buffer</span> <span class="o">*</span><span class="n">buffered</span><span class="p">;</span>
-        <span class="p">}</span> <span class="n">obj</span><span class="p">;</span>
-        <span class="k">struct</span> <span class="p">{</span>
-            <span class="kt">int</span> <span class="n">next</span><span class="p">;</span>
-        <span class="p">}</span> <span class="n">free_list</span><span class="p">;</span>
-    <span class="p">}</span> <span class="n">bucket</span><span class="p">;</span>
-<span class="p">}</span> <span class="n">zend_object_store_bucket</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object_store_bucket</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">destructor_called</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">valid</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_uchar</span><span class="w"> </span><span class="n">apply_count</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="nc">_store_bucket</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">_store_object</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_objects_store_dtor_t</span><span class="w"> </span><span class="n">dtor</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_objects_free_object_storage_t</span><span class="w"> </span><span class="n">free_storage</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_objects_store_clone_t</span><span class="w"> </span><span class="n">clone</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="n">zend_object_handlers</span><span class="w"> </span><span class="o">*</span><span class="n">handlers</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_uint</span><span class="w"> </span><span class="n">refcount</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">gc_root_buffer</span><span class="w"> </span><span class="o">*</span><span class="n">buffered</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="n">obj</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">next</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="n">free_list</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">bucket</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_object_store_bucket</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>If the bucket is in use (i.e. stores an object), then the <code class="docutils literal notranslate"><span class="pre">valid</span></code> member will be 1. In this case the
@@ -273,7 +273,7 @@ infinite recursion. It is used via the macros <code class="docutils literal notr
 object is 3 or larger. Currently this protection mechanism is only used in the object comparison handler.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">handlers</span></code> member in the <code class="docutils literal notranslate"><span class="pre">_store_object</span></code> struct is also required for destruction. The reason for this is that
 the <code class="docutils literal notranslate"><span class="pre">dtor</span></code> handler only gets passed the stored object and its handle:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zend_object_handle</span> <span class="n">handle</span> <span class="n">TSRMLS_DC</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zend_object_handle</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>But in order to call <code class="docutils literal notranslate"><span class="pre">__destruct</span></code> PHP needs a zval. Thus it creates a temporary zval using the passed object handle
@@ -323,8 +323,8 @@ Inside the destructor PHP uses the default object handlers and as such you don�
 name. The same also applies to other handlers, e.g. things like cloning, comparison, etc will not work properly.</p>
 <p>This concludes the chapter on object orientation. You should now have a good understanding of how the object orientation
 system in PHP works and how extensions can make use of it.</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>

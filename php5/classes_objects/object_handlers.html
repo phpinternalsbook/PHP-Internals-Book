@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Object handlers &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Iterators" href="iterators.html" />
@@ -37,7 +37,7 @@
       <div class="content" role="main">
         
         
-  <div class="section" id="object-handlers">
+  <section id="object-handlers">
 <h1>Object handlers<a class="headerlink" href="#object-handlers" title="Permalink to this headline">¶</a></h1>
 <p>In the previous sections you already had some contact with object handlers. In particular you should know how to create
 the structure used to specify the handlers and how to implement cloning behavior using <code class="docutils literal notranslate"><span class="pre">clone_obj</span></code>. But this is just
@@ -46,53 +46,53 @@ interface is implemented with an object or class handler internally. Furthermore
 are not exposed to userland PHP. For example internal classes can have custom comparison and cast behavior.</p>
 <p>As the number of different object handlers is rather large we can only discuss examples (using the typed array
 implementation from the last section) for a few of them. For all the others only a short description is provided.</p>
-<div class="section" id="an-overview">
+<section id="an-overview">
 <h2>An Overview<a class="headerlink" href="#an-overview" title="Permalink to this headline">¶</a></h2>
 <p>As of this writing there are 26 object handlers, which are listed in the following with their signature and a small
 description.</p>
 <dl class="c member">
-<dt>
-<code class="sig-name descname">zval *read_property(zval *object, zval *member, int type, const struct _zend_literal *key TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">void write_property(zval *object, zval *member, zval *value, const struct _zend_literal *key TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">int has_property(zval *object, zval *member, int has_set_exists, const struct _zend_literal *key TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">void unset_property(zval *object, zval *member, const struct _zend_literal *key TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">zval **get_property_ptr_ptr(zval *object, zval *member, const struct _zend_literal *key TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">zval</span> <span class="pre">*read_property(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">*member,</span> <span class="pre">int</span> <span class="pre">type,</span> <span class="pre">const</span> <span class="pre">struct</span> <span class="pre">_zend_literal</span> <span class="pre">*key</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">void</span> <span class="pre">write_property(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">*member,</span> <span class="pre">zval</span> <span class="pre">*value,</span> <span class="pre">const</span> <span class="pre">struct</span> <span class="pre">_zend_literal</span> <span class="pre">*key</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">int</span> <span class="pre">has_property(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">*member,</span> <span class="pre">int</span> <span class="pre">has_set_exists,</span> <span class="pre">const</span> <span class="pre">struct</span> <span class="pre">_zend_literal</span> <span class="pre">*key</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">void</span> <span class="pre">unset_property(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">*member,</span> <span class="pre">const</span> <span class="pre">struct</span> <span class="pre">_zend_literal</span> <span class="pre">*key</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">zval</span> <span class="pre">**get_property_ptr_ptr(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">*member,</span> <span class="pre">const</span> <span class="pre">struct</span> <span class="pre">_zend_literal</span> <span class="pre">*key</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>These handlers correspond to the <code class="docutils literal notranslate"><span class="pre">__get</span></code>, <code class="docutils literal notranslate"><span class="pre">__set</span></code>, <code class="docutils literal notranslate"><span class="pre">__isset</span></code> and <code class="docutils literal notranslate"><span class="pre">__unset</span></code> methods. <code class="docutils literal notranslate"><span class="pre">get_property_ptr_ptr</span></code>
 is the internal equivalent of <code class="docutils literal notranslate"><span class="pre">__get</span></code> returning by reference. The <code class="docutils literal notranslate"><span class="pre">zend_literal</span> <span class="pre">*key</span></code> passed to these functions
 exists as an optimization, for example it contains a precomputed hash of the property name.</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">zval *read_dimension(zval *object, zval *offset, int type TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">void write_dimension(zval *object, zval *offset, zval *value TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">int has_dimension(zval *object, zval *member, int check_empty TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">void unset_dimension(zval *object, zval *offset TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">zval</span> <span class="pre">*read_dimension(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">*offset,</span> <span class="pre">int</span> <span class="pre">type</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">void</span> <span class="pre">write_dimension(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">*offset,</span> <span class="pre">zval</span> <span class="pre">*value</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">int</span> <span class="pre">has_dimension(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">*member,</span> <span class="pre">int</span> <span class="pre">check_empty</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">void</span> <span class="pre">unset_dimension(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">*offset</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>This set of handlers is the internal representation of the <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code> interface.</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">void set(zval **object, zval *value TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">zval *get(zval *object TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">void</span> <span class="pre">set(zval</span> <span class="pre">**object,</span> <span class="pre">zval</span> <span class="pre">*value</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">zval</span> <span class="pre">*get(zval</span> <span class="pre">*object</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>These handlers get/set the “object value”. They can be used to override (to a certain degree) the compound
 assignment operators (like <code class="docutils literal notranslate"><span class="pre">+=</span></code> or <code class="docutils literal notranslate"><span class="pre">++</span></code>) and exist mainly for the purpose of proxy objects. In practice they are
 rarely used.</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">HashTable *get_properties(zval *object TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">HashTable *get_debug_info(zval *object, int *is_temp TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">HashTable</span> <span class="pre">*get_properties(zval</span> <span class="pre">*object</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">HashTable</span> <span class="pre">*get_debug_info(zval</span> <span class="pre">*object,</span> <span class="pre">int</span> <span class="pre">*is_temp</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>Used to get the object properties as a hashtable. The former is more general purpose, for example it is also used
 for the <code class="docutils literal notranslate"><span class="pre">get_object_vars</span></code> function. The latter on the other hand is used exclusively to display properties in
 debugging functions like <code class="docutils literal notranslate"><span class="pre">var_dump</span></code>. So even if your object does not provide any formal properties you can still
@@ -100,10 +100,10 @@ have a meaningful debug output.</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">union _zend_function *get_method(zval **object_ptr, char *method, int method_len, const struct _zend_literal *key TSRMLS_DC)</code></dt>
-<dt id="c.call_method">
-int <code class="sig-name descname">call_method</code><span class="sig-paren">(</span><em class="property">const</em> char *<em>method</em>, INTERNAL_FUNCTION_PARAMETERS<span class="sig-paren">)</span><a class="headerlink" href="#c.call_method" title="Permalink to this definition">¶</a><br /></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">union</span> <span class="pre">_zend_function</span> <span class="pre">*get_method(zval</span> <span class="pre">**object_ptr,</span> <span class="pre">char</span> <span class="pre">*method,</span> <span class="pre">int</span> <span class="pre">method_len,</span> <span class="pre">const</span> <span class="pre">struct</span> <span class="pre">_zend_literal</span> <span class="pre">*key</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c" id="c.call_method">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">call_method</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">method</span></span>, <span class="n"><span class="pre">INTERNAL_FUNCTION_PARAMETERS</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.call_method" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The <code class="docutils literal notranslate"><span class="pre">get_method</span></code> handler fetches the <code class="docutils literal notranslate"><span class="pre">zend_function</span></code> used to call a certain method. If there is no particular
 <code class="docutils literal notranslate"><span class="pre">zend_function</span></code> that you want to invoke, but you rather want a <code class="docutils literal notranslate"><span class="pre">__call</span></code>-like catch-all behavior, then
 <code class="docutils literal notranslate"><span class="pre">get_method</span></code> can signal that it is a <code class="docutils literal notranslate"><span class="pre">ZEND_OVERLOADED_FUNCTION</span></code> in which case the <code class="docutils literal notranslate"><span class="pre">call_method</span></code> handler will
@@ -111,40 +111,40 @@ be used instead.</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">union _zend_function *get_constructor(zval *object TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">union</span> <span class="pre">_zend_function</span> <span class="pre">*get_constructor(zval</span> <span class="pre">*object</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>Like <code class="docutils literal notranslate"><span class="pre">get_method</span></code>, but getting the constructor function. The most common reason to override this handler is to
 disallow manual construction by throwing an error in the handler.</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">int count_elements(zval *object, long *count TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">int</span> <span class="pre">count_elements(zval</span> <span class="pre">*object,</span> <span class="pre">long</span> <span class="pre">*count</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>This is just the internal way of implementing the <code class="docutils literal notranslate"><span class="pre">Countable::count</span></code> method.</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">int compare_objects(zval *object1, zval *object2 TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">int cast_object(zval *readobj, zval *retval, int type TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">int</span> <span class="pre">compare_objects(zval</span> <span class="pre">*object1,</span> <span class="pre">zval</span> <span class="pre">*object2</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">int</span> <span class="pre">cast_object(zval</span> <span class="pre">*readobj,</span> <span class="pre">zval</span> <span class="pre">*retval,</span> <span class="pre">int</span> <span class="pre">type</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>Internal classes have the ability to implement a custom compare behavior and override casting behavior for all
 types. Userland classes on the other hand only have the ability to override object to string casting through
 <code class="docutils literal notranslate"><span class="pre">__toString</span></code>.</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">int get_closure(zval *obj, zend_class_entry **ce_ptr, union _zend_function **fptr_ptr, zval **zobj_ptr TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">int</span> <span class="pre">get_closure(zval</span> <span class="pre">*obj,</span> <span class="pre">zend_class_entry</span> <span class="pre">**ce_ptr,</span> <span class="pre">union</span> <span class="pre">_zend_function</span> <span class="pre">**fptr_ptr,</span> <span class="pre">zval</span> <span class="pre">**zobj_ptr</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>This handler is invoked when the object is used as a function, i.e. it is the internal version of <code class="docutils literal notranslate"><span class="pre">__invoke</span></code>.
 The name derives from the fact that its main use is for the implementation of closures (the <code class="docutils literal notranslate"><span class="pre">Closure</span></code> class).</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">zend_class_entry *get_class_entry(const zval *object TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">int get_class_name(const zval *object, const char **class_name, zend_uint *class_name_len, int parent TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">zend_class_entry</span> <span class="pre">*get_class_entry(const</span> <span class="pre">zval</span> <span class="pre">*object</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">int</span> <span class="pre">get_class_name(const</span> <span class="pre">zval</span> <span class="pre">*object,</span> <span class="pre">const</span> <span class="pre">char</span> <span class="pre">**class_name,</span> <span class="pre">zend_uint</span> <span class="pre">*class_name_len,</span> <span class="pre">int</span> <span class="pre">parent</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>These two handlers are used to get the class entry and class name from an object. There should be little reason to
 overwrite them. The only occasion that I can think of where this would be necessary is if you choose to create a
 custom object structure that does <em>not</em> contain the standard <code class="docutils literal notranslate"><span class="pre">zend_object</span></code> as a substructure. (This is entirely
@@ -152,14 +152,14 @@ possible, but not usually done.)</p>
 </dd></dl>
 
 <dl class="c member">
-<dt>
-<code class="sig-name descname">void add_ref(zval *object TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">void del_ref(zval *object TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">zend_object_value clone_obj(zval *object TSRMLS_DC)</code></dt>
-<dt>
-<code class="sig-name descname">HashTable *get_gc(zval *object, zval ***table, int *n TSRMLS_DC)</code></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">void</span> <span class="pre">add_ref(zval</span> <span class="pre">*object</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">void</span> <span class="pre">del_ref(zval</span> <span class="pre">*object</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">zend_object_value</span> <span class="pre">clone_obj(zval</span> <span class="pre">*object</span> <span class="pre">TSRMLS_DC)</span></span></dt>
+<dt class="sig sig-object c">
+<span class="sig-name descname"><span class="pre">HashTable</span> <span class="pre">*get_gc(zval</span> <span class="pre">*object,</span> <span class="pre">zval</span> <span class="pre">***table,</span> <span class="pre">int</span> <span class="pre">*n</span> <span class="pre">TSRMLS_DC)</span></span></dt>
 <dd><p>This set of handlers is used for various object maintenance tasks. <code class="docutils literal notranslate"><span class="pre">add_ref</span></code> is called when a new zval starts
 referencing the object, <code class="docutils literal notranslate"><span class="pre">del_ref</span></code> is called when a reference is removed. By default these handlers will change
 the refcount in the object store. Once again there should be virtually no reason to overwrite them. The only
@@ -169,8 +169,8 @@ storage facility.</p>
 variables that are held by the object, so cyclic dependencies can be properly collected.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="implementing-array-access-using-object-handlers">
+</section>
+<section id="implementing-array-access-using-object-handlers">
 <h2>Implementing array access using object handlers<a class="headerlink" href="#implementing-array-access-using-object-handlers" title="Permalink to this headline">¶</a></h2>
 <p>In the previous section the <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code> interface was used to provide array-like behavior for the buffer views. Now
 we want to improve the implementation by using the respective <code class="docutils literal notranslate"><span class="pre">*_dimension</span></code> object handlers. These same handlers are
@@ -180,42 +180,42 @@ methods is avoided.</p>
 <code class="docutils literal notranslate"><span class="pre">unset_dimension</span></code>. They all take the object zval as first argument and the offset zval as second. For our purposes
 the offset has to be an integer, so let’s first introduce a helper function for getting the long value from a zval (in
 order to avoid all the repeating cast code):</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">long</span> <span class="nf">get_long_from_zval</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">zv</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv</span><span class="p">)</span> <span class="o">==</span> <span class="n">IS_LONG</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">zval</span> <span class="n">tmp</span> <span class="o">=</span> <span class="o">*</span><span class="n">zv</span><span class="p">;</span>
-        <span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span>
-        <span class="n">convert_to_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span>
-        <span class="k">return</span> <span class="n">Z_LVAL</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="nf">get_long_from_zval</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_LONG</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zval</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">convert_to_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Z_LVAL</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Now writing the respective handlers is rather straightforward. For example, this is how the <code class="docutils literal notranslate"><span class="pre">read_dimension</span></code> handler
 looks like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">zval</span> <span class="o">*</span><span class="nf">array_buffer_view_read_dimension</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">retval</span><span class="p">;</span>
-    <span class="kt">long</span> <span class="n">offset</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="nf">array_buffer_view_read_dimension</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">zv_offset</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Cannot append to a typed array&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">zv_offset</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Cannot append to a typed array&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">offset</span> <span class="o">=</span> <span class="n">get_long_from_zval</span><span class="p">(</span><span class="n">zv_offset</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">offset</span> <span class="o">&gt;=</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Offset is outside the buffer range&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_long_from_zval</span><span class="p">(</span><span class="n">zv_offset</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">offset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Offset is outside the buffer range&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">retval</span> <span class="o">=</span> <span class="n">buffer_view_offset_get</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span> <span class="n">offset</span><span class="p">);</span>
-    <span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">retval</span><span class="p">);</span> <span class="cm">/* Refcount should be 0 if not referenced from ext / engine */</span>
-    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">retval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_offset_get</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">retval</span><span class="p">);</span><span class="w"> </span><span class="cm">/* Refcount should be 0 if not referenced from ext / engine */</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Something that is slightly odd about this handler is the <code class="docutils literal notranslate"><span class="pre">Z_DELREF_P(retval)</span></code> at the end: <code class="docutils literal notranslate"><span class="pre">read_dimension</span></code> is
@@ -242,90 +242,90 @@ offset being <code class="docutils literal notranslate"><span class="pre">NULL</
 <p>The <code class="docutils literal notranslate"><span class="pre">type</span></code> parameter can be used to change the behavior depending on the context. For example <code class="docutils literal notranslate"><span class="pre">isset</span></code> is usually
 expected not to throw any warnings, errors or exceptions. We could honor this by explicitly checking for the
 <code class="docutils literal notranslate"><span class="pre">BP_VAR_IS</span></code> type:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">type</span> <span class="o">==</span> <span class="n">BP_VAR_IS</span><span class="p">)</span>
-    <span class="k">return</span> <span class="o">&amp;</span><span class="n">EG</span><span class="p">(</span><span class="n">uninitialized_zval_ptr</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">BP_VAR_IS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="n">EG</span><span class="p">(</span><span class="n">uninitialized_zval_ptr</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>But as in our particular case nested dimension access doesn’t really make sense we don’t need to worry much about any
 such behaviors.</p>
 <p>The remaining handlers are similar to <code class="docutils literal notranslate"><span class="pre">read_dimension</span></code> (but less tricky):</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">array_buffer_view_write_dimension</span><span class="p">(</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">value</span> <span class="n">TSRMLS_DC</span>
-<span class="p">)</span> <span class="p">{</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="kt">long</span> <span class="n">offset</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">array_buffer_view_write_dimension</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="w"></span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">zv_offset</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Cannot append to a typed array&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">zv_offset</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Cannot append to a typed array&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">offset</span> <span class="o">=</span> <span class="n">get_long_from_zval</span><span class="p">(</span><span class="n">zv_offset</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">offset</span> <span class="o">&gt;=</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Offset is outside the buffer range&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_long_from_zval</span><span class="p">(</span><span class="n">zv_offset</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">offset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Offset is outside the buffer range&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="n">buffer_view_offset_set</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="n">buffer_view_offset_set</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="k">static</span> <span class="kt">int</span> <span class="nf">array_buffer_view_has_dimension</span><span class="p">(</span>
-    <span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span> <span class="kt">int</span> <span class="n">check_empty</span> <span class="n">TSRMLS_DC</span>
-<span class="p">)</span> <span class="p">{</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="kt">long</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">get_long_from_zval</span><span class="p">(</span><span class="n">zv_offset</span><span class="p">);</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">array_buffer_view_has_dimension</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_offset</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">check_empty</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="w"></span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_long_from_zval</span><span class="p">(</span><span class="n">zv_offset</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">offset</span> <span class="o">&gt;=</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">offset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">check_empty</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kt">int</span> <span class="n">retval</span><span class="p">;</span>
-        <span class="n">zval</span> <span class="o">*</span><span class="n">value</span> <span class="o">=</span> <span class="n">buffer_view_offset_get</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span> <span class="n">offset</span><span class="p">);</span>
-        <span class="n">retval</span> <span class="o">=</span> <span class="n">zend_is_true</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-        <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span>
-        <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">check_empty</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_offset_get</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">retval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_is_true</span><span class="p">(</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="k">static</span> <span class="kt">void</span> <span class="nf">array_buffer_view_unset_dimension</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">zv_offset</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Cannot unset offsets in a typed array&quot;</span><span class="p">,</span> <span class="mi">0</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">array_buffer_view_unset_dimension</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_offset</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_throw_exception</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Cannot unset offsets in a typed array&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>There is little to say about these handlers. The only thing worth noting is the <code class="docutils literal notranslate"><span class="pre">check_empty</span></code> parameter of the
 <code class="docutils literal notranslate"><span class="pre">has_dimension</span></code> handler. If this parameter is <code class="docutils literal notranslate"><span class="pre">0</span></code> then it’s an <code class="docutils literal notranslate"><span class="pre">isset</span></code> call, if it is <code class="docutils literal notranslate"><span class="pre">1</span></code> then it’s an <code class="docutils literal notranslate"><span class="pre">empty</span></code>
 call. For <code class="docutils literal notranslate"><span class="pre">isset</span></code> the mere existence is checked, for <code class="docutils literal notranslate"><span class="pre">empty</span></code> the truthyness.</p>
 <p>Lastly the new handlers need to be assigned in <code class="docutils literal notranslate"><span class="pre">MINIT</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">,</span> <span class="n">zend_get_std_object_handlers</span><span class="p">(),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
-<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">clone_obj</span>       <span class="o">=</span> <span class="n">array_buffer_view_clone</span><span class="p">;</span> <span class="cm">/* from previous section */</span>
-<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">read_dimension</span>  <span class="o">=</span> <span class="n">array_buffer_view_read_dimension</span><span class="p">;</span>
-<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">write_dimension</span> <span class="o">=</span> <span class="n">array_buffer_view_write_dimension</span><span class="p">;</span>
-<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">has_dimension</span>   <span class="o">=</span> <span class="n">array_buffer_view_has_dimension</span><span class="p">;</span>
-<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">unset_dimension</span> <span class="o">=</span> <span class="n">array_buffer_view_unset_dimension</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">array_buffer_view_handlers</span><span class="p">,</span><span class="w"> </span><span class="n">zend_get_std_object_handlers</span><span class="p">(),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span><span class="w"></span>
+<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">clone_obj</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_view_clone</span><span class="p">;</span><span class="w"> </span><span class="cm">/* from previous section */</span><span class="w"></span>
+<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">read_dimension</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_view_read_dimension</span><span class="p">;</span><span class="w"></span>
+<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">write_dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_view_write_dimension</span><span class="p">;</span><span class="w"></span>
+<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">has_dimension</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_view_has_dimension</span><span class="p">;</span><span class="w"></span>
+<span class="n">array_buffer_view_handlers</span><span class="p">.</span><span class="n">unset_dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">array_buffer_view_unset_dimension</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>And now all array operations should work just as previously, only faster (for me using the handlers directly was about
 four times faster than <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code>).</p>
-</div>
-<div class="section" id="honoring-inheritance">
+</section>
+<section id="honoring-inheritance">
 <h2>Honoring inheritance<a class="headerlink" href="#honoring-inheritance" title="Permalink to this headline">¶</a></h2>
 <p>One key issue that has to be considered whenever you implement object handlers is that they apply all the way down the
 inheritance chain. If the user extends one of the view classes it will still use the same handlers. So if the dimension
 access handlers are overridden the user will no longer be able to use <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code> in an inheriting class.</p>
 <p>A very simple way to solve this issue is to check whether the class was extended in the dimension handlers and fall back
 to the standard handlers in this case:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">.</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="n">zend_get_std_object_handlers</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">read_dimension</span><span class="p">(</span><span class="n">object</span><span class="p">,</span> <span class="n">zv_offset</span><span class="p">,</span> <span class="n">type</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-<span class="p">}</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">.</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">zend_get_std_object_handlers</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">read_dimension</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zv_offset</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="comparison-of-view-objects">
+</section>
+<section id="comparison-of-view-objects">
 <h2>Comparison of view objects<a class="headerlink" href="#comparison-of-view-objects" title="Permalink to this headline">¶</a></h2>
 <p>Right now view objects will always be considered equal if they are of the same type (and have no properties). That’s
 not really what we want. Instead we should implement our own comparison behavior: Two buffer views should be considered
@@ -333,17 +333,17 @@ equal if they use the same buffer, with the same offset, same length and same ty
 match (so inheriting classes aren’t considered equal). Additionally the properties should be equal, or to simplify our
 implementation just shouldn’t exist. In other words: Two buffer views are equal if their internal objects are the same
 byte for byte. We can easily check this with <code class="docutils literal notranslate"><span class="pre">memcmp</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">int</span> <span class="nf">array_buffer_view_compare_objects</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj1</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">obj2</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern1</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj1</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern2</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj2</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">array_buffer_view_compare_objects</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj2</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj1</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj2</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">memcmp</span><span class="p">(</span><span class="n">intern1</span><span class="p">,</span> <span class="n">intern2</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* equal */</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span> <span class="cm">/* not orderable */</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">memcmp</span><span class="p">(</span><span class="n">intern1</span><span class="p">,</span><span class="w"> </span><span class="n">intern2</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer_view_object</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="cm">/* equal */</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="cm">/* not orderable */</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>As you can see the <code class="docutils literal notranslate"><span class="pre">compare_objects</span></code> handler takes two objects and returns how those two objects relate. The return
@@ -355,8 +355,8 @@ The reason why this trick works is that PHP automatically translates <code class
 <code class="docutils literal notranslate"><span class="pre">$b</span> <span class="pre">&lt;=</span> <span class="pre">$a</span></code>). Thus always the “less than” relationship is used and as we’re returning 1 (regardless of order) any
 comparison will be false.</p>
 <p>A similar comparison handler can be written for the <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> class too.</p>
-</div>
-<div class="section" id="debug-information">
+</section>
+<section id="debug-information">
 <h2>Debug information<a class="headerlink" href="#debug-information" title="Permalink to this headline">¶</a></h2>
 <p>If you dumped a buffer view object with <code class="docutils literal notranslate"><span class="pre">var_dump</span></code> or <code class="docutils literal notranslate"><span class="pre">print_r</span></code> right now, you wouldn’t get any useful information:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>object(Int8Array)#2 (0) {
@@ -365,26 +365,26 @@ comparison will be false.</p>
 </div>
 <p>It would be much more helpful if instead the contents of the array were printed. Such a behavior can be implemented
 using the <code class="docutils literal notranslate"><span class="pre">get_debug_info</span></code> handler:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">HashTable</span> <span class="o">*</span><span class="nf">array_buffer_view_get_debug_info</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="n">obj</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">is_temp</span> <span class="n">TSRMLS_DC</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">buffer_view_object</span> <span class="o">*</span><span class="n">intern</span> <span class="o">=</span> <span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj</span> <span class="n">TSRMLS_CC</span><span class="p">);</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">props</span> <span class="o">=</span> <span class="n">Z_OBJPROP_P</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
-    <span class="n">HashTable</span> <span class="o">*</span><span class="n">ht</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="nf">array_buffer_view_get_debug_info</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">is_temp</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">buffer_view_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">obj</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">props</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_OBJPROP_P</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
 
-    <span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">ht</span><span class="p">);</span>
-    <span class="n">ZEND_INIT_SYMTABLE_EX</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">+</span> <span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">props</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="n">zend_hash_copy</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="p">(</span><span class="n">copy_ctor_func_t</span><span class="p">)</span> <span class="n">zval_add_ref</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">));</span>
+<span class="w">    </span><span class="n">ALLOC_HASHTABLE</span><span class="p">(</span><span class="n">ht</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_INIT_SYMTABLE_EX</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">props</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_hash_copy</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="n">props</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">copy_ctor_func_t</span><span class="p">)</span><span class="w"> </span><span class="n">zval_add_ref</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="p">));</span><span class="w"></span>
 
-    <span class="o">*</span><span class="n">is_temp</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="o">*</span><span class="n">is_temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">zval</span> <span class="o">*</span><span class="n">value</span> <span class="o">=</span> <span class="n">buffer_view_offset_get</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
-        <span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span> <span class="o">*</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer_view_offset_get</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_hash_index_update</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="n">ht</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ht</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The handler creates a hashtable using <code class="docutils literal notranslate"><span class="pre">ZEND_INIT_SYMTABLE_EX</span></code> to provide a size-hint, copies the properties (in case
@@ -421,8 +421,8 @@ to store the hashtable somewhere else and manually free it (you’ll find that m
 <p>One more handler that could be implemented for typed arrays is <code class="docutils literal notranslate"><span class="pre">count_elements</span></code>, i.e. the internal equivalent of
 <code class="docutils literal notranslate"><span class="pre">Countable::count()</span></code>. There is nothing special about that handler though, so I’m leaving this as an exercise for the
 reader (just don’t forget the inheritance check!)</p>
-</div>
-</div>
+</section>
+</section>
 
 
       </div>
