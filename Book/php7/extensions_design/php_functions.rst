@@ -85,6 +85,7 @@ You'll pass to the function vector a declared vector of functions. Let's see tog
     static const zend_function_entry pib_functions[] =
     {
         PHP_FE(fahrenheit_to_celsius, NULL)
+        PHP_FE_END
     };
 
     zend_module_entry pib_module_entry = {
