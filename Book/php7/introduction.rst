@@ -23,7 +23,7 @@ language itself, its ecosystem and build tools, and Operating System APIs:
 * http://c-faq.com/
 * https://www.gnu.org/software/libc/
 * http://www.faqs.org/docs/Linux-HOWTO/Program-Library-HOWTO.html
-* http://www.iecc.com/linker/linker10.html
+* `http://www.iecc.com/linker/linker10.html <https://web.archive.org/web/20181028155442/https://www.iecc.com/linker/linker10.html>`_
 
 We also highly recommend you some books. You'll learn with them how to efficiently use the C language, and how to
 make it translate to efficient CPU instructions so that you can design strong/fast/reliable and secure programs.
