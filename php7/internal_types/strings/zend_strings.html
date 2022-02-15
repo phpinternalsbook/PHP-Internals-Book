@@ -116,7 +116,7 @@ existing string and length.</p>
 <span class="w">    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;a&#39;</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 <span class="c1">// Don&#39;t forget to null-terminate!</span>
-<span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">str</span><span class="p">)[</span><span class="n">len</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">)[</span><span class="n">len</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This function allocates a string of a certain length (as always, the length does not include the trailing null byte),
