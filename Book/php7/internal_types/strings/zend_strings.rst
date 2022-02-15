@@ -90,7 +90,7 @@ The most fundamental string creation function on which all others are based is `
         ZSTR_VAL(str)[i] = 'a';
     }
     // Don't forget to null-terminate!
-    ZSTR_LEN(str)[len] = '\0';
+    ZSTR_VAL(str)[len] = '\0';
 
 This function allocates a string of a certain length (as always, the length does not include the trailing null byte),
 and leaves its initialization to you. Like all string allocation functions, it accepts a parameter that determines
