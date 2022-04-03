@@ -262,7 +262,7 @@ There are three more switches, which you should usually specify when developing 
 ``--enable-debug`` enables debug mode, which has multiple effects: Compilation will run with ``-g`` to generate debug
 symbols and additionally use the lowest optimization level ``-O0``. This will make PHP a lot slower, but make debugging
 with tools like ``gdb`` more predictable. Furthermore debug mode defines the ``ZEND_DEBUG`` macro, which will enable
-th use of assertions and enable various debugging helpers in the engine. Among other things memory leaks, as well as
+the use of assertions and enable various debugging helpers in the engine. Among other things memory leaks, as well as
 incorrect use of some data structures, will be reported. It is possible to enable debug assertions without disabling
 optimizations by using ``--enable-debug-assertions`` instead.
 

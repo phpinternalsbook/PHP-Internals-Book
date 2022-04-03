@@ -264,7 +264,7 @@ switch, so only the CLI binary is generated.</p>
 <p><code class="docutils literal notranslate"><span class="pre">--enable-debug</span></code> enables debug mode, which has multiple effects: Compilation will run with <code class="docutils literal notranslate"><span class="pre">-g</span></code> to generate debug
 symbols and additionally use the lowest optimization level <code class="docutils literal notranslate"><span class="pre">-O0</span></code>. This will make PHP a lot slower, but make debugging
 with tools like <code class="docutils literal notranslate"><span class="pre">gdb</span></code> more predictable. Furthermore debug mode defines the <code class="docutils literal notranslate"><span class="pre">ZEND_DEBUG</span></code> macro, which will enable
-th use of assertions and enable various debugging helpers in the engine. Among other things memory leaks, as well as
+the use of assertions and enable various debugging helpers in the engine. Among other things memory leaks, as well as
 incorrect use of some data structures, will be reported. It is possible to enable debug assertions without disabling
 optimizations by using <code class="docutils literal notranslate"><span class="pre">--enable-debug-assertions</span></code> instead.</p>
 <p><code class="docutils literal notranslate"><span class="pre">--enable-zts</span></code> (or <code class="docutils literal notranslate"><span class="pre">--enable-maintainer-zts</span></code> before PHP 8.0) enables thread-safety. This switch will define the
