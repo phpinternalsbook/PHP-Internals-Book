@@ -84,7 +84,7 @@ no references to the string remain.</p>
 <section id="immutable-values">
 <h3>Immutable values<a class="headerlink" href="#immutable-values" title="Permalink to this headline">¶</a></h3>
 <p>While all complex structures share the <code class="docutils literal notranslate"><span class="pre">zend_refcounted_h</span></code> header, the refcount is not always actually used. Strings
-and arrays can be immutable, which means that that the entire structure, including the reference count, must never be
+and arrays can be immutable, which means that the entire structure, including the reference count, must never be
 modified. Such structures can be reused without incrementing the reference count and are guaranteed to not be destroyed
 until (at least) the end of the request.</p>
 <p>There are a number of reasons why immutable strings and arrays exist:</p>
