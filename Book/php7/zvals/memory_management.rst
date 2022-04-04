@@ -54,7 +54,7 @@ Immutable values
 ~~~~~~~~~~~~~~~~
 
 While all complex structures share the ``zend_refcounted_h`` header, the refcount is not always actually used. Strings
-and arrays can be immutable, which means that that the entire structure, including the reference count, must never be
+and arrays can be immutable, which means that the entire structure, including the reference count, must never be
 modified. Such structures can be reused without incrementing the reference count and are guaranteed to not be destroyed
 until (at least) the end of the request.
 
