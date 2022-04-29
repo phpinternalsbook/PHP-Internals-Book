@@ -274,7 +274,7 @@ safety and global memory management in PHP, you should read :doc:`the globals ma
 
 ``--enable-werror`` (since PHP 7.4) enables the ``-Werror`` compiler flag, which will promote compiler warnings to
 errors. Enabling this flag ensures that the PHP build remains warning free. However, generated warnings depend on the
-used compiler, version and optimizatino options, so some compilers may not be usable with option.
+used compiler, version and optimization options, so some compilers may not be usable with option.
 
 On the other hand you should not use the ``--enable-debug`` option if you want to perform performance benchmarks for
 your code. ``--enable-zts`` can also negatively impact runtime performance.
