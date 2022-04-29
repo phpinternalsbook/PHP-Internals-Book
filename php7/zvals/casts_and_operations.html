@@ -69,13 +69,13 @@ is to actually change the type of the zval using one of the <code class="docutil
 float, with the caveat that arrays stay as arrays:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">convert_scalar_to_number</span><span class="p">(</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
 <span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">val</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_LONG</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">IS_LONG</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Long: &quot;</span><span class="w"> </span><span class="n">ZEND_LONG_FMT</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">val</span><span class="p">));</span><span class="w"></span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Long: %H</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">val</span><span class="p">));</span><span class="w"></span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Array</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">ZEND_EMPTY_SWITCH_DEFAULT_CASE</span><span class="p">()</span><span class="w"></span>

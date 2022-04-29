@@ -210,34 +210,34 @@ we’ll create a simple function for dumping a zval:</p>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_NULL</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_NULL</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;NULL: null</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_BOOL</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_BOOL</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_BVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: true</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: false</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">            </span><span class="p">}</span><span class="w"></span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_LONG</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_LONG</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;LONG: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;DOUBLE: %g</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_STRING</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_STRING</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;STRING: value=</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">            </span><span class="n">PHPWRITE</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 <span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">, length=%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_RESOURCE</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_RESOURCE</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;RESOURCE: id=%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_RESVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;ARRAY: hashtable=%p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_OBJECT</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_OBJECT</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;OBJECT: ???</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>

@@ -292,19 +292,19 @@ arrays the dtor call is necessary though.</p>
 perform casts without modifying any zval. A sample implementation for long casts:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">long</span><span class="w"> </span><span class="nf">zval_get_long</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_NULL</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_NULL</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_BOOL</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_LONG</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_RESOURCE</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_BOOL</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_LONG</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_RESOURCE</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">zend_dval_to_lval</span><span class="p">(</span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">));</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_STRING</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_STRING</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">strtol</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">zend_hash_num_elements</span><span class="p">(</span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">))</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_OBJECT</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_OBJECT</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">            </span><span class="n">zval</span><span class="w"> </span><span class="n">tmp_zv</span><span class="p">;</span><span class="w"></span>
 <span class="w">            </span><span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_zv</span><span class="p">,</span><span class="w"> </span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
 <span class="w">            </span><span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span><span class="w"></span>
@@ -370,10 +370,10 @@ with <code class="docutils literal notranslate"><span class="pre">zv_ptr</span><
 <span class="kt">double</span><span class="w"> </span><span class="n">dval</span><span class="p">;</span><span class="w"></span>
 
 <span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">is_numeric_string</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">lval</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dval</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_LONG</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">IS_LONG</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="cm">/* String is an integer those value was put into `lval` */</span><span class="w"></span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="cm">/* String is a double those value was put into `dval` */</span><span class="w"></span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="k">default</span><span class="o">:</span><span class="w"></span>
@@ -397,13 +397,13 @@ a long or a double (using <code class="docutils literal notranslate"><span class
 
 <span class="n">convert_scalar_to_number</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
 <span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_LONG</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">IS_LONG</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Long: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Double: %G</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nl">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
 <span class="w">        </span><span class="cm">/* Likely throw an error here */</span><span class="w"></span>
 <span class="w">        </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
