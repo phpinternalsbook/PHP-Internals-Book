@@ -61,9 +61,8 @@ code using the ``ZEND_GET_MODULE(your_ext)`` macro, which looks like::
 Like you can see, that macro when used declares a global symbol : the get_module() function that will get called by the
 engine once wanting to load your extension.
 
-.. note:: The source code PHP uses to load extensions is located into
-          `ext/standard/dl.c <https://github.com/php/php-src/blob/27d681435174433c3a9b0b8325361dfa383be0a6/ext/
-          standard/dl.c#L90>`_
+.. note:: The source code PHP uses to load extensions is located in `zend_load_extension <https://github.com/php/
+          php-src/blob/debd38f8511bcd4f72873f024221af17fca2bf1b/Zend/zend_extensions.c#L28>`_
 
 What is a PHP extension ?
 *************************
