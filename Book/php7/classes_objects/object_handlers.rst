@@ -5,9 +5,6 @@ Nearly all operations on objects in PHP go through object handlers and every mag
 implemented with an object or class handler internally. Furthermore there are quite a few handlers which are not exposed
 to userland PHP. For example internal classes can have custom comparison and cast behavior.
 
-As the number of different object handlers is rather large we can only discuss examples (using the typed array
-implementation from the last section) for a few of them. For all the others only a short description is provided.
-
 An Overview
 -----------
 
@@ -22,8 +19,10 @@ Here are all the object handlers with their signature and a small description.
 
     These handlers correspond to the ``__get``, ``__set``, ``__isset`` and ``__unset`` methods. ``get_property_ptr_ptr``
     is the internal equivalent of ``__get`` returning by reference. ``cache_slot`` is used to store the property
-    offset and ``zend_property_info``. ``zval *rv`` in ``read_property`` provides a place for temporary zvals that
-    are not stored in the object itself, like results of calls to ``__get``.
+    offset and ``zend_property_info``. ``read_property`` may directly return a zval owned by the object, in which case
+    its reference count should not be modified by ``read_property``, and the caller should not release it.
+    Alternatively, it may return ``rv`` for temporary zvals (e.g. result of call to ``__get``), in which case the
+    refcount should be incremented, and the caller is responsible for releasing the value.
 
 .. c:member::
     zval *read_dimension(zend_object *object, zval *offset, int type, zval *rv)
@@ -46,8 +45,8 @@ Here are all the object handlers with their signature and a small description.
 .. c:member::
     zend_function *get_method(zend_object **obj_ptr, zend_string *method_name, const zval *key)
 
-    The ``get_method`` handler fetches the ``zend_function`` used to call a certain method. Either the ``method_name``
-    or ``key`` must be passed. ``key`` is assumed to be lower case.
+    The ``get_method`` handler fetches the ``zend_function`` used to call a certain method. Optionally ``key`` can be
+    passed as an optimization to avoid lowercasing ``method_name`` in case it is already present.
 
 .. c:member::
     zend_function *get_constructor(zend_object *zobj)
@@ -65,6 +64,13 @@ Here are all the object handlers with their signature and a small description.
 
 .. c:member::
     int compare(zval *o1, zval *o2)
+
+    The ``compare`` handler is a required handler that computes equality of the given object and another value. Note
+    that the other value isn't necessarily an object of the same class, or even an object at all. The handler should
+    return negative numbers if the lhs is smaller, 0 if they are equal, or a positive number is the lhs is larger. If
+    the values are uncomparable ``ZEND_UNCOMPARABLE`` should be returned.
+
+.. c:member::
     int cast_object(zend_object *readobj, zval *writeobj, int type)
 
     Internal classes have the ability to implement a custom compare behavior and override casting behavior for all
@@ -80,18 +86,19 @@ Here are all the object handlers with their signature and a small description.
 .. c:member::
     zend_string *get_class_name(const zend_object *zobj)
 
-    This handler is used to get the class name from an object. There should be little reason to overwrite it. The only
-    occasion that I can think of where this would be necessary is if you choose to create a custom object structure that
-    does *not* contain the standard ``zend_object`` as a substructure. (This is entirely possible, but not usually done.)
+    This handler is used to get the class name from an object for debugging contexts. There should be little reason to
+    overwrite it.
 
 .. c:member::
     zend_object *clone_obj(zend_object *old_object)
-    HashTable *get_gc(zend_object *zobj, zval **table, int *n)
 
     The ``clone_obj`` handler is called when executing ``clone $old_object``. By default PHP performs a shallow clone
     on objects, which means properties containing objects are not be cloned but both the old and new object will point
     to the same object. The ``clone_obj`` allows for this behavior to be customized. It's also used to inhibit ``clone``
     altogether.
+
+.. c:member::
+    HashTable *get_gc(zend_object *zobj, zval **table, int *n)
 
     The ``get_gc`` handler should return all variables that are held by the object, so cyclic dependencies can be
     properly collected. If the object doesn't maintain a property hashmap (because it doesn't store any dynamic
@@ -120,14 +127,6 @@ Here are all the object handlers with their signature and a small description.
     ``do_operation`` is an optional handler that will be invoked for various arithmetic and binary operations on
     instances of the given class. This allows for operator overloading semantics to be implemented for custom classes.
     Examples for overloadable operators are ``+``, ``-``, ``*``, ``/``, ``++``, ``--``, ``!``.
-
-.. c:member::
-    int compare(zval *object1, zval *object2)
-
-    The ``compare`` handler is a required handler that computes equality of the given object and another value. Note
-    that the other value isn't necessarily an object of the same class, or even an object at all. The handler should
-    return negative numbers if the lhs is smaller, 0 if they are equal, or a positive number is the lhs is larger. If
-    the values are uncomparable ``ZEND_UNCOMPARABLE`` should be returned.
 
 .. c:member::
     zend_array *get_properties_for(zend_object *object, zend_prop_purpose purpose)
