@@ -179,8 +179,8 @@ pointer. In order to return a zval, an out-parameter needs to be passed to the f
 While zvals themselves are generally not shared, it's possible to share the structures they point to using the
 refcounting mechanism. The ``Z_REFCOUNT``, ``Z_ADDREF`` and ``Z_DELREF`` macros work the same way as the
 corresponding ``GC_*`` macros, but operate on zvals. Importantly, these macros can only be used if the zval does
-point to a refcounted structure, and the structure is not immutable. Whether this is the case is stored in the
-zval type flags as ``IS_TYPE_REFCOUNTED`` and can be accessed through ``Z_REFCOUNTED``::
+point to a refcounted structure, and the structure is not immutable. The ``IS_TYPE_REFCOUNTED`` type flag
+determines whether this is the case, and can be accessed through ``Z_REFCOUNTED``::
 
     void fill_array(zval *array) {
         zval val;
@@ -227,8 +227,8 @@ not be destroyed). Sometimes, this macro is also used as an optimization to *cop
 refcounted.
 
 The ``ZVAL_COPY_VALUE`` macro differs from a simple assignment (``*retval = val``) in that it only copies the zval
-value and type, but not its u2 member. As such, it is safe to ``ZVAL_COPY_VALUE`` into a zval whose u2 member is
-in used, as it will not be overwritten.
+value and type, but not its ``u2`` member. As such, it is safe to ``ZVAL_COPY_VALUE`` into a zval whose ``u2`` member is
+in use, as it will not be overwritten.
 
 The second macro is ``ZVAL_COPY``, which is an optimized combination of ``ZVAL_COPY_VALUE`` and ``Z_TRY_ADDREF``::
 
