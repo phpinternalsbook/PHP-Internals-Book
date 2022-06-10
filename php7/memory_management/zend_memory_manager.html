@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Zend Memory Manager &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,14 +39,14 @@
         
         
   <section id="zend-memory-manager">
-<span id="zend-mm"></span><h1>Zend Memory Manager<a class="headerlink" href="#zend-memory-manager" title="Permalink to this headline">¶</a></h1>
+<span id="zend-mm"></span><h1>Zend Memory Manager<a class="headerlink" href="#zend-memory-manager" title="Permalink to this heading">¶</a></h1>
 <p>Zend Memory Manager, often abbreviated as <em>ZendMM</em> or <em>ZMM</em>, is a C layer that aims to provide abilities to allocate
 and release dynamic <strong>request-bound</strong> memory.</p>
 <p>Note the “request-bound” in the above sentence.</p>
 <p>ZendMM is not just a classical layer over libc’s dynamic memory allocator, mainly represented by the couple API calls
 <code class="docutils literal notranslate"><span class="pre">malloc()/free()</span></code>. ZendMM is about request-bound memory that PHP must allocate while treating a request.</p>
 <section id="the-two-main-kind-of-dynamic-memory-pools-in-php">
-<h2>The two main kind of dynamic memory pools in PHP<a class="headerlink" href="#the-two-main-kind-of-dynamic-memory-pools-in-php" title="Permalink to this headline">¶</a></h2>
+<h2>The two main kind of dynamic memory pools in PHP<a class="headerlink" href="#the-two-main-kind-of-dynamic-memory-pools-in-php" title="Permalink to this heading">¶</a></h2>
 <p>PHP is a share-nothing architecture. Well, not at 100%. Let us explain.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -135,7 +136,7 @@ deallocation function when destroyed. Hence in such a code:</p>
 first case will use <code class="docutils literal notranslate"><span class="pre">efree()</span></code> to release it, and in the second case libc’s <code class="docutils literal notranslate"><span class="pre">free()</span></code>.</p>
 </section>
 <section id="zend-memory-manager-api">
-<h2>Zend Memory Manager API<a class="headerlink" href="#zend-memory-manager-api" title="Permalink to this headline">¶</a></h2>
+<h2>Zend Memory Manager API<a class="headerlink" href="#zend-memory-manager-api" title="Permalink to this heading">¶</a></h2>
 <p>The API is located into
 <a class="reference external" href="https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_alloc.h">Zend/zend_alloc.h</a></p>
 <p>The API calls are mainly C macros and not functions, so get prepared if you debug them and want to look at how they
@@ -165,7 +166,7 @@ alloc. Hence a <code class="docutils literal notranslate"><span class="pre">pema
 </div>
 </section>
 <section id="zend-memory-manager-debugging-shields">
-<h2>Zend Memory Manager debugging shields<a class="headerlink" href="#zend-memory-manager-debugging-shields" title="Permalink to this headline">¶</a></h2>
+<h2>Zend Memory Manager debugging shields<a class="headerlink" href="#zend-memory-manager-debugging-shields" title="Permalink to this heading">¶</a></h2>
 <p>ZendMM provides the following abilities:</p>
 <ul class="simple">
 <li><p>Memory consumption management.</p></li>
@@ -173,7 +174,7 @@ alloc. Hence a <code class="docutils literal notranslate"><span class="pre">pema
 <li><p>Speed up in allocations by pre-allocating well-known-sized buffers and keeping a warm cache on free</p></li>
 </ul>
 <section id="memory-consumption-management">
-<h3>Memory consumption management<a class="headerlink" href="#memory-consumption-management" title="Permalink to this headline">¶</a></h3>
+<h3>Memory consumption management<a class="headerlink" href="#memory-consumption-management" title="Permalink to this heading">¶</a></h3>
 <p>ZendMM is the layer behind the PHP userland “memory_limit” feature. Every single byte allocated using the ZendMM layer
 is counted and added. When the INI’s <em>memory_limit</em> is reached, you know what happens.
 That also mean that any allocation you perform via ZendMM is reflected in the <code class="docutils literal notranslate"><span class="pre">memory_get_usage()</span></code> call from PHP
@@ -197,7 +198,7 @@ This is especially useful when <a class="reference internal" href="memory_debugg
 </div>
 </section>
 <section id="memory-leak-tracking">
-<h3>Memory leak tracking<a class="headerlink" href="#memory-leak-tracking" title="Permalink to this headline">¶</a></h3>
+<h3>Memory leak tracking<a class="headerlink" href="#memory-leak-tracking" title="Permalink to this heading">¶</a></h3>
 <p>Remember the main ZendMM rules: it starts when a request starts, it then expects you call its API when in need of
 dynamic memory as you are treating a request. When the current request ends, ZendMM shuts down.</p>
 <p>By shutting down, it will browse every of its active pointer, and if using
@@ -243,10 +244,10 @@ request-bound buffer that’s not been explicitly freed by the programmer</p></l
 </section>
 </section>
 <section id="zendmm-internal-design">
-<h2>ZendMM internal design<a class="headerlink" href="#zendmm-internal-design" title="Permalink to this headline">¶</a></h2>
+<h2>ZendMM internal design<a class="headerlink" href="#zendmm-internal-design" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="common-errors-and-mistakes">
-<h2>Common errors and mistakes<a class="headerlink" href="#common-errors-and-mistakes" title="Permalink to this headline">¶</a></h2>
+<h2>Common errors and mistakes<a class="headerlink" href="#common-errors-and-mistakes" title="Permalink to this heading">¶</a></h2>
 <p>Here are the most common errors while using ZendMM, and what you should do about them.</p>
 <ol class="arabic simple">
 <li><p>Usage of ZendMM as you are not treating a request.</p></li>

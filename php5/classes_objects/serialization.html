@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Serialization &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,11 +39,11 @@
         
         
   <section id="serialization">
-<h1>Serialization<a class="headerlink" href="#serialization" title="Permalink to this headline">¶</a></h1>
+<h1>Serialization<a class="headerlink" href="#serialization" title="Permalink to this heading">¶</a></h1>
 <p>In this section we’ll have a look at PHP’s serialization format and the different mechanisms PHP provides to serialize
 object data. As usual we’ll use the typed arrays implementation as an example.</p>
 <section id="php-s-serialization-format">
-<h2>PHP’s serialization format<a class="headerlink" href="#php-s-serialization-format" title="Permalink to this headline">¶</a></h2>
+<h2>PHP’s serialization format<a class="headerlink" href="#php-s-serialization-format" title="Permalink to this heading">¶</a></h2>
 <p>You probably already know how the output of <code class="docutils literal notranslate"><span class="pre">serialize()</span></code> roughly looks like: It has some kind of type specifier (like
 <code class="docutils literal notranslate"><span class="pre">s</span></code> or <code class="docutils literal notranslate"><span class="pre">i</span></code>), followed by a colon, followed by the actual data, followed by a semicolon. As such the serialization
 format for the “simple” types looks as follows:</p>
@@ -127,7 +128,7 @@ O:8:&quot;stdClass&quot;:1:{s:3:&quot;foo&quot;;r:1;}
 <p>As you can see it works the same way as with references, just using the small <code class="docutils literal notranslate"><span class="pre">r</span></code> instead of <code class="docutils literal notranslate"><span class="pre">R</span></code>.</p>
 </section>
 <section id="serializing-internal-objects">
-<h2>Serializing internal objects<a class="headerlink" href="#serializing-internal-objects" title="Permalink to this headline">¶</a></h2>
+<h2>Serializing internal objects<a class="headerlink" href="#serializing-internal-objects" title="Permalink to this heading">¶</a></h2>
 <p>As internal objects don’t store their data in ordinary properties PHP’s default serialization mechanism will not work.
 For example, if you try to serialize an <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> all you’ll get is this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>O:11:&quot;ArrayBuffer&quot;:0:{}
@@ -366,7 +367,7 @@ thing it really does is to fetch the three magic properties using <code class="d
 initialize the internal object from them.</p>
 </section>
 <section id="denying-serialization">
-<h2>Denying serialization<a class="headerlink" href="#denying-serialization" title="Permalink to this headline">¶</a></h2>
+<h2>Denying serialization<a class="headerlink" href="#denying-serialization" title="Permalink to this heading">¶</a></h2>
 <p>Sometimes objects can’t be reasonably serialized. In this case you can deny serialization by assigning special
 serialization handlers:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">serialize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_class_serialize_deny</span><span class="p">;</span><span class="w"></span>

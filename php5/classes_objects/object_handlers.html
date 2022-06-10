@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Object handlers &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,7 +39,7 @@
         
         
   <section id="object-handlers">
-<h1>Object handlers<a class="headerlink" href="#object-handlers" title="Permalink to this headline">¶</a></h1>
+<h1>Object handlers<a class="headerlink" href="#object-handlers" title="Permalink to this heading">¶</a></h1>
 <p>In the previous sections you already had some contact with object handlers. In particular you should know how to create
 the structure used to specify the handlers and how to implement cloning behavior using <code class="docutils literal notranslate"><span class="pre">clone_obj</span></code>. But this is just
 the beginning: Nearly all operations on objects in PHP go through object handlers and every magic method or magic
@@ -47,7 +48,7 @@ are not exposed to userland PHP. For example internal classes can have custom co
 <p>As the number of different object handlers is rather large we can only discuss examples (using the typed array
 implementation from the last section) for a few of them. For all the others only a short description is provided.</p>
 <section id="an-overview">
-<h2>An Overview<a class="headerlink" href="#an-overview" title="Permalink to this headline">¶</a></h2>
+<h2>An Overview<a class="headerlink" href="#an-overview" title="Permalink to this heading">¶</a></h2>
 <p>As of this writing there are 26 object handlers, which are listed in the following with their signature and a small
 description.</p>
 <dl class="c member">
@@ -171,7 +172,7 @@ variables that are held by the object, so cyclic dependencies can be properly co
 
 </section>
 <section id="implementing-array-access-using-object-handlers">
-<h2>Implementing array access using object handlers<a class="headerlink" href="#implementing-array-access-using-object-handlers" title="Permalink to this headline">¶</a></h2>
+<h2>Implementing array access using object handlers<a class="headerlink" href="#implementing-array-access-using-object-handlers" title="Permalink to this heading">¶</a></h2>
 <p>In the previous section the <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code> interface was used to provide array-like behavior for the buffer views. Now
 we want to improve the implementation by using the respective <code class="docutils literal notranslate"><span class="pre">*_dimension</span></code> object handlers. These same handlers are
 also used to implement <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code>, but providing a custom implementation will be faster as the overhead of calling
@@ -313,7 +314,7 @@ call. For <code class="docutils literal notranslate"><span class="pre">isset</sp
 four times faster than <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code>).</p>
 </section>
 <section id="honoring-inheritance">
-<h2>Honoring inheritance<a class="headerlink" href="#honoring-inheritance" title="Permalink to this headline">¶</a></h2>
+<h2>Honoring inheritance<a class="headerlink" href="#honoring-inheritance" title="Permalink to this heading">¶</a></h2>
 <p>One key issue that has to be considered whenever you implement object handlers is that they apply all the way down the
 inheritance chain. If the user extends one of the view classes it will still use the same handlers. So if the dimension
 access handlers are overridden the user will no longer be able to use <code class="docutils literal notranslate"><span class="pre">ArrayAccess</span></code> in an inheriting class.</p>
@@ -326,7 +327,7 @@ to the standard handlers in this case:</p>
 </div>
 </section>
 <section id="comparison-of-view-objects">
-<h2>Comparison of view objects<a class="headerlink" href="#comparison-of-view-objects" title="Permalink to this headline">¶</a></h2>
+<h2>Comparison of view objects<a class="headerlink" href="#comparison-of-view-objects" title="Permalink to this heading">¶</a></h2>
 <p>Right now view objects will always be considered equal if they are of the same type (and have no properties). That’s
 not really what we want. Instead we should implement our own comparison behavior: Two buffer views should be considered
 equal if they use the same buffer, with the same offset, same length and same type. Furthermore their class entry should
@@ -357,7 +358,7 @@ comparison will be false.</p>
 <p>A similar comparison handler can be written for the <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> class too.</p>
 </section>
 <section id="debug-information">
-<h2>Debug information<a class="headerlink" href="#debug-information" title="Permalink to this headline">¶</a></h2>
+<h2>Debug information<a class="headerlink" href="#debug-information" title="Permalink to this heading">¶</a></h2>
 <p>If you dumped a buffer view object with <code class="docutils literal notranslate"><span class="pre">var_dump</span></code> or <code class="docutils literal notranslate"><span class="pre">print_r</span></code> right now, you wouldn’t get any useful information:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>object(Int8Array)#2 (0) {
 }

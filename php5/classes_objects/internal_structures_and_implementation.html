@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Internal structures and implementation &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,16 +39,16 @@
         
         
   <section id="internal-structures-and-implementation">
-<h1>Internal structures and implementation<a class="headerlink" href="#internal-structures-and-implementation" title="Permalink to this headline">¶</a></h1>
+<h1>Internal structures and implementation<a class="headerlink" href="#internal-structures-and-implementation" title="Permalink to this heading">¶</a></h1>
 <p>In this (last) section on object orientation in PHP we’ll have a look at some of the internal structures that were
 previously only mentioned in passing. In particular we’ll see more thoroughly the default object structure and the object
 store.</p>
 <section id="object-properties">
-<h2>Object properties<a class="headerlink" href="#object-properties" title="Permalink to this headline">¶</a></h2>
+<h2>Object properties<a class="headerlink" href="#object-properties" title="Permalink to this heading">¶</a></h2>
 <p>The probably by far most complicated part of PHP’s object orientation system is the handling of object properties. In
 the following we’ll take a look at some of its parts in more detail.</p>
 <section id="property-storage">
-<h3>Property storage<a class="headerlink" href="#property-storage" title="Permalink to this headline">¶</a></h3>
+<h3>Property storage<a class="headerlink" href="#property-storage" title="Permalink to this heading">¶</a></h3>
 <p>In PHP object properties can be declared, but don’t have to. How can one efficiently handle such a situation? To find
 out let’s recall the standard <code class="docutils literal notranslate"><span class="pre">zend_object</span></code> structure:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -103,7 +104,7 @@ This is done using the <code class="docutils literal notranslate"><span class="p
 </div>
 </section>
 <section id="property-name-mangling">
-<h3>Property name mangling<a class="headerlink" href="#property-name-mangling" title="Permalink to this headline">¶</a></h3>
+<h3>Property name mangling<a class="headerlink" href="#property-name-mangling" title="Permalink to this heading">¶</a></h3>
 <p>Consider the following code snippet:</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">A</span> <span class="p">{</span>
     <span class="k">private</span> <span class="nv">$prop</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span><span class="p">;</span>
@@ -174,7 +175,7 @@ you try to directly access the <code class="docutils literal notranslate"><span 
 </div>
 </section>
 <section id="property-recursion-guards">
-<h3>Property recursion guards<a class="headerlink" href="#property-recursion-guards" title="Permalink to this headline">¶</a></h3>
+<h3>Property recursion guards<a class="headerlink" href="#property-recursion-guards" title="Permalink to this heading">¶</a></h3>
 <p>The last member in <code class="docutils literal notranslate"><span class="pre">zend_object</span></code> is the <code class="docutils literal notranslate"><span class="pre">HashTable</span> <span class="pre">*guards</span></code> field. To find out what it is used for, consider what
 happens in the following code using magic <code class="docutils literal notranslate"><span class="pre">__set</span></code> properties:</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
@@ -208,7 +209,7 @@ table, which maps property names to <code class="docutils literal notranslate"><
 </section>
 </section>
 <section id="object-store">
-<h2>Object store<a class="headerlink" href="#object-store" title="Permalink to this headline">¶</a></h2>
+<h2>Object store<a class="headerlink" href="#object-store" title="Permalink to this heading">¶</a></h2>
 <p>We already made a lot of use of the object store, so let’s have a closer look at it now:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_objects_store</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">zend_object_store_bucket</span><span class="w"> </span><span class="o">*</span><span class="n">object_buckets</span><span class="p">;</span><span class="w"></span>

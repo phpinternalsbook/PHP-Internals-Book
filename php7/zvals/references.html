@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>References &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,12 +39,12 @@
         
         
   <section id="references">
-<h1>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h1>
+<h1>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h1>
 <p>PHP references (in the sense of the <code class="docutils literal notranslate"><span class="pre">&amp;</span></code> symbol) are mostly transparent to userland code, but require consistent
 special handling in the implementation. This chapter discusses how references are represented, and how internal code
 should deal with them.</p>
 <section id="reference-semantics">
-<h2>Reference semantics<a class="headerlink" href="#reference-semantics" title="Permalink to this headline">¶</a></h2>
+<h2>Reference semantics<a class="headerlink" href="#reference-semantics" title="Permalink to this heading">¶</a></h2>
 <p>Before going into the internal representation of PHP references, it may be helpful to clarify some common
 misconceptions about the semantics of references in PHP. Consider this basic example:</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -77,7 +78,7 @@ cases.</p>
 which means we wouldn’t have a chance to drop the reference even if we wanted to.</p>
 </section>
 <section id="representation">
-<h2>Representation<a class="headerlink" href="#representation" title="Permalink to this headline">¶</a></h2>
+<h2>Representation<a class="headerlink" href="#representation" title="Permalink to this heading">¶</a></h2>
 <p>References are represented using an <code class="docutils literal notranslate"><span class="pre">IS_REFERENCE</span></code> zval that points to a <code class="docutils literal notranslate"><span class="pre">zend_reference</span></code> structure:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_reference</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">zend_refcounted_h</span><span class="w">              </span><span class="n">gc</span><span class="p">;</span><span class="w"></span>
@@ -90,7 +91,7 @@ which means we wouldn’t have a chance to drop the reference even if we wanted 
 represents a reference-counted zval that <em>can</em> be shared. Multiple zvals can point to the same <code class="docutils literal notranslate"><span class="pre">zend_reference</span></code>,
 and any change to the <code class="docutils literal notranslate"><span class="pre">val</span></code> it contains will be observable from all sources.</p>
 <section id="type-sources">
-<h3>Type sources<a class="headerlink" href="#type-sources" title="Permalink to this headline">¶</a></h3>
+<h3>Type sources<a class="headerlink" href="#type-sources" title="Permalink to this heading">¶</a></h3>
 <p>Normally, PHP does not track who or what makes use of a given reference. The only knowledge that is stored is how many
 users there are (through the refcount), so that the reference may be destroyed in time.</p>
 <p>However, due to the introduction of typed properties in PHP 7.4, we do need to track of which typed properties make
@@ -110,7 +111,7 @@ this.</p>
 </section>
 </section>
 <section id="initializing-references">
-<h2>Initializing references<a class="headerlink" href="#initializing-references" title="Permalink to this headline">¶</a></h2>
+<h2>Initializing references<a class="headerlink" href="#initializing-references" title="Permalink to this heading">¶</a></h2>
 <p>Just like other zvals, references are initialized through a set of macros. The most basic one accepts an already
 created <code class="docutils literal notranslate"><span class="pre">zend_reference</span></code> pointer:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">ref</span><span class="p">;</span><span class="w"></span>
@@ -142,7 +143,7 @@ uninitialized:</p>
 reference and set its initial value to the old value of <code class="docutils literal notranslate"><span class="pre">zv</span></code>.</p>
 </section>
 <section id="dereferencing-and-unwrapping">
-<h2>Dereferencing and unwrapping<a class="headerlink" href="#dereferencing-and-unwrapping" title="Permalink to this headline">¶</a></h2>
+<h2>Dereferencing and unwrapping<a class="headerlink" href="#dereferencing-and-unwrapping" title="Permalink to this heading">¶</a></h2>
 <p>Most code does not want to handle references in any special way, and simply want to look through to the underlying
 value:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span><span class="w"></span>
@@ -184,7 +185,7 @@ and copy (with refcount increase) the inner value into <code class="docutils lit
 destroy the reference (if it has other users), but will remove one particular use.</p>
 </section>
 <section id="indirect-zvals">
-<h2>Indirect zvals<a class="headerlink" href="#indirect-zvals" title="Permalink to this headline">¶</a></h2>
+<h2>Indirect zvals<a class="headerlink" href="#indirect-zvals" title="Permalink to this heading">¶</a></h2>
 <p>Next to references, PHP also has a more direct mechanism to share zvals. The <code class="docutils literal notranslate"><span class="pre">IS_INDIRECT</span></code> type stores a direct
 pointer to another zval:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val1</span><span class="p">;</span><span class="w"></span>

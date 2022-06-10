@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Debugging with GDB &#8212; PHP Internals Book</title>
+    <title>Classes and objects &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../_static/style.css" />
@@ -17,32 +17,39 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Classes and objects" href="classes_objects.html" />
-    <link rel="prev" title="Zend OPCache" href="zend_engine/zend_opcache.html" /> 
+    <link rel="next" title="Object handlers" href="classes_objects/object_handlers.html" />
+    <link rel="prev" title="Debugging with GDB" href="debugging.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
           <span>PHP Internals Book</span></a></h1>
-        <h2 class="heading"><span>Debugging with GDB</span></h2>
+        <h2 class="heading"><span>Classes and objects</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="zend_engine/zend_opcache.html">Zend OPCache</a>
+        «&#160;&#160;<a href="debugging.html">Debugging with GDB</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="classes_objects.html">Classes and objects</a>&#160;&#160;»
+        <a href="classes_objects/object_handlers.html">Object handlers</a>&#160;&#160;»
         </p>
 
       </div>
       <div class="content" role="main">
         
         
-  <section id="debugging-with-gdb">
-<h1>Debugging with GDB<a class="headerlink" href="#debugging-with-gdb" title="Permalink to this heading">¶</a></h1>
-<p>This chapter will introduce you with the GNU C debugger, aka GDB. When a crash happens, you usually have to find the
-guilty part in thousands of lines. You need tools for that, and GDB is the most commonly used debugger under Unix
-platforms. Here we’ll give you an introduction to GDB and how to practice with it against the PHP source code.</p>
+  <section id="classes-and-objects">
+<h1>Classes and objects<a class="headerlink" href="#classes-and-objects" title="Permalink to this heading">¶</a></h1>
+<p>This chapter covers the rather complex internals of PHP’s object orientation system.</p>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classes_objects/object_handlers.html">Object handlers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes_objects/object_handlers.html#an-overview">An Overview</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </section>
 
 
@@ -50,11 +57,11 @@ platforms. Here we’ll give you an introduction to GDB and how to practice with
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="zend_engine/zend_opcache.html">Zend OPCache</a>
+        «&#160;&#160;<a href="debugging.html">Debugging with GDB</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="classes_objects.html">Classes and objects</a>&#160;&#160;»
+        <a href="classes_objects/object_handlers.html">Object handlers</a>&#160;&#160;»
         </p>
 
       </div>

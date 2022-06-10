@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>The zend_string API &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -38,12 +39,12 @@
         
         
   <section id="the-zend-string-api">
-<span id="zend-strings"></span><h1>The zend_string API<a class="headerlink" href="#the-zend-string-api" title="Permalink to this headline">¶</a></h1>
+<span id="zend-strings"></span><h1>The zend_string API<a class="headerlink" href="#the-zend-string-api" title="Permalink to this heading">¶</a></h1>
 <p>Strings in C are usually represented as null-terminated <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">*</span></code> pointers. As PHP supports strings that contain
 null bytes, PHP needs to explicitly store the length of the string. Additionally, PHP needs strings to fit into its
 general framework of reference-counted structures. This is the purpose of the <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> type.</p>
 <section id="structure">
-<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this heading">¶</a></h2>
 <p>A <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> has the following structure:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_string</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">zend_refcounted_h</span><span class="w"> </span><span class="n">gc</span><span class="p">;</span><span class="w"></span>
@@ -72,7 +73,7 @@ null-terminated copy of the string.  To give an example, the PHP string <code cl
 yet, while the real hash is computed on first use.</p>
 </section>
 <section id="string-accessors">
-<h2>String accessors<a class="headerlink" href="#string-accessors" title="Permalink to this headline">¶</a></h2>
+<h2>String accessors<a class="headerlink" href="#string-accessors" title="Permalink to this heading">¶</a></h2>
 <p>Just like with <a class="reference internal" href="../../zvals.html#zvals"><span class="std std-ref">zvals</span></a>, you don’t manipulate <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> fields by hand and use a number of access
 macros instead:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
@@ -105,7 +106,7 @@ used to either get the pre-cached hash, or compute it. In the very rare case whe
 construction, it is possible to discard the cached value using <code class="docutils literal notranslate"><span class="pre">zend_string_forget_hash_val()</span></code>.</p>
 </section>
 <section id="memory-management">
-<h2>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h2>
+<h2>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this heading">¶</a></h2>
 <p>While we already know how to <a class="reference internal" href="../../zvals/memory_management.html#initializing-zvals"><span class="std std-ref">initialize string zvals</span></a>, the only direct string creation
 API that has been introduced until now is <code class="docutils literal notranslate"><span class="pre">zend_string_init()</span></code>, which is used to create a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> from an
 existing string and length.</p>
@@ -209,7 +210,7 @@ Finally, there are two more functions that only work on strings with refcount on
 new strings to reusing existing ones.</p>
 </section>
 <section id="other-operations">
-<h2>Other operations<a class="headerlink" href="#other-operations" title="Permalink to this headline">¶</a></h2>
+<h2>Other operations<a class="headerlink" href="#other-operations" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> API supports a few additional operations. The most common one is comparing strings:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 <span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">FOO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;FOO&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
@@ -263,7 +264,7 @@ for them.</p>
 case-insensitive.</p>
 </section>
 <section id="interned-strings">
-<h2>Interned strings<a class="headerlink" href="#interned-strings" title="Permalink to this headline">¶</a></h2>
+<h2>Interned strings<a class="headerlink" href="#interned-strings" title="Permalink to this heading">¶</a></h2>
 <p>Just a quick word here about <a class="reference external" href="https://en.wikipedia.org/wiki/String_interning">interned strings</a>. You could
 need such a concept in extension development. Interned strings also interact with OPCache extension.</p>
 <p>Interned strings are deduplicated strings. When used with OPCache, they also get reused from request to request.</p>

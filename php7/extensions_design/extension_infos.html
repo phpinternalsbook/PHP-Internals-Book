@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Publishing extension information &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,11 +39,11 @@
         
         
   <section id="publishing-extension-information">
-<h1>Publishing extension information<a class="headerlink" href="#publishing-extension-information" title="Permalink to this headline">¶</a></h1>
+<h1>Publishing extension information<a class="headerlink" href="#publishing-extension-information" title="Permalink to this heading">¶</a></h1>
 <p>Extensions can publish information asked by <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code> or the Reflection API. Let’s see that together.</p>
 <p>This chapter won’t be too long as there is really no difficulty.</p>
 <section id="minfo-hook">
-<h2>MINFO() hook<a class="headerlink" href="#minfo-hook" title="Permalink to this headline">¶</a></h2>
+<h2>MINFO() hook<a class="headerlink" href="#minfo-hook" title="Permalink to this heading">¶</a></h2>
 <p>Everything takes place in the <code class="docutils literal notranslate"><span class="pre">MINFO()</span></code> hook you declared, if you declared one.  If you declared none, then the engine
 will run a default function to print information about your extension. That function will only print the version of
 your extension and the <a class="reference internal" href="ini_settings.html"><span class="doc">INI entries</span></a> you eventually declared. If you want to hook into such
@@ -119,7 +120,7 @@ text and HTML formatting. You don’t know how your extensions’ infos will be 
 macro resolves to <a class="reference external" href="https://github.com/php/php-src/blob/4903f044d3a65de5b1c457d9eb618c9e247f7086/main/php_ini.c#L167">display_ini_entries()</a>.</p>
 </section>
 <section id="a-note-about-the-reflection-api">
-<h2>A note about the Reflection API<a class="headerlink" href="#a-note-about-the-reflection-api" title="Permalink to this headline">¶</a></h2>
+<h2>A note about the Reflection API<a class="headerlink" href="#a-note-about-the-reflection-api" title="Permalink to this heading">¶</a></h2>
 <p>The Reflection heavily uses your <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure. For example, when you call
 <code class="docutils literal notranslate"><span class="pre">ReflectionExtension::getVersion()</span></code>, the API just reads the version field of your <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure.</p>
 <p>Same to discover functions, your <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> has got a <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">struct</span> <span class="pre">_zend_function_entry</span> <span class="pre">*functions</span></code> member

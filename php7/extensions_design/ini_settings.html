@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Declaring and using INI settings &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,11 +39,11 @@
         
         
   <section id="declaring-and-using-ini-settings">
-<h1>Declaring and using INI settings<a class="headerlink" href="#declaring-and-using-ini-settings" title="Permalink to this headline">¶</a></h1>
+<h1>Declaring and using INI settings<a class="headerlink" href="#declaring-and-using-ini-settings" title="Permalink to this heading">¶</a></h1>
 <p>This chapter details how PHP plays with its configuration and how an extension is expected to hook into the main
 configuration step of PHP, by registering and making use of INI settings.</p>
 <section id="reminders-on-ini-settings">
-<h2>Reminders on INI settings<a class="headerlink" href="#reminders-on-ini-settings" title="Permalink to this headline">¶</a></h2>
+<h2>Reminders on INI settings<a class="headerlink" href="#reminders-on-ini-settings" title="Permalink to this heading">¶</a></h2>
 <p>Before going further, you must remember how INI settings and PHP configuration work in PHP. Here are the steps, once
 more extracted as an interpretation of the source code. PHP INI file parsing steps happen in
 <a class="reference external" href="https://github.com/php/php-src/blob/4903f044d3a65de5b1c457d9eb618c9e247f7086/main/php_ini.c#L382">php_init_config()</a>,
@@ -80,7 +81,7 @@ interest in, even if such a setting was part of an INI file parsing (like php.in
 </div>
 </section>
 <section id="zoom-on-ini-settings">
-<h2>Zoom on INI settings<a class="headerlink" href="#zoom-on-ini-settings" title="Permalink to this headline">¶</a></h2>
+<h2>Zoom on INI settings<a class="headerlink" href="#zoom-on-ini-settings" title="Permalink to this heading">¶</a></h2>
 <p>Into the engine, an INI setting is represented by a <code class="docutils literal notranslate"><span class="pre">zend_ini_entry</span></code> structure:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_ini_entry</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w"></span>
@@ -142,9 +143,9 @@ an INI setting against the engine. The engine reads a <code class="docutils lite
 <code class="docutils literal notranslate"><span class="pre">zend_ini_entry</span></code> for its own usage, based on the definition model you provide. Easy.</p>
 </section>
 <section id="registering-and-using-ini-entries">
-<h2>Registering and using INI entries<a class="headerlink" href="#registering-and-using-ini-entries" title="Permalink to this headline">¶</a></h2>
+<h2>Registering and using INI entries<a class="headerlink" href="#registering-and-using-ini-entries" title="Permalink to this heading">¶</a></h2>
 <section id="registration">
-<h3>Registration<a class="headerlink" href="#registration" title="Permalink to this headline">¶</a></h3>
+<h3>Registration<a class="headerlink" href="#registration" title="Permalink to this heading">¶</a></h3>
 <p>INI settings are persistent through requests. They may change their value at runtime during a request, but they’ll go back
 to original value at request shutdown. Thus, registering INI settings is done once for all, in <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> hook of your
 extension.</p>
@@ -191,7 +192,7 @@ the information page (<code class="docutils literal notranslate"><span class="pr
 you need.</p>
 </section>
 <section id="usage">
-<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h3>
 <p>On your part as extension developer, we may now need to read INI settings values by yourself. The simplest way to do
 this into your extension is to use macros that will look for the value into the main array retaining all the INI
 settings, find it, and return it as the type you’ll ask for. We are provided several macros depending on what C type
@@ -220,7 +221,7 @@ also exist for other types.</p>
 </section>
 </section>
 <section id="validators-and-globals-memory-bridge">
-<h2>Validators and globals memory bridge<a class="headerlink" href="#validators-and-globals-memory-bridge" title="Permalink to this headline">¶</a></h2>
+<h2>Validators and globals memory bridge<a class="headerlink" href="#validators-and-globals-memory-bridge" title="Permalink to this heading">¶</a></h2>
 <p>So far so good, registering and reading back INI settings values is not really hard. But the way we used them in the
 previous above lines is far from being optimal.</p>
 <p>There are two problems that will get solved at the same time by using the ‘advanced’ INI settings API :</p>
@@ -423,7 +424,7 @@ been called by the engine in such a case.</p>
 <code class="docutils literal notranslate"><span class="pre">zend_alter_ini_entry()</span></code>, this is what userland <code class="docutils literal notranslate"><span class="pre">ini_set()</span></code> uses.</p>
 </section>
 <section id="using-a-displayer">
-<h2>Using a displayer<a class="headerlink" href="#using-a-displayer" title="Permalink to this headline">¶</a></h2>
+<h2>Using a displayer<a class="headerlink" href="#using-a-displayer" title="Permalink to this heading">¶</a></h2>
 <p>The last thing you need to know about INI settings is the <code class="docutils literal notranslate"><span class="pre">displayer()</span></code> callback. It is less used in practice, it is
 triggered any time the userland asks to “print” your INI setting value, that is through the usage of
 <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code> or <code class="docutils literal notranslate"><span class="pre">php</span> <span class="pre">--ri</span></code>.</p>

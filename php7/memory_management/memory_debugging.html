@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Debugging memory &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,14 +39,14 @@
         
         
   <section id="debugging-memory">
-<h1>Debugging memory<a class="headerlink" href="#debugging-memory" title="Permalink to this headline">¶</a></h1>
+<h1>Debugging memory<a class="headerlink" href="#debugging-memory" title="Permalink to this heading">¶</a></h1>
 <p>This chapter is a quick introduction on memory debugging for PHP source code. It is not a full course: memory debugging
 is not hard, but you need some experience with it, by practicing a lot, what you’ll probably have to do anyway when
 designing any C-written code.
 We will introduce here a very well known memory debugger: <strong>valgrind</strong>; And how to use it with PHP to debug memory
 issues.</p>
 <section id="a-quick-note-about-valgrind">
-<h2>A quick note about valgrind<a class="headerlink" href="#a-quick-note-about-valgrind" title="Permalink to this headline">¶</a></h2>
+<h2>A quick note about valgrind<a class="headerlink" href="#a-quick-note-about-valgrind" title="Permalink to this heading">¶</a></h2>
 <p>Valgrind is a well-known tool used under many Unix environments to debug a lot of common memory problem scenarios in
 any C/C++ written software.
 Valgrind is a multi-tool frontend about memory debugging. The most used underlying tool is called
@@ -68,7 +69,7 @@ felt; just don’t worry if you notice it, this is normal.</p>
 <a class="reference external" href="https://clang.llvm.org/docs/AddressSanitizer.html">AddressSanitizer</a> are other common tools.</p>
 </section>
 <section id="before-starting">
-<h2>Before starting<a class="headerlink" href="#before-starting" title="Permalink to this headline">¶</a></h2>
+<h2>Before starting<a class="headerlink" href="#before-starting" title="Permalink to this heading">¶</a></h2>
 <p>Here are the steps needed to have a good experience in memory debugging, and to ease chances to find flaws and reduce
 debugging times:</p>
 <ul class="simple">
@@ -101,9 +102,9 @@ program crashes, often randomly, depending on many parameters.</p>
 </div>
 </section>
 <section id="memory-leak-detection-example">
-<h2>Memory leak detection example<a class="headerlink" href="#memory-leak-detection-example" title="Permalink to this headline">¶</a></h2>
+<h2>Memory leak detection example<a class="headerlink" href="#memory-leak-detection-example" title="Permalink to this heading">¶</a></h2>
 <section id="starter">
-<h3>Starter<a class="headerlink" href="#starter" title="Permalink to this headline">¶</a></h3>
+<h3>Starter<a class="headerlink" href="#starter" title="Permalink to this heading">¶</a></h3>
 <p>Valgrind is a full heap memory debugger. It can also debug process memory maps and functions stacks. Please, get more
 information in its documentation.</p>
 <p>Let’s go to detect a dynamic-memory leak, and try with an easy one, the most-common ones you’ll meet:</p>
@@ -178,7 +179,7 @@ memory map will get reported by valgrind eyes. You can’t pass through.</p>
 </div>
 </section>
 <section id="more-complex-use-case">
-<h3>More complex use-case<a class="headerlink" href="#more-complex-use-case" title="Permalink to this headline">¶</a></h3>
+<h3>More complex use-case<a class="headerlink" href="#more-complex-use-case" title="Permalink to this heading">¶</a></h3>
 <p>Here is a more complex setup. Can you spot the leaks in the code below ?</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_array</span><span class="w"> </span><span class="n">ar</span><span class="p">;</span><span class="w"></span>
 
@@ -249,7 +250,7 @@ embedding structures, etc…</p>
 </section>
 </section>
 <section id="buffer-overflow-underflow-detection">
-<h2>Buffer overflow/underflow detection<a class="headerlink" href="#buffer-overflow-underflow-detection" title="Permalink to this headline">¶</a></h2>
+<h2>Buffer overflow/underflow detection<a class="headerlink" href="#buffer-overflow-underflow-detection" title="Permalink to this heading">¶</a></h2>
 <p>Leaking memory is bad. It will lead your program to trigger OOM once or later, and it will slow down the host machine
 dramatically as that latter gets less and less memory available as time runs. This is the syndrom of memory leaks.</p>
 <p>But there is worse: buffer out-of-bounds access. Accessing a pointer outside the allocation limits is the root of so
@@ -443,7 +444,7 @@ big mistake. Let’s ask valgrind:</p>
 <p>Everything is clear here again.</p>
 </section>
 <section id="conclusions">
-<h2>Conclusions<a class="headerlink" href="#conclusions" title="Permalink to this headline">¶</a></h2>
+<h2>Conclusions<a class="headerlink" href="#conclusions" title="Permalink to this heading">¶</a></h2>
 <p>Use a memory debugger before pushing to production. As you have learnt in this chapter, the tiny little byte you
 forget in your computations can lead to an exploitable security hole. It also often leads (very often) to a simple
 crash. That means that your cool-and-nice extension could cut down an entire (set of) server and every of its clients.</p>

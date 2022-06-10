@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Symtable and array API &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,13 +39,13 @@
         
         
   <section id="symtable-and-array-api">
-<h1>Symtable and array API<a class="headerlink" href="#symtable-and-array-api" title="Permalink to this headline">¶</a></h1>
+<h1>Symtable and array API<a class="headerlink" href="#symtable-and-array-api" title="Permalink to this heading">¶</a></h1>
 <p>The hashtable API allows you to work with values of any type, but in the vast majority of cases the values will be
 zvals. Using the <code class="docutils literal notranslate"><span class="pre">zend_hash</span></code> API with zvals can often be somewhat cumbersome, as you need to handle zval allocation
 and initialization yourself. This is why PHP provides a second set of APIs specifically aimed at this use case. Before
 introducing these simplified APIs we will have a look at a special kind of hashtable that PHP arrays make use of.</p>
 <section id="symtables">
-<h2>Symtables<a class="headerlink" href="#symtables" title="Permalink to this headline">¶</a></h2>
+<h2>Symtables<a class="headerlink" href="#symtables" title="Permalink to this heading">¶</a></h2>
 <p>One of the core concepts behind the design of PHP is that integers and strings containing integers should be
 interchangeable. This also applies to arrays where the keys <code class="docutils literal notranslate"><span class="pre">42</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;42&quot;</span></code> should be considered the same. This is
 not the case though with ordinary hashtables: They strictly distinguish the key types and it’s okay to have both the
@@ -124,7 +125,7 @@ Value at key &quot;42&quot; is zv2
 also found the same element.</p>
 </section>
 <section id="array-api">
-<h2>Array API<a class="headerlink" href="#array-api" title="Permalink to this headline">¶</a></h2>
+<h2>Array API<a class="headerlink" href="#array-api" title="Permalink to this heading">¶</a></h2>
 <p>Now we have all the prerequisites to look at the array API. This API no longer works directly on hashtables, but rather
 accepts zvals from which the hashtable is extracted using <code class="docutils literal notranslate"><span class="pre">Z_ARRVAL_P()</span></code>.</p>
 <p>The first two functions from this API are <code class="docutils literal notranslate"><span class="pre">array_init()</span></code> and <code class="docutils literal notranslate"><span class="pre">array_init_size()</span></code>, which initialize a hashtable
@@ -150,7 +151,7 @@ which look as follows:</p>
 </div>
 <p>Here <code class="docutils literal notranslate"><span class="pre">*</span></code> is a placeholder for a type and <code class="docutils literal notranslate"><span class="pre">...</span></code> a placeholder for the type-specific arguments. The valid values for
 them are listed in the following table:</p>
-<table class="colwidths-given docutils align-default">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 29%" />
 <col style="width: 71%" />

@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>The .phpt file structure &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,11 +39,11 @@
         
         
   <section id="the-phpt-file-structure">
-<span id="phpt-file-structure"></span><h1>The <code class="docutils literal notranslate"><span class="pre">.phpt</span></code> file structure<a class="headerlink" href="#the-phpt-file-structure" title="Permalink to this headline">¶</a></h1>
+<span id="phpt-file-structure"></span><h1>The <code class="docutils literal notranslate"><span class="pre">.phpt</span></code> file structure<a class="headerlink" href="#the-phpt-file-structure" title="Permalink to this heading">¶</a></h1>
 <p>Now that we know how to run the tests with run-tests, let’s dive into a phpt file in more detail. A phpt file is just a
 normal PHP file but it contains a number of different sections which run-tests supports.</p>
 <section id="a-basic-test-example">
-<h2>A basic test example<a class="headerlink" href="#a-basic-test-example" title="Permalink to this headline">¶</a></h2>
+<h2>A basic test example<a class="headerlink" href="#a-basic-test-example" title="Permalink to this heading">¶</a></h2>
 <p>Here’s a basic example of a PHP source test that tests the <code class="docutils literal notranslate"><span class="pre">echo</span></code> construct.</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="nx">TEST</span><span class="o">--</span>
 <span class="k">echo</span> <span class="o">-</span> <span class="nx">basic</span> <span class="nx">test</span> <span class="k">for</span> <span class="k">echo</span> <span class="nx">language</span> <span class="nx">construct</span>
@@ -62,7 +63,7 @@ bit of code and the expected output. Again, black-box testing doesn’t care <em
 with the end result.</p>
 </section>
 <section id="some-notable-sections">
-<h2>Some notable sections<a class="headerlink" href="#some-notable-sections" title="Permalink to this headline">¶</a></h2>
+<h2>Some notable sections<a class="headerlink" href="#some-notable-sections" title="Permalink to this heading">¶</a></h2>
 <p>Now that we’ve seen the three required sections for every  <code class="docutils literal notranslate"><span class="pre">.phpt</span></code> file let’s take a look a few other common sections
 we’ll no doubt encounter.</p>
 <dl>
@@ -185,7 +186,7 @@ ext/json must be installed” instead of getting a ton of random errors.</p>
 </dl>
 </section>
 <section id="writing-a-simple-test">
-<h2>Writing a simple test<a class="headerlink" href="#writing-a-simple-test" title="Permalink to this headline">¶</a></h2>
+<h2>Writing a simple test<a class="headerlink" href="#writing-a-simple-test" title="Permalink to this heading">¶</a></h2>
 <p>Let’s write our first test just to get familiar with the process.</p>
 <p>Typically tests are stored in a <code class="docutils literal notranslate"><span class="pre">tests/</span></code> directory that lives near the code we want to test. For example, the <a class="reference external" href="http://php.net/pdo">PDO
 extension</a> is found at <code class="docutils literal notranslate"><span class="pre">ext/pdo</span></code> in the PHP source code. If you open that directory, you’ll see a <a class="reference external" href="https://github.com/php/php-src/tree/master/ext/pdo/tests">tests/ directory</a>
@@ -286,13 +287,12 @@ extension installed since the Gist is behind https.</p>
 </pre></div>
 </div>
 <p>Crazy, right? This will take a few seconds just to output a simple string and you’d never do this in real life, but the
-test will still pass. Run-tests does not care that that your code is slow <a class="footnote-reference brackets" href="#id2" id="id1">1</a> or inefficient or just terrible, if the
+test will still pass. Run-tests does not care that that your code is slow <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> or inefficient or just terrible, if the
 expected output matches the actual output, your test will be in the green.</p>
-<dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p><strong>Timeouts:</strong> The default timeout for run-tests is 60 seconds (or 300 seconds when testing for memory leaks) but you can specify a different timeout using the <code class="docutils literal notranslate"><span class="pre">--set-timeout</span></code> flag.</p>
-</dd>
-</dl>
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><strong>Timeouts:</strong> The default timeout for run-tests is 60 seconds (or 300 seconds when testing for memory leaks) but you can specify a different timeout using the <code class="docutils literal notranslate"><span class="pre">--set-timeout</span></code> flag.</p>
+</aside>
 </section>
 </section>
 

@@ -15,10 +15,10 @@ PHP 7 and PHP 8
     php7/memory_management.rst
     php7/zend_engine.rst
     php7/debugging.rst
+    php7/classes_objects.rst
 
 ..
     php7/hashtables.rst
-    php7/classes_objects.rst
     php7/prerequisites.rst
     php7/php_first_look.rst
     php7/managing_memory.rst

@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>A look into a PHP extension and extension skeleton &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,13 +39,13 @@
         
         
   <section id="a-look-into-a-php-extension-and-extension-skeleton">
-<h1>A look into a PHP extension and extension skeleton<a class="headerlink" href="#a-look-into-a-php-extension-and-extension-skeleton" title="Permalink to this headline">¶</a></h1>
+<h1>A look into a PHP extension and extension skeleton<a class="headerlink" href="#a-look-into-a-php-extension-and-extension-skeleton" title="Permalink to this heading">¶</a></h1>
 <p>Here we detail what a PHP extension look like, and how to generate a skeleton using some tools. That will allow us to
 use a skeleton code and hack into it, instead of creating every needed piece by hand from scratch.</p>
 <p>We’ll also detail how you could/should organize your extension files, how the engine loads them, and basically
 everything you need to know about a PHP extension.</p>
 <section id="how-the-engine-loads-extensions">
-<h2>How the engine loads extensions<a class="headerlink" href="#how-the-engine-loads-extensions" title="Permalink to this headline">¶</a></h2>
+<h2>How the engine loads extensions<a class="headerlink" href="#how-the-engine-loads-extensions" title="Permalink to this heading">¶</a></h2>
 <p>You remember <a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">the chapter about building PHP extensions</span></a>, so you know how
 to compile/build it and install it.</p>
 <p>You may build <strong>statically compiled</strong> extensions, those are extensions that are part of PHP’s heart and melt into it.
@@ -96,7 +97,7 @@ engine once wanting to load your extension.</p>
 </div>
 </section>
 <section id="what-is-a-php-extension">
-<h2>What is a PHP extension ?<a class="headerlink" href="#what-is-a-php-extension" title="Permalink to this headline">¶</a></h2>
+<h2>What is a PHP extension ?<a class="headerlink" href="#what-is-a-php-extension" title="Permalink to this heading">¶</a></h2>
 <p>A PHP extension, not to be confused with a <a class="reference internal" href="zend_extensions.html"><span class="doc">Zend extension</span></a>, is set up by the usage of a
 <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_module_entry</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -160,7 +161,7 @@ set to <code class="docutils literal notranslate"><span class="pre">MODULE_PERSI
 lead to many problems into the engine.</p>
 </section>
 <section id="generating-extension-skeleton-with-scripts">
-<h2>Generating extension skeleton with scripts<a class="headerlink" href="#generating-extension-skeleton-with-scripts" title="Permalink to this headline">¶</a></h2>
+<h2>Generating extension skeleton with scripts<a class="headerlink" href="#generating-extension-skeleton-with-scripts" title="Permalink to this heading">¶</a></h2>
 <p>Now we’ll see how to generate an extension skeleton so that you may start a new extension with some minimal content
 and structure you won’t be forced to create by hand from scratch.</p>
 <p>the skeleton generator script is located into
@@ -212,7 +213,7 @@ macro.</p>
 <p>After that, there is nothing more to say as everything is commented out and should be clear to you.</p>
 </section>
 <section id="new-age-of-the-extension-skeleton-generator">
-<h2>New age of the extension skeleton generator<a class="headerlink" href="#new-age-of-the-extension-skeleton-generator" title="Permalink to this headline">¶</a></h2>
+<h2>New age of the extension skeleton generator<a class="headerlink" href="#new-age-of-the-extension-skeleton-generator" title="Permalink to this heading">¶</a></h2>
 <p>Since <a class="reference external" href="https://github.com/php/php-src/commit/f35f45906eac34498c7720326fb9da9fde960871">this commit</a> and the
 extension skeleton generator had took a new style :</p>
 <blockquote>
@@ -248,7 +249,7 @@ you may define any others functions and change the concrete body as you want.</p
 </div>
 </section>
 <section id="publishing-api">
-<h2>Publishing API<a class="headerlink" href="#publishing-api" title="Permalink to this headline">¶</a></h2>
+<h2>Publishing API<a class="headerlink" href="#publishing-api" title="Permalink to this heading">¶</a></h2>
 <p>If we open the header file, we can see those lines:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef PHP_WIN32</span>
 <span class="cp">#   define PHP_PIB_API __declspec(dllexport)</span>

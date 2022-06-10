@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Basic structure &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -38,11 +39,11 @@
         
         
   <section id="basic-structure">
-<h1>Basic structure<a class="headerlink" href="#basic-structure" title="Permalink to this headline">¶</a></h1>
+<h1>Basic structure<a class="headerlink" href="#basic-structure" title="Permalink to this heading">¶</a></h1>
 <p>A zval (short for “Zend value”) represents an arbitrary PHP value. As such it is likely the most important structure in
 all of PHP and you’ll be working with it a lot. This section describes the basic concepts behind zvals and their use.</p>
 <section id="types-and-values">
-<h2>Types and values<a class="headerlink" href="#types-and-values" title="Permalink to this headline">¶</a></h2>
+<h2>Types and values<a class="headerlink" href="#types-and-values" title="Permalink to this heading">¶</a></h2>
 <p>Among other things, every zval stores some value and the type this value has. This is necessary because PHP is a
 dynamically typed language and as such variable types are only known at run-time and not at compile-time. Furthermore,
 the type can change during the life of a zval, so if the zval previously stored an integer it may contain a string at a
@@ -112,10 +113,6 @@ works will be discussed in the <a class="reference internal" href="../internal_t
 <p>To summarize, here’s a table with all the available “normal” type tags and the corresponding storage location for
 their values:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Type tag</p></th>
 <th class="head"><p>Storage location</p></th>
@@ -149,7 +146,7 @@ their values:</p>
 </tbody>
 </table>
 <section id="special-types">
-<h3>Special types<a class="headerlink" href="#special-types" title="Permalink to this headline">¶</a></h3>
+<h3>Special types<a class="headerlink" href="#special-types" title="Permalink to this heading">¶</a></h3>
 <p>There are a number of additional types that do not have a directly corresponding userland type, and are only used
 internally. Of these, <code class="docutils literal notranslate"><span class="pre">IS_UNDEF</span></code> and <code class="docutils literal notranslate"><span class="pre">IS_REFERENCE</span></code> are the only types you will encounter routinely.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">IS_UNDEF</span></code> type is used to indicate an uninitialized zval. This type tag has a value of zero, so zeroing out
@@ -172,7 +169,7 @@ serve the same purpose as <code class="docutils literal notranslate"><span class
 </section>
 </section>
 <section id="the-zval-struct">
-<h2>The zval struct<a class="headerlink" href="#the-zval-struct" title="Permalink to this headline">¶</a></h2>
+<h2>The zval struct<a class="headerlink" href="#the-zval-struct" title="Permalink to this heading">¶</a></h2>
 <p>Let’s now have a look at how the <code class="docutils literal notranslate"><span class="pre">zval</span></code> struct actually looks like:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zval_struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">zend_value</span><span class="w"> </span><span class="n">value</span><span class="p">;</span><span class="w"></span>
@@ -220,7 +217,7 @@ However, use of this field is only possible in very specific circumstances, as P
 zero.</p>
 </section>
 <section id="access-macros">
-<h2>Access macros<a class="headerlink" href="#access-macros" title="Permalink to this headline">¶</a></h2>
+<h2>Access macros<a class="headerlink" href="#access-macros" title="Permalink to this heading">¶</a></h2>
 <p>Knowing the zval structure you can now write code making use of it:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... get zval from somewhere */</span><span class="p">;</span><span class="w"></span>
 
@@ -313,7 +310,7 @@ we’ll create a simple function for dumping a zval:</p>
 </pre></div>
 </div>
 <p>The following table summarizes the most commonly used accessor macros, though there are quite a few more than that.</p>
-<table class="colwidths-given docutils align-default">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 15%" />
 <col style="width: 20%" />
