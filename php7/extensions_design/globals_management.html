@@ -403,7 +403,7 @@ treat some requests.</p>
 <span class="w">    </span><span class="o">*</span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="n">zend_string_hash_val</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">);</span><span class="w"></span>
 
-<span class="w">    </span><span class="n">GC_FLAGS</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">IS_INTERNED</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">GC_ADD_FLAGS</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">IS_STR_INTERNED</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
