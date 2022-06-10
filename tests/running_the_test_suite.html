@@ -103,7 +103,15 @@ can pass <code class="docutils literal notranslate"><span class="pre">make</span
 </section>
 <section id="executing-tests-in-parallel">
 <h2>Executing tests in parallel<a class="headerlink" href="#executing-tests-in-parallel" title="Permalink to this heading">¶</a></h2>
-<p>You can’t.</p>
+<p>Since PHP 7.4 you are able to run tests in parallel by passing a <code class="docutils literal notranslate"><span class="pre">-j&lt;workers&gt;</span></code> flag, where workers is the number of parallel processes you want. e.g. <code class="docutils literal notranslate"><span class="pre">-j4</span></code> would run 4 tests at once.</p>
+<p>Example for running tests through run-tests.php:
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">run-tests.php</span> <span class="pre">-j8</span>
+<span class="pre">`</span></code></p>
+<p>Example for running tests through make:
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">make</span> <span class="pre">test</span> <span class="pre">TESTS=&quot;-j8&quot;</span>
+<span class="pre">`</span></code></p>
 </section>
 <section id="more-options">
 <h2>More options<a class="headerlink" href="#more-options" title="Permalink to this heading">¶</a></h2>
