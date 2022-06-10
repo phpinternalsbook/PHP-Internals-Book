@@ -210,8 +210,8 @@ pointer. In order to return a zval, an out-parameter needs to be passed to the f
 <p>While zvals themselves are generally not shared, it’s possible to share the structures they point to using the
 refcounting mechanism. The <code class="docutils literal notranslate"><span class="pre">Z_REFCOUNT</span></code>, <code class="docutils literal notranslate"><span class="pre">Z_ADDREF</span></code> and <code class="docutils literal notranslate"><span class="pre">Z_DELREF</span></code> macros work the same way as the
 corresponding <code class="docutils literal notranslate"><span class="pre">GC_*</span></code> macros, but operate on zvals. Importantly, these macros can only be used if the zval does
-point to a refcounted structure, and the structure is not immutable. Whether this is the case is stored in the
-zval type flags as <code class="docutils literal notranslate"><span class="pre">IS_TYPE_REFCOUNTED</span></code> and can be accessed through <code class="docutils literal notranslate"><span class="pre">Z_REFCOUNTED</span></code>:</p>
+point to a refcounted structure, and the structure is not immutable. The <code class="docutils literal notranslate"><span class="pre">IS_TYPE_REFCOUNTED</span></code> type flag
+determines whether this is the case, and can be accessed through <code class="docutils literal notranslate"><span class="pre">Z_REFCOUNTED</span></code>:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">fill_array</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">array</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
@@ -254,8 +254,8 @@ usage is to <em>move</em> a zval, which means that the original zval will no lon
 not be destroyed). Sometimes, this macro is also used as an optimization to <em>copy</em> a zval that we know not to be
 refcounted.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> macro differs from a simple assignment (<code class="docutils literal notranslate"><span class="pre">*retval</span> <span class="pre">=</span> <span class="pre">val</span></code>) in that it only copies the zval
-value and type, but not its u2 member. As such, it is safe to <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> into a zval whose u2 member is
-in used, as it will not be overwritten.</p>
+value and type, but not its <code class="docutils literal notranslate"><span class="pre">u2</span></code> member. As such, it is safe to <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> into a zval whose <code class="docutils literal notranslate"><span class="pre">u2</span></code> member is
+in use, as it will not be overwritten.</p>
 <p>The second macro is <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY</span></code>, which is an optimized combination of <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> and <code class="docutils literal notranslate"><span class="pre">Z_TRY_ADDREF</span></code>:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
