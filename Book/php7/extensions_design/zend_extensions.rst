@@ -246,12 +246,12 @@ extensions, simply we won't declare in there the same things::
 
     /* Remember that we must declare such a symbol in a Zend extension. It is used to check
      * if it was built against the same API as the one PHP runtime uses */
-    zend_extension_version_info extension_version_info = {
+    ZEND_DLEXPORT zend_extension_version_info extension_version_info = {
         ZEND_EXTENSION_API_NO,
      ZEND_EXTENSION_BUILD_ID
     };
 
-    zend_extension zend_extension_entry = {
+    ZEND_DLEXPORT zend_extension zend_extension_entry = {
         "pib-zend-extension",
         "1.0",
         "PHPInternalsBook Authors",
@@ -539,12 +539,12 @@ But, in our startup hook of Zend extension, nothing prevents us from registering
     ZEND_GET_MODULE(pib)
     */
 
-    zend_extension_version_info extension_version_info = {
+    ZEND_DLEXPORT zend_extension_version_info extension_version_info = {
         ZEND_EXTENSION_API_NO,
         ZEND_EXTENSION_BUILD_ID
     };
 
-    zend_extension zend_extension_entry = {
+    ZEND_DLEXPORT zend_extension zend_extension_entry = {
         "pib-zend-extension",
         "1.0",
         "PHPInternalsBook Authors",
