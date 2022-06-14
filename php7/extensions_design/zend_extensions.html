@@ -267,12 +267,12 @@ extensions, simply we won’t declare in there the same things:</p>
 
 <span class="cm">/* Remember that we must declare such a symbol in a Zend extension. It is used to check</span>
 <span class="cm"> * if it was built against the same API as the one PHP runtime uses */</span><span class="w"></span>
-<span class="n">zend_extension_version_info</span><span class="w"> </span><span class="n">extension_version_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension_version_info</span><span class="w"> </span><span class="n">extension_version_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">ZEND_EXTENSION_API_NO</span><span class="p">,</span><span class="w"></span>
 <span class="w"> </span><span class="n">ZEND_EXTENSION_BUILD_ID</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span>
 
-<span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="s">&quot;pib-zend-extension&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="s">&quot;1.0&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="s">&quot;PHPInternalsBook Authors&quot;</span><span class="p">,</span><span class="w"></span>
@@ -542,12 +542,12 @@ as the engine will fail to find our not-exported <code class="docutils literal n
 <span class="cm">ZEND_GET_MODULE(pib)</span>
 <span class="cm">*/</span><span class="w"></span>
 
-<span class="n">zend_extension_version_info</span><span class="w"> </span><span class="n">extension_version_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension_version_info</span><span class="w"> </span><span class="n">extension_version_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">ZEND_EXTENSION_API_NO</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="n">ZEND_EXTENSION_BUILD_ID</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span>
 
-<span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="s">&quot;pib-zend-extension&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="s">&quot;1.0&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="s">&quot;PHPInternalsBook Authors&quot;</span><span class="p">,</span><span class="w"></span>
