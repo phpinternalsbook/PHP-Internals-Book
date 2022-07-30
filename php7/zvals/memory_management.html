@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Memory management &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -439,7 +439,7 @@ can only be applied to <code class="docutils literal notranslate"><span class="p
 <span class="n">SEPARATE_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// Mutable copy of empty array.</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">SEPARATE_ZVAL_NOREF()</span></code> macro separates a generic zval, but is only rarely useful, as sepatation typically
+<p>The <code class="docutils literal notranslate"><span class="pre">SEPARATE_ZVAL_NOREF()</span></code> macro separates a generic zval, but is only rarely useful, as separation typically
 directly precedes a modification, and you need to know the zval type to perform any meaningful modification anyway.</p>
 <p>Objects and resources do not require separation, as they have reference-like semantics.</p>
 </section>

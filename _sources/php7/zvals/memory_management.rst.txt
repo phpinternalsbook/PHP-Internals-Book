@@ -426,7 +426,7 @@ The ``SEPARATE_ARRAY()`` macro takes care not only of shared arrays, but also of
     ZVAL_EMPTY_ARRAY(&val); // Immutable empty array.
     SEPARATE_ARRAY(&val); // Mutable copy of empty array.
 
-The ``SEPARATE_ZVAL_NOREF()`` macro separates a generic zval, but is only rarely useful, as sepatation typically
+The ``SEPARATE_ZVAL_NOREF()`` macro separates a generic zval, but is only rarely useful, as separation typically
 directly precedes a modification, and you need to know the zval type to perform any meaningful modification anyway.
 
 Objects and resources do not require separation, as they have reference-like semantics.
