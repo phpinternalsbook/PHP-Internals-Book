@@ -235,7 +235,7 @@ declared. Like this::
     }
 
 We declare a global named ``max_rnd``, of type ``zend_ulong``. Then, we register our *'pib.rnd_max'* INI value using
-``STD_PHP_INI_ENTRY()`` this time. That allows us to pass more parameters to the macro. The first four ones are known,
+``STD_PHP_INI_ENTRY()`` this time. That allows us to pass more parameters to the macro. The first three ones are known,
 we detailed them before in the chapter.
 
 The four last parameters represent the globals bridge. We tell that we want to update ``max_rnd``, in the
