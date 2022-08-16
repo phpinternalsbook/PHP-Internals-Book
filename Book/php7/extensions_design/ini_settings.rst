@@ -149,7 +149,7 @@ for previous chapter about random number picking and guessing, once again only s
 
 That was the easiest INI declaration, we won't keep it as-is but the steps are trivial : you declare a
 ``zend_ini_entry_def[]`` vector using ``PHP_INI_BEGIN`` and ``PHP_INI_END`` macros. In the middle, you add your
-individual ``zend_ini_entry_def`` entries using here again macros. We used the simplest one : ``REGISTER_INI_ENTRIES()``, that
+individual ``zend_ini_entry_def`` entries using here again macros. We used the simplest one : ``PHP_INI_ENTRY()``, that
 takes only four parameters : the name of the entry to register, its default value given if it was not part of an INI
 file scanning (see above chapter for details), the modification level, ``PHP_INI_ALL`` says "everywhere". We did not
 play with validator yet, and passed NULL.
