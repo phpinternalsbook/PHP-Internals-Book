@@ -261,7 +261,7 @@ declared. Like this:</p>
 </pre></div>
 </div>
 <p>We declare a global named <code class="docutils literal notranslate"><span class="pre">max_rnd</span></code>, of type <code class="docutils literal notranslate"><span class="pre">zend_ulong</span></code>. Then, we register our <em>‘pib.rnd_max’</em> INI value using
-<code class="docutils literal notranslate"><span class="pre">STD_PHP_INI_ENTRY()</span></code> this time. That allows us to pass more parameters to the macro. The first four ones are known,
+<code class="docutils literal notranslate"><span class="pre">STD_PHP_INI_ENTRY()</span></code> this time. That allows us to pass more parameters to the macro. The first three ones are known,
 we detailed them before in the chapter.</p>
 <p>The four last parameters represent the globals bridge. We tell that we want to update <code class="docutils literal notranslate"><span class="pre">max_rnd</span></code>, in the
 <code class="docutils literal notranslate"><span class="pre">zend_pib_globals</span></code> structure represented by the symbol <code class="docutils literal notranslate"><span class="pre">pib_globals</span></code>. Read the
