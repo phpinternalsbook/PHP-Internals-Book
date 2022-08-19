@@ -43,7 +43,7 @@ yet, while the real hash is computed on first use.
 String accessors
 ----------------
 
-Just like with :ref:`zvals <zvals>`, you don't manipulate ``zend_string`` fields by hand and use a number of access
+Just like with :ref:`zvals <zvals>`, you don't manipulate ``zend_string`` fields by hand but use a number of access
 macros instead::
 
     zend_string *str = zend_string_init("foo", strlen("foo"), 0);
