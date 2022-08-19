@@ -74,7 +74,7 @@ yet, while the real hash is computed on first use.</p>
 </section>
 <section id="string-accessors">
 <h2>String accessors<a class="headerlink" href="#string-accessors" title="Permalink to this heading">¶</a></h2>
-<p>Just like with <a class="reference internal" href="../../zvals.html#zvals"><span class="std std-ref">zvals</span></a>, you don’t manipulate <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> fields by hand and use a number of access
+<p>Just like with <a class="reference internal" href="../../zvals.html#zvals"><span class="std std-ref">zvals</span></a>, you don’t manipulate <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> fields by hand but use a number of access
 macros instead:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 <span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;This is my string: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">str</span><span class="p">));</span><span class="w"></span>
