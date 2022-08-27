@@ -250,9 +250,9 @@ Interned strings
 ----------------
 
 Just a quick word here about `interned strings <https://en.wikipedia.org/wiki/String_interning>`_. You could 
-need such a concept in extension development. Interned strings also interact with OPCache extension.
+need such a concept in extension development. Interned strings also interact with opcache extension.
 
-Interned strings are deduplicated strings. When used with OPCache, they also get reused from request to request.
+Interned strings are deduplicated strings. When used with opcache, they also get reused from request to request.
 
 Say you want to create the string "foo". What you tend to do is simply create a new string "foo"::
 
@@ -322,17 +322,17 @@ This process is in fact a little bit more complex than this. If you make use of 
 :doc:`request processing <../../extensions_design/php_lifecycle>`, that string will be interned for sure.
 However, if you make use of an interned string as PHP is treating a request, then this string will only get interned for 
 the current request, and will get cleared after that.
-All this is valid if you don't use the OPCache extension, something you shouldn't do : use it.
+All this is valid if you don't use the opcache extension, something you shouldn't do : use it.
 
-When using the OPCache extension, if you make use of an interned string out of a 
+When using the opcache extension, if you make use of an interned string out of a 
 :doc:`request processing <../../extensions_design/php_lifecycle>`, that string will be 
 interned for sure and will also be shared to every PHP process or thread that will be spawned by you parallelism layer.
-Also, if you make use of an interned string as PHP is treating a request, this string will also get interned by OPCache 
+Also, if you make use of an interned string as PHP is treating a request, this string will also get interned by opcache 
 itself, and shared to every PHP process or thread that will be spawned by you parallelism layer.
 
-Interned strings mechanisms are then changed when OPCache extension fires in. OPCache not only allows to intern strings 
+Interned strings mechanisms are then changed when opcache extension fires in. Opcache not only allows to intern strings 
 that come from a request, but it also allows to share them to every PHP process of the same pool. This is done using 
-shared memory. When saving an interned string, OPCache will also add the ``IS_STR_PERMANENT`` flag to its GC info. 
+shared memory. When saving an interned string, opcache will also add the ``IS_STR_PERMANENT`` flag to its GC info. 
 That flag means the memory allocation used for the structure (``zend_string`` here) is permanent, it could be a shared 
 read-only memory segment.
 
@@ -340,7 +340,7 @@ Interned strings save memory, because the same string is never stored more than 
 CPU time as it often needs to lookup the interned strings store, even if that process is well optimized yet.
 As an extension designer, here are global rules:
 
-* If OPCache is used (it should be), and if you need to create read-only strings : use an interned string.
+* If opcache is used (it should be), and if you need to create read-only strings : use an interned string.
 * If you need a string you know for sure PHP will have interned (a well-known-PHP-string, f.e "php" or "str_replace"),
   use an interned string.
 * If the string is not read-only and could/should be altered after its been created, do not use an interned string.
