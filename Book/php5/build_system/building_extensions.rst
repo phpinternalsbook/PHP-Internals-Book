@@ -51,7 +51,7 @@ everything else. The reason is simply that building external extensions as share
 intrusive), as you will see in a moment. Another benefit is that you can update the extension without rebuilding PHP.
 
 .. [#] We'll explain the difference between a "normal" extension and a Zend extension later in the book. For now it
-       suffices to know that Zend extensions are more "low level" (e.g. opcache or xdebug) and hook into the workings of
+       suffices to know that Zend extensions are more "low level" (e.g. opcache or Xdebug) and hook into the workings of
        the Zend Engine itself.
 
 Installing extensions from PECL

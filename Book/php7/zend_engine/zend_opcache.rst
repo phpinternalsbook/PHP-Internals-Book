@@ -1,2 +1,2 @@
-Zend OPCache
+Zend opcache
 ============
