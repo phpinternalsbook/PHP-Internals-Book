@@ -55,7 +55,7 @@ Here are all the object handlers with their signature and a small description.
     disallow manual construction by throwing an error in the handler.
 
 .. c:member::
-    int count_elements(zend_object *object, zend_long *count)
+    zend_result count_elements(zend_object *object, zend_long *count)
 
     This is just the internal way of implementing the ``Countable::count`` method. The function returns a
     ``zend_result`` and assigns the value to the ``zend_long *count`` pointer.
@@ -71,14 +71,14 @@ Here are all the object handlers with their signature and a small description.
     the values are uncomparable ``ZEND_UNCOMPARABLE`` should be returned.
 
 .. c:member::
-    int cast_object(zend_object *readobj, zval *writeobj, int type)
+    zend_result cast_object(zend_object *readobj, zval *writeobj, int type)
 
     Internal classes have the ability to implement a custom compare behavior and override casting behavior for all
     types. Userland classes on the other hand only have the ability to override object to string casting through
     ``__toString``.
 
 .. c:member::
-    int get_closure(zend_object *obj, zend_class_entry **ce_ptr, zend_function **fptr_ptr, zend_object **obj_ptr, bool check_only)
+    zend_result get_closure(zend_object *obj, zend_class_entry **ce_ptr, zend_function **fptr_ptr, zend_object **obj_ptr, bool check_only)
 
     This handler is invoked when the object is used as a function, i.e. it is the internal version of ``__invoke``.
     The name derives from the fact that its main use is for the implementation of closures (the ``Closure`` class).
@@ -122,7 +122,7 @@ Here are all the object handlers with their signature and a small description.
     longer active, in which case execution of user code may be skipped.
 
 .. c:member::
-    int do_operation(zend_uchar opcode, zval *result, zval *op1, zval *op2)
+    zend_result do_operation(zend_uchar opcode, zval *result, zval *op1, zval *op2)
 
     ``do_operation`` is an optional handler that will be invoked for various arithmetic and binary operations on
     instances of the given class. This allows for operator overloading semantics to be implemented for custom classes.
