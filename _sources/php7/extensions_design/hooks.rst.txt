@@ -123,7 +123,7 @@ Modifying the Abstract Syntax Tree (AST)
 ****************************************
 
 When PHP 7 compiles PHP code it converts it into an abstract syntax tree (AST)
-before finally generating Opcodes that are persisted in Opcache. The
+before finally generating opcodes that are persisted in opcache. The
 ``zend_ast_process hook`` is called for every compiled script and allows you to
 modify the AST after it is parsed and created.
 
@@ -170,10 +170,10 @@ and all PHP scripts compiled after the replacement will be handled by your
 implementation of the hook.
 
 It is very important to always call the original function pointer, otherwise
-PHP cannot compile scripts anymore and Opcache will not work anymore.
+PHP cannot compile scripts anymore and opcache will not work anymore.
 
 The extension overwriting order here is also important as you need to be aware
-whether you want to register your hook before or after Opcache, because Opcache
+whether you want to register your hook before or after opcache, because opcache
 does not call the original function pointer if it finds an opcode array entry
 in its shared memory cache. Opcache registers their hook as a post startup
 hook, which runs after the minit phase for extensions, so by default your hook

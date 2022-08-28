@@ -266,8 +266,8 @@ case-insensitive.</p>
 <section id="interned-strings">
 <h2>Interned strings<a class="headerlink" href="#interned-strings" title="Permalink to this heading">¶</a></h2>
 <p>Just a quick word here about <a class="reference external" href="https://en.wikipedia.org/wiki/String_interning">interned strings</a>. You could
-need such a concept in extension development. Interned strings also interact with OPCache extension.</p>
-<p>Interned strings are deduplicated strings. When used with OPCache, they also get reused from request to request.</p>
+need such a concept in extension development. Interned strings also interact with opcache extension.</p>
+<p>Interned strings are deduplicated strings. When used with opcache, they also get reused from request to request.</p>
 <p>Say you want to create the string “foo”. What you tend to do is simply create a new string “foo”:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="p">;</span><span class="w"></span>
 <span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
@@ -330,22 +330,22 @@ interned strings.</p>
 <a class="reference internal" href="../../extensions_design/php_lifecycle.html"><span class="doc">request processing</span></a>, that string will be interned for sure.
 However, if you make use of an interned string as PHP is treating a request, then this string will only get interned for
 the current request, and will get cleared after that.
-All this is valid if you don’t use the OPCache extension, something you shouldn’t do : use it.</p>
-<p>When using the OPCache extension, if you make use of an interned string out of a
+All this is valid if you don’t use the opcache extension, something you shouldn’t do : use it.</p>
+<p>When using the opcache extension, if you make use of an interned string out of a
 <a class="reference internal" href="../../extensions_design/php_lifecycle.html"><span class="doc">request processing</span></a>, that string will be
 interned for sure and will also be shared to every PHP process or thread that will be spawned by you parallelism layer.
-Also, if you make use of an interned string as PHP is treating a request, this string will also get interned by OPCache
+Also, if you make use of an interned string as PHP is treating a request, this string will also get interned by opcache
 itself, and shared to every PHP process or thread that will be spawned by you parallelism layer.</p>
-<p>Interned strings mechanisms are then changed when OPCache extension fires in. OPCache not only allows to intern strings
+<p>Interned strings mechanisms are then changed when opcache extension fires in. Opcache not only allows to intern strings
 that come from a request, but it also allows to share them to every PHP process of the same pool. This is done using
-shared memory. When saving an interned string, OPCache will also add the <code class="docutils literal notranslate"><span class="pre">IS_STR_PERMANENT</span></code> flag to its GC info.
+shared memory. When saving an interned string, opcache will also add the <code class="docutils literal notranslate"><span class="pre">IS_STR_PERMANENT</span></code> flag to its GC info.
 That flag means the memory allocation used for the structure (<code class="docutils literal notranslate"><span class="pre">zend_string</span></code> here) is permanent, it could be a shared
 read-only memory segment.</p>
 <p>Interned strings save memory, because the same string is never stored more than once in memory. But it could waste some
 CPU time as it often needs to lookup the interned strings store, even if that process is well optimized yet.
 As an extension designer, here are global rules:</p>
 <ul class="simple">
-<li><p>If OPCache is used (it should be), and if you need to create read-only strings : use an interned string.</p></li>
+<li><p>If opcache is used (it should be), and if you need to create read-only strings : use an interned string.</p></li>
 <li><p>If you need a string you know for sure PHP will have interned (a well-known-PHP-string, f.e “php” or “str_replace”),
 use an interned string.</p></li>
 <li><p>If the string is not read-only and could/should be altered after its been created, do not use an interned string.</p></li>

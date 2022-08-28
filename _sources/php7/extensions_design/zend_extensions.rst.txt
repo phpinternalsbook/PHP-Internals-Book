@@ -103,7 +103,7 @@ Why need a Zend extension ?
 Let us warn you : until you have **very advanced** knowledge on PHP internal's Vritual Machine, and until you need to
 hook deep into it, you shouldn't need a Zend extension, but a PHP extension will be enough.
 
-Today's most commonly known Zend extensions into PHP's world are OPCache, XDebug, phpdbg and Blackfire. But you know
+Today's most commonly known Zend extensions into PHP's world are opcache, Xdebug, phpdbg and Blackfire. But you know
 dozens of PHP extensions next to that don't you ?! That's a clear sign that :
 
 * You should not need a Zend extension for a very big part of your problematics
@@ -215,7 +215,7 @@ In *practice*, what we can say about it is that :
   Until some distributions (FreeBSD hear us) change that ...
 
 * Zend extensions are triggered **before** PHP extensions when a request shows in. That means they got a chance to modify
-  the engine about the current request to come, so that PHP extensions use that modified context. OPCache uses such a
+  the engine about the current request to come, so that PHP extensions use that modified context. Opcache uses such a
   trick so that it can perform its complex tasks before any extension had a chance to prevent it to.
 
 * Same for request shutdown : Zend extensions can assume every PHP extension has shut down the request.
@@ -301,7 +301,7 @@ That's all for now. Let's fill-in those empty-body functions now::
 
 Like said before, ``message_handler()`` is a special hook that Zend extensions may declare to be noticed when another
 Zend extension get loaded. But be careful of the order. You must register our "pib" Zend extension first, then
-another Zend extension (like OPCache) after that, as the ``message_handler()`` is only called when a Zend extension is
+another Zend extension (like opcache) after that, as the ``message_handler()`` is only called when a Zend extension is
 loaded you obviously need to be loaded before to declare it. Chicken and egg.
 
 Then we'll start to dive into the engine, with our ``op_array_handler`` hook::
@@ -479,10 +479,10 @@ How is that possible ? And what for ?.
 Well there are several answers to such a question :
 
 * To :doc:`register new PHP functions <php_functions>`, a PHP extension is better than a Zend extension, as it already
-  knows how to do and has been designed for that specific purpose first. That would be pity not to use it. OPCache
+  knows how to do and has been designed for that specific purpose first. That would be pity not to use it. Opcache
   does that.
 * If you need to register about all the hooks in the full lifecycle, you'll obviously need both sides
-* If you need to master the order Zend extensions are loaded, f.e to get loaded after OPCache, you will need to be
+* If you need to master the order Zend extensions are loaded, f.e to get loaded after opcache, you will need to be
   hybrid
 
 The trick is simple, choose between :
@@ -656,7 +656,7 @@ Our PHP extension is effectively called "pib" and shows up, and our Zend extensi
 "pib-zend-extension" and shows up as well. We chose two different names for both parts, we could have chosen the same
 name.
 
-.. note:: OPCache and Xdebug use such an hybrid model, they are Zend extensions, but they need to publish PHP
+.. note:: Opcache and Xdebug use such an hybrid model, they are Zend extensions, but they need to publish PHP
           functions and thus they are also PHP extensions to do so.
 
 Hybrid PHP extension master, Zend extension slave
