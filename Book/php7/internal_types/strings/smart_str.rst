@@ -78,7 +78,7 @@ We can also use the embedded ``zend_string`` independently of the ``smart_str``:
     smart_str_appends(&my_str, PHP_VERSION);
 
     zend_string *str = smart_str_extract(my_str);
-    RETURN_STRING(str);
+    RETURN_STR(str);
 
     /* We don't need to free my_str in this case */
 
