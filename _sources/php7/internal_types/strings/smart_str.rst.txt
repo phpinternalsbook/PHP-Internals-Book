@@ -70,6 +70,21 @@ parameter you'll use::
     /* Don't forget to release/free it */
     smart_str_free(&my_str);
 
+We can also use the embedded ``zend_string`` independently of the ``smart_str``::
+
+    smart_str my_str = {0};
+
+    smart_str_appends(&my_str, "Hello, you are using PHP version ");
+    smart_str_appends(&my_str, PHP_VERSION);
+
+    zend_string *str = smart_str_extract(my_str);
+    RETURN_STR(str);
+
+    /* We must not free my_str in this case */
+
+``smart_str_extract()`` returns a pre-allocated empty string if ``smart_str.s``
+is ``NULL``. Otherwise, it adds a trailing *NUL* byte and trims the allocated
+memory to the string size.
 
 We used here the simple API, the extended one ends with ``_ex()``, and allows you to tell if you want a persistent or
 a request-bound allocation for the underlying ``zend_string``. Example::
@@ -92,7 +107,11 @@ smart_str specific tricks
 * Never forget to finish your string with a call to ``smart_str_0()``. That puts a *NUL* char at the end of the embed
   string and make it compatible with libc string functions.
 * Never forget to free your string, with ``smart_str_free()``, once you're done with it.
-* ``smart_str`` embeds a ``zend_string``, and then allows you to share that later elsewhere playing with its reference
+* Use ``smart_str_extract()`` to get a standalone ``zend_string`` when you have
+  finished building the string. This takes care of calling ``smart_str_0()``,
+  and of optimizing allocations. In this case, calling ``smart_str_free()`` is
+  not necessary.
+* You can share the standalone ``zend_string`` later elsewhere playing with its reference
   counter. Please, visit the :doc:`zend_string dedicated chapter <zend_strings>` to know more about it.
 * You can play with ``smart_str`` allocations. Look at ``smart_str_alloc()`` and friends.
 * ``smart_str`` is heavily used into PHP's heart. For example, PHP's
