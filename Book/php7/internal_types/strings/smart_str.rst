@@ -80,7 +80,7 @@ We can also use the embedded ``zend_string`` independently of the ``smart_str``:
     zend_string *str = smart_str_extract(my_str);
     RETURN_STR(str);
 
-    /* We don't need to free my_str in this case */
+    /* We must not free my_str in this case */
 
 ``smart_str_extract()`` returns a pre-allocated empty string if ``smart_str.s``
 is ``NULL``. Otherwise, it adds a trailing *NUL* byte and trims the allocated
