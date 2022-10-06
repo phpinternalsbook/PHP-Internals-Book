@@ -15,6 +15,7 @@
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Declaring and using INI settings" href="ini_settings.html" />
@@ -369,7 +370,7 @@ that you as an extension author, take care of handlers already set by other exte
 <span class="n">user_opcode_handler_t</span><span class="w"> </span><span class="nf">zend_get_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">opcode</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>The <cite>user_opcode_handler_t</cite> is a function pointer, and each handler has the following signature[1]_:</p>
+<p>The <cite>user_opcode_handler_t</cite> is a function pointer, and each handler has the following signature <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">my_handler</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
@@ -437,9 +438,10 @@ or let the engine do its normal behaviour:</p>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
+<p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id1" role="note">
-<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>In PHP 8, this signature is changing and will differ on whether a specific GCC feature is enabled.</p>
 </aside>
 </aside>

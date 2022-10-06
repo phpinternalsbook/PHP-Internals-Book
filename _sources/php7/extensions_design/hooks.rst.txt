@@ -366,7 +366,7 @@ The basic APIs in the engine are::
     void zend_set_user_opcode_handler(int opcode, user_opcode_handler_t handler);
     user_opcode_handler_t zend_get_user_opcode_handler(int opcode);
     
-The `user_opcode_handler_t` is a function pointer, and each handler has the following signature[1]_::
+The `user_opcode_handler_t` is a function pointer, and each handler has the following signature [1]_::
 
     int my_handler(zend_execute_data *execute_data);
 
@@ -433,5 +433,7 @@ or let the engine do its normal behaviour::
 
         return SUCCESS;
     }
-    
+
+.. rubric:: Footnotes
+
 .. [1] In PHP 8, this signature is changing and will differ on whether a specific GCC feature is enabled.
