@@ -35,7 +35,7 @@ Let detail the various FCI fields:
   Mandatory field, which is the size of an FCI structure, thus always: ``sizeof(zend_fcall_info)``
 ``function_name``:
   Mandatory field, the actual callable, do not be fooled by the name of this field as this is a leftover when
-  PHP didn't have objects and class methods. It must be a string Zval or an array following the same rules as
+  PHP didn't have objects and class methods. It must be a string zval or an array following the same rules as
   callables in PHP, namely the first index is a class or instance object, and the second one is the method name.
   It can also be undefined if, and only if, a non empty FCC is provided.
 ``retval``:
@@ -51,7 +51,7 @@ Let detail the various FCI fields:
   A HashTable containing named (or positional) arguments, added with PHP 8.0.
 
 Structure of ``zend_fcall_info_cache``
---------------------------------
+--------------------------------------
 
 A ``zend_fcall_info_cache`` has the following structure::
 
@@ -65,7 +65,7 @@ A ``zend_fcall_info_cache`` has the following structure::
 Let detail the various FCC fields:
 
 ``function_handler``:
-  The actual body of a PHP function that will be used by the PHP VM, can be retrieved from the global function table
+  The actual body of a PHP function that will be used by the VM, can be retrieved from the global function table
   or a class function table (``zend_class_entry->function_table``).
 ``object``:
   If the function is an object method, this field is the relevant object.
@@ -83,27 +83,27 @@ Zend Engine API for callables
 The API can be found in the ``Zend_API.h`` header file.
 
 If you have a FCI/FCC pair for a callable you can call it directly by using the
-``zend_call_function(zend_fcall_info *fci, zend_fcall_info_cache *fci_cache);`` function.
+``zend_call_function(zend_fcall_info *fci, zend_fcall_info_cache *fci_cache)`` function.
 If you just need to change, or provide the arguments and return value you can use the
-``zend_fcall_info_call(zend_fcall_info *fci, zend_fcall_info_cache *fcc, zval *retval, zval *args);`` function.
+``zend_fcall_info_call(zend_fcall_info *fci, zend_fcall_info_cache *fcc, zval *retval, zval *args)`` function.
 
-In the more likely case where you just have a callable Zval, you have the choice of a couple different options
+In the more likely case where you just have a callable zval, you have the choice of a couple different options
 depending on the use case.
 
 For a one-off call the ``call_user_function(function_table, object, function_name, retval_ptr, param_count, params)``
 and ``call_user_function_named(function_table, object, function_name, retval_ptr, param_count, params, named_params)``
 macro-functions will do the trick. Note that the ``function_table`` argument is not used and should always be ``NULL``.
 
-The drawback of those functions is that they will verify the Zval is indeed callable, and create a FCI/FCC pair on
+The drawback of those functions is that they will verify the zval is indeed callable, and create a FCI/FCC pair on
 every call. If you know you will need to call these functions multiple time it's best to create a FCI/FCC pair yourself
 by using the ``zend_result zend_fcall_info_init(zval *callable, uint32_t check_flags, zend_fcall_info *fci,
-zend_fcall_info_cache *fcc, zend_string **callable_name, char **error);`` function.
+zend_fcall_info_cache *fcc, zend_string **callable_name, char **error)`` function.
 If this function returns ``FAILURE``, then the zval is not a proper callable.
 ``check_flags`` is forwarded to ``zend_is_callable_ex()``, generally you don't want to pass any modifying flags,
 however ``IS_CALLABLE_SUPPRESS_DEPRECATIONS`` might be useful in certain cases.
 
 In case you just have an FCC (or a combination of ``zend_function`` and ``zend_object``) you can use the following
-functions:
+functions::
 
     /* Call the provided zend_function with the given params.
      * If retval_ptr is NULL, the return value is discarded.
