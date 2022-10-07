@@ -46,7 +46,7 @@ Let detail the various FCI fields:
   contains positional arguments that will be provided to this call to the function,
   can be ``NULL`` if ``param_count = 0``.
 ``object``:
-  The object on which to call a method on.
+  The object on which to call the method name stored in ``function_name``.
 ``named_params``:
   A HashTable containing named (or positional) arguments, added with PHP 8.0.
 
@@ -76,6 +76,9 @@ Let detail the various FCC fields:
 
 Note: to release a FCC you should use the ``void zend_release_fcall_info_cache(zend_fcall_info_cache *fcc)``
 function.
+
+.. warning:: Prior to PHP 7.3 there existed an ``initialized`` field. Now an FCC is considered initialized when
+  ``function_handler`` is set to a non-null pointer.
 
 Zend Engine API for callables
 -----------------------------
