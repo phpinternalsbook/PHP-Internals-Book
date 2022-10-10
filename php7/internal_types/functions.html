@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Functions: zend_function &#8212; PHP Internals Book</title>
+    <title>Functions &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
@@ -18,12 +18,12 @@
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Classes and objects" href="../classes_objects.html" />
+    <link rel="next" title="PHP Callables" href="functions/callables.html" />
     <link rel="prev" title="HashTables: zend_array" href="hashtables.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
           <span>PHP Internals Book</span></a></h1>
-        <h2 class="heading"><span>Functions: zend_function</span></h2>
+        <h2 class="heading"><span>Functions</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
@@ -32,16 +32,30 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="../classes_objects.html">Classes and objects</a>&#160;&#160;»
+        <a href="functions/callables.html">PHP Callables</a>&#160;&#160;»
         </p>
 
       </div>
       <div class="content" role="main">
         
         
-  <section id="functions-zend-function">
-<h1>Functions: zend_function<a class="headerlink" href="#functions-zend-function" title="Permalink to this heading">¶</a></h1>
-<p>Here we detail how functions work in PHP.</p>
+  <section id="functions">
+<h1>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h1>
+<p>The body of PHP functions are represented with the <code class="docutils literal notranslate"><span class="pre">zend_function</span></code> structure.
+However, handling them is rarely done as they are solely needed for the VM.
+In general PHP <code class="docutils literal notranslate"><span class="pre">callable</span></code> s are what will need to be dealt with, which are represented by the pair of
+<code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code>/<code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code> structures.</p>
+<p>TODO: Detail <code class="docutils literal notranslate"><span class="pre">zend_function</span></code></p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="functions/callables.html">PHP Callables</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions/callables.html#structure-of-zend-fcall-info">Structure of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/callables.html#structure-of-zend-fcall-info-cache">Structure of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/callables.html#zend-engine-api-for-callables">Zend Engine API for callables</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </section>
 
 
@@ -53,7 +67,7 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="../classes_objects.html">Classes and objects</a>&#160;&#160;»
+        <a href="functions/callables.html">PHP Callables</a>&#160;&#160;»
         </p>
 
       </div>

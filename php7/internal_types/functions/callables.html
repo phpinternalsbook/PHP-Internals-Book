@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>PHP Callables &#8212; PHP Internals Book</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/haiku.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Classes and objects" href="../../classes_objects.html" />
+    <link rel="prev" title="Functions" href="../functions.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../../index.html">
+          <span>PHP Internals Book</span></a></h1>
+        <h2 class="heading"><span>PHP Callables</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="../functions.html">Functions</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../classes_objects.html">Classes and objects</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="php-callables">
+<h1>PHP Callables<a class="headerlink" href="#php-callables" title="Permalink to this heading">¶</a></h1>
+<p>Dealing with PHP functions in C requires the knowledge of the following two structures
+<code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code>/<code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code>. The first one necessarily contains the information for calling
+the function, such as arguments and the return value, but may also include the actual callable.
+The latter <em>only</em> contains the callable. We will use the commonly used abbreviation of FCI and FCC when talking about
+<code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code> and <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code> respectively.
+You will most likely encounter those when using the ZPP <code class="docutils literal notranslate"><span class="pre">f</span></code> argument flag, or when you need to call a PHP function
+or method from within an extension.</p>
+<section id="structure-of-zend-fcall-info">
+<h2>Structure of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code><a class="headerlink" href="#structure-of-zend-fcall-info" title="Permalink to this heading">¶</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The implementation of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code> is widely different prior to PHP 7.1.0.</p>
+</div>
+<p>As of PHP 8.0.0, <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code> has the following structure:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_fcall_info</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">function_name</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">param_count</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* This hashtable can also contain positional arguments (with integer keys),</span>
+<span class="cm">     * which will be appended to the normal params[]. This makes it easier to</span>
+<span class="cm">     * integrate APIs like call_user_func_array(). The usual restriction that</span>
+<span class="cm">     * there may not be position arguments after named arguments applies. */</span><span class="w"></span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">named_params</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_fcall_info</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Let detail the various FCI fields:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">size</span></code>:</dt><dd><p>Mandatory field, which is the size of an FCI structure, thus always: <code class="docutils literal notranslate"><span class="pre">sizeof(zend_fcall_info)</span></code></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">function_name</span></code>:</dt><dd><p>Mandatory field, the actual callable, do not be fooled by the name of this field as this is a leftover when
+PHP didn’t have objects and class methods. It must be a string zval or an array following the same rules as
+callables in PHP, namely the first index is a class or instance object, and the second one is the method name.
+It can also be undefined if, and only if, a non empty FCC is provided.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">retval</span></code>:</dt><dd><p>Mandatory field, which will contain the result of the PHP function</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">param_count</span></code>:</dt><dd><p>Mandatory field, the number of arguments that will be provided to this call to the function</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">params</span></code>:</dt><dd><p>contains positional arguments that will be provided to this call to the function.
+If <code class="docutils literal notranslate"><span class="pre">param_count</span> <span class="pre">=</span> <span class="pre">0</span></code>, it can be <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">object</span></code>:</dt><dd><p>The object on which to call the method name stored in <code class="docutils literal notranslate"><span class="pre">function_name</span></code>, or <code class="docutils literal notranslate"><span class="pre">NULL</span></code> if no objects are involved.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">named_params</span></code>:</dt><dd><p>A HashTable containing named (or positional) arguments.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Prior to PHP 8.0.0, the <code class="docutils literal notranslate"><span class="pre">named_params</span></code> field did not exist. However, a <code class="docutils literal notranslate"><span class="pre">zend_bool</span> <span class="pre">no_separation;</span></code>
+field existed which specified if array arguments should be separated or not.</p>
+</div>
+</section>
+<section id="structure-of-zend-fcall-info-cache">
+<h2>Structure of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code><a class="headerlink" href="#structure-of-zend-fcall-info-cache" title="Permalink to this heading">¶</a></h2>
+<p>A <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code> has the following structure:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_fcall_info_cache</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">function_handler</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">calling_scope</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">called_scope</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_fcall_info_cache</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Let detail the various FCC fields:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">function_handler</span></code>:</dt><dd><p>The actual body of a PHP function that will be used by the VM, can be retrieved from the global function table
+or a class function table (<code class="docutils literal notranslate"><span class="pre">zend_class_entry-&gt;function_table</span></code>).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">object</span></code>:</dt><dd><p>If the function is an object method, this field is the relevant object.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">called_scope</span></code>:</dt><dd><p>The scope in which to call the method, generally it’s <code class="docutils literal notranslate"><span class="pre">object-&gt;ce</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">calling_scope</span></code>:</dt><dd><p>The scope in which this call is made, only used by the VM.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To release a FCC you should use the <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">zend_release_fcall_info_cache(zend_fcall_info_cache</span> <span class="pre">*fcc)</span></code>
+function.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Prior to PHP 7.3.0 there existed an <code class="docutils literal notranslate"><span class="pre">initialized</span></code> field. Now an FCC is considered initialized when
+<code class="docutils literal notranslate"><span class="pre">function_handler</span></code> is set to a non-null pointer.</p>
+</div>
+</section>
+<section id="zend-engine-api-for-callables">
+<h2>Zend Engine API for callables<a class="headerlink" href="#zend-engine-api-for-callables" title="Permalink to this heading">¶</a></h2>
+<p>The API can be found in the <code class="docutils literal notranslate"><span class="pre">Zend_API.h</span></code> header file.</p>
+<p>If you have a FCI/FCC pair for a callable you can call it directly by using the
+<code class="docutils literal notranslate"><span class="pre">zend_call_function(zend_fcall_info</span> <span class="pre">*fci,</span> <span class="pre">zend_fcall_info_cache</span> <span class="pre">*fci_cache)</span></code> function.
+If you just need to change, or provide the arguments and return value you can use the
+<code class="docutils literal notranslate"><span class="pre">zend_fcall_info_call(zend_fcall_info</span> <span class="pre">*fci,</span> <span class="pre">zend_fcall_info_cache</span> <span class="pre">*fcc,</span> <span class="pre">zval</span> <span class="pre">*retval,</span> <span class="pre">zval</span> <span class="pre">*args)</span></code> function.</p>
+<p>In the more likely case where you just have a callable zval, you have the choice of a couple different options
+depending on the use case.</p>
+<p>For a one-off call the <code class="docutils literal notranslate"><span class="pre">call_user_function(function_table,</span> <span class="pre">object,</span> <span class="pre">function_name,</span> <span class="pre">retval_ptr,</span> <span class="pre">param_count,</span> <span class="pre">params)</span></code>
+and <code class="docutils literal notranslate"><span class="pre">call_user_function_named(function_table,</span> <span class="pre">object,</span> <span class="pre">function_name,</span> <span class="pre">retval_ptr,</span> <span class="pre">param_count,</span> <span class="pre">params,</span> <span class="pre">named_params)</span></code>
+macro-functions will do the trick.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As of PHP 7.1.0, the <code class="docutils literal notranslate"><span class="pre">function_table</span></code> argument is not used and should always be <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p>
+</div>
+<p>The drawback of those functions is that they will verify the zval is indeed callable, and create a FCI/FCC pair on
+every call. If you know you will need to call these functions multiple time it’s best to create a FCI/FCC pair yourself
+by using the <code class="docutils literal notranslate"><span class="pre">zend_result</span> <span class="pre">zend_fcall_info_init(zval</span> <span class="pre">*callable,</span> <span class="pre">uint32_t</span> <span class="pre">check_flags,</span> <span class="pre">zend_fcall_info</span> <span class="pre">*fci,</span>
+<span class="pre">zend_fcall_info_cache</span> <span class="pre">*fcc,</span> <span class="pre">zend_string</span> <span class="pre">**callable_name,</span> <span class="pre">char</span> <span class="pre">**error)</span></code> function.
+If this function returns <code class="docutils literal notranslate"><span class="pre">FAILURE</span></code>, then the zval is not a proper callable.
+<code class="docutils literal notranslate"><span class="pre">check_flags</span></code> is forwarded to <code class="docutils literal notranslate"><span class="pre">zend_is_callable_ex()</span></code>, generally you don’t want to pass any modifying flags,
+however <code class="docutils literal notranslate"><span class="pre">IS_CALLABLE_SUPPRESS_DEPRECATIONS</span></code> might be useful in certain cases.</p>
+<p>In case you just have an FCC (or a combination of <code class="docutils literal notranslate"><span class="pre">zend_function</span></code> and <code class="docutils literal notranslate"><span class="pre">zend_object</span></code>) you can use the following
+functions:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Call the provided zend_function with the given params.</span>
+<span class="cm"> * If retval_ptr is NULL, the return value is discarded.</span>
+<span class="cm"> * If object is NULL, this must be a free function or static call.</span>
+<span class="cm"> * called_scope must be provided for instance and static method calls. */</span><span class="w"></span>
+<span class="n">ZEND_API</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zend_call_known_function</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">called_scope</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval_ptr</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">param_count</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">named_params</span><span class="p">);</span><span class="w"></span>
+
+<span class="cm">/* Call the provided zend_function instance method on an object. */</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">zend_always_inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zend_call_known_instance_method</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval_ptr</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">param_count</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">zend_call_known_function</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">ce</span><span class="p">,</span><span class="w"> </span><span class="n">retval_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">param_count</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>And specific parameter number variations for the latter.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to call a method on an object if it exists use the <code class="docutils literal notranslate"><span class="pre">zend_call_method_if_exists()</span></code> function.</p>
+</div>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="../functions.html">Functions</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../classes_objects.html">Classes and objects</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer feedback">
+        The repository for this book is available on <a href="https://github.com/phpinternalsbook/PHP-Internals-Book">GitHub</a>.
+        <br/><br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br />
+        The PHP internals book is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41617167-1', 'phpinternalsbook.com');
+      ga('send', 'pageview');
+    </script>
+
+  </body>
+</html>
