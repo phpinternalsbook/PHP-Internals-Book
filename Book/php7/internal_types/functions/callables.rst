@@ -12,9 +12,11 @@ or method from within an extension.
 Structure of ``zend_fcall_info``
 --------------------------------
 
-.. warning:: The implementation of ``zend_fcall_info` is widely different prior to PHP 7.1.0.
+.. warning:: The implementation of ``zend_fcall_info`` is widely different prior to PHP 7.1.0.
 
 As of PHP 8.0.0, ``zend_fcall_info`` has the following structure:
+
+::
 
     struct _zend_fcall_info {
         size_t size;
@@ -45,8 +47,8 @@ Let detail the various FCI fields:
 ``param_count``:
   Mandatory field, the number of arguments that will be provided to this call to the function
 ``params``:
-  contains positional arguments that will be provided to this call to the function,
-  can be ``NULL`` if ``param_count = 0``.
+  contains positional arguments that will be provided to this call to the function.
+  If ``param_count = 0``, it can be ``NULL``.
 ``object``:
   The object on which to call the method name stored in ``function_name``, or ``NULL`` if no objects are involved.
 ``named_params``:
@@ -58,7 +60,9 @@ Let detail the various FCI fields:
 Structure of ``zend_fcall_info_cache``
 --------------------------------------
 
-A ``zend_fcall_info_cache`` has the following structure::
+A ``zend_fcall_info_cache`` has the following structure:
+
+::
 
     typedef struct _zend_fcall_info_cache {
         zend_function *function_handler;
@@ -79,8 +83,8 @@ Let detail the various FCC fields:
 ``calling_scope``:
   The scope in which this call is made, only used by the VM.
 
-Note: to release a FCC you should use the ``void zend_release_fcall_info_cache(zend_fcall_info_cache *fcc)``
-function.
+.. note::  To release a FCC you should use the ``void zend_release_fcall_info_cache(zend_fcall_info_cache *fcc)``
+  function.
 
 .. warning:: Prior to PHP 7.3.0 there existed an ``initialized`` field. Now an FCC is considered initialized when
   ``function_handler`` is set to a non-null pointer.
