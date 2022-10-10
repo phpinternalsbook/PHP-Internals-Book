@@ -54,7 +54,7 @@ Let detail the various FCI fields:
 ``named_params``:
   A HashTable containing named (or positional) arguments.
 
-.. warning:: Prior to PHP 8.0.0, the ``named_params`` field did not exist. However, a ``zend_bool no_separation;``
+.. note:: Prior to PHP 8.0.0, the ``named_params`` field did not exist. However, a ``zend_bool no_separation;``
    field existed which specified if array arguments should be separated or not.
 
 Structure of ``zend_fcall_info_cache``
