@@ -12,7 +12,9 @@ or method from within an extension.
 Structure of ``zend_fcall_info``
 --------------------------------
 
-A ``zend_fcall_info`` has the following structure::
+.. warning:: The implementation of ``zend_fcall_info` is widely different prior to PHP 7.1.0.
+
+As of PHP 8.0.0, ``zend_fcall_info`` has the following structure:
 
     struct _zend_fcall_info {
         size_t size;
@@ -46,9 +48,12 @@ Let detail the various FCI fields:
   contains positional arguments that will be provided to this call to the function,
   can be ``NULL`` if ``param_count = 0``.
 ``object``:
-  The object on which to call the method name stored in ``function_name``.
+  The object on which to call the method name stored in ``function_name``, or ``NULL`` if no objects are involved.
 ``named_params``:
-  A HashTable containing named (or positional) arguments, added with PHP 8.0.
+  A HashTable containing named (or positional) arguments.
+
+.. warning:: Prior to PHP 8.0.0, the ``named_params`` field did not exist. However, a ``zend_bool no_separation;``
+   field existed which specified if array arguments should be separated or not.
 
 Structure of ``zend_fcall_info_cache``
 --------------------------------------
@@ -77,7 +82,7 @@ Let detail the various FCC fields:
 Note: to release a FCC you should use the ``void zend_release_fcall_info_cache(zend_fcall_info_cache *fcc)``
 function.
 
-.. warning:: Prior to PHP 7.3 there existed an ``initialized`` field. Now an FCC is considered initialized when
+.. warning:: Prior to PHP 7.3.0 there existed an ``initialized`` field. Now an FCC is considered initialized when
   ``function_handler`` is set to a non-null pointer.
 
 Zend Engine API for callables
@@ -95,7 +100,9 @@ depending on the use case.
 
 For a one-off call the ``call_user_function(function_table, object, function_name, retval_ptr, param_count, params)``
 and ``call_user_function_named(function_table, object, function_name, retval_ptr, param_count, params, named_params)``
-macro-functions will do the trick. Note that the ``function_table`` argument is not used and should always be ``NULL``.
+macro-functions will do the trick.
+
+.. note:: As of PHP 7.1.0, the ``function_table`` argument is not used and should always be ``NULL``.
 
 The drawback of those functions is that they will verify the zval is indeed callable, and create a FCI/FCC pair on
 every call. If you know you will need to call these functions multiple time it's best to create a FCI/FCC pair yourself
