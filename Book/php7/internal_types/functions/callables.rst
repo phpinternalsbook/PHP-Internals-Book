@@ -97,10 +97,10 @@ op array copied, and is freed when called. To retrieve it manually use ``zend_is
    and released as needed. Moreover, if the callable is a trampoline the ``function_handler`` must be copied
    to be persisted between calls (see how SPL implements the storage of autoloading functions).
 
-.. note::  To release a FCC you should use the ``void zend_release_fcall_info_cache(zend_fcall_info_cache *fcc)``
-  function if maintain copies of a potential trampoline, as this will release the trampoline properly.
-  Moreover, this needs to be called *prior* to freeing the closure, as the trampoline will partially refer to a
-  ``zend_function *`` entry in the closure CE.
+.. note:: In most cases an FCC does not need to be released, the exception is if the FCC may hold a trampoline
+  in which case the ``void zend_release_fcall_info_cache(zend_fcall_info_cache *fcc)`` should be used to release it.
+  Moreover, if a reference to the closure is kept, this must be called *prior* to freeing the closure,
+  as the trampoline will partially refer to a ``zend_function *`` entry in the closure CE.
 
 ..
     This API is still being worked on and won't be usable for a year
@@ -120,10 +120,12 @@ If you have a correctly initialized and set up FCI/FCC pair for a callable you c
 ``zend_call_function(zend_fcall_info *fci, zend_fcall_info_cache *fci_cache)`` function.
 
 .. warning:: The ``zend_fcall_info_arg*()`` and ``zend_fcall_info_call()`` APIs should not be used.
-   The reasons for this is because the ``zval *args`` parameter does *not* set the ``params`` field of the FCI,
-   but is expected to be a PHP array containing positional arguments. If this is the case the ``named_params``
-   field should be set instead. Moreover, those functions reallocate the parameters on the heap when generally
-   the arguments are stack allocated because the call is only done once with predetermined arguments.
+    The ``zval *args`` parameter does *not* set the ``params`` field of the FCI directly.
+    Instead it expect it to be a PHP array (IS_ARRAY zval) containing positional arguments, which will be reallocated
+    into a new C array. As the ``named_params`` field accepts positional arguments, it is generally better to simply
+    assign the HashTable pointer of this argument to this field.
+    Moreover, as arguments to a userland call are predetermined and stack allocated it is better to assign the
+    ``params`` and ``param_count`` fields directly.
 
 ..
     note:: As of PHP 8.3.0, the ``zend_call_function_with_return_value(*fci, *fcc, zval *retval)`` function has
