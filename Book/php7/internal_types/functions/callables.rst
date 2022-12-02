@@ -97,6 +97,12 @@ op array copied, and is freed when called. To retrieve it manually use ``zend_is
    and released as needed. Moreover, if the callable is a trampoline the ``function_handler`` must be copied
    to be persisted between calls (see how SPL implements the storage of autoloading functions).
 
+.. note:: To determine that two user functions are equal comparing the ``function_handler``, ``object``,
+    ``called_scope``, ``calling_scope``, and the pointer to the ``zend_object`` for closures is generally sufficient.
+    Except when the user function is a trampoline, this is because the ``function_handler`` is reallocated for every
+    call, in that case one needs to compared the ``function_handler->common.function_name`` field using
+    ``zend_string_equals()`` instead of comparing the pointers of the function handler directly.
+
 .. note:: In most cases an FCC does not need to be released, the exception is if the FCC may hold a trampoline
   in which case the ``void zend_release_fcall_info_cache(zend_fcall_info_cache *fcc)`` should be used to release it.
   Moreover, if a reference to the closure is kept, this must be called *prior* to freeing the closure,
