@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -101,24 +98,24 @@ engine once wanting to load your extension.</p>
 <h2>What is a PHP extension ?<a class="headerlink" href="#what-is-a-php-extension" title="Permalink to this heading">¶</a></h2>
 <p>A PHP extension, not to be confused with a <a class="reference internal" href="zend_extensions.html"><span class="doc">Zend extension</span></a>, is set up by the usage of a
 <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_module_entry</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_module_entry</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">                                </span><span class="cm">/*</span>
 <span class="cm">    unsigned int zend_api;                               * STANDARD_MODULE_HEADER</span>
 <span class="cm">    unsigned char zend_debug;                            *</span>
-<span class="cm">    unsigned char zts;                                   */</span><span class="w"></span>
+<span class="cm">    unsigned char zts;                                   */</span>
 
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_ini_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ini_entry</span><span class="p">;</span><span class="w">            </span><span class="cm">/* Unused */</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_module_dep</span><span class="w"> </span><span class="o">*</span><span class="n">deps</span><span class="p">;</span><span class="w">                </span><span class="cm">/* Module dependencies */</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w">                                   </span><span class="cm">/* Module name */</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_function_entry</span><span class="w"> </span><span class="o">*</span><span class="n">functions</span><span class="p">;</span><span class="w">       </span><span class="cm">/* Module published functions */</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_ini_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ini_entry</span><span class="p">;</span><span class="w">            </span><span class="cm">/* Unused */</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_module_dep</span><span class="w"> </span><span class="o">*</span><span class="n">deps</span><span class="p">;</span><span class="w">                </span><span class="cm">/* Module dependencies */</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w">                                   </span><span class="cm">/* Module name */</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_function_entry</span><span class="w"> </span><span class="o">*</span><span class="n">functions</span><span class="p">;</span><span class="w">       </span><span class="cm">/* Module published functions */</span>
 
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">module_startup_func</span><span class="p">)(</span><span class="n">INIT_FUNC_ARGS</span><span class="p">);</span><span class="w">         </span><span class="cm">/*</span>
 <span class="cm">    int (*module_shutdown_func)(SHUTDOWN_FUNC_ARGS);     *</span>
 <span class="cm">    int (*request_startup_func)(INIT_FUNC_ARGS);         * Lifetime functions (hooks)</span>
 <span class="cm">    int (*request_shutdown_func)(SHUTDOWN_FUNC_ARGS);    *</span>
-<span class="cm">    void (*info_func)(ZEND_MODULE_INFO_FUNC_ARGS);       */</span><span class="w"></span>
+<span class="cm">    void (*info_func)(ZEND_MODULE_INFO_FUNC_ARGS);       */</span>
 
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">version</span><span class="p">;</span><span class="w">                                </span><span class="cm">/* Module version */</span><span class="w"></span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">version</span><span class="p">;</span><span class="w">                                </span><span class="cm">/* Module version */</span>
 
 <span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">globals_size</span><span class="p">;</span><span class="w">                                </span><span class="cm">/*</span>
 <span class="cm">#ifdef ZTS                                               *</span>
@@ -127,15 +124,15 @@ engine once wanting to load your extension.</p>
 <span class="cm">    void* globals_ptr;                                   *</span>
 <span class="cm">#endif                                                   *</span>
 <span class="cm">    void (*globals_ctor)(void *global);                  *</span>
-<span class="cm">    void (*globals_dtor)(void *global);                  */</span><span class="w"></span>
+<span class="cm">    void (*globals_dtor)(void *global);                  */</span>
 
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">post_deactivate_func</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span><span class="w">                   </span><span class="cm">/* Rarely used lifetime hook */</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">module_started</span><span class="p">;</span><span class="w">                                  </span><span class="cm">/* Has module been started (internal usage) */</span><span class="w"></span>
-<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w">                                  </span><span class="cm">/* Module type (internal usage) */</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">;</span><span class="w">                                        </span><span class="cm">/* dlopen() returned handle */</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">module_number</span><span class="p">;</span><span class="w">                                   </span><span class="cm">/* module number among others */</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">build_id</span><span class="p">;</span><span class="w">                                </span><span class="cm">/* build id, part of STANDARD_MODULE_PROPERTIES_EX */</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">post_deactivate_func</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span><span class="w">                   </span><span class="cm">/* Rarely used lifetime hook */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">module_started</span><span class="p">;</span><span class="w">                                  </span><span class="cm">/* Has module been started (internal usage) */</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w">                                  </span><span class="cm">/* Module type (internal usage) */</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">;</span><span class="w">                                        </span><span class="cm">/* dlopen() returned handle */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">module_number</span><span class="p">;</span><span class="w">                                   </span><span class="cm">/* module number among others */</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">build_id</span><span class="p">;</span><span class="w">                                </span><span class="cm">/* build id, part of STANDARD_MODULE_PROPERTIES_EX */</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>The four first parameters have already been explained in
@@ -174,20 +171,20 @@ the structure it uses as a template is stored into
 <p>The script and the structure move a little bit as PHP versions move forward.</p>
 </div>
 <p>You can analyze those scripts to see how they work, but the basic usage is:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&gt; <span class="nb">cd</span> /tmp
-/tmp&gt; /path/to/php/ext/ext_skel --skel<span class="o">=</span>/path/to/php/ext/skeleton --extname<span class="o">=</span>pib
-<span class="o">[</span> ... generating ... <span class="o">]</span>
-/tmp&gt; tree pib/
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&gt;<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/tmp
+/tmp&gt;<span class="w"> </span>/path/to/php/ext/ext_skel<span class="w"> </span>--skel<span class="o">=</span>/path/to/php/ext/skeleton<span class="w"> </span>--extname<span class="o">=</span>pib
+<span class="o">[</span><span class="w"> </span>...<span class="w"> </span>generating<span class="w"> </span>...<span class="w"> </span><span class="o">]</span>
+/tmp&gt;<span class="w"> </span>tree<span class="w"> </span>pib/
 pib/
-├── config.m4
-├── config.w32
-├── CREDITS
-├── EXPERIMENTAL
-├── php_pib.h
-├── pib.c
-├── pib.php
-└── tests
-    └── <span class="m">001</span>.phpt
+├──<span class="w"> </span>config.m4
+├──<span class="w"> </span>config.w32
+├──<span class="w"> </span>CREDITS
+├──<span class="w"> </span>EXPERIMENTAL
+├──<span class="w"> </span>php_pib.h
+├──<span class="w"> </span>pib.c
+├──<span class="w"> </span>pib.php
+└──<span class="w"> </span>tests
+<span class="w">    </span>└──<span class="w"> </span><span class="m">001</span>.phpt
 /tmp&gt;
 </pre></div>
 </div>
@@ -202,9 +199,9 @@ us. Don’t change that name, the building system expects such a naming conventi
 <p>Basically, we can see that the module symbol needed by the engine to load our extension is published here:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef COMPILE_DL_PIB</span>
 <span class="cp">#ifdef ZTS</span>
-<span class="n">ZEND_TSRMLS_CACHE_DEFINE</span><span class="p">()</span><span class="w"></span>
+<span class="n">ZEND_TSRMLS_CACHE_DEFINE</span><span class="p">()</span>
 <span class="cp">#endif</span>
-<span class="n">ZEND_GET_MODULE</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_GET_MODULE</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 <span class="cp">#endif</span>
 </pre></div>
 </div>
@@ -223,23 +220,23 @@ It no longer includes a way to generate XML documentation (the PHP documentation
 in svn under phpdoc/doc-base) and it no longer support function stubs.</p>
 </div></blockquote>
 <p>and here is the available options :</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>php ext_skel.php --ext &lt;name&gt; <span class="o">[</span>--experimental<span class="o">]</span> <span class="o">[</span>--author &lt;name&gt;<span class="o">]</span>
-                 <span class="o">[</span>--dir &lt;path&gt;<span class="o">]</span> <span class="o">[</span>--std<span class="o">]</span> <span class="o">[</span>--onlyunix<span class="o">]</span>
-                 <span class="o">[</span>--onlywindows<span class="o">]</span> <span class="o">[</span>--help<span class="o">]</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>php<span class="w"> </span>ext_skel.php<span class="w"> </span>--ext<span class="w"> </span>&lt;name&gt;<span class="w"> </span><span class="o">[</span>--experimental<span class="o">]</span><span class="w"> </span><span class="o">[</span>--author<span class="w"> </span>&lt;name&gt;<span class="o">]</span>
+<span class="w">                 </span><span class="o">[</span>--dir<span class="w"> </span>&lt;path&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--std<span class="o">]</span><span class="w"> </span><span class="o">[</span>--onlyunix<span class="o">]</span>
+<span class="w">                 </span><span class="o">[</span>--onlywindows<span class="o">]</span><span class="w"> </span><span class="o">[</span>--help<span class="o">]</span>
 
-  --ext &lt;name&gt;              The name of the extension defined as &lt;name&gt;
-  --experimental    Passed <span class="k">if</span> this extension is experimental, this creates
-                        the EXPERIMENTAL file <span class="k">in</span> the root of the extension
-  --author &lt;name&gt;       Your name, this is used <span class="k">if</span> --header is passed and
-                        <span class="k">for</span> the CREDITS file
-  --dir &lt;path&gt;              Path to the directory <span class="k">for</span> where extension should be
-                        created. Defaults to the directory of where this script
-                    lives
-  --std                     If passed, the standard header and vim rules footer used
-                    <span class="k">in</span> extensions that is included <span class="k">in</span> the core, will be used
-  --onlyunix                Only generate configure scripts <span class="k">for</span> Unix
-  --onlywindows             Only generate configure scripts <span class="k">for</span> Windows
-  --help                This <span class="nb">help</span>
+<span class="w">  </span>--ext<span class="w"> </span>&lt;name&gt;<span class="w">              </span>The<span class="w"> </span>name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>extension<span class="w"> </span>defined<span class="w"> </span>as<span class="w"> </span>&lt;name&gt;
+<span class="w">  </span>--experimental<span class="w">    </span>Passed<span class="w"> </span><span class="k">if</span><span class="w"> </span>this<span class="w"> </span>extension<span class="w"> </span>is<span class="w"> </span>experimental,<span class="w"> </span>this<span class="w"> </span>creates
+<span class="w">                        </span>the<span class="w"> </span>EXPERIMENTAL<span class="w"> </span>file<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>root<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>extension
+<span class="w">  </span>--author<span class="w"> </span>&lt;name&gt;<span class="w">       </span>Your<span class="w"> </span>name,<span class="w"> </span>this<span class="w"> </span>is<span class="w"> </span>used<span class="w"> </span><span class="k">if</span><span class="w"> </span>--header<span class="w"> </span>is<span class="w"> </span>passed<span class="w"> </span>and
+<span class="w">                        </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>CREDITS<span class="w"> </span>file
+<span class="w">  </span>--dir<span class="w"> </span>&lt;path&gt;<span class="w">              </span>Path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>directory<span class="w"> </span><span class="k">for</span><span class="w"> </span>where<span class="w"> </span>extension<span class="w"> </span>should<span class="w"> </span>be
+<span class="w">                        </span>created.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>directory<span class="w"> </span>of<span class="w"> </span>where<span class="w"> </span>this<span class="w"> </span>script
+<span class="w">                    </span>lives
+<span class="w">  </span>--std<span class="w">                     </span>If<span class="w"> </span>passed,<span class="w"> </span>the<span class="w"> </span>standard<span class="w"> </span>header<span class="w"> </span>and<span class="w"> </span>vim<span class="w"> </span>rules<span class="w"> </span>footer<span class="w"> </span>used
+<span class="w">                    </span><span class="k">in</span><span class="w"> </span>extensions<span class="w"> </span>that<span class="w"> </span>is<span class="w"> </span>included<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>core,<span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>used
+<span class="w">  </span>--onlyunix<span class="w">                </span>Only<span class="w"> </span>generate<span class="w"> </span>configure<span class="w"> </span>scripts<span class="w"> </span><span class="k">for</span><span class="w"> </span>Unix
+<span class="w">  </span>--onlywindows<span class="w">             </span>Only<span class="w"> </span>generate<span class="w"> </span>configure<span class="w"> </span>scripts<span class="w"> </span><span class="k">for</span><span class="w"> </span>Windows
+<span class="w">  </span>--help<span class="w">                </span>This<span class="w"> </span><span class="nb">help</span>
 </pre></div>
 </div>
 <p>The new extension skeleton generator will generate skeleton with three fixed functions,

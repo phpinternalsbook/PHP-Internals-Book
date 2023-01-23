@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -53,16 +50,16 @@ later point in time.</p>
 types available in PHP. These values are referred to using constants of the form <code class="docutils literal notranslate"><span class="pre">IS_TYPE</span></code>. E.g. <code class="docutils literal notranslate"><span class="pre">IS_NULL</span></code>
 corresponds to the null type and <code class="docutils literal notranslate"><span class="pre">IS_STRING</span></code> corresponds to the string type.</p>
 <p>The actual value is stored in a union, which is defined as follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="nc">_zvalue_value</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">lval</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dval</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">str</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">obj</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zvalue_value</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="nc">_zvalue_value</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">lval</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">dval</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">val</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">str</span><span class="p">;</span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">obj</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zvalue_value</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>To those not familiar with the concept of unions: A union defines multiple members of different types, but only one of
@@ -151,12 +148,12 @@ doesn’t exist yet).</p>
 <section id="access-macros">
 <h2>Access macros<a class="headerlink" href="#access-macros" title="Permalink to this heading">¶</a></h2>
 <p>Lets now have a look at how the <code class="docutils literal notranslate"><span class="pre">zval</span></code> struct actually looks like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zval_struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zvalue_value</span><span class="w"> </span><span class="n">value</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_uint</span><span class="w"> </span><span class="n">refcount__gc</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_uchar</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_uchar</span><span class="w"> </span><span class="n">is_ref__gc</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zval</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zval_struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zvalue_value</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_uint</span><span class="w"> </span><span class="n">refcount__gc</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_uchar</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_uchar</span><span class="w"> </span><span class="n">is_ref__gc</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zval</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>As already mentioned, the zval has members to store a <code class="docutils literal notranslate"><span class="pre">value</span></code> and its <code class="docutils literal notranslate"><span class="pre">type</span></code>. The value is stored in the
@@ -164,29 +161,29 @@ doesn’t exist yet).</p>
 properties ending in <code class="docutils literal notranslate"><span class="pre">__gc</span></code>, which are used for the garbage collection mechanism PHP employs. We’ll ignore them for
 now and discuss their function in the next section.</p>
 <p>Knowing the zval structure you can now write code making use of it:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... get zval from somewhere */</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... get zval from somewhere */</span><span class="p">;</span>
 
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_LONG</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">lval</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="cm">/* ... handle other types */</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_LONG</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">zv_ptr</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">lval</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="cm">/* ... handle other types */</span>
 </pre></div>
 </div>
 <p>While the above code works, this is not the idiomatic way to write it. It directly accesses the zval members rather than
 using a special set of access macros for this purpose:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span>
 
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_LONG</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_LONG</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Zval is a long with value %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="cm">/* ... */</span>
 </pre></div>
 </div>
 <p>The above code uses the <code class="docutils literal notranslate"><span class="pre">Z_TYPE_P()</span></code> macro for retrieving the type tag and <code class="docutils literal notranslate"><span class="pre">Z_LVAL_P()</span></code> to get the long (integer)
 value. All the access macros have variants with a <code class="docutils literal notranslate"><span class="pre">_P</span></code> suffix, a <code class="docutils literal notranslate"><span class="pre">_PP</span></code> suffix or no suffix at all. Which one you
 use depends on whether you are working on a <code class="docutils literal notranslate"><span class="pre">zval</span></code>, a <code class="docutils literal notranslate"><span class="pre">zval*</span></code> or a <code class="docutils literal notranslate"><span class="pre">zval**</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">zv</span><span class="p">;</span><span class="w"></span>
-<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
-<span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">zv_ptr_ptr</span><span class="p">;</span><span class="w"></span>
-<span class="n">zval</span><span class="w"> </span><span class="o">***</span><span class="n">zv_ptr_ptr_ptr</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">zv</span><span class="p">;</span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">zv_ptr_ptr</span><span class="p">;</span>
+<span class="n">zval</span><span class="w"> </span><span class="o">***</span><span class="n">zv_ptr_ptr_ptr</span><span class="p">;</span>
 
 <span class="n">Z_TYPE</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w">                 </span><span class="c1">// = zv.type</span>
 <span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w">           </span><span class="c1">// = zv_ptr-&gt;type</span>
@@ -199,52 +196,52 @@ use depends on whether you are working on a <code class="docutils literal notran
 (you’ll just have to dereference the value first using the <code class="docutils literal notranslate"><span class="pre">*</span></code> operator).</p>
 <p>Similarly to <code class="docutils literal notranslate"><span class="pre">Z_LVAL</span></code> there are also macros for fetching values of all the other types. To demonstrate their usage
 we’ll create a simple function for dumping a zval:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;z&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">()</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;z&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_NULL</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;NULL: null</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_BOOL</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_BVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: true</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: false</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"></span>
-<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_LONG</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;LONG: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
-<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_DOUBLE</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;DOUBLE: %g</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
-<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_STRING</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;STRING: value=</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="n">PHPWRITE</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">, length=%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
-<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_RESOURCE</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;RESOURCE: id=%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_RESVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
-<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_ARRAY</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;ARRAY: hashtable=%p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span><span class="w"></span>
-<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_OBJECT</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;OBJECT: ???</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_NULL</span><span class="p">:</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;NULL: null</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_BOOL</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_BVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: true</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;BOOL: false</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_LONG</span><span class="p">:</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;LONG: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_LVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_DOUBLE</span><span class="p">:</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;DOUBLE: %g</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_DVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_STRING</span><span class="p">:</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;STRING: value=</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">PHPWRITE</span><span class="p">(</span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">),</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">, length=%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_RESOURCE</span><span class="p">:</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;RESOURCE: id=%ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_RESVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_ARRAY</span><span class="p">:</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;ARRAY: hashtable=%p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Z_ARRVAL_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">));</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">IS_OBJECT</span><span class="p">:</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;OBJECT: ???</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 
-<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">funcs</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">dump</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">funcs</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">dump</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<span class="w">    </span><span class="n">PHP_FE_END</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>Lets try it out:</p>
@@ -274,15 +271,15 @@ protection against changes to the internal zval representation in future PHP ver
 <p>Most of the macros introduced above just access some member of the zval structure and as such you can use them both to
 read and to write the respective values. As an example consider the following function, which simply returns the string
 “hello world!”:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IS_STRING</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">estrdup</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IS_STRING</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Z_STRVAL_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">estrdup</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Z_STRLEN_P</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">);</span>
+<span class="p">};</span>
 
-<span class="cm">/* ... */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">hello_world</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"></span>
-<span class="cm">/* ... */</span><span class="w"></span>
+<span class="cm">/* ... */</span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">hello_world</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<span class="cm">/* ... */</span>
 </pre></div>
 </div>
 <p>Running <code class="docutils literal notranslate"><span class="pre">php</span> <span class="pre">-r</span> <span class="pre">&quot;echo</span> <span class="pre">hello_world();&quot;</span></code> should now print <code class="docutils literal notranslate"><span class="pre">hello</span> <span class="pre">world!</span></code> to the terminal.</p>
@@ -314,24 +311,24 @@ object-related macros this is the only exception though. All the other access ma
 <p>In practice you won’t have to worry about the last bit though: As setting the zval value is such a common task, PHP
 provides another set of macros for this purpose. They allow you to set the type tag and the value at the same time.
 Rewriting the previous example using such a macro yields:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="n">estrdup</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="n">estrdup</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>As it is very common that the string has to be copied when assigning to the zval, the last (boolean) parameter of the
 <code class="docutils literal notranslate"><span class="pre">ZVAL_STRINGL</span></code> macro can handle this for you. If you pass <code class="docutils literal notranslate"><span class="pre">0</span></code> the string is used as is, but if you pass <code class="docutils literal notranslate"><span class="pre">1</span></code> it
 will be copied using <code class="docutils literal notranslate"><span class="pre">estrndup()</span></code>. Thus our example can be rewritten as:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello world!&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello world!&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;hello world!&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Furthermore we don’t need to manually compute the <code class="docutils literal notranslate"><span class="pre">strlen</span></code> and can use the <code class="docutils literal notranslate"><span class="pre">ZVAL_STRING</span></code> macro (without the <code class="docutils literal notranslate"><span class="pre">L</span></code> at
 the end) instead:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello world!&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello world!&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>If you know the length of the string (because it was passed to you in some way) you should always make use of it via the
@@ -339,26 +336,26 @@ the end) instead:</p>
 contain NUL bytes, as is usually the case with literals) you can use <code class="docutils literal notranslate"><span class="pre">ZVAL_STRING</span></code> instead.</p>
 <p>Apart from <code class="docutils literal notranslate"><span class="pre">ZVAL_STRING(L)</span></code> there are a few more macros for setting values, which are listed in the following
 example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_NULL</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_NULL</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
 
-<span class="n">ZVAL_BOOL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_BOOL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* or better */</span><span class="w"></span>
-<span class="n">ZVAL_FALSE</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_TRUE</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_BOOL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="n">ZVAL_BOOL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="cm">/* or better */</span>
+<span class="n">ZVAL_FALSE</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
+<span class="n">ZVAL_TRUE</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
 
-<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mf">4.2</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_RESOURCE</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="n">resource_id</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span>
+<span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="mf">4.2</span><span class="p">);</span>
+<span class="n">ZVAL_RESOURCE</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="n">resource_id</span><span class="p">);</span>
 
-<span class="n">ZVAL_EMPTY_STRING</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* = ZVAL_STRING(return_value, &quot;&quot;, 1); */</span><span class="w"></span>
+<span class="n">ZVAL_EMPTY_STRING</span><span class="p">(</span><span class="n">return_value</span><span class="p">);</span>
+<span class="cm">/* = ZVAL_STRING(return_value, &quot;&quot;, 1); */</span>
 
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* = ZVAL_STRING(return_value, estrdup(&quot;string&quot;), 0); */</span><span class="w"></span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="cm">/* = ZVAL_STRING(return_value, estrdup(&quot;string&quot;), 0); */</span>
 
-<span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nul</span><span class="se">\0</span><span class="s">string&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* = ZVAL_STRINGL(return_value, estrndup(&quot;nul\0string&quot;, 10), 10, 0); */</span><span class="w"></span>
+<span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="n">return_value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nul</span><span class="se">\0</span><span class="s">string&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="cm">/* = ZVAL_STRINGL(return_value, estrndup(&quot;nul\0string&quot;, 10), 10, 0); */</span>
 </pre></div>
 </div>
 <p>Note that these macros will set the value, but not destroy any value that the zval might have previously held. For the

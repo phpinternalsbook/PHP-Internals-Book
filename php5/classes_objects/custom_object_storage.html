@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -50,20 +47,20 @@ object storage.</p>
 <p>As a first step let’s look at how object are created in PHP. For this the <code class="docutils literal notranslate"><span class="pre">object_and_properties_init</span></code> macro or one of
 its simpler cousins is used:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create an object of type SomeClass and give it the properties from properties_hashtable</span>
-<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">;</span><span class="w"></span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w"></span>
-<span class="n">object_and_properties_init</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="n">class_entry_of_SomeClass</span><span class="p">,</span><span class="w"> </span><span class="n">properties_hashtable</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<span class="n">object_and_properties_init</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="n">class_entry_of_SomeClass</span><span class="p">,</span><span class="w"> </span><span class="n">properties_hashtable</span><span class="p">);</span>
 
 <span class="c1">// Create an object of type SomeClass (with the default properties)</span>
-<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">;</span><span class="w"></span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w"></span>
-<span class="n">object_init_ex</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="n">class_entry_of_SomeClass</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<span class="n">object_init_ex</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="n">class_entry_of_SomeClass</span><span class="p">);</span>
 <span class="c1">// = object_and_properties_init(obj, class_entry_of_SomeClass, NULL)</span>
 
 <span class="c1">// Create a default object (stdClass)</span>
-<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">;</span><span class="w"></span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w"></span>
-<span class="n">object_init</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">obj</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<span class="n">object_init</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
 <span class="c1">// = object_init_ex(obj, zend_standard_class_def)</span>
 <span class="c1">// = object_and_properties_init(obj, zend_standard_class_def, NULL)</span>
 </pre></div>
@@ -71,44 +68,44 @@ its simpler cousins is used:</p>
 <p>In the last case, i.e. when you are creating an <code class="docutils literal notranslate"><span class="pre">stdClass</span></code> object you will probably want to add properties afterwards.
 This usually isn’t done with the <code class="docutils literal notranslate"><span class="pre">zend_update_property</span></code> functions from the previous chapter, instead the
 <code class="docutils literal notranslate"><span class="pre">add_property</span></code> macros are used:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">add_property_long</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">add_property_long</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">);</span>
 <span class="n">add_property_string</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// 1 means the string should be copied</span>
-<span class="n">add_property_bool</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;isAdmin&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">is_admin</span><span class="p">);</span><span class="w"></span>
+<span class="n">add_property_bool</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;isAdmin&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">is_admin</span><span class="p">);</span>
 <span class="c1">// also _null(), _double(), _stringl(), _resource() and _zval()</span>
 </pre></div>
 </div>
 <p>So what actually happens when an object is created? To find out let’s look at the <code class="docutils literal notranslate"><span class="pre">_object_and_properties_init</span></code>
 function:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_object_and_properties_init</span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">class_type</span><span class="p">,</span><span class="w"> </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">properties</span><span class="w"> </span><span class="n">ZEND_FILE_LINE_DC</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="w"></span>
-<span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_object_and_properties_init</span><span class="p">(</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">class_type</span><span class="p">,</span><span class="w"> </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">properties</span><span class="w"> </span><span class="n">ZEND_FILE_LINE_DC</span><span class="w"> </span><span class="n">TSRMLS_DC</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">ce_flags</span><span class="w"></span>
-<span class="w">        </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">ZEND_ACC_INTERFACE</span><span class="o">|</span><span class="n">ZEND_ACC_IMPLICIT_ABSTRACT_CLASS</span><span class="o">|</span><span class="n">ZEND_ACC_EXPLICIT_ABSTRACT_CLASS</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">what</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">ce_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_INTERFACE</span><span class="p">)</span><span class="w">                 </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;interface&quot;</span><span class="w"></span>
-<span class="w">                   </span><span class="o">:</span><span class="w"> </span><span class="p">((</span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">ce_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_TRAIT</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ZEND_ACC_TRAIT</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;trait&quot;</span><span class="w"></span>
-<span class="w">                   </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;abstract class&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="n">zend_error</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Cannot instantiate %s %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">what</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">ce_flags</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">ZEND_ACC_INTERFACE</span><span class="o">|</span><span class="n">ZEND_ACC_IMPLICIT_ABSTRACT_CLASS</span><span class="o">|</span><span class="n">ZEND_ACC_EXPLICIT_ABSTRACT_CLASS</span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">what</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">ce_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_INTERFACE</span><span class="p">)</span><span class="w">                 </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;interface&quot;</span>
+<span class="w">                   </span><span class="o">:</span><span class="w"> </span><span class="p">((</span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">ce_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_TRAIT</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ZEND_ACC_TRAIT</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;trait&quot;</span>
+<span class="w">                   </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;abstract class&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="n">zend_error</span><span class="p">(</span><span class="n">E_ERROR</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Cannot instantiate %s %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">what</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">zend_update_class_constants</span><span class="p">(</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_update_class_constants</span><span class="p">(</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
 
-<span class="w">    </span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IS_OBJECT</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">create_object</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">Z_OBJVAL_P</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">properties</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">properties</span><span class="p">;</span><span class="w"></span>
-<span class="w">            </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">properties_table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">object_properties_init</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">Z_OBJVAL_P</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">create_object</span><span class="p">(</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IS_OBJECT</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">create_object</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Z_OBJVAL_P</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">properties</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">properties</span><span class="p">;</span>
+<span class="w">            </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">properties_table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">object_properties_init</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Z_OBJVAL_P</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">class_type</span><span class="o">-&gt;</span><span class="n">create_object</span><span class="p">(</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The function basically does three things: First it verifies that the class can actually be instantiated, then it
@@ -117,34 +114,34 @@ After that comes the important part: The function checks whether the class has  
 has one it is called, if it hasn’t the default <code class="docutils literal notranslate"><span class="pre">zend_objects_new</span></code> implementation is used (and additionally the
 properties are initialized).</p>
 <p>Here is what <code class="docutils literal notranslate"><span class="pre">zend_objects_new</span></code> then does:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">zend_objects_new</span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">**</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="w"></span>
-<span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">zend_objects_new</span><span class="p">(</span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">**</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_DC</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span>
 
-<span class="w">    </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">class_type</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">properties_table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">guards</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_put</span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_destroy_object</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_free_object_storage</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
-<span class="w">    </span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handlers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">std_object_handlers</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object</span><span class="p">));</span>
+<span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">class_type</span><span class="p">;</span>
+<span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">properties_table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">guards</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_put</span><span class="p">(</span><span class="o">*</span><span class="n">object</span><span class="p">,</span>
+<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_destroy_object</span><span class="p">,</span>
+<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_free_object_storage</span><span class="p">,</span>
+<span class="w">        </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handlers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">std_object_handlers</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The above code contains three interesting things. Firstly the <code class="docutils literal notranslate"><span class="pre">zend_object</span></code> structure, which is defined as
 follows:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ce</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">properties</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">properties_table</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">guards</span><span class="p">;</span><span class="w"> </span><span class="cm">/* protects from __get/__set ... recursion */</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zend_object</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ce</span><span class="p">;</span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">properties</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">**</span><span class="n">properties_table</span><span class="p">;</span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">guards</span><span class="p">;</span><span class="w"> </span><span class="cm">/* protects from __get/__set ... recursion */</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_object</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>This is the “standard” object structure. It contains the class entry used for creation, a properties hashtable, a
@@ -155,24 +152,24 @@ latter is used for properties declared in the class and the former for propertie
 <p>The <code class="docutils literal notranslate"><span class="pre">zend_objects_new</span></code> function allocates the aforementioned standard object structure and initializes it. Afterwards
 it calls <code class="docutils literal notranslate"><span class="pre">zend_objects_store_put</span></code> to put the object data into the object store. The object store is nothing more than
 a dynamically resized array of <code class="docutils literal notranslate"><span class="pre">zend_object_store_bucket</span></code>s:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object_store_bucket</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">destructor_called</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">valid</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="nc">_store_bucket</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">_store_object</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span><span class="w"></span>
-<span class="w">            </span><span class="n">zend_objects_store_dtor_t</span><span class="w"> </span><span class="n">dtor</span><span class="p">;</span><span class="w"></span>
-<span class="w">            </span><span class="n">zend_objects_free_object_storage_t</span><span class="w"> </span><span class="n">free_storage</span><span class="p">;</span><span class="w"></span>
-<span class="w">            </span><span class="n">zend_objects_store_clone_t</span><span class="w"> </span><span class="n">clone</span><span class="p">;</span><span class="w"></span>
-<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="n">zend_object_handlers</span><span class="w"> </span><span class="o">*</span><span class="n">handlers</span><span class="p">;</span><span class="w"></span>
-<span class="w">            </span><span class="n">zend_uint</span><span class="w"> </span><span class="n">refcount</span><span class="p">;</span><span class="w"></span>
-<span class="w">            </span><span class="n">gc_root_buffer</span><span class="w"> </span><span class="o">*</span><span class="n">buffered</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="n">obj</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">next</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="n">free_list</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">bucket</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zend_object_store_bucket</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object_store_bucket</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">destructor_called</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">valid</span><span class="p">;</span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="nc">_store_bucket</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">_store_object</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span>
+<span class="w">            </span><span class="n">zend_objects_store_dtor_t</span><span class="w"> </span><span class="n">dtor</span><span class="p">;</span>
+<span class="w">            </span><span class="n">zend_objects_free_object_storage_t</span><span class="w"> </span><span class="n">free_storage</span><span class="p">;</span>
+<span class="w">            </span><span class="n">zend_objects_store_clone_t</span><span class="w"> </span><span class="n">clone</span><span class="p">;</span>
+<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="n">zend_object_handlers</span><span class="w"> </span><span class="o">*</span><span class="n">handlers</span><span class="p">;</span>
+<span class="w">            </span><span class="n">zend_uint</span><span class="w"> </span><span class="n">refcount</span><span class="p">;</span>
+<span class="w">            </span><span class="n">gc_root_buffer</span><span class="w"> </span><span class="o">*</span><span class="n">buffered</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="n">obj</span><span class="p">;</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="n">free_list</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">bucket</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_object_store_bucket</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>The main part here is the <code class="docutils literal notranslate"><span class="pre">_store_object</span></code> structure, which contains the stored object in the <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">*object</span></code> member,
@@ -191,86 +188,86 @@ initialize your object, which will contain the standard object as a substructure
 along with several handlers. And lastly you assign your object handlers structure.</p>
 <p>In order to do so you have to override the <code class="docutils literal notranslate"><span class="pre">create_object</span></code> class handler. Here is a dummy example of how this looks
 like (with inline explanations):</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">test_ce</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">test_ce</span><span class="p">;</span>
 
 <span class="cm">/* We need a (true global) variable to store the object handlers that will be used for our</span>
-<span class="cm"> * objects. The object handlers are initialized in MINIT. */</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="n">zend_object_handlers</span><span class="w"> </span><span class="n">test_object_handlers</span><span class="p">;</span><span class="w"></span>
+<span class="cm"> * objects. The object handlers are initialized in MINIT. */</span>
+<span class="k">static</span><span class="w"> </span><span class="n">zend_object_handlers</span><span class="w"> </span><span class="n">test_object_handlers</span><span class="p">;</span>
 
 <span class="cm">/* Our custom object structure. It has to contain a `zend_object` value (not a pointer!) as first</span>
-<span class="cm"> * member, followed by whatever additional properties one may want. */</span><span class="w"></span>
-<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_test_object</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="n">std</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">additional_property</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">test_object</span><span class="p">;</span><span class="w"></span>
+<span class="cm"> * member, followed by whatever additional properties one may want. */</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_test_object</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="n">std</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">additional_property</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">test_object</span><span class="p">;</span>
 
 <span class="cm">/* This is the handler that will be called when the object is freed. This handler has to destruct</span>
 <span class="cm"> * the std object (this will free the properties hashtable etc) and also free the object structure</span>
 <span class="cm"> * itself. (And if there are any other resources that were allocated, those obviously have to be</span>
-<span class="cm"> * freed here, too.) */</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">test_free_object_storage_handler</span><span class="p">(</span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object_std_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">efree</span><span class="p">(</span><span class="n">intern</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="cm"> * freed here, too.) */</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">test_free_object_storage_handler</span><span class="p">(</span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_object_std_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">efree</span><span class="p">(</span><span class="n">intern</span><span class="p">);</span>
+<span class="p">}</span>
 
 <span class="cm">/* This is the handler used for creating objects. It takes the class entry (it will also be used</span>
 <span class="cm"> * for classes that extend this one, that&#39;s why the class entry has to be passed in) and returns</span>
 <span class="cm"> * an object value (which is a handle to the object store and a pointer to the object handlers</span>
-<span class="cm"> * structure). */</span><span class="w"></span>
-<span class="n">zend_object_value</span><span class="w"> </span><span class="nf">test_create_object_handler</span><span class="p">(</span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
+<span class="cm"> * structure). */</span>
+<span class="n">zend_object_value</span><span class="w"> </span><span class="nf">test_create_object_handler</span><span class="p">(</span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span>
 
 <span class="w">    </span><span class="cm">/* Allocate and zero-out the internal object structure. By convention the variable holding</span>
-<span class="cm">     * the internal structure is usually called `intern`. */</span><span class="w"></span>
-<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">test_object</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">test_object</span><span class="p">));</span><span class="w"></span>
+<span class="cm">     * the internal structure is usually called `intern`. */</span>
+<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">test_object</span><span class="p">));</span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">intern</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">test_object</span><span class="p">));</span>
 
-<span class="w">    </span><span class="cm">/* The underlying std zend_object has to be initialized.  */</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object_std_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* The underlying std zend_object has to be initialized.  */</span>
+<span class="w">    </span><span class="n">zend_object_std_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
 
 <span class="w">    </span><span class="cm">/* Even if you don&#39;t use properties yourself you should still call object_properties_init(),</span>
 <span class="cm">     * because extending classes may use properties. (Generally a lot of the stuff you will do is</span>
-<span class="cm">     * for the sake of not breaking extending classes). */</span><span class="w"></span>
-<span class="w">    </span><span class="n">object_properties_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="p">);</span><span class="w"></span>
+<span class="cm">     * for the sake of not breaking extending classes). */</span>
+<span class="w">    </span><span class="n">object_properties_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">class_type</span><span class="p">);</span>
 
 <span class="w">    </span><span class="cm">/* Put the internal object into the object store, with the default dtor handler and our custom</span>
-<span class="cm">     * free handler. The last NULL parameter is the clone handler, which is left empty for now. */</span><span class="w"></span>
-<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_put</span><span class="p">(</span><span class="w"></span>
-<span class="w">        </span><span class="n">intern</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_destroy_object</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span><span class="w"> </span><span class="n">test_free_object_storage_handler</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
-<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="cm">     * free handler. The last NULL parameter is the clone handler, which is left empty for now. */</span>
+<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_put</span><span class="p">(</span>
+<span class="w">        </span><span class="n">intern</span><span class="p">,</span>
+<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_destroy_object</span><span class="p">,</span>
+<span class="w">        </span><span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span><span class="w"> </span><span class="n">test_free_object_storage_handler</span><span class="p">,</span>
+<span class="w">        </span><span class="nb">NULL</span><span class="w"> </span><span class="n">TSRMLS_CC</span>
+<span class="w">    </span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Assign the customized object handlers */</span><span class="w"></span>
-<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handlers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">test_object_handlers</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Assign the customized object handlers */</span>
+<span class="w">    </span><span class="n">retval</span><span class="p">.</span><span class="n">handlers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">test_object_handlers</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">retval</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="cm">/* No methods for now */</span><span class="w"></span>
-<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">test_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="cm">/* No methods for now */</span>
+<span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">test_functions</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">PHP_FE_END</span>
+<span class="p">};</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">test2</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="cm">/* The usual class registration... */</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="n">tmp_ce</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Test&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_functions</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">test_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">test2</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/* The usual class registration... */</span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="n">tmp_ce</span><span class="p">;</span>
+<span class="w">    </span><span class="n">INIT_CLASS_ENTRY</span><span class="p">(</span><span class="n">tmp_ce</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Test&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_functions</span><span class="p">);</span>
+<span class="w">    </span><span class="n">test_ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_internal_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp_ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Assign the object creation handler in the class entry */</span><span class="w"></span>
-<span class="w">    </span><span class="n">test_ce</span><span class="o">-&gt;</span><span class="n">create_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_create_object_handler</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Assign the object creation handler in the class entry */</span>
+<span class="w">    </span><span class="n">test_ce</span><span class="o">-&gt;</span><span class="n">create_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_create_object_handler</span><span class="p">;</span>
 
 <span class="w">    </span><span class="cm">/* Initialize the custom object handlers to the default object handlers. Afterwards you</span>
-<span class="cm">     * normally override individual handlers, but for now let&#39;s leave them at the defaults. */</span><span class="w"></span>
-<span class="w">    </span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">test_object_handlers</span><span class="p">,</span><span class="w"> </span><span class="n">zend_get_std_object_handlers</span><span class="p">(),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span><span class="w"></span>
+<span class="cm">     * normally override individual handlers, but for now let&#39;s leave them at the defaults. */</span>
+<span class="w">    </span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">test_object_handlers</span><span class="p">,</span><span class="w"> </span><span class="n">zend_get_std_object_handlers</span><span class="p">(),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The above code isn’t particularly useful yet, but it demonstrates the basic structure of pretty much all internal PHP
@@ -297,37 +294,37 @@ behavior of calling <code class="docutils literal notranslate"><span class="pre"
 still specify this handler, otherwise inheriting classes won’t be able to use it either.</p>
 <p>Now only the clone handler is left. Here the semantics should be straightforward, but the use is a bit more tricky.
 This is how such a clone handler might look like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">test_clone_object_storage_handler</span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">test_object</span><span class="w"> </span><span class="o">**</span><span class="n">object_clone_target</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="w"></span>
-<span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="cm">/* Create a new object */</span><span class="w"></span>
-<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">object_clone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">test_object</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object_std_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object_clone</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">.</span><span class="n">ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">object_properties_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object_clone</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">.</span><span class="n">ce</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">test_clone_object_storage_handler</span><span class="p">(</span>
+<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">test_object</span><span class="w"> </span><span class="o">**</span><span class="n">object_clone_target</span><span class="w"> </span><span class="n">TSRMLS_DC</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Create a new object */</span>
+<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">object_clone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">test_object</span><span class="p">));</span>
+<span class="w">    </span><span class="n">zend_object_std_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object_clone</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">.</span><span class="n">ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">object_properties_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">object_clone</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">.</span><span class="n">ce</span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Do any additional cloning stuff here */</span><span class="w"></span>
-<span class="w">    </span><span class="n">object_clone</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Do any additional cloning stuff here */</span>
+<span class="w">    </span><span class="n">object_clone</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="p">;</span>
 
-<span class="w">    </span><span class="cm">/* Return the cloned object */</span><span class="w"></span>
-<span class="w">    </span><span class="o">*</span><span class="n">object_clone_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">object_clone</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Return the cloned object */</span>
+<span class="w">    </span><span class="o">*</span><span class="n">object_clone_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">object_clone</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The clone handler is then passed as the last argument to <code class="docutils literal notranslate"><span class="pre">zend_objects_store_put</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">retval</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_put</span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="n">intern</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_destroy_object</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span><span class="w"> </span><span class="n">test_free_object_storage_handler</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="n">zend_objects_store_clone_t</span><span class="p">)</span><span class="w"> </span><span class="n">test_clone_object_storage_handler</span><span class="w"></span>
-<span class="w">    </span><span class="n">TSRMLS_CC</span><span class="w"></span>
-<span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">retval</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_put</span><span class="p">(</span>
+<span class="w">    </span><span class="n">intern</span><span class="p">,</span>
+<span class="w">    </span><span class="p">(</span><span class="n">zend_objects_store_dtor_t</span><span class="p">)</span><span class="w"> </span><span class="n">zend_objects_destroy_object</span><span class="p">,</span>
+<span class="w">    </span><span class="p">(</span><span class="n">zend_objects_free_object_storage_t</span><span class="p">)</span><span class="w"> </span><span class="n">test_free_object_storage_handler</span><span class="p">,</span>
+<span class="w">    </span><span class="p">(</span><span class="n">zend_objects_store_clone_t</span><span class="p">)</span><span class="w"> </span><span class="n">test_clone_object_storage_handler</span>
+<span class="w">    </span><span class="n">TSRMLS_CC</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 <p>But this is not yet enough to make the clone handler work: By default the object storage clone handler is simply
 ignored. To make it work you have to replace the default clone handler in the object handlers structure with
 <code class="docutils literal notranslate"><span class="pre">zend_objects_store_clone_obj</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">test_object_handlers</span><span class="p">,</span><span class="w"> </span><span class="n">zend_get_std_object_handlers</span><span class="p">(),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span><span class="w"></span>
-<span class="n">test_object_handler</span><span class="p">.</span><span class="n">clone_obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_clone_obj</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">test_object_handlers</span><span class="p">,</span><span class="w"> </span><span class="n">zend_get_std_object_handlers</span><span class="p">(),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">zend_object_handlers</span><span class="p">));</span>
+<span class="n">test_object_handler</span><span class="p">.</span><span class="n">clone_obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_store_clone_obj</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>But overwriting the standard clone handler (<code class="docutils literal notranslate"><span class="pre">zend_objects_clone_obj</span></code>) comes with its own set of problems: Now
@@ -335,22 +332,22 @@ properties (as in real properties, not the ones in the custom object storage) wo
 method won’t be called. That’s why most internal classes instead directly specify their own object handler for cloning,
 rather than going the extra round through the object storage clone handler. This approach comes with a bit more
 boilerplate. For example, this is how the default clone handler looks like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">zend_objects_clone_obj</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zobject</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">new_obj_val</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">old_object</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">new_object</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object_handle</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">zobject</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">zend_objects_clone_obj</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zobject</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">new_obj_val</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">old_object</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">new_object</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_object_handle</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">zobject</span><span class="p">);</span>
 
 <span class="w">    </span><span class="cm">/* assume that create isn&#39;t overwritten, so when clone depends on the</span>
-<span class="cm">     * overwritten one then it must itself be overwritten */</span><span class="w"></span>
-<span class="w">    </span><span class="n">old_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_get_address</span><span class="p">(</span><span class="n">zobject</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">new_obj_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">new_object</span><span class="p">,</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="cm">     * overwritten one then it must itself be overwritten */</span>
+<span class="w">    </span><span class="n">old_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_get_address</span><span class="p">(</span><span class="n">zobject</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">new_obj_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_objects_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">new_object</span><span class="p">,</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">ce</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
 
-<span class="w">    </span><span class="n">zend_objects_clone_members</span><span class="p">(</span><span class="n">new_object</span><span class="p">,</span><span class="w"> </span><span class="n">new_obj_val</span><span class="p">,</span><span class="w"> </span><span class="n">old_object</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_objects_clone_members</span><span class="p">(</span><span class="n">new_object</span><span class="p">,</span><span class="w"> </span><span class="n">new_obj_val</span><span class="p">,</span><span class="w"> </span><span class="n">old_object</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">new_obj_val</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">new_obj_val</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This function first fetches the <code class="docutils literal notranslate"><span class="pre">zend_object*</span></code> structure from the object store using <code class="docutils literal notranslate"><span class="pre">zend_objects_get_address</span></code>,
@@ -359,35 +356,35 @@ then creates a new object with the same class entry (using <code class="docutils
 method if it exists.</p>
 <p>A custom object cloning handler looks similar, with the main difference being that instead of calling
 <code class="docutils literal notranslate"><span class="pre">zend_objects_new</span></code> we’ll rather call our <code class="docutils literal notranslate"><span class="pre">create_object</span></code> handler:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_object_value</span><span class="w"> </span><span class="nf">test_clone_handler</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="cm">/* Get the internal structure of the old object */</span><span class="w"></span>
-<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">old_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_object_value</span><span class="w"> </span><span class="nf">test_clone_handler</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Get the internal structure of the old object */</span>
+<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">old_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
 
 <span class="w">    </span><span class="cm">/* Create a new object with the same class entry. This will only give us back the</span>
-<span class="cm">     * zend_object_value, but not the actual internal structure of the new object. */</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">new_object_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_create_object_handler</span><span class="p">(</span><span class="n">Z_OBJCE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="cm">     * zend_object_value, but not the actual internal structure of the new object. */</span>
+<span class="w">    </span><span class="n">zend_object_value</span><span class="w"> </span><span class="n">new_object_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_create_object_handler</span><span class="p">(</span><span class="n">Z_OBJCE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
 
 <span class="w">    </span><span class="cm">/* To get the internal structure we need to fetch it from the object store using the</span>
-<span class="cm">     * handle we got from the create_object handler. */</span><span class="w"></span>
-<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">new_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object_by_handle</span><span class="p">(</span><span class="w"></span>
-<span class="w">        </span><span class="n">new_object_val</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
-<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="cm">     * handle we got from the create_object handler. */</span>
+<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">new_object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object_by_handle</span><span class="p">(</span>
+<span class="w">        </span><span class="n">new_object_val</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="n">TSRMLS_CC</span>
+<span class="w">    </span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Clone properties and call __clone */</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_objects_clone_members</span><span class="p">(</span><span class="w"></span>
-<span class="w">        </span><span class="o">&amp;</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">new_object_val</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="o">&amp;</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="w"></span>
-<span class="w">    </span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Clone properties and call __clone */</span>
+<span class="w">    </span><span class="n">zend_objects_clone_members</span><span class="p">(</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">new_object_val</span><span class="p">,</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">Z_OBJ_HANDLE_P</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="w"> </span><span class="n">TSRMLS_CC</span>
+<span class="w">    </span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Here comes the actual custom cloning code */</span><span class="w"></span>
-<span class="w">    </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Here comes the actual custom cloning code */</span>
+<span class="w">    </span><span class="n">new_object</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_object</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">new_object_val</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">new_object_val</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="cm">/* ... */</span><span class="w"></span>
-<span class="n">test_object_handler</span><span class="p">.</span><span class="n">clone_obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_clone_handler</span><span class="p">;</span><span class="w"></span>
+<span class="cm">/* ... */</span>
+<span class="n">test_object_handler</span><span class="p">.</span><span class="n">clone_obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_clone_handler</span><span class="p">;</span>
 </pre></div>
 </div>
 </section>
@@ -405,21 +402,21 @@ and will extract the handle from it.</p>
 function is pretty useless because C allows implicit casts from <code class="docutils literal notranslate"><span class="pre">void*</span></code> to other pointer types.</p>
 <p>The most important of these functions is <code class="docutils literal notranslate"><span class="pre">zend_object_store_get_object()</span></code>. You will be using it a lot. Pretty much
 all methods will look similar to this:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">foo</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">foo</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span>
+<span class="w">    </span><span class="n">test_object</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getThis</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getThis</span><span class="p">();</span>
+<span class="w">    </span><span class="n">intern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_object_store_get_object</span><span class="p">(</span><span class="n">object</span><span class="w"> </span><span class="n">TSRMLS_CC</span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Do some stuff here, like returning an internal property: */</span><span class="w"></span>
-<span class="w">    </span><span class="n">RETURN_LONG</span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Do some stuff here, like returning an internal property: */</span>
+<span class="w">    </span><span class="n">RETURN_LONG</span><span class="p">(</span><span class="n">intern</span><span class="o">-&gt;</span><span class="n">additional_property</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>There are some more functions provided by the object store, e.g. for managing the object refcount, but those are rarely

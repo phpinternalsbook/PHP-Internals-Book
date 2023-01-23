@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -202,62 +199,62 @@ when an is_ref=1 zval is passed to them.</p>
 <h2>Allocating and initializing zvals<a class="headerlink" href="#allocating-and-initializing-zvals" title="Permalink to this heading">¶</a></h2>
 <p>Now that you are familiar with the general concepts underlying zval memory management, we can move on to their practical
 implementation. Lets start with zval allocation:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
-<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This code-snippets allocates a zval, but does not initialize its members. There is a variant of this macro used to
 allocate persistent zvals, which are not destroyed at the end of the request:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
-<span class="n">ALLOC_PERMANENT_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_PERMANENT_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The difference between the two macros is that the former makes use of <code class="docutils literal notranslate"><span class="pre">emalloc()</span></code> whereas the latter uses
 <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>. It’s important to know though that trying to directly allocate zvals will not work:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* This code is WRONG */</span><span class="w"></span>
-<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* This code is WRONG */</span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">zval</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>The reason is that the cycle collector needs to store some additional information in the zval, so the structure that
 needs to be allocated is actually not a <code class="docutils literal notranslate"><span class="pre">zval</span></code> but a <code class="docutils literal notranslate"><span class="pre">zval_gc_info</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zval_gc_info</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">z</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">gc_root_buffer</span><span class="w">       </span><span class="o">*</span><span class="n">buffered</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zval_gc_info</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">u</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zval_gc_info</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zval_gc_info</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">z</span><span class="p">;</span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">gc_root_buffer</span><span class="w">       </span><span class="o">*</span><span class="n">buffered</span><span class="p">;</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zval_gc_info</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">u</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zval_gc_info</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">ALLOC_*</span></code> macros will allocate a <code class="docutils literal notranslate"><span class="pre">zval_gc_info</span></code> and initialize its additional member, but afterwards the value
 can be transparently used as a <code class="docutils literal notranslate"><span class="pre">zval</span></code> (because the structure includes a <code class="docutils literal notranslate"><span class="pre">zval</span></code> as its first member).</p>
 <p>After the zval has been allocated, it needs to be initialized. There are two macros to do this. The first one is
 <code class="docutils literal notranslate"><span class="pre">INIT_PZVAL</span></code>, which will set refcount=1 and is_ref=0 but leave the value uninitialized:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
-<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="n">INIT_PZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* zv_ptr has garbage type+value here */</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">INIT_PZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="cm">/* zv_ptr has garbage type+value here */</span>
 </pre></div>
 </div>
 <p>The second macro is <code class="docutils literal notranslate"><span class="pre">INIT_ZVAL</span></code> which will also set refcount=1 and is_ref=0, but will additionally set the type to
 <code class="docutils literal notranslate"><span class="pre">IS_NULL</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
-<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="n">INIT_ZVAL</span><span class="p">(</span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* zv_ptr has type=IS_NULL here */</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">INIT_ZVAL</span><span class="p">(</span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="cm">/* zv_ptr has type=IS_NULL here */</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">INIT_PZVAL()</span></code> accepts a <code class="docutils literal notranslate"><span class="pre">zval*</span></code> (thus the <code class="docutils literal notranslate"><span class="pre">P</span></code> in its name) whereas <code class="docutils literal notranslate"><span class="pre">INIT_ZVAL()</span></code> takes a <code class="docutils literal notranslate"><span class="pre">zval</span></code>. When passing
 a <code class="docutils literal notranslate"><span class="pre">zval*</span></code> to the latter macro it needs to be dereferenced first.</p>
 <p>Because it is very common to both allocate and initialize a zval in one go, there are two macros which combine both
 steps:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* zv_ptr has garbage type+value here */</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="cm">/* zv_ptr has garbage type+value here */</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
-<span class="n">ALLOC_INIT_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* zv_ptr has type=IS_NULL here */</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">ALLOC_INIT_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="cm">/* zv_ptr has type=IS_NULL here */</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">MAKE_STD_ZVAL()</span></code> combines allocation with <code class="docutils literal notranslate"><span class="pre">INIT_PZVAL()</span></code>, whereas <code class="docutils literal notranslate"><span class="pre">ALLOC_INIT_ZVAL()</span></code> combines it with
@@ -267,22 +264,22 @@ steps:</p>
 <h2>Managing the refcount and zval destruction<a class="headerlink" href="#managing-the-refcount-and-zval-destruction" title="Permalink to this heading">¶</a></h2>
 <p>Once you have an allocated and initialized zval you can make use of the reference-counting mechanism introduced earlier.
 To manage the refcount PHP provides several macros:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">      </span><span class="cm">/* Get refcount */</span><span class="w"></span>
-<span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">        </span><span class="cm">/* Increment refcount */</span><span class="w"></span>
-<span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">        </span><span class="cm">/* Decrement refcount */</span><span class="w"></span>
-<span class="n">Z_SET_REFCOUNT</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="cm">/* Set refcount to some particular value (here 1) */</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">      </span><span class="cm">/* Get refcount */</span>
+<span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">        </span><span class="cm">/* Increment refcount */</span>
+<span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">        </span><span class="cm">/* Decrement refcount */</span>
+<span class="n">Z_SET_REFCOUNT</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="cm">/* Set refcount to some particular value (here 1) */</span>
 </pre></div>
 </div>
 <p>Just like the other <code class="docutils literal notranslate"><span class="pre">Z_</span></code> macros these are available in variants without a suffix, with a <code class="docutils literal notranslate"><span class="pre">_P</span></code> suffix and with a
 <code class="docutils literal notranslate"><span class="pre">_PP</span></code> suffix, which accept a <code class="docutils literal notranslate"><span class="pre">zval</span></code>, a <code class="docutils literal notranslate"><span class="pre">zval*</span></code> and a <code class="docutils literal notranslate"><span class="pre">zval**</span></code> respectively.</p>
 <p>The macro you will most commonly use is <code class="docutils literal notranslate"><span class="pre">Z_ADDREF_P()</span></code>. A small example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span><span class="w"></span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span>
 
-<span class="n">add_index_zval</span><span class="p">(</span><span class="n">some_array</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="n">add_assoc_zval</span><span class="p">(</span><span class="n">some_array</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<span class="n">add_index_zval</span><span class="p">(</span><span class="n">some_array</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">add_assoc_zval</span><span class="p">(</span><span class="n">some_array</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="n">Z_ADDREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The code inserts the integer 42 into an array at the index <code class="docutils literal notranslate"><span class="pre">0</span></code> and the key <code class="docutils literal notranslate"><span class="pre">&quot;num&quot;</span></code>, so the zval will be used in two
@@ -290,11 +287,11 @@ places. After the allocation and initialization done by <code class="docutils li
 To use the same zval in two places it needs a refcount of 2, thus it has to be incremented using <code class="docutils literal notranslate"><span class="pre">Z_ADDREF_P()</span></code>.</p>
 <p>The complement macro <code class="docutils literal notranslate"><span class="pre">Z_DELREF_P()</span></code> on the other hand is used rather rarely: Usually just decrementing the refcount
 is not enough, because you have to check for the <code class="docutils literal notranslate"><span class="pre">refcount==0</span></code> case where the zval needs to be destroyed and freed:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval_dtor</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">efree</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zval_dtor</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">efree</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">zval_dtor()</span></code> macro takes a <code class="docutils literal notranslate"><span class="pre">zval*</span></code> and destroys its value: If it is a string, the string will be freed, if it
@@ -302,27 +299,27 @@ is an array, the HashTable will be destroyed and freed, if it is an object or re
 values is decremented (which again might lead to them being destroyed and freed).</p>
 <p>Instead of writing the above code for checking the refcount yourself, you should use a second macro called
 <code class="docutils literal notranslate"><span class="pre">zval_ptr_dtor()</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_ptr</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This macro takes a <code class="docutils literal notranslate"><span class="pre">zval**</span></code> (for historical reasons, it could take a <code class="docutils literal notranslate"><span class="pre">zval*</span></code> just as well), decrements its refcount
 and checks whether the zval needs to be destroyed and freed. But unlike our manually written code above, it also
 includes support for the collection of circles. Here is the relevant part of its implementation:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_always_inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">i_zval_ptr_dtor</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zval_ptr</span><span class="w"> </span><span class="n">ZEND_FILE_LINE_DC</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">ZEND_ASSERT</span><span class="p">(</span><span class="n">zval_ptr</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">EG</span><span class="p">(</span><span class="n">uninitialized_zval</span><span class="p">));</span><span class="w"></span>
-<span class="w">        </span><span class="n">GC_REMOVE_ZVAL_FROM_BUFFER</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">zval_dtor</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">efree_rel</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">Z_UNSET_ISREF_P</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_always_inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">i_zval_ptr_dtor</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zval_ptr</span><span class="w"> </span><span class="n">ZEND_FILE_LINE_DC</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ZEND_ASSERT</span><span class="p">(</span><span class="n">zval_ptr</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">EG</span><span class="p">(</span><span class="n">uninitialized_zval</span><span class="p">));</span>
+<span class="w">        </span><span class="n">GC_REMOVE_ZVAL_FROM_BUFFER</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+<span class="w">        </span><span class="n">zval_dtor</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+<span class="w">        </span><span class="n">efree_rel</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">Z_UNSET_ISREF_P</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
 
-<span class="w">        </span><span class="n">GC_ZVAL_CHECK_POSSIBLE_ROOT</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="n">GC_ZVAL_CHECK_POSSIBLE_ROOT</span><span class="p">(</span><span class="n">zval_ptr</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">Z_DELREF_P()</span></code> returns the new refcount after it was decremented, so writing <code class="docutils literal notranslate"><span class="pre">!Z_DELREF_P(zval_ptr)</span></code> is the same
@@ -337,12 +334,12 @@ more holders share a zval.</p>
 where you can guarantee that the zval neither needs to be destroyed nor is a possible root for a circle). Instead you
 should use <code class="docutils literal notranslate"><span class="pre">zval_ptr_dtor()</span></code> whenever you want to decrement the refcount. The <code class="docutils literal notranslate"><span class="pre">zval_dtor()</span></code> macro is typically used
 with temporary, stack-allocated zvals:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">zv</span><span class="p">;</span><span class="w"></span>
-<span class="n">INIT_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">zv</span><span class="p">;</span>
+<span class="n">INIT_ZVAL</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
 
-<span class="cm">/* Do something with zv here */</span><span class="w"></span>
+<span class="cm">/* Do something with zv here */</span>
 
-<span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>A temporary zval allocated on the stack cannot be shared because it is freed at the end of the block, as such it cannot
@@ -354,23 +351,23 @@ make use of refcounting and can be destroyed indiscriminately using <code class=
 want to change the value of the zval or transfer it to another storage location.</p>
 <p>PHP provides a large number of copying macros for various use cases, the simplest one being <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE()</span></code>,
 which just copies the <code class="docutils literal notranslate"><span class="pre">value</span></code> and <code class="docutils literal notranslate"><span class="pre">type</span></code> members of a zval:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_src</span><span class="p">;</span><span class="w"></span>
-<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_src</span><span class="p">;</span>
+<span class="n">MAKE_STD_ZVAL</span><span class="p">(</span><span class="n">zv_src</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span><span class="w"></span>
-<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>At this point <code class="docutils literal notranslate"><span class="pre">zv_dest</span></code> will have the same type and value as <code class="docutils literal notranslate"><span class="pre">zv_src</span></code>. Note that “same value” here means that both
 zvals are using the same string value (<code class="docutils literal notranslate"><span class="pre">char*</span></code>), i.e. if the <code class="docutils literal notranslate"><span class="pre">zv_src</span></code> zval is destroyed the string value will be
 freed and <code class="docutils literal notranslate"><span class="pre">zv_dest</span></code> will be left with a dangling pointer to the freed string. To avoid this the zval copy constructor
 <code class="docutils literal notranslate"><span class="pre">zval_copy_ctor()</span></code> needs to be invoked:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span><span class="w"></span>
-<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
-<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">zval_copy_ctor()</span></code> will do a fully copy of the zval value, i.e. if it is a string the <code class="docutils literal notranslate"><span class="pre">char*</span></code> will be copied, if it
@@ -380,17 +377,17 @@ incremented.</p>
 the <code class="docutils literal notranslate"><span class="pre">INIT_PZVAL()</span></code> macro or by making use of <code class="docutils literal notranslate"><span class="pre">MAKE_STD_ZVAL()</span></code> instead of <code class="docutils literal notranslate"><span class="pre">ALLOC_ZVAL()</span></code>. Another alternative is
 to use <code class="docutils literal notranslate"><span class="pre">INIT_PZVAL_COPY()</span></code> instead of <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE()</span></code> which combines doing a copy with refcount/is_ref
 initialization:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span><span class="w"></span>
-<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
-<span class="n">INIT_PZVAL_COPY</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
-<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">INIT_PZVAL_COPY</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>As the combination of <code class="docutils literal notranslate"><span class="pre">INIT_PZVAL_COPY()</span></code> and <code class="docutils literal notranslate"><span class="pre">zval_copy_ctor()</span></code> is very common, both are combined in the
 <code class="docutils literal notranslate"><span class="pre">MAKE_COPY_ZVAL()</span></code> macro:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span><span class="w"></span>
-<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
-<span class="n">MAKE_COPY_ZVAL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_dest</span><span class="p">;</span>
+<span class="n">ALLOC_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">MAKE_COPY_ZVAL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="n">zv_dest</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This macro has a bit of a tricky signature, because it swaps the argument order (the destination is now the second
@@ -398,41 +395,41 @@ argument rather than the first) and also requires the source to be a <code class
 artifact and doesn’t make any technical sense whatsoever.</p>
 <p>Apart from these basic copying macros there are several more complicated ones. The most important is <code class="docutils literal notranslate"><span class="pre">ZVAL_ZVAL</span></code>,
 which is especially common when returning zvals from a function. It has the following signature:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="p">,</span><span class="w"> </span><span class="n">dtor</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="p">,</span><span class="w"> </span><span class="n">dtor</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">copy</span></code> parameter specifies whether <code class="docutils literal notranslate"><span class="pre">zval_copy_ctor()</span></code> should be called on the destination zval and <code class="docutils literal notranslate"><span class="pre">dtor</span></code>
 determines whether <code class="docutils literal notranslate"><span class="pre">zval_ptr_dtor()</span></code> is called on the source zval. Let’s go through all four possible combinations
 of those values and analyze the behavior. The simplest case is setting both copy and dtor to zero:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* equivalent to: */</span><span class="w"></span>
-<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="cm">/* equivalent to: */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In this case <code class="docutils literal notranslate"><span class="pre">ZVAL_ZVAL()</span></code> becomes a simple <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE()</span></code> call. As such using this macro with 0,0 arguments
 doesn’t really make sense. A more useful variant is copy=1, dtor=0:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* equivalent to: */</span><span class="w"></span>
-<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
-<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="cm">/* equivalent to: */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This is basically a normal zval copy analog to <code class="docutils literal notranslate"><span class="pre">MAKE_COPY_ZVAL()</span></code>, only without the <code class="docutils literal notranslate"><span class="pre">INIT_PZVAL()</span></code> step. This is
 useful when copying into zvals that are already initialized (e.g. <code class="docutils literal notranslate"><span class="pre">return_value</span></code>). Additionally setting dtor=1 only
 adds a <code class="docutils literal notranslate"><span class="pre">zval_ptr_dtor()</span></code> call:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* equivalent to: */</span><span class="w"></span>
-<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
-<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span><span class="w"></span>
-<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="cm">/* equivalent to: */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_copy_ctor</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">);</span>
+<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The most interesting case is the copy=0, dtor=1 combination:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* equivalent to: */</span><span class="w"></span>
-<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_NULL</span><span class="p">(</span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
-<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZVAL_ZVAL</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="cm">/* equivalent to: */</span>
+<span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">zv_dest</span><span class="p">,</span><span class="w"> </span><span class="n">zv_src</span><span class="p">);</span>
+<span class="n">ZVAL_NULL</span><span class="p">(</span><span class="n">zv_src</span><span class="p">);</span>
+<span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zv_src</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This constitutes a zval “move”, where the value from <code class="docutils literal notranslate"><span class="pre">zv_src</span></code> is moved into <code class="docutils literal notranslate"><span class="pre">zv_dest</span></code> without having to invoke the
@@ -472,13 +469,13 @@ the zval stored in the array.</p>
 <p>Directly using <code class="docutils literal notranslate"><span class="pre">SEPARATE_ZVAL()</span></code> before performing a zval modification doesn’t yet account for the case where the zval
 has is_ref=1, in which case the separation should not occur. To handle this case lets first look at the macros PHP
 provides to handle the is_ref flag:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_ISREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">           </span><span class="cm">/* Get if zval is reference */</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_ISREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">           </span><span class="cm">/* Get if zval is reference */</span>
 
-<span class="n">Z_SET_ISREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">       </span><span class="cm">/* Set is_ref=1 */</span><span class="w"></span>
-<span class="n">Z_UNSET_ISREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">     </span><span class="cm">/* Set is_ref=0 */</span><span class="w"></span>
+<span class="n">Z_SET_ISREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">       </span><span class="cm">/* Set is_ref=1 */</span>
+<span class="n">Z_UNSET_ISREF_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">     </span><span class="cm">/* Set is_ref=0 */</span>
 
-<span class="n">Z_SET_ISREF_TO_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="cm">/* Same as Z_SET_ISREF_P(zv_ptr) */</span><span class="w"></span>
-<span class="n">Z_SET_ISREF_TO_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="cm">/* Same as Z_UNSET_ISREF_P(zv_ptr) */</span><span class="w"></span>
+<span class="n">Z_SET_ISREF_TO_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="cm">/* Same as Z_SET_ISREF_P(zv_ptr) */</span>
+<span class="n">Z_SET_ISREF_TO_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="cm">/* Same as Z_UNSET_ISREF_P(zv_ptr) */</span>
 </pre></div>
 </div>
 <p>Once again the macros are available in variants without suffix, <code class="docutils literal notranslate"><span class="pre">_P</span></code> suffix and <code class="docutils literal notranslate"><span class="pre">_PP</span></code> suffix, accepting a <code class="docutils literal notranslate"><span class="pre">zval</span></code>,

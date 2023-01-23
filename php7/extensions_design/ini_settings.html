@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -84,22 +81,22 @@ interest in, even if such a setting was part of an INI file parsing (like php.in
 <section id="zoom-on-ini-settings">
 <h2>Zoom on INI settings<a class="headerlink" href="#zoom-on-ini-settings" title="Permalink to this heading">¶</a></h2>
 <p>Into the engine, an INI setting is represented by a <code class="docutils literal notranslate"><span class="pre">zend_ini_entry</span></code> structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_ini_entry</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">on_modify</span><span class="p">)(</span><span class="n">zend_ini_entry</span><span class="w"> </span><span class="o">*</span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">new_value</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg1</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg2</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg3</span><span class="p">,</span><span class="w"></span>
-<span class="w">                     </span><span class="kt">int</span><span class="w"> </span><span class="n">stage</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg1</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg2</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg3</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">orig_value</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">displayer</span><span class="p">)(</span><span class="n">zend_ini_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ini_entry</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">modifiable</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_ini_entry</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">on_modify</span><span class="p">)(</span><span class="n">zend_ini_entry</span><span class="w"> </span><span class="o">*</span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">new_value</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg1</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg2</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg3</span><span class="p">,</span>
+<span class="w">                     </span><span class="kt">int</span><span class="w"> </span><span class="n">stage</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg1</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg2</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg3</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">orig_value</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">displayer</span><span class="p">)(</span><span class="n">zend_ini_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ini_entry</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">modifiable</span><span class="p">;</span>
 
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">orig_modifiable</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">modified</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">module_number</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">orig_modifiable</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">modified</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">module_number</span><span class="p">;</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>Nothing really strong in such a structure.</p>
@@ -124,19 +121,19 @@ F.e, you may remember that PHP tends to display <em>On</em> for boolean values o
 <code class="docutils literal notranslate"><span class="pre">displayer()</span></code> job : turn the current value into a “displayed” value.</p></li>
 </ul>
 <p>You will also need to deal with this structure <code class="docutils literal notranslate"><span class="pre">zend_ini_entry_def</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_ini_entry_def</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZEND_INI_MH</span><span class="p">((</span><span class="o">*</span><span class="n">on_modify</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg1</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg2</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg3</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">displayer</span><span class="p">)(</span><span class="n">zend_ini_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ini_entry</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">modifiable</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_ini_entry_def</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ZEND_INI_MH</span><span class="p">((</span><span class="o">*</span><span class="n">on_modify</span><span class="p">));</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg1</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg2</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg3</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">displayer</span><span class="p">)(</span><span class="n">zend_ini_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ini_entry</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">modifiable</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">name_length</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">value_length</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zend_ini_entry_def</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">name_length</span><span class="p">;</span>
+<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">value_length</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_ini_entry_def</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>Pretty much similar to <code class="docutils literal notranslate"><span class="pre">zend_ini_entry</span></code>, <code class="docutils literal notranslate"><span class="pre">zend_ini_entry_def</span></code> is used by the programmer (you) when he must register
@@ -153,28 +150,28 @@ extension.</p>
 <p>What you must do is declare a vector of <code class="docutils literal notranslate"><span class="pre">zend_ini_entry_def</span></code>, you’ll be helped with dedicated macros for that. Then,
 you register your vector against the engine and you are done for the declaration. Let’s see that with our example taken
 for previous chapter about random number picking and guessing, once again only showing relevant parts for now:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_INI_BEGIN</span><span class="p">()</span><span class="w"></span>
-<span class="n">PHP_INI_ENTRY</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;100&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_INI_ALL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"></span>
-<span class="n">PHP_INI_END</span><span class="p">()</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_INI_BEGIN</span><span class="p">()</span>
+<span class="n">PHP_INI_ENTRY</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;100&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_INI_ALL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<span class="n">PHP_INI_END</span><span class="p">()</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">REGISTER_INI_ENTRIES</span><span class="p">();</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">REGISTER_INI_ENTRIES</span><span class="p">();</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MINFO_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">DISPLAY_INI_ENTRIES</span><span class="p">();</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="n">PHP_MINFO_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">DISPLAY_INI_ENTRIES</span><span class="p">();</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">UNREGISTER_INI_ENTRIES</span><span class="p">();</span><span class="w"></span>
+<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">UNREGISTER_INI_ENTRIES</span><span class="p">();</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>That was the easiest INI declaration, we won’t keep it as-is but the steps are trivial : you declare a
@@ -208,7 +205,7 @@ as a <code class="docutils literal notranslate"><span class="pre">zend_string</s
 to read its value back. <code class="docutils literal notranslate"><span class="pre">INI_INT()</span></code> does such a job.</p>
 </div>
 <p>Example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;The value is : %lu&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">INI_INT</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;The value is : %lu&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">INI_INT</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">));</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -243,22 +240,22 @@ treated <a class="reference internal" href="globals_management.html"><span class
 </div>
 <p>To declare a memory bridge to a global, we need to create a request global, and to change the way our INI setting was
 declared. Like this:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_ulong</span><span class="w"> </span><span class="n">max_rnd</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="w">    </span><span class="n">zend_ulong</span><span class="w"> </span><span class="n">max_rnd</span><span class="p">;</span>
+<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
-<span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
-<span class="n">PHP_INI_BEGIN</span><span class="p">()</span><span class="w"></span>
-<span class="w">    </span><span class="n">STD_PHP_INI_ENTRY</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;100&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_INI_ALL</span><span class="p">,</span><span class="w"> </span><span class="n">OnUpdateLongGEZero</span><span class="p">,</span><span class="w"> </span><span class="n">max_rnd</span><span class="p">,</span><span class="w"> </span><span class="n">zend_pib_globals</span><span class="p">,</span><span class="w"> </span><span class="n">pib_globals</span><span class="p">)</span><span class="w"></span>
-<span class="n">PHP_INI_END</span><span class="p">()</span><span class="w"></span>
+<span class="n">PHP_INI_BEGIN</span><span class="p">()</span>
+<span class="w">    </span><span class="n">STD_PHP_INI_ENTRY</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;100&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_INI_ALL</span><span class="p">,</span><span class="w"> </span><span class="n">OnUpdateLongGEZero</span><span class="p">,</span><span class="w"> </span><span class="n">max_rnd</span><span class="p">,</span><span class="w"> </span><span class="n">zend_pib_globals</span><span class="p">,</span><span class="w"> </span><span class="n">pib_globals</span><span class="p">)</span>
+<span class="n">PHP_INI_END</span><span class="p">()</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">REGISTER_INI_ENTRIES</span><span class="p">();</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">REGISTER_INI_ENTRIES</span><span class="p">();</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>We declare a global named <code class="docutils literal notranslate"><span class="pre">max_rnd</span></code>, of type <code class="docutils literal notranslate"><span class="pre">zend_ulong</span></code>. Then, we register our <em>‘pib.rnd_max’</em> INI value using
@@ -279,7 +276,7 @@ declares a <code class="docutils literal notranslate"><span class="pre">pib_glob
 validates the value against a long greater than or equal to zero. The validator is needed for the global to be updated,
 as such a job is done into the validator.</p>
 <p>Now, to read back our INI setting value, we just need to read the value of our <code class="docutils literal notranslate"><span class="pre">max_rnd</span></code> global:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;The value is : %lu&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">max_rnd</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;The value is : %lu&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">max_rnd</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>And we are done.</p>
@@ -296,29 +293,29 @@ mechanism is not magicaly performed by the engine, but must be done explicitly i
 </div>
 <p>Let’s see the <code class="docutils literal notranslate"><span class="pre">onUpdateLongGEZero()</span></code> source code:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define ZEND_INI_MH(name) int name(zend_ini_entry *entry, zend_string *new_value,</span>
-<span class="w">                                    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg1</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg2</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg3</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">stage</span><span class="p">)</span><span class="w"></span>
+<span class="w">                                    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg1</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg2</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">mh_arg3</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">stage</span><span class="p">)</span>
 
-<span class="n">ZEND_API</span><span class="w"> </span><span class="n">ZEND_INI_MH</span><span class="p">(</span><span class="n">OnUpdateLongGEZero</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span><span class="w"></span>
+<span class="n">ZEND_API</span><span class="w"> </span><span class="n">ZEND_INI_MH</span><span class="p">(</span><span class="n">OnUpdateLongGEZero</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span>
 <span class="cp">#ifndef ZTS</span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg2</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg2</span><span class="p">;</span>
 <span class="cp">#else</span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">ts_resource</span><span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg2</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">ts_resource</span><span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg2</span><span class="p">));</span>
 <span class="cp">#endif</span>
 
-<span class="w">    </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_atol</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">new_value</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">new_value</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_atol</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">new_value</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">new_value</span><span class="p">));</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">zend_long</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">base</span><span class="o">+</span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg1</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">zend_long</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">base</span><span class="o">+</span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg1</span><span class="p">);</span>
+<span class="w">    </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Like you can see, there is nothing complex. Your validator is given the <code class="docutils literal notranslate"><span class="pre">new_value</span></code> and must validate against it.
@@ -344,35 +341,35 @@ yourself to get a pointer to it. That’s why we stored <code class="docutils li
 (you may read it).</p>
 <p>Based on such a model, we could develop our own validator, that validates against a positive integer between 0 and 1000
 for example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_INI_MH</span><span class="p">(</span><span class="n">onUpdateMaxRnd</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_INI_MH</span><span class="p">(</span><span class="n">onUpdateMaxRnd</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">;</span>
 <span class="cp">#ifndef ZTS</span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg2</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg2</span><span class="p">;</span>
 <span class="cp">#else</span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">ts_resource</span><span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg2</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">ts_resource</span><span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg2</span><span class="p">));</span>
 <span class="cp">#endif</span>
 
-<span class="w">    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">zend_long</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">base</span><span class="o">+</span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg1</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">zend_long</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">base</span><span class="o">+</span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="w"> </span><span class="n">mh_arg1</span><span class="p">);</span>
 
-<span class="w">    </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_atol</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">new_value</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">new_value</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_atol</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">new_value</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">ZSTR_LEN</span><span class="p">(</span><span class="n">new_value</span><span class="p">));</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_INI_BEGIN</span><span class="p">()</span><span class="w"></span>
-<span class="w">    </span><span class="n">STD_PHP_INI_ENTRY</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;100&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_INI_ALL</span><span class="p">,</span><span class="w"> </span><span class="n">onUpdateMaxRnd</span><span class="p">,</span><span class="w"> </span><span class="n">max_rnd</span><span class="p">,</span><span class="w"> </span><span class="n">zend_pib_globals</span><span class="p">,</span><span class="w"> </span><span class="n">pib_globals</span><span class="p">)</span><span class="w"></span>
-<span class="n">PHP_INI_END</span><span class="p">()</span><span class="w"></span>
+<span class="n">PHP_INI_BEGIN</span><span class="p">()</span>
+<span class="w">    </span><span class="n">STD_PHP_INI_ENTRY</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;100&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_INI_ALL</span><span class="p">,</span><span class="w"> </span><span class="n">onUpdateMaxRnd</span><span class="p">,</span><span class="w"> </span><span class="n">max_rnd</span><span class="p">,</span><span class="w"> </span><span class="n">zend_pib_globals</span><span class="p">,</span><span class="w"> </span><span class="n">pib_globals</span><span class="p">)</span>
+<span class="n">PHP_INI_END</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -430,10 +427,10 @@ been called by the engine in such a case.</p>
 triggered any time the userland asks to “print” your INI setting value, that is through the usage of
 <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code> or <code class="docutils literal notranslate"><span class="pre">php</span> <span class="pre">--ri</span></code>.</p>
 <p>If you provide no displayer, a default one will be used. See it:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="w"> </span><span class="n">php</span><span class="w"> </span><span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span><span class="w"> </span><span class="o">-</span><span class="n">dpib</span><span class="p">.</span><span class="n">rnd_max</span><span class="o">=</span><span class="mi">120</span><span class="w"> </span><span class="o">--</span><span class="n">ri</span><span class="w"> </span><span class="n">pib</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="w"> </span><span class="n">php</span><span class="w"> </span><span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span><span class="w"> </span><span class="o">-</span><span class="n">dpib</span><span class="p">.</span><span class="n">rnd_max</span><span class="o">=</span><span class="mi">120</span><span class="w"> </span><span class="o">--</span><span class="n">ri</span><span class="w"> </span><span class="n">pib</span>
 
-<span class="n">Directive</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Local</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Master</span><span class="w"> </span><span class="n">Value</span><span class="w"></span>
-<span class="n">pib</span><span class="p">.</span><span class="n">rnd_max</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">120</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">120</span><span class="w"></span>
+<span class="n">Directive</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Local</span><span class="w"> </span><span class="n">Value</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Master</span><span class="w"> </span><span class="n">Value</span>
+<span class="n">pib</span><span class="p">.</span><span class="n">rnd_max</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">120</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">120</span>
 </pre></div>
 </div>
 <p>The default displayer takes the INI setting value (which, as a reminder, is of type <code class="docutils literal notranslate"><span class="pre">zend_string</span> <span class="pre">*</span></code>), and simply
@@ -442,29 +439,29 @@ displays it. If no value were found or the value were the empty string, then it 
 our <em>‘pib.rnd_max’</em> value as a percentage bar, with <em>‘#’</em> and <em>‘.’</em> chars. Just an example:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define ZEND_INI_DISP(name) void name(zend_ini_entry *ini_entry, int type)</span>
 
-<span class="n">ZEND_INI_DISP</span><span class="p">(</span><span class="n">MaxRnd</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">disp</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_ulong</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="n">ZEND_INI_DISP</span><span class="p">(</span><span class="n">MaxRnd</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">disp</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">    </span><span class="n">zend_ulong</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ZEND_INI_DISPLAY_ORIG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">modified</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">orig_value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZEND_STRTOUL</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">orig_value</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZEND_STRTOUL</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ZEND_INI_DISPLAY_ORIG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">modified</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">orig_value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZEND_STRTOUL</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">orig_value</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZEND_STRTOUL</span><span class="p">(</span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">ini_entry</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">tmp</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">tmp</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;#&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">disp</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;#&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">disp</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">tmp</span><span class="p">);</span>
 
-<span class="w">    </span><span class="n">php_write</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">php_write</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_INI_BEGIN</span><span class="p">()</span><span class="w"></span>
-<span class="w">    </span><span class="n">STD_PHP_INI_ENTRY_EX</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;100&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_INI_ALL</span><span class="p">,</span><span class="w"> </span><span class="n">onUpdateMaxRnd</span><span class="p">,</span><span class="w"> </span><span class="n">max_rnd</span><span class="p">,</span><span class="w"> </span><span class="n">zend_pib_globals</span><span class="p">,</span><span class="w"></span>
-<span class="w">                          </span><span class="n">pib_globals</span><span class="p">,</span><span class="w"> </span><span class="n">MaxRnd</span><span class="p">)</span><span class="w"></span>
-<span class="n">PHP_INI_END</span><span class="p">()</span><span class="w"></span>
+<span class="n">PHP_INI_BEGIN</span><span class="p">()</span>
+<span class="w">    </span><span class="n">STD_PHP_INI_ENTRY_EX</span><span class="p">(</span><span class="s">&quot;pib.rnd_max&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;100&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_INI_ALL</span><span class="p">,</span><span class="w"> </span><span class="n">onUpdateMaxRnd</span><span class="p">,</span><span class="w"> </span><span class="n">max_rnd</span><span class="p">,</span><span class="w"> </span><span class="n">zend_pib_globals</span><span class="p">,</span>
+<span class="w">                          </span><span class="n">pib_globals</span><span class="p">,</span><span class="w"> </span><span class="n">MaxRnd</span><span class="p">)</span>
+<span class="n">PHP_INI_END</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>We use this time the <code class="docutils literal notranslate"><span class="pre">_EX()</span></code> macro counter-part to declare our INI setting. This macro accepts as last parameter the
@@ -478,7 +475,7 @@ attached to, and the value PHP wants you to display : <code class="docutils lite
 </pre></div>
 </div>
 <p>If we invoke it with:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="w"> </span><span class="n">php</span><span class="w"> </span><span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">php</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="w"> </span><span class="n">php</span><span class="w"> </span><span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">php</span>
 </pre></div>
 </div>
 <p>Then it displays:</p>
@@ -490,7 +487,7 @@ pib.rnd_max =&gt; ##################################################............
 </pre></div>
 </div>
 <p>And if we invoke it with:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="w"> </span><span class="n">php</span><span class="w"> </span><span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span><span class="w"> </span><span class="o">-</span><span class="n">dpib</span><span class="p">.</span><span class="n">rnd_max</span><span class="o">=</span><span class="mi">10</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">php</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="w"> </span><span class="n">php</span><span class="w"> </span><span class="o">-</span><span class="n">dextension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span><span class="w"> </span><span class="o">-</span><span class="n">dpib</span><span class="p">.</span><span class="n">rnd_max</span><span class="o">=</span><span class="mi">10</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">file</span><span class="p">.</span><span class="n">php</span>
 </pre></div>
 </div>
 <p>Then it displays:</p>

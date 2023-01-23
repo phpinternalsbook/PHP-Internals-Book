@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../_static/style.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -51,7 +48,7 @@ normal PHP file but it contains a number of different sections which run-tests s
 <span class="o">--</span><span class="nx">FILE</span><span class="o">--</span>
 <span class="o">&lt;?</span><span class="nx">php</span>
 <span class="k">echo</span> <span class="s1">&#39;This works &#39;</span><span class="p">,</span> <span class="s1">&#39;and takes args!&#39;</span><span class="p">;</span>
-<span class="cp">?&gt;</span><span class="x"></span>
+<span class="cp">?&gt;</span>
 <span class="x">--EXPECT--</span>
 <span class="x">This works and takes args!</span>
 </pre></div>
@@ -91,7 +88,7 @@ construct can take a list of arguments and concatenate them into standard out.</
 <span class="nv">$x</span> <span class="o">=</span> <span class="nb">json_decode</span><span class="p">(</span><span class="nv">$json</span><span class="p">,</span> <span class="k">false</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="nx">JSON_BIGINT_AS_STRING</span><span class="p">);</span>
 <span class="nb">var_dump</span><span class="p">(</span><span class="nv">$x</span><span class="o">-&gt;</span><span class="na">largenum</span><span class="p">);</span>
 <span class="k">echo</span> <span class="s2">&quot;Done</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
-<span class="cp">?&gt;</span><span class="x"></span>
+<span class="cp">?&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -135,7 +132,7 @@ makes use of the <code class="docutils literal notranslate"><span class="pre">--
 <span class="o">--</span><span class="nx">FILE</span><span class="o">--</span>
 <span class="o">&lt;?</span><span class="nx">php</span>
 <span class="nb">var_dump</span><span class="p">(</span><span class="nb">password_hash</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">PASSWORD_BCRYPT</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span><span class="s2">&quot;cost&quot;</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">)));</span>
-<span class="cp">?&gt;</span><span class="x"></span>
+<span class="cp">?&gt;</span>
 <span class="x">--EXPECTF--</span>
 <span class="x">Warning: password_hash(): Invalid bcrypt cost parameter specified: 3 in %s on line %d</span>
 <span class="x">NULL</span>
@@ -147,7 +144,7 @@ required dependencies that are needed to run a test. The case where this is most
 <p>If a test needs an extension installed in order to run the test will have a <a class="reference external" href="http://qa.php.net/phpt_details.php#skipif_section">–SKIPIF– section</a> which checks that
 the extension is indeed installed.</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="nx">SKIPIF</span><span class="o">--</span>
-<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">extension_loaded</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">))</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;skip ext/json must be installed&#39;</span><span class="p">);</span> <span class="cp">?&gt;</span><span class="x"></span>
+<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">extension_loaded</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">))</span> <span class="k">die</span><span class="p">(</span><span class="s1">&#39;skip ext/json must be installed&#39;</span><span class="p">);</span> <span class="cp">?&gt;</span>
 </pre></div>
 </div>
 <p>Any tests that meet the <code class="docutils literal notranslate"><span class="pre">--SKIPIF--</span></code> condition will be marked as “skipped” by run-tests and continue on to the
@@ -160,13 +157,13 @@ for the word “skip” as the first four characters. If the first word is not �
 <p>In fact, you don’t have to halt execution at all as long as “skip” is the first word of the output.</p>
 <p>The following example will skip a test. Note how we didn’t halt the script execution.</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="nx">SKIPIF</span><span class="o">--</span>
-<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">extension_loaded</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">))</span> <span class="k">echo</span> <span class="s1">&#39;skip&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">extension_loaded</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">))</span> <span class="k">echo</span> <span class="s1">&#39;skip&#39;</span><span class="p">;</span> <span class="cp">?&gt;</span>
 </pre></div>
 </div>
 <p>By contrast, examine the following example. Notice how it halts script execution but since the word “skip” isn’t the
 the first word in the output, run-tests will still happily run the test without skipping it.</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="nx">SKIPIF</span><span class="o">--</span>
-<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">extension_loaded</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">))</span> <span class="k">exit</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="x"></span>
+<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">extension_loaded</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">))</span> <span class="k">exit</span><span class="p">;</span> <span class="cp">?&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -195,7 +192,7 @@ with lots of <code class="docutils literal notranslate"><span class="pre">.phpt<
 engine which are located in <a class="reference external" href="https://github.com/php/php-src/tree/master/Zend/tests">Zend/tests/</a>.</p>
 <p>For this example, we’ll just temporarily create a test in the root <code class="docutils literal notranslate"><span class="pre">php-src</span></code> directory. Create and open a new file
 with your favorite editor.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ vi echo_basic.phpt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span>echo_basic.phpt
 </pre></div>
 </div>
 <div class="admonition note">
@@ -212,34 +209,34 @@ scrolling around.</p>
 <span class="o">--</span><span class="nx">FILE</span><span class="o">--</span>
 <span class="o">&lt;?</span><span class="nx">php</span>
 <span class="k">echo</span> <span class="s1">&#39;This works &#39;</span><span class="p">,</span> <span class="s1">&#39;and takes args!&#39;</span><span class="p">;</span>
-<span class="cp">?&gt;</span><span class="x"></span>
+<span class="cp">?&gt;</span>
 <span class="x">--EXPECT--</span>
 <span class="x">This works and takes args!</span>
 </pre></div>
 </div>
 <p>After you save the file as <code class="docutils literal notranslate"><span class="pre">echo_basic.phpt</span></code> in the root of the PHP source code and exit your editor, run the example
 test with make.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>echo_basic.phpt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="nv">TESTS</span><span class="o">=</span>echo_basic.phpt
 </pre></div>
 </div>
 <p>If everything worked, you’ll see the following passing test summary.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">=====================================================================</span>
-Running selected tests.
-PASS <span class="nb">echo</span> - basic <span class="nb">test</span> <span class="k">for</span> <span class="nb">echo</span> language construct <span class="o">[</span>echo_basic.phpt<span class="o">]</span>
+Running<span class="w"> </span>selected<span class="w"> </span>tests.
+PASS<span class="w"> </span><span class="nb">echo</span><span class="w"> </span>-<span class="w"> </span>basic<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>language<span class="w"> </span>construct<span class="w"> </span><span class="o">[</span>echo_basic.phpt<span class="o">]</span>
 <span class="o">=====================================================================</span>
-Number of tests :    <span class="m">1</span>                 <span class="m">1</span>
-Tests skipped   :    <span class="m">0</span> <span class="o">(</span>  <span class="m">0</span>.0%<span class="o">)</span> --------
-Tests warned    :    <span class="m">0</span> <span class="o">(</span>  <span class="m">0</span>.0%<span class="o">)</span> <span class="o">(</span>  <span class="m">0</span>.0%<span class="o">)</span>
-Tests failed    :    <span class="m">0</span> <span class="o">(</span>  <span class="m">0</span>.0%<span class="o">)</span> <span class="o">(</span>  <span class="m">0</span>.0%<span class="o">)</span>
-Expected fail   :    <span class="m">0</span> <span class="o">(</span>  <span class="m">0</span>.0%<span class="o">)</span> <span class="o">(</span>  <span class="m">0</span>.0%<span class="o">)</span>
-Tests passed    :    <span class="m">1</span> <span class="o">(</span><span class="m">100</span>.0%<span class="o">)</span> <span class="o">(</span><span class="m">100</span>.0%<span class="o">)</span>
+Number<span class="w"> </span>of<span class="w"> </span>tests<span class="w"> </span>:<span class="w">    </span><span class="m">1</span><span class="w">                 </span><span class="m">1</span>
+Tests<span class="w"> </span>skipped<span class="w">   </span>:<span class="w">    </span><span class="m">0</span><span class="w"> </span><span class="o">(</span><span class="w">  </span><span class="m">0</span>.0%<span class="o">)</span><span class="w"> </span>--------
+Tests<span class="w"> </span>warned<span class="w">    </span>:<span class="w">    </span><span class="m">0</span><span class="w"> </span><span class="o">(</span><span class="w">  </span><span class="m">0</span>.0%<span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="w">  </span><span class="m">0</span>.0%<span class="o">)</span>
+Tests<span class="w"> </span>failed<span class="w">    </span>:<span class="w">    </span><span class="m">0</span><span class="w"> </span><span class="o">(</span><span class="w">  </span><span class="m">0</span>.0%<span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="w">  </span><span class="m">0</span>.0%<span class="o">)</span>
+Expected<span class="w"> </span>fail<span class="w">   </span>:<span class="w">    </span><span class="m">0</span><span class="w"> </span><span class="o">(</span><span class="w">  </span><span class="m">0</span>.0%<span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="w">  </span><span class="m">0</span>.0%<span class="o">)</span>
+Tests<span class="w"> </span>passed<span class="w">    </span>:<span class="w">    </span><span class="m">1</span><span class="w"> </span><span class="o">(</span><span class="m">100</span>.0%<span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="m">100</span>.0%<span class="o">)</span>
 ---------------------------------------------------------------------
-Time taken      :    <span class="m">0</span> <span class="nv">seconds</span>
+Time<span class="w"> </span>taken<span class="w">      </span>:<span class="w">    </span><span class="m">0</span><span class="w"> </span><span class="nv">seconds</span>
 <span class="o">=====================================================================</span>
 </pre></div>
 </div>
 <p>Notice how text from the <code class="docutils literal notranslate"><span class="pre">--TEST--</span></code> section of the test is being displayed in the console:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>PASS <span class="nb">echo</span> - basic <span class="nb">test</span> <span class="k">for</span> <span class="nb">echo</span> language construct <span class="o">[</span>echo_basic.phpt<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>PASS<span class="w"> </span><span class="nb">echo</span><span class="w"> </span>-<span class="w"> </span>basic<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>language<span class="w"> </span>construct<span class="w"> </span><span class="o">[</span>echo_basic.phpt<span class="o">]</span>
 </pre></div>
 </div>
 <p>To illustrate the point that black-box testing only cares about the output, let’s change the PHP code in the
@@ -248,11 +245,11 @@ Time taken      :    <span class="m">0</span> <span class="nv">seconds</span>
 <span class="k">const</span> <span class="no">BANG</span> <span class="o">=</span> <span class="s1">&#39;!&#39;</span><span class="p">;</span>
 <span class="k">class</span> <span class="nc">works</span> <span class="p">{}</span>
 <span class="k">echo</span> <span class="nb">sprintf</span><span class="p">(</span><span class="s1">&#39;This %s and takes args%s&#39;</span><span class="p">,</span> <span class="nx">works</span><span class="o">::</span><span class="na">class</span><span class="p">,</span> <span class="nx">BANG</span><span class="p">);</span>
-<span class="cp">?&gt;</span><span class="x"></span>
+<span class="cp">?&gt;</span>
 </pre></div>
 </div>
 <p>Now let’s run the test again.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>echo_basic.phpt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="nv">TESTS</span><span class="o">=</span>echo_basic.phpt
 </pre></div>
 </div>
 <p>The test should still pass because the expected output is still the same as it was before. Let’s try another example.
@@ -261,7 +258,7 @@ Replace the PHP code in the <code class="docutils literal notranslate"><span cla
 <span class="nv">$url</span> <span class="o">=</span> <span class="s1">&#39;https://gist.githubusercontent.com/SammyK/9c7bf6acdc5bcaa2cfbb404adc61abe6/&#39;</span><span class="p">;</span>
 <span class="nv">$url</span> <span class="o">.=</span> <span class="s1">&#39;raw/04af30473fc78033f7d8941ecd567934b0f804c0/foo-phpt-output.txt&#39;</span><span class="p">;</span>
 <span class="k">echo</span> <span class="nb">file_get_contents</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
-<span class="cp">?&gt;</span><span class="x"></span>
+<span class="cp">?&gt;</span>
 </pre></div>
 </div>
 <p>Although this one looks obscure, I set up a <a class="reference external" href="https://gist.githubusercontent.com/SammyK/9c7bf6acdc5bcaa2cfbb404adc61abe6/raw/04af30473fc78033f7d8941ecd567934b0f804c0/foo-phpt-output.txt">Gist with the expected output</a> and we’re just dumping the body of an HTTP
@@ -284,7 +281,7 @@ extension installed since the Gist is behind https.</p>
 <span class="k">echo</span> <span class="s1">&#39;This works &#39;</span><span class="p">;</span>
 <span class="nb">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
 <span class="k">echo</span> <span class="nv">$foo</span><span class="p">;</span>
-<span class="cp">?&gt;</span><span class="x"></span>
+<span class="cp">?&gt;</span>
 </pre></div>
 </div>
 <p>Crazy, right? This will take a few seconds just to output a simple string and you’d never do this in real life, but the

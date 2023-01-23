@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -54,25 +51,25 @@ shared objects can be created by explicitly passing <code class="docutils litera
 the <code class="docutils literal notranslate"><span class="pre">extension_dir</span></code> setting. (Relative paths for <code class="docutils literal notranslate"><span class="pre">zend_extension</span></code> are only available as of PHP 5.5, previously you
 always had to use an absolute path.)</p>
 <p>As an example, consider a PHP build compiled using this configure line:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; ./configure --prefix<span class="o">=</span><span class="nv">$HOME</span>/myphp <span class="se">\</span>
-                       --enable-debug --enable-maintainer-zts <span class="se">\</span>
-                       --enable-opcache --with-gmp<span class="o">=</span>shared
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>./configure<span class="w"> </span>--prefix<span class="o">=</span><span class="nv">$HOME</span>/myphp<span class="w"> </span><span class="se">\</span>
+<span class="w">                       </span>--enable-debug<span class="w"> </span>--enable-maintainer-zts<span class="w"> </span><span class="se">\</span>
+<span class="w">                       </span>--enable-opcache<span class="w"> </span>--with-gmp<span class="o">=</span>shared
 </pre></div>
 </div>
 <p>In this case both the opcache extension and GMP extension are compiled into shared objects located in the <code class="docutils literal notranslate"><span class="pre">modules/</span></code>
 directory. You can load both either by changing the <code class="docutils literal notranslate"><span class="pre">extension_dir</span></code> or by passing absolute paths:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php -dzend_extension<span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/modules/opcache.so <span class="se">\</span>
-                        -dextension<span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/modules/gmp.so
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>sapi/cli/php<span class="w"> </span>-dzend_extension<span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/modules/opcache.so<span class="w"> </span><span class="se">\</span>
+<span class="w">                        </span>-dextension<span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/modules/gmp.so
 <span class="c1"># or</span>
-~/php-src&gt; sapi/cli/php -dextension_dir<span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/modules <span class="se">\</span>
-                        -dzend_extension<span class="o">=</span>opcache.so -dextension<span class="o">=</span>gmp.so
+~/php-src&gt;<span class="w"> </span>sapi/cli/php<span class="w"> </span>-dextension_dir<span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/modules<span class="w"> </span><span class="se">\</span>
+<span class="w">                        </span>-dzend_extension<span class="o">=</span>opcache.so<span class="w"> </span>-dextension<span class="o">=</span>gmp.so
 </pre></div>
 </div>
 <p>During the <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> step both <code class="docutils literal notranslate"><span class="pre">.so</span></code> files will be moved into the extension directory of your PHP installation,
 which you may find using the <code class="docutils literal notranslate"><span class="pre">php-config</span> <span class="pre">--extension-dir</span></code> command. For the above build options it will be
 <code class="docutils literal notranslate"><span class="pre">/home/myuser/myphp/lib/php/extensions/no-debug-non-zts-MODULE_API</span></code>. This value will also be the default of the
 <code class="docutils literal notranslate"><span class="pre">extension_dir</span></code> ini option, so you won’t have to specify it explicitly and can load the extensions directly:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp&gt; bin/php -dzend_extension<span class="o">=</span>opcache.so -dextension<span class="o">=</span>gmp.so
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp&gt;<span class="w"> </span>bin/php<span class="w"> </span>-dzend_extension<span class="o">=</span>opcache.so<span class="w"> </span>-dextension<span class="o">=</span>gmp.so
 </pre></div>
 </div>
 <p>This leaves us with one question: Which mechanism should you use? Shared objects allow you to have a base PHP binary and
@@ -99,7 +96,7 @@ with PHP were previously PECL extensions.</p>
 <p>Unless you specified <code class="docutils literal notranslate"><span class="pre">--without-pear</span></code> during the configuration stage of your PHP build, <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> will download
 and install PECL as a part of PEAR. You will find the <code class="docutils literal notranslate"><span class="pre">pecl</span></code> script in the <code class="docutils literal notranslate"><span class="pre">$PREFIX/bin</span></code> directory. Installing
 extensions is now as simple as running <code class="docutils literal notranslate"><span class="pre">pecl</span> <span class="pre">install</span> <span class="pre">EXTNAME</span></code>, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp&gt; bin/pecl install apcu-4.0.2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp&gt;<span class="w"> </span>bin/pecl<span class="w"> </span>install<span class="w"> </span>apcu-4.0.2
 </pre></div>
 </div>
 <p>This command will download, compile and install the <a class="reference external" href="http://pecl.php.net/package/APCu">APCu</a> extension. The result will be a <code class="docutils literal notranslate"><span class="pre">apcu.so</span></code> file in your
@@ -115,27 +112,27 @@ build an external extension simply by copying it into the PHP source tree and th
 We’ll demonstrate this using APCu as an example.</p>
 <p>First of all, you’ll have to place the source code of the extension into the <code class="docutils literal notranslate"><span class="pre">ext/EXTNAME</span></code> directory of your PHP
 source tree. If the extension is available via git, this is as simple as cloning the repository from within <code class="docutils literal notranslate"><span class="pre">ext/</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src/ext&gt; git clone https://github.com/krakjoe/apcu.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src/ext&gt;<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/krakjoe/apcu.git
 </pre></div>
 </div>
 <p>Alternatively you can also download a source tarball and extract it:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/tmp&gt; wget http://pecl.php.net/get/apcu-4.0.2.tgz
-/tmp&gt; tar xzf apcu-4.0.2.tgz
-/tmp&gt; mkdir ~/php-src/ext/apcu
-/tmp&gt; cp -r apcu-4.0.2/. ~/php-src/ext/apcu
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/tmp&gt;<span class="w"> </span>wget<span class="w"> </span>http://pecl.php.net/get/apcu-4.0.2.tgz
+/tmp&gt;<span class="w"> </span>tar<span class="w"> </span>xzf<span class="w"> </span>apcu-4.0.2.tgz
+/tmp&gt;<span class="w"> </span>mkdir<span class="w"> </span>~/php-src/ext/apcu
+/tmp&gt;<span class="w"> </span>cp<span class="w"> </span>-r<span class="w"> </span>apcu-4.0.2/.<span class="w"> </span>~/php-src/ext/apcu
 </pre></div>
 </div>
 <p>The extension will contain a <code class="docutils literal notranslate"><span class="pre">config.m4</span></code> file, which specifies extension-specific build instructions for use by
 autoconf. To incorporate them into the <code class="docutils literal notranslate"><span class="pre">./configure</span></code> script, you’ll have to run <code class="docutils literal notranslate"><span class="pre">./buildconf</span></code> again. To ensure that
 the configure file is really regenerated, it is recommended to delete it beforehand:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; rm configure <span class="o">&amp;&amp;</span> ./buildconf --force
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>rm<span class="w"> </span>configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./buildconf<span class="w"> </span>--force
 </pre></div>
 </div>
 <p>You can now use the <code class="docutils literal notranslate"><span class="pre">./config.nice</span></code> script to add APCu to your existing configuration or start over with a completely
 new configure line:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; ./config.nice --enable-apcu
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>./config.nice<span class="w"> </span>--enable-apcu
 <span class="c1"># or</span>
-~/php-src&gt; ./configure --enable-apcu <span class="c1"># --other-options</span>
+~/php-src&gt;<span class="w"> </span>./configure<span class="w"> </span>--enable-apcu<span class="w"> </span><span class="c1"># --other-options</span>
 </pre></div>
 </div>
 <p>Finally run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">-jN</span></code> to perform the actual build. As we didn’t use <code class="docutils literal notranslate"><span class="pre">--enable-apcu=shared</span></code> the extension is
@@ -153,14 +150,14 @@ build instructions) and <code class="docutils literal notranslate"><span class="
 <p>Then <code class="docutils literal notranslate"><span class="pre">phpize</span></code> will invoke autoconf to generate a <code class="docutils literal notranslate"><span class="pre">./configure</span></code> file, which can be used to customize the extension
 build. Note that it is not necessary to pass <code class="docutils literal notranslate"><span class="pre">--enable-apcu</span></code> to it, as this is implicitly assumed. Instead you should
 use <code class="docutils literal notranslate"><span class="pre">--with-php-config</span></code> to specify the path to your <code class="docutils literal notranslate"><span class="pre">php-config</span></code> script:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/tmp/apcu-4.0.2&gt; ~/myphp/bin/phpize
-Configuring <span class="k">for</span>:
-PHP Api Version:         <span class="m">20121113</span>
-Zend Module Api No:      <span class="m">20121113</span>
-Zend Extension Api No:   <span class="m">220121113</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/tmp/apcu-4.0.2&gt;<span class="w"> </span>~/myphp/bin/phpize
+Configuring<span class="w"> </span><span class="k">for</span>:
+PHP<span class="w"> </span>Api<span class="w"> </span>Version:<span class="w">         </span><span class="m">20121113</span>
+Zend<span class="w"> </span>Module<span class="w"> </span>Api<span class="w"> </span>No:<span class="w">      </span><span class="m">20121113</span>
+Zend<span class="w"> </span>Extension<span class="w"> </span>Api<span class="w"> </span>No:<span class="w">   </span><span class="m">220121113</span>
 
-/tmp/apcu-4.0.2&gt; ./configure --with-php-config<span class="o">=</span><span class="nv">$HOME</span>/myphp/bin/php-config
-/tmp/apcu-4.0.2&gt; make -jN <span class="o">&amp;&amp;</span> make install
+/tmp/apcu-4.0.2&gt;<span class="w"> </span>./configure<span class="w"> </span>--with-php-config<span class="o">=</span><span class="nv">$HOME</span>/myphp/bin/php-config
+/tmp/apcu-4.0.2&gt;<span class="w"> </span>make<span class="w"> </span>-jN<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>install
 </pre></div>
 </div>
 <p>You should always specify the <code class="docutils literal notranslate"><span class="pre">--with-php-config</span></code> option when building extensions (unless you have only a single,
@@ -178,31 +175,31 @@ the extension, should the incremental build fail after a change. Additionally ph
 <h2>Displaying information about extensions<a class="headerlink" href="#displaying-information-about-extensions" title="Permalink to this heading">¶</a></h2>
 <p>The PHP CLI binary provides several options to display information about extensions. You already know <code class="docutils literal notranslate"><span class="pre">-m</span></code>, which will
 list all loaded extensions. You can use it to verify that an extension was loaded correctly:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp/bin&gt; ./php -dextension<span class="o">=</span>apcu.so -m <span class="p">|</span> grep apcu
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp/bin&gt;<span class="w"> </span>./php<span class="w"> </span>-dextension<span class="o">=</span>apcu.so<span class="w"> </span>-m<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>apcu
 apcu
 </pre></div>
 </div>
 <p>There are several further switches beginning with <code class="docutils literal notranslate"><span class="pre">--r</span></code> that expose Reflection functionality. For example you can use
 <code class="docutils literal notranslate"><span class="pre">--ri</span></code> to display the configuration of an extension:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp/bin&gt; ./php -dextension<span class="o">=</span>apcu.so --ri apcu
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp/bin&gt;<span class="w"> </span>./php<span class="w"> </span>-dextension<span class="o">=</span>apcu.so<span class="w"> </span>--ri<span class="w"> </span>apcu
 apcu
 
-APCu <span class="nv">Support</span> <span class="o">=</span>&gt; disabled
-<span class="nv">Version</span> <span class="o">=</span>&gt; <span class="m">4</span>.0.2
-APCu <span class="nv">Debugging</span> <span class="o">=</span>&gt; Disabled
-MMAP <span class="nv">Support</span> <span class="o">=</span>&gt; Enabled
-MMAP File <span class="nv">Mask</span> <span class="o">=</span>&gt;
-Serialization <span class="nv">Support</span> <span class="o">=</span>&gt; broken
-<span class="nv">Revision</span> <span class="o">=</span>&gt; <span class="nv">$Revision</span>: <span class="m">328290</span> $
-Build <span class="nv">Date</span> <span class="o">=</span>&gt; Jan  <span class="m">1</span> <span class="m">2014</span> <span class="m">16</span>:40:00
+APCu<span class="w"> </span><span class="nv">Support</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>disabled
+<span class="nv">Version</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="m">4</span>.0.2
+APCu<span class="w"> </span><span class="nv">Debugging</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>Disabled
+MMAP<span class="w"> </span><span class="nv">Support</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>Enabled
+MMAP<span class="w"> </span>File<span class="w"> </span><span class="nv">Mask</span><span class="w"> </span><span class="o">=</span>&gt;
+Serialization<span class="w"> </span><span class="nv">Support</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>broken
+<span class="nv">Revision</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="nv">$Revision</span>:<span class="w"> </span><span class="m">328290</span><span class="w"> </span>$
+Build<span class="w"> </span><span class="nv">Date</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>Jan<span class="w">  </span><span class="m">1</span><span class="w"> </span><span class="m">2014</span><span class="w"> </span><span class="m">16</span>:40:00
 
-<span class="nv">Directive</span> <span class="o">=</span>&gt; Local <span class="nv">Value</span> <span class="o">=</span>&gt; Master Value
-apc.enabled <span class="o">=</span>&gt; <span class="nv">On</span> <span class="o">=</span>&gt; On
-apc.shm_segments <span class="o">=</span>&gt; <span class="nv">1</span> <span class="o">=</span>&gt; <span class="m">1</span>
-apc.shm_size <span class="o">=</span>&gt; <span class="nv">32M</span> <span class="o">=</span>&gt; 32M
-apc.entries_hint <span class="o">=</span>&gt; <span class="nv">4096</span> <span class="o">=</span>&gt; <span class="m">4096</span>
-apc.gc_ttl <span class="o">=</span>&gt; <span class="nv">3600</span> <span class="o">=</span>&gt; <span class="m">3600</span>
-apc.ttl <span class="o">=</span>&gt; <span class="nv">0</span> <span class="o">=</span>&gt; <span class="m">0</span>
+<span class="nv">Directive</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>Local<span class="w"> </span><span class="nv">Value</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>Master<span class="w"> </span>Value
+apc.enabled<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="nv">On</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>On
+apc.shm_segments<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="nv">1</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="m">1</span>
+apc.shm_size<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="nv">32M</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>32M
+apc.entries_hint<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="nv">4096</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="m">4096</span>
+apc.gc_ttl<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="nv">3600</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="m">3600</span>
+apc.ttl<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="nv">0</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span><span class="m">0</span>
 <span class="c1"># ...</span>
 </pre></div>
 </div>
@@ -238,8 +235,8 @@ Extension [ &lt;persistent&gt; extension #27 apcu version 4.0.2 ] {
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">--re</span></code> switch only works for normal extensions, Zend extensions use <code class="docutils literal notranslate"><span class="pre">--rz</span></code> instead. You can try this on
 opcache:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp/bin&gt; ./php -dzend_extension<span class="o">=</span>opcache.so --rz <span class="s2">&quot;Zend OPcache&quot;</span>
-Zend Extension <span class="o">[</span> Zend OPcache <span class="m">7</span>.0.3-dev Copyright <span class="o">(</span>c<span class="o">)</span> <span class="m">1999</span>-2013 by Zend Technologies &lt;http://www.zend.com/&gt; <span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp/bin&gt;<span class="w"> </span>./php<span class="w"> </span>-dzend_extension<span class="o">=</span>opcache.so<span class="w"> </span>--rz<span class="w"> </span><span class="s2">&quot;Zend OPcache&quot;</span>
+Zend<span class="w"> </span>Extension<span class="w"> </span><span class="o">[</span><span class="w"> </span>Zend<span class="w"> </span>OPcache<span class="w"> </span><span class="m">7</span>.0.3-dev<span class="w"> </span>Copyright<span class="w"> </span><span class="o">(</span>c<span class="o">)</span><span class="w"> </span><span class="m">1999</span>-2013<span class="w"> </span>by<span class="w"> </span>Zend<span class="w"> </span>Technologies<span class="w"> </span>&lt;http://www.zend.com/&gt;<span class="w"> </span><span class="o">]</span>
 </pre></div>
 </div>
 <p>As you can see, this doesn’t display any useful information. The reason is that opcache registers both a normal

@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -81,17 +78,17 @@ example of how this linked list could look like for the elements <code class="do
 <h2>The HashTable and Bucket structures<a class="headerlink" href="#the-hashtable-and-bucket-structures" title="Permalink to this heading">¶</a></h2>
 <p>To implement hashtables PHP uses two structures, which can be found in the <code class="docutils literal notranslate"><span class="pre">zend_hash.h</span></code> file. We’ll first have a look
 at the <code class="docutils literal notranslate"><span class="pre">Bucket</span></code> struct:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ulong</span><span class="w"> </span><span class="n">h</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">nKeyLength</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">pData</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">pDataPtr</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pListNext</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pListLast</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pNext</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pLast</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">arKey</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">Bucket</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ulong</span><span class="w"> </span><span class="n">h</span><span class="p">;</span>
+<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">nKeyLength</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">pData</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">pDataPtr</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pListNext</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pListLast</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pNext</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pLast</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">arKey</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">Bucket</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>You already know what the <code class="docutils literal notranslate"><span class="pre">pNext</span></code>, <code class="docutils literal notranslate"><span class="pre">pLast</span></code>, <code class="docutils literal notranslate"><span class="pre">pListNext</span></code> and <code class="docutils literal notranslate"><span class="pre">pListLast</span></code> pointers are for. Let’s quickly go
@@ -104,23 +101,23 @@ function, rather it will be a copy of it (which is allocated separately from the
 inefficient when the stored value is a pointer PHP employs a small trick: Instead of storing the pointer in a separate
 allocation it is put into the <code class="docutils literal notranslate"><span class="pre">pDataPtr</span></code> member. <code class="docutils literal notranslate"><span class="pre">pData</span></code> then points to that member (<code class="docutils literal notranslate"><span class="pre">pData</span> <span class="pre">=</span> <span class="pre">&amp;pDataPtr</span></code>).</p>
 <p>Let’s have a look at the main <code class="docutils literal notranslate"><span class="pre">HashTable</span></code> struct now:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_hashtable</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">nTableSize</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">nTableMask</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">nNumOfElements</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">ulong</span><span class="w"> </span><span class="n">nNextFreeElement</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">Bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pInternalPointer</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">Bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pListHead</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">Bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pListTail</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">Bucket</span><span class="w"> </span><span class="o">**</span><span class="n">arBuckets</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">dtor_func_t</span><span class="w"> </span><span class="n">pDestructor</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">persistent</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">nApplyCount</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">bApplyProtection</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_hashtable</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">nTableSize</span><span class="p">;</span>
+<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">nTableMask</span><span class="p">;</span>
+<span class="w">    </span><span class="n">uint</span><span class="w"> </span><span class="n">nNumOfElements</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ulong</span><span class="w"> </span><span class="n">nNextFreeElement</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pInternalPointer</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pListHead</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Bucket</span><span class="w"> </span><span class="o">*</span><span class="n">pListTail</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Bucket</span><span class="w"> </span><span class="o">**</span><span class="n">arBuckets</span><span class="p">;</span>
+<span class="w">    </span><span class="n">dtor_func_t</span><span class="w"> </span><span class="n">pDestructor</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">persistent</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">nApplyCount</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_bool</span><span class="w"> </span><span class="n">bApplyProtection</span><span class="p">;</span>
 <span class="cp">#if ZEND_DEBUG</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">inconsistent</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">inconsistent</span><span class="p">;</span>
 <span class="cp">#endif</span>
-<span class="p">}</span><span class="w"> </span><span class="n">HashTable</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">HashTable</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>You already know that <code class="docutils literal notranslate"><span class="pre">arBuckets</span></code> is the C array that contains the linked bucket lists and is indexed by the hash of

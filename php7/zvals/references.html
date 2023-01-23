@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -81,11 +78,11 @@ which means we wouldn’t have a chance to drop the reference even if we wanted 
 <section id="representation">
 <h2>Representation<a class="headerlink" href="#representation" title="Permalink to this heading">¶</a></h2>
 <p>References are represented using an <code class="docutils literal notranslate"><span class="pre">IS_REFERENCE</span></code> zval that points to a <code class="docutils literal notranslate"><span class="pre">zend_reference</span></code> structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_reference</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_refcounted_h</span><span class="w">              </span><span class="n">gc</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w">                           </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_property_info_source_list</span><span class="w"> </span><span class="n">sources</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_reference</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_refcounted_h</span><span class="w">              </span><span class="n">gc</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zval</span><span class="w">                           </span><span class="n">val</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_property_info_source_list</span><span class="w"> </span><span class="n">sources</span><span class="p">;</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>Zvals themselves do not have a reference count, and cannot be shared. The <code class="docutils literal notranslate"><span class="pre">zend_reference</span></code> structure essentially
@@ -115,29 +112,29 @@ this.</p>
 <h2>Initializing references<a class="headerlink" href="#initializing-references" title="Permalink to this heading">¶</a></h2>
 <p>Just like other zvals, references are initialized through a set of macros. The most basic one accepts an already
 created <code class="docutils literal notranslate"><span class="pre">zend_reference</span></code> pointer:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">ref</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_REF</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="n">zend_reference_ptr</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">ref</span><span class="p">;</span>
+<span class="n">ZVAL_REF</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="n">zend_reference_ptr</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>To create a reference from scratch, <code class="docutils literal notranslate"><span class="pre">ZVAL_NEW_REF()</span></code> can be used:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">ref</span><span class="p">;</span><span class="w"></span>
-<span class="n">zval</span><span class="w"> </span><span class="n">initial_val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">initial_val</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_NEW_REF</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">initial_val</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">ref</span><span class="p">;</span>
+<span class="n">zval</span><span class="w"> </span><span class="n">initial_val</span><span class="p">;</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">initial_val</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">);</span>
+<span class="n">ZVAL_NEW_REF</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">initial_val</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This macro accepts an initial value for the reference. Note that it is <em>moved</em> into the reference using
 <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code>, the refcount is not incremented. Alternatively, <code class="docutils literal notranslate"><span class="pre">ZVAL_NEW_EMPTY_REF()</span></code> leaves the value
 uninitialized:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">ref</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_NEW_EMPTY_REF</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ref</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">Z_REFVAL</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">ref</span><span class="p">;</span>
+<span class="n">ZVAL_NEW_EMPTY_REF</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ref</span><span class="p">);</span>
+<span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">Z_REFVAL</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Here we create an empty reference and then initialize the reference value <code class="docutils literal notranslate"><span class="pre">Z_REFVAL(ref)</span></code> directly. Finally,
 <code class="docutils literal notranslate"><span class="pre">ZVAL_MAKE_REF()</span></code> can be used to promote an existing zval into a reference:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_MAKE_REF</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span>
+<span class="n">ZVAL_MAKE_REF</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>If <code class="docutils literal notranslate"><span class="pre">zv</span></code> was already a reference, this does nothing. It if wasn’t a reference yet, this will change <code class="docutils literal notranslate"><span class="pre">zv</span></code> into a
@@ -147,22 +144,22 @@ reference and set its initial value to the old value of <code class="docutils li
 <h2>Dereferencing and unwrapping<a class="headerlink" href="#dereferencing-and-unwrapping" title="Permalink to this heading">¶</a></h2>
 <p>Most code does not want to handle references in any special way, and simply want to look through to the underlying
 value:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span><span class="w"></span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_ISREF_P</span><span class="p">(</span><span class="n">zv</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_REFVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_ISREF_P</span><span class="p">(</span><span class="n">zv</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_REFVAL_P</span><span class="p">(</span><span class="n">zv</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>If the value is a reference (<code class="docutils literal notranslate"><span class="pre">Z_ISREF</span></code>), we switch to looking at the value it contains. This operation is called
 “dereferencing” and is more compactly written as <code class="docutils literal notranslate"><span class="pre">ZVAL_DEREF(zv)</span></code>. It is extremely common and should be applied
 essentially at any point where reference zvals might occur. For example, this is how a typical loop over an array
 might look like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZEND_HASH_FOREACH_VAL</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZVAL_DEREF</span><span class="p">(</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZEND_HASH_FOREACH_VAL</span><span class="p">(</span><span class="n">ht</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ZVAL_DEREF</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Do something with val, now a guaranteed non-reference. */</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">ZEND_HASH_FOREACH_END</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Do something with val, now a guaranteed non-reference. */</span>
+<span class="p">}</span><span class="w"> </span><span class="n">ZEND_HASH_FOREACH_END</span><span class="p">();</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_DEREF(target,</span> <span class="pre">source)</span></code> macro is a combined form of <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY</span></code> and <code class="docutils literal notranslate"><span class="pre">ZVAL_DEREF</span></code>. It copies the
@@ -170,14 +167,14 @@ dereferenced value of <code class="docutils literal notranslate"><span class="pr
 <p>Dereferencing simply moves a pointer from the outer to the inner zval, without changing either. It is also possible
 to actually remove the reference wrapper by performing an unwrap. It is probably easiest to understand this operation
 by looking at its implementation:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_always_inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zend_unwrap_reference</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">op</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">ZVAL_UNREF</span><span class="p">(</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">op</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="n">Z_REFVAL_P</span><span class="p">(</span><span class="n">op</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_always_inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zend_unwrap_reference</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">op</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ZVAL_UNREF</span><span class="p">(</span><span class="n">op</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Z_DELREF_P</span><span class="p">(</span><span class="n">op</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="n">Z_REFVAL_P</span><span class="p">(</span><span class="n">op</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>If the refcount is 1, then the inner value is moved into <code class="docutils literal notranslate"><span class="pre">op</span></code> and the reference wrapper is destroyed. This is what
@@ -189,13 +186,13 @@ destroy the reference (if it has other users), but will remove one particular us
 <h2>Indirect zvals<a class="headerlink" href="#indirect-zvals" title="Permalink to this heading">¶</a></h2>
 <p>Next to references, PHP also has a more direct mechanism to share zvals. The <code class="docutils literal notranslate"><span class="pre">IS_INDIRECT</span></code> type stores a direct
 pointer to another zval:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val1</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val1</span><span class="p">;</span>
+<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val2</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_INDIRECT</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val1</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val2</span><span class="p">;</span>
+<span class="n">ZVAL_INDIRECT</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val1</span><span class="p">);</span>
 
-<span class="n">ZEND_ASSERT</span><span class="p">(</span><span class="n">Z_INDIRECT</span><span class="p">(</span><span class="n">val2</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val1</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZEND_ASSERT</span><span class="p">(</span><span class="n">Z_INDIRECT</span><span class="p">(</span><span class="n">val2</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val1</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>While there is some surface similarity to references, this mechanism is not generally usable, because nothing ensures

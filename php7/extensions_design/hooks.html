@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -58,39 +55,39 @@ within the Zend engine that you can replace with your own implementations.
 The primary use-case for extensions to overwrite this hook is generic
 function-level profiling, debugging and aspect oriented programming.</p>
 <p>The hooks are defined in <code class="docutils literal notranslate"><span class="pre">Zend/zend_execute.h</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zend_execute_ex</span><span class="p">)(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZEND_API</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zend_execute_internal</span><span class="p">)(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">return_value</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zend_execute_ex</span><span class="p">)(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
+<span class="n">ZEND_API</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zend_execute_internal</span><span class="p">)(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">return_value</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>If you want to overwrite these function pointers, then you must do this in
 MINIT, because other decisions inside the Zend Engine are made early based on
 the fact if the pointers are overwritten or not.</p>
 <p>The usual pattern for overwriting is this:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_zend_execute_ex</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_zend_execute_internal</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">return_value</span><span class="p">);</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">my_execute_internal</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">return_value</span><span class="p">);</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">my_execute_ex</span><span class="w"> </span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_zend_execute_ex</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_zend_execute_internal</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">return_value</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">my_execute_internal</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">return_value</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">my_execute_ex</span><span class="w"> </span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">REGISTER_INI_ENTRIES</span><span class="p">();</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">REGISTER_INI_ENTRIES</span><span class="p">();</span>
 
-<span class="w">    </span><span class="n">original_zend_execute_internal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_execute_internal</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_execute_internal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_execute_internal</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">original_zend_execute_internal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_execute_internal</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_execute_internal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_execute_internal</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">original_zend_execute_ex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_execute_ex</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_execute_ex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_execute_ex</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">original_zend_execute_ex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_execute_ex</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_execute_ex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_execute_ex</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_execute_internal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original_zend_execute_internal</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_execute_ex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original_zend_execute_ex</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_execute_internal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original_zend_execute_internal</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_execute_ex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original_zend_execute_ex</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>One downside of overwriting <code class="docutils literal notranslate"><span class="pre">zend_execute_ex</span></code> is that it changes the Zend
@@ -109,46 +106,46 @@ extension functions (and methods). This has much better performance
 characteristics if an extension only needs access to specific internal function
 calls.:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#if PHP_VERSION_ID &lt; 70200</span>
-<span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zif_handler</span><span class="p">)(</span><span class="n">INTERNAL_FUNCTION_PARAMETERS</span><span class="p">);</span><span class="w"></span>
+<span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zif_handler</span><span class="p">)(</span><span class="n">INTERNAL_FUNCTION_PARAMETERS</span><span class="p">);</span>
 <span class="cp">#endif</span>
-<span class="n">zif_handler</span><span class="w"> </span><span class="n">original_handler_var_dump</span><span class="p">;</span><span class="w"></span>
+<span class="n">zif_handler</span><span class="w"> </span><span class="n">original_handler_var_dump</span><span class="p">;</span>
 
-<span class="n">ZEND_NAMED_FUNCTION</span><span class="p">(</span><span class="n">my_overwrite_var_dump</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
+<span class="n">ZEND_NAMED_FUNCTION</span><span class="p">(</span><span class="n">my_overwrite_var_dump</span><span class="p">)</span>
+<span class="p">{</span>
 <span class="w">    </span><span class="c1">// if we want to call the original function</span>
-<span class="w">    </span><span class="n">original_handler_var_dump</span><span class="p">(</span><span class="n">INTERNAL_FUNCTION_PARAM_PASSTHRU</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">original_handler_var_dump</span><span class="p">(</span><span class="n">INTERNAL_FUNCTION_PARAM_PASSTHRU</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
 <span class="w">    </span><span class="c1">// If the ZEND_TSRMLS_CACHE_UPDATE() is in RINIT, move it</span>
 <span class="w">    </span><span class="c1">// to MINIT to ensure access to the compiler globals</span>
 <span class="cp">#if defined(COMPILE_DL_MY_EXTENSION) &amp;&amp; defined(ZTS)</span>
-<span class="w">    </span><span class="n">ZEND_TSRMLS_CACHE_UPDATE</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">ZEND_TSRMLS_CACHE_UPDATE</span><span class="p">();</span>
 <span class="cp">#endif</span>
 
-<span class="w">    </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">original</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">original</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="n">CG</span><span class="p">(</span><span class="n">function_table</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;var_dump&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;var_dump&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="n">CG</span><span class="p">(</span><span class="n">function_table</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;var_dump&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;var_dump&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">original_handler_var_dump</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original</span><span class="o">-&gt;</span><span class="n">internal_function</span><span class="p">.</span><span class="n">handler</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="n">original</span><span class="o">-&gt;</span><span class="n">internal_function</span><span class="p">.</span><span class="n">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_overwrite_var_dump</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">original_handler_var_dump</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original</span><span class="o">-&gt;</span><span class="n">internal_function</span><span class="p">.</span><span class="n">handler</span><span class="p">;</span>
+<span class="w">        </span><span class="n">original</span><span class="o">-&gt;</span><span class="n">internal_function</span><span class="p">.</span><span class="n">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_overwrite_var_dump</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>When overwriting a class method, the function table can be found on the
 <code class="docutils literal notranslate"><span class="pre">zend_class_entry</span></code>.:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="n">CG</span><span class="p">(</span><span class="n">class_table</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;PDO&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;PDO&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span><span class="w"></span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ce</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">function_table</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;exec&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;exec&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="n">CG</span><span class="p">(</span><span class="n">class_table</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;PDO&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;PDO&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ce</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_hash_str_find_ptr</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">function_table</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;exec&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;exec&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">original_handler_pdo_exec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original</span><span class="o">-&gt;</span><span class="n">internal_function</span><span class="p">.</span><span class="n">handler</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="n">original</span><span class="o">-&gt;</span><span class="n">internal_function</span><span class="p">.</span><span class="n">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_overwrite_pdo_exec</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">original_handler_pdo_exec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original</span><span class="o">-&gt;</span><span class="n">internal_function</span><span class="p">.</span><span class="n">handler</span><span class="p">;</span>
+<span class="w">        </span><span class="n">original</span><span class="o">-&gt;</span><span class="n">internal_function</span><span class="p">.</span><span class="n">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_overwrite_pdo_exec</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -173,7 +170,7 @@ weird behavior or crashes.</p>
 <code class="docutils literal notranslate"><span class="pre">include_once</span></code>/<code class="docutils literal notranslate"><span class="pre">require_once</span></code> PHP core calls the function at the pointer
 <code class="docutils literal notranslate"><span class="pre">zend_compile_file</span></code> to handle this request. The argument is a file handle
 and the result is a <code class="docutils literal notranslate"><span class="pre">zend_op_array</span></code>.:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_op_array</span><span class="w"> </span><span class="o">*</span><span class="nf">my_extension_compile_file</span><span class="p">(</span><span class="n">zend_file_handle</span><span class="w"> </span><span class="o">*</span><span class="n">file_handle</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_op_array</span><span class="w"> </span><span class="o">*</span><span class="nf">my_extension_compile_file</span><span class="p">(</span><span class="n">zend_file_handle</span><span class="w"> </span><span class="o">*</span><span class="n">file_handle</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>There are two extensions in PHP core that implement this hook: dtrace and
@@ -207,7 +204,7 @@ will not be called anymore when the script gets cached.</p>
 <h2>Notification when Error Handler is called<a class="headerlink" href="#notification-when-error-handler-is-called" title="Permalink to this heading">¶</a></h2>
 <p>Similar to the PHP userland <code class="docutils literal notranslate"><span class="pre">set_error_handler()</span></code> function, an extension can
 register itself as error handler by implementing the <code class="docutils literal notranslate"><span class="pre">zend_error_cb</span></code> hook.:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="nf">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zend_error_cb</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">error_filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">error_lineno</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="kt">va_list</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="nf">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zend_error_cb</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">error_filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">error_lineno</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="kt">va_list</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">type</span></code> variable corresponds to the <code class="docutils literal notranslate"><span class="pre">E_*</span></code> error constants that are also
@@ -228,27 +225,27 @@ implementation.</p>
 <p>As such overwriting this hook is not very reliable.</p>
 <p>Again overwriting should be done in a way that respects the original handler
 unless you want to completely replace it:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_zend_error_cb</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">error_filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">error_lineno</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="kt">va_list</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_zend_error_cb</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">error_filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">error_lineno</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="kt">va_list</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
 
-<span class="kt">void</span><span class="w"> </span><span class="nf">my_error_cb</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">error_filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">error_lineno</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="kt">va_list</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">my_error_cb</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">error_filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="n">error_lineno</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="kt">va_list</span><span class="w"> </span><span class="n">args</span><span class="p">)</span>
+<span class="p">{</span>
 <span class="w">    </span><span class="c1">// my special error handling here</span>
 
-<span class="w">    </span><span class="n">original_zend_error_cb</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">error_filename</span><span class="p">,</span><span class="w"> </span><span class="n">error_lineno</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">original_zend_error_cb</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">error_filename</span><span class="p">,</span><span class="w"> </span><span class="n">error_lineno</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">original_zend_error_cb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_error_cb</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_error_cb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_error_cb</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">original_zend_error_cb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_error_cb</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_error_cb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_error_cb</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">RETURN</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">RETURN</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MSHUTDOWN</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_error_cb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original_zend_error_cb</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="n">PHP_MSHUTDOWN</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_error_cb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original_zend_error_cb</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This hook is mainly used to implement central exception tracking for Exception
@@ -259,26 +256,26 @@ Tracking or Application Performance Management software.</p>
 <p>Whenever PHP Core or userland code throws an exception the
 <code class="docutils literal notranslate"><span class="pre">zend_throw_exception_hook</span></code> is called with the exception as argument.</p>
 <p>This hooks’ signature is fairly simple:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">my_throw_exception_hook</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">exception</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">original_zend_throw_exception_hook</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">original_zend_throw_exception_hook</span><span class="p">(</span><span class="n">exception</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">my_throw_exception_hook</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">exception</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">original_zend_throw_exception_hook</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">original_zend_throw_exception_hook</span><span class="p">(</span><span class="n">exception</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This hook has no default implementation and points to <code class="docutils literal notranslate"><span class="pre">NULL</span></code> if not
 overwritten by an extension.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_zend_throw_exception_hook</span><span class="p">)(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">ex</span><span class="p">);</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">my_throw_exception_hook</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">exception</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_zend_throw_exception_hook</span><span class="p">)(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">ex</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">my_throw_exception_hook</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">exception</span><span class="p">);</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">original_zend_throw_exception_hook</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_throw_exception_hook</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_throw_exception_hook</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_throw_exception_hook</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">original_zend_throw_exception_hook</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_throw_exception_hook</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_throw_exception_hook</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_throw_exception_hook</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>If you implement this hook be aware that this hook is called regardless of
@@ -297,7 +294,7 @@ overwriting its function pointer.</p>
 <p>Use cases for hooking into eval are not that many, you can use it for profiling
 or for security purposes. If you change its behavior be aware that other extensions
 may need eval. One example is Xdebug that uses it to execute breakpoint conditions.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="n">ZEND_API</span><span class="w"> </span><span class="n">zend_op_array</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">zend_compile_string</span><span class="p">)(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">source_string</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="n">ZEND_API</span><span class="w"> </span><span class="n">zend_op_array</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">zend_compile_string</span><span class="p">)(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">source_string</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">filename</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
@@ -311,20 +308,20 @@ performance, you can overwrite the function pointer hook that performs the
 garbage collection operation. Theoretically you can implement your own garbage
 collection algorithm here, but given other changes to the engine would probably
 be necessary this probably is not really feasible.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_gc_collect_cycles</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_gc_collect_cycles</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
 
-<span class="kt">int</span><span class="w"> </span><span class="nf">my_gc_collect_cycles</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">original_gc_collect_cycles</span><span class="p">();</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">my_gc_collect_cycles</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">original_gc_collect_cycles</span><span class="p">();</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">original_gc_collect_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gc_collect_cycles</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">gc_collect_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_gc_collect_cycles</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">original_gc_collect_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gc_collect_cycles</span><span class="p">;</span>
+<span class="w">    </span><span class="n">gc_collect_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_gc_collect_cycles</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -340,22 +337,22 @@ execution, when it is safer to clean up or to implement your own timeout
 handling. By setting this hook you cannot accidentally disable the timeout check
 of PHP, because it has customized handling that has higher priority than any
 overwrite of <code class="docutils literal notranslate"><span class="pre">zend_interrupt_function</span></code>.</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="nf">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_interrupt_function</span><span class="p">)(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="nf">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">original_interrupt_function</span><span class="p">)(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
 
-<span class="kt">void</span><span class="w"> </span><span class="nf">my_interrupt_function</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">original_interrupt_function</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">original_interrupt_function</span><span class="p">(</span><span class="n">execute_data</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">my_interrupt_function</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">original_interrupt_function</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">original_interrupt_function</span><span class="p">(</span><span class="n">execute_data</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">original_interrupt_function</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_interrupt_function</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_interrupt_function</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_interrupt_function</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">original_interrupt_function</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_interrupt_function</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_interrupt_function</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_interrupt_function</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -366,12 +363,12 @@ to ignore the <code class="docutils literal notranslate"><span class="pre">&#64;
 is only geared up for having <em>one</em> extension defined handler per opcode, which makes it important
 that you as an extension author, take care of handlers already set by other extensions.</p>
 <p>The basic APIs in the engine are:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">zend_set_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">opcode</span><span class="p">,</span><span class="w"> </span><span class="n">user_opcode_handler_t</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span><span class="w"></span>
-<span class="n">user_opcode_handler_t</span><span class="w"> </span><span class="nf">zend_get_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">opcode</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">zend_set_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">opcode</span><span class="p">,</span><span class="w"> </span><span class="n">user_opcode_handler_t</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
+<span class="n">user_opcode_handler_t</span><span class="w"> </span><span class="nf">zend_get_user_opcode_handler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">opcode</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The <cite>user_opcode_handler_t</cite> is a function pointer, and each handler has the following signature <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">my_handler</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">my_handler</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The handler’s return value is important, and a few constants are defined that have a meaning:</p>
@@ -390,52 +387,52 @@ that you as an extension author, take care of handlers already set by other exte
 <p>In the example below, we will override the <code class="docutils literal notranslate"><span class="pre">ZEND_BEGIN_SILENCE</span></code> and <code class="docutils literal notranslate"><span class="pre">ZEND_END_SILENCE</span></code> opcodes which
 are used to implement the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> operator. Based on an extension global (<code class="docutils literal notranslate"><span class="pre">no_silence</span></code>), it will either skip the opcodes
 or let the engine do its normal behaviour:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w">                   </span><span class="n">no_silence</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">user_opcode_handler_t</span><span class="w"> </span><span class="n">original_begin_silence_handler</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">user_opcode_handler_t</span><span class="w"> </span><span class="n">original_end_silence_handler</span><span class="w"></span>
-<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">                   </span><span class="n">no_silence</span><span class="p">;</span>
+<span class="w">    </span><span class="n">user_opcode_handler_t</span><span class="w"> </span><span class="n">original_begin_silence_handler</span><span class="p">;</span>
+<span class="w">    </span><span class="n">user_opcode_handler_t</span><span class="w"> </span><span class="n">original_end_silence_handler</span>
+<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">silence_handler</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">no_silence</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">opline</span><span class="o">++</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ZEND_USER_OPCODE_CONTINUE</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">silence_handler</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">no_silence</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">opline</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ZEND_USER_OPCODE_CONTINUE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="cm">/* We select the handler depending on which opcode this handler is called *for* */</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">opline</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="cm">/* Only call the original handler if it wasn&#39;t NULL */</span><span class="w"></span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* We select the handler depending on which opcode this handler is called *for* */</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">opline</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/* Only call the original handler if it wasn&#39;t NULL */</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">)(</span><span class="n">execute_data</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="cm">/* If the original handler was NULL, instruct the VM to do whatever it needs to */</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ZEND_USER_OPCODE_DISPATCH</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* If the original handler was NULL, instruct the VM to do whatever it needs to */</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ZEND_USER_OPCODE_DISPATCH</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_get_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_get_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_END_SILENCE</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">,</span><span class="w"> </span><span class="n">silence_handler</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_END_SILENCE</span><span class="p">,</span><span class="w"> </span><span class="n">silence_handler</span><span class="p">);</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_get_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">);</span>
+<span class="w">    </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_get_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_END_SILENCE</span><span class="p">);</span>
+<span class="w">    </span><span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">,</span><span class="w"> </span><span class="n">silence_handler</span><span class="p">);</span>
+<span class="w">    </span><span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_END_SILENCE</span><span class="p">,</span><span class="w"> </span><span class="n">silence_handler</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">,</span><span class="w"> </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_END_SILENCE</span><span class="p">,</span><span class="w"> </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">));</span><span class="w"></span>
+<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">my_extension</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_BEGIN_SILENCE</span><span class="p">,</span><span class="w"> </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_begin_silence_handler</span><span class="p">));</span>
+<span class="w">    </span><span class="n">zend_set_user_opcode_handler</span><span class="p">(</span><span class="n">ZEND_END_SILENCE</span><span class="p">,</span><span class="w"> </span><span class="n">MYEXTG</span><span class="p">(</span><span class="n">original_end_silence_handler</span><span class="p">));</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p class="rubric">Footnotes</p>

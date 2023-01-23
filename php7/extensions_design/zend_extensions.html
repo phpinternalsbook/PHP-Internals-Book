@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -76,51 +73,51 @@ against them here. Zend extensions share a very big part of concepts with PHP ex
 </div>
 <p>Here is a Zend extension. Note that you need to publish not one but two structures for the engine to load your Zend
 extension:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Main Zend extension structure */</span><span class="w"></span>
-<span class="k">struct</span><span class="w"> </span><span class="nc">_zend_extension</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Main Zend extension structure */</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">_zend_extension</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">;</span><span class="w">                                           </span><span class="cm">/*</span>
 <span class="cm">    char *version;                                         * Some infos</span>
 <span class="cm">    char *author;                                          *</span>
 <span class="cm">    char *URL;                                             *</span>
-<span class="cm">    char *copyright;                                       */</span><span class="w"></span>
+<span class="cm">    char *copyright;                                       */</span>
 
 <span class="w">    </span><span class="n">startup_func_t</span><span class="w"> </span><span class="n">startup</span><span class="p">;</span><span class="w">                               </span><span class="cm">/*</span>
 <span class="cm">    shutdown_func_t shutdown;                              *  Specific branching lifetime points</span>
 <span class="cm">    activate_func_t activate;                              *  ( Hooks )</span>
-<span class="cm">    deactivate_func_t deactivate;                          */</span><span class="w"></span>
+<span class="cm">    deactivate_func_t deactivate;                          */</span>
 
-<span class="w">    </span><span class="n">message_handler_func_t</span><span class="w"> </span><span class="n">message_handler</span><span class="p">;</span><span class="w">               </span><span class="cm">/* Hook called on zend_extension registration */</span><span class="w"></span>
+<span class="w">    </span><span class="n">message_handler_func_t</span><span class="w"> </span><span class="n">message_handler</span><span class="p">;</span><span class="w">               </span><span class="cm">/* Hook called on zend_extension registration */</span>
 
-<span class="w">    </span><span class="n">op_array_handler_func_t</span><span class="w"> </span><span class="n">op_array_handler</span><span class="p">;</span><span class="w">             </span><span class="cm">/* Hook called just after Zend compilation */</span><span class="w"></span>
+<span class="w">    </span><span class="n">op_array_handler_func_t</span><span class="w"> </span><span class="n">op_array_handler</span><span class="p">;</span><span class="w">             </span><span class="cm">/* Hook called just after Zend compilation */</span>
 
 <span class="w">    </span><span class="n">statement_handler_func_t</span><span class="w"> </span><span class="n">statement_handler</span><span class="p">;</span><span class="w">           </span><span class="cm">/*</span>
 <span class="cm">    fcall_begin_handler_func_t fcall_begin_handler;        *  Hooks called through the Zend VM as specific OPCodes</span>
-<span class="cm">    fcall_end_handler_func_t fcall_end_handler;            */</span><span class="w"></span>
+<span class="cm">    fcall_end_handler_func_t fcall_end_handler;            */</span>
 
-<span class="w">    </span><span class="n">op_array_ctor_func_t</span><span class="w"> </span><span class="n">op_array_ctor</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* Hook called on OPArray construction */</span><span class="w"></span>
-<span class="w">    </span><span class="n">op_array_dtor_func_t</span><span class="w"> </span><span class="n">op_array_dtor</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* Hook called on OPArray destruction */</span><span class="w"></span>
+<span class="w">    </span><span class="n">op_array_ctor_func_t</span><span class="w"> </span><span class="n">op_array_ctor</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* Hook called on OPArray construction */</span>
+<span class="w">    </span><span class="n">op_array_dtor_func_t</span><span class="w"> </span><span class="n">op_array_dtor</span><span class="p">;</span><span class="w">                   </span><span class="cm">/* Hook called on OPArray destruction */</span>
 
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">api_no_check</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">api_no</span><span class="p">);</span><span class="w">                      </span><span class="cm">/* Checks against zend_extension incompatibilities</span>
-<span class="cm">    int (*build_id_check)(const char* build_id);           */</span><span class="w"></span>
+<span class="cm">    int (*build_id_check)(const char* build_id);           */</span>
 
 <span class="w">    </span><span class="n">op_array_persist_calc_func_t</span><span class="w"> </span><span class="n">op_array_persist_calc</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Hooks called if the zend_extension extended the</span>
 <span class="cm">    op_array_persist_func_t op_array_persist;              * OPArray structure and has some SHM data to declare</span>
-<span class="cm">                                                           */</span><span class="w"></span>
+<span class="cm">                                                           */</span>
 
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">reserved5</span><span class="p">;</span><span class="w">                                      </span><span class="cm">/*</span>
 <span class="cm">    void *reserved6;                                       * Do what you want with those free pointers</span>
 <span class="cm">    void *reserved7;                                       *</span>
-<span class="cm">    void *reserved8;                                       */</span><span class="w"></span>
+<span class="cm">    void *reserved8;                                       */</span>
 
-<span class="w">    </span><span class="n">DL_HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span><span class="w">                                     </span><span class="cm">/* dlopen() returned handle */</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">resource_number</span><span class="p">;</span><span class="w">                                  </span><span class="cm">/* internal number used to manage that extension */</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="n">DL_HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span><span class="w">                                     </span><span class="cm">/* dlopen() returned handle */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">resource_number</span><span class="p">;</span><span class="w">                                  </span><span class="cm">/* internal number used to manage that extension */</span>
+<span class="p">};</span>
 
-<span class="cm">/* Structure used when the Zend extension gets loaded into the engine */</span><span class="w"></span>
-<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_extension_version_info</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">zend_extension_api_no</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">build_id</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zend_extension_version_info</span><span class="p">;</span><span class="w"></span>
+<span class="cm">/* Structure used when the Zend extension gets loaded into the engine */</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_extension_version_info</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">zend_extension_api_no</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">build_id</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_extension_version_info</span><span class="p">;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -261,64 +258,64 @@ The hook catches two things : a call to require/include/eval or a call to any fu
 <p>Here is then our skeleton, that we must write ourselves as for Zend extensions, there is no skeleton generator like for
 PHP extensions. The files are called <em>pib.c</em> and <em>php_pib.h</em> , the structure of the files stays the same as for PHP
 extensions, simply we won’t declare in there the same things:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_extensions.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php_pib.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_smart_str.h&quot;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_extensions.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php_pib.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_smart_str.h&quot;</span>
 
 <span class="cm">/* Remember that we must declare such a symbol in a Zend extension. It is used to check</span>
-<span class="cm"> * if it was built against the same API as the one PHP runtime uses */</span><span class="w"></span>
-<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension_version_info</span><span class="w"> </span><span class="n">extension_version_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZEND_EXTENSION_API_NO</span><span class="p">,</span><span class="w"></span>
-<span class="w"> </span><span class="n">ZEND_EXTENSION_BUILD_ID</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="cm"> * if it was built against the same API as the one PHP runtime uses */</span>
+<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension_version_info</span><span class="w"> </span><span class="n">extension_version_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ZEND_EXTENSION_API_NO</span><span class="p">,</span>
+<span class="w"> </span><span class="n">ZEND_EXTENSION_BUILD_ID</span>
+<span class="p">};</span>
 
-<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;pib-zend-extension&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;1.0&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;PHPInternalsBook Authors&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;http://www.phpinternalsbook.com&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;Our Copyright&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                               </span><span class="cm">/* startup() : module startup */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                               </span><span class="cm">/* shutdown() : module shutdown */</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_activate</span><span class="p">,</span><span class="w">        </span><span class="cm">/* activate() : request startup */</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_deactivate</span><span class="p">,</span><span class="w">      </span><span class="cm">/* deactivate() : request shutdown */</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_message_handler</span><span class="p">,</span><span class="w"> </span><span class="cm">/* message_handler() */</span><span class="w"></span>
+<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;pib-zend-extension&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;1.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;PHPInternalsBook Authors&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;http://www.phpinternalsbook.com&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;Our Copyright&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                               </span><span class="cm">/* startup() : module startup */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                               </span><span class="cm">/* shutdown() : module shutdown */</span>
+<span class="w">    </span><span class="n">pib_zend_extension_activate</span><span class="p">,</span><span class="w">        </span><span class="cm">/* activate() : request startup */</span>
+<span class="w">    </span><span class="n">pib_zend_extension_deactivate</span><span class="p">,</span><span class="w">      </span><span class="cm">/* deactivate() : request shutdown */</span>
+<span class="w">    </span><span class="n">pib_zend_extension_message_handler</span><span class="p">,</span><span class="w"> </span><span class="cm">/* message_handler() */</span>
 
-<span class="w">    </span><span class="n">pib_zend_extension_op_array_handler</span><span class="p">,</span><span class="w">      </span><span class="cm">/* compiler op_array_handler() */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                                     </span><span class="cm">/* VM statement_handler() */</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_fcall_begin_handler</span><span class="p">,</span><span class="w">   </span><span class="cm">/* VM fcall_begin_handler() */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                                     </span><span class="cm">/* VM fcall_end_handler() */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                                     </span><span class="cm">/* compiler op_array_ctor() */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                                     </span><span class="cm">/* compiler op_array_dtor() */</span><span class="w"></span>
-<span class="w">    </span><span class="n">STANDARD_ZEND_EXTENSION_PROPERTIES</span><span class="w">        </span><span class="cm">/* Structure-ending macro */</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="n">pib_zend_extension_op_array_handler</span><span class="p">,</span><span class="w">      </span><span class="cm">/* compiler op_array_handler() */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                                     </span><span class="cm">/* VM statement_handler() */</span>
+<span class="w">    </span><span class="n">pib_zend_extension_fcall_begin_handler</span><span class="p">,</span><span class="w">   </span><span class="cm">/* VM fcall_begin_handler() */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                                     </span><span class="cm">/* VM fcall_end_handler() */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                                     </span><span class="cm">/* compiler op_array_ctor() */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w">                                     </span><span class="cm">/* compiler op_array_dtor() */</span>
+<span class="w">    </span><span class="n">STANDARD_ZEND_EXTENSION_PROPERTIES</span><span class="w">        </span><span class="cm">/* Structure-ending macro */</span>
+<span class="p">};</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_deactivate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_deactivate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_message_handler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">code</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_message_handler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">code</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_op_array_handler</span><span class="p">(</span><span class="n">zend_op_array</span><span class="w"> </span><span class="o">*</span><span class="n">op_array</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_op_array_handler</span><span class="p">(</span><span class="n">zend_op_array</span><span class="w"> </span><span class="o">*</span><span class="n">op_array</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_fcall_begin_handler</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_fcall_begin_handler</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
 </pre></div>
 </div>
 <p>So far so good, this extension compiles as a Zend extension, but does nothing. Not really nothing.
 The first lines in the <code class="docutils literal notranslate"><span class="pre">zend_extension</span></code> structure appear in the <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">This</span><span class="w"> </span><span class="n">program</span><span class="w"> </span><span class="n">makes</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Zend</span><span class="w"> </span><span class="n">Scripting</span><span class="w"> </span><span class="n">Language</span><span class="w"> </span><span class="n">Engine</span><span class="o">:</span><span class="w"></span>
-<span class="n">Zend</span><span class="w"> </span><span class="n">Engine</span><span class="w"> </span><span class="n">v3</span><span class="mf">.1.0</span><span class="p">,</span><span class="w"> </span><span class="n">Copyright</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="mi">1998-2017</span><span class="w"> </span><span class="n">Zend</span><span class="w"> </span><span class="n">Technologies</span><span class="w"></span>
-<span class="w">    </span><span class="n">with</span><span class="w"> </span><span class="n">pib</span><span class="o">-</span><span class="n">zend</span><span class="o">-</span><span class="n">extension</span><span class="w"> </span><span class="n">v1</span><span class="mf">.0</span><span class="p">,</span><span class="w"> </span><span class="n">Our</span><span class="w"> </span><span class="n">Copyright</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">PHPInternalsBook</span><span class="w"> </span><span class="n">Authors</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">This</span><span class="w"> </span><span class="n">program</span><span class="w"> </span><span class="n">makes</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Zend</span><span class="w"> </span><span class="n">Scripting</span><span class="w"> </span><span class="n">Language</span><span class="w"> </span><span class="n">Engine</span><span class="o">:</span>
+<span class="n">Zend</span><span class="w"> </span><span class="n">Engine</span><span class="w"> </span><span class="n">v3</span><span class="mf">.1.0</span><span class="p">,</span><span class="w"> </span><span class="n">Copyright</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="mi">1998-2017</span><span class="w"> </span><span class="n">Zend</span><span class="w"> </span><span class="n">Technologies</span>
+<span class="w">    </span><span class="n">with</span><span class="w"> </span><span class="n">pib</span><span class="o">-</span><span class="n">zend</span><span class="o">-</span><span class="n">extension</span><span class="w"> </span><span class="n">v1</span><span class="mf">.0</span><span class="p">,</span><span class="w"> </span><span class="n">Our</span><span class="w"> </span><span class="n">Copyright</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">PHPInternalsBook</span><span class="w"> </span><span class="n">Authors</span>
 </pre></div>
 </div>
 <p>This is mandatory, the engine reacts like this : it prints the first <code class="docutils literal notranslate"><span class="pre">zend_extension</span></code> fields into engine
 information, for every loaded Zend extension.</p>
 <p>That’s all for now. Let’s fill-in those empty-body functions now:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_message_handler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">code</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;We just detected that zend_extension &#39;%s&#39; is trying to load</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">((</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">ext</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_message_handler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">code</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;We just detected that zend_extension &#39;%s&#39; is trying to load</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">((</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">ext</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Like said before, <code class="docutils literal notranslate"><span class="pre">message_handler()</span></code> is a special hook that Zend extensions may declare to be noticed when another
@@ -326,62 +323,62 @@ Zend extension get loaded. But be careful of the order. You must register our �
 another Zend extension (like opcache) after that, as the <code class="docutils literal notranslate"><span class="pre">message_handler()</span></code> is only called when a Zend extension is
 loaded you obviously need to be loaded before to declare it. Chicken and egg.</p>
 <p>Then we’ll start to dive into the engine, with our <code class="docutils literal notranslate"><span class="pre">op_array_handler</span></code> hook:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_op_array_handler</span><span class="p">(</span><span class="n">zend_op_array</span><span class="w"> </span><span class="o">*</span><span class="n">op_array</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">smart_str</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_op_array_handler</span><span class="p">(</span><span class="n">zend_op_array</span><span class="w"> </span><span class="o">*</span><span class="n">op_array</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">smart_str</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 
-<span class="w">    </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;We just compiled &quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;We just compiled &quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">function_name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">num_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">num_args</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">function_name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">num_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">num_args</span><span class="p">;</span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">fn_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_CLOSURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;a closure &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;function &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">function_name</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">        </span><span class="n">smart_str_appendc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">fn_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_CLOSURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;a closure &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;function &quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">function_name</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">smart_str_appendc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="p">);</span>
 
-<span class="w">        </span><span class="cm">/* The variadic arg is not declared as an arg internally */</span><span class="w"></span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">fn_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_VARIADIC</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">num_args</span><span class="o">++</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">num_args</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">zend_arg_info</span><span class="w"> </span><span class="n">arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">arg_info</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="cm">/* The variadic arg is not declared as an arg internally */</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">fn_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_VARIADIC</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">num_args</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">num_args</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">zend_arg_info</span><span class="w"> </span><span class="n">arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">arg_info</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
 
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arg</span><span class="p">.</span><span class="n">class_name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">arg</span><span class="p">.</span><span class="n">class_name</span><span class="p">);</span><span class="w"></span>
-<span class="w">                </span><span class="n">smart_str_appendc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39; &#39;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"></span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arg</span><span class="p">.</span><span class="n">pass_by_reference</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="n">smart_str_appendc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;&amp;&#39;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"></span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arg</span><span class="p">.</span><span class="n">is_variadic</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;...&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"></span>
-<span class="w">            </span><span class="n">smart_str_appendc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;$&#39;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">arg</span><span class="p">.</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">num_args</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;, &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arg</span><span class="p">.</span><span class="n">class_name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">arg</span><span class="p">.</span><span class="n">class_name</span><span class="p">);</span>
+<span class="w">                </span><span class="n">smart_str_appendc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39; &#39;</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arg</span><span class="p">.</span><span class="n">pass_by_reference</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">smart_str_appendc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;&amp;&#39;</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arg</span><span class="p">.</span><span class="n">is_variadic</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;...&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">smart_str_appendc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;$&#39;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">arg</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">num_args</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;, &quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
 
-<span class="w">        </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;) in file &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; between line &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">smart_str_append_unsigned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">line_start</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; and line &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">smart_str_append_unsigned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">line_end</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;the file &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;) in file &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">filename</span><span class="p">);</span>
+<span class="w">        </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; between line &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">smart_str_append_unsigned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">line_start</span><span class="p">);</span>
+<span class="w">        </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; and line &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">smart_str_append_unsigned</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">line_end</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">smart_str_appends</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;the file &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">smart_str_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">op_array</span><span class="o">-&gt;</span><span class="n">filename</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">smart_str_0</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">out</span><span class="p">.</span><span class="n">s</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="n">smart_str_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">smart_str_0</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">);</span>
+<span class="w">    </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">out</span><span class="p">.</span><span class="n">s</span><span class="p">));</span>
+<span class="w">    </span><span class="n">smart_str_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -405,42 +402,42 @@ have added so much complexity to the example that we decided not to show such a 
 <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">zvals here</span></a>, <a class="reference internal" href="../zend_engine.html"><span class="doc">OPArrays here</span></a>, etc…</p>
 </div>
 <p>Let’s continue then ?:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">CG</span><span class="p">(</span><span class="n">compiler_options</span><span class="p">)</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">ZEND_COMPILE_EXTENDED_INFO</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">CG</span><span class="p">(</span><span class="n">compiler_options</span><span class="p">)</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">ZEND_COMPILE_EXTENDED_INFO</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_deactivate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">CG</span><span class="p">(</span><span class="n">compiler_options</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="n">ZEND_COMPILE_EXTENDED_INFO</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_deactivate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">CG</span><span class="p">(</span><span class="n">compiler_options</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="o">~</span><span class="n">ZEND_COMPILE_EXTENDED_INFO</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_fcall_begin_handler</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="cm">/* Fetch the next OPline. We use pointer arithmetic for that */</span><span class="w"></span>
-<span class="w">        </span><span class="n">zend_op</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">opcodes</span><span class="p">[(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">opline</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">opcodes</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">extended_value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ZEND_EVAL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a code eval() in %s:%u&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">filename</span><span class="p">),</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="n">lineno</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="cm">/* The file to be include()ed is stored into the operand 1 of the OPLine */</span><span class="w"></span>
-<span class="w">            </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zval_get_string</span><span class="p">(</span><span class="n">EX_CONSTANT</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">op1</span><span class="p">));</span><span class="w"></span>
-<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of an include of file &#39;%s&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">file</span><span class="p">));</span><span class="w"></span>
-<span class="w">            </span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">file</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">fn_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_STATIC</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a new static method call : &#39;%s::%s&#39;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">Z_CE</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">This</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">),</span><span class="w"></span>
-<span class="w">                    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">This</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_OBJECT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a new method call : %s-&gt;%s&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">Z_OBJCE</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">This</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">),</span><span class="w"></span>
-<span class="w">                    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a new function call : %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHPWRITE</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_fcall_begin_handler</span><span class="p">(</span><span class="n">zend_execute_data</span><span class="w"> </span><span class="o">*</span><span class="n">execute_data</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/* Fetch the next OPline. We use pointer arithmetic for that */</span>
+<span class="w">        </span><span class="n">zend_op</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">opcodes</span><span class="p">[(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">opline</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">opcodes</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">extended_value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ZEND_EVAL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a code eval() in %s:%u&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">op_array</span><span class="p">.</span><span class="n">filename</span><span class="p">),</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="n">lineno</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="cm">/* The file to be include()ed is stored into the operand 1 of the OPLine */</span>
+<span class="w">            </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zval_get_string</span><span class="p">(</span><span class="n">EX_CONSTANT</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">op1</span><span class="p">));</span>
+<span class="w">            </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of an include of file &#39;%s&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">file</span><span class="p">));</span>
+<span class="w">            </span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">file</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">fn_flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ZEND_ACC_STATIC</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a new static method call : &#39;%s::%s&#39;&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">Z_CE</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">This</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">),</span>
+<span class="w">                    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">This</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_OBJECT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a new method call : %s-&gt;%s&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">Z_OBJCE</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">This</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">),</span>
+<span class="w">                    </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">php_printf</span><span class="p">(</span><span class="s">&quot;Beginning of a new function call : %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_VAL</span><span class="p">(</span><span class="n">execute_data</span><span class="o">-&gt;</span><span class="n">call</span><span class="o">-&gt;</span><span class="n">func</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">function_name</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">PHPWRITE</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>On request startup, we tell the compiler to generate some extended information into the OPArray it’s going to create.
@@ -519,118 +516,118 @@ extension from reading the INI file.</p>
 <p>Thus, we will only be able to be registered as a <em>zend_extension=pib.so</em>. Registering as <em>extension=pib.so</em> will fail,
 as the engine will fail to find our not-exported <code class="docutils literal notranslate"><span class="pre">get_module</span></code> symbol.</p>
 <p>But, in our startup hook of Zend extension, nothing prevents us from registering ourselves as a PHP extension:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_extensions.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php_pib.h&quot;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_extensions.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php_pib.h&quot;</span>
 
 <span class="cp">#define PRINT(what) fprintf(stderr, what &quot;\n&quot;);</span>
 
-<span class="cm">/* Declared as static, thus private */</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Function entries */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_MINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Module init */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_MSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Module shutdown */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_RINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request init */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_RSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request shutdown */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module information */</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Replace with version number for your extension */</span><span class="w"></span>
-<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="cm">/* Declared as static, thus private */</span>
+<span class="k">static</span><span class="w"> </span><span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Function entries */</span>
+<span class="w">    </span><span class="n">PHP_MINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Module init */</span>
+<span class="w">    </span><span class="n">PHP_MSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Module shutdown */</span>
+<span class="w">    </span><span class="n">PHP_RINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request init */</span>
+<span class="w">    </span><span class="n">PHP_RSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request shutdown */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module information */</span>
+<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Replace with version number for your extension */</span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES</span>
+<span class="p">};</span>
 
 <span class="cm">/* This line should stay commented</span>
 <span class="cm">ZEND_GET_MODULE(pib)</span>
-<span class="cm">*/</span><span class="w"></span>
+<span class="cm">*/</span>
 
-<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension_version_info</span><span class="w"> </span><span class="n">extension_version_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZEND_EXTENSION_API_NO</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZEND_EXTENSION_BUILD_ID</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension_version_info</span><span class="w"> </span><span class="n">extension_version_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ZEND_EXTENSION_API_NO</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ZEND_EXTENSION_BUILD_ID</span>
+<span class="p">};</span>
 
-<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;pib-zend-extension&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;1.0&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;PHPInternalsBook Authors&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;http://www.phpinternalsbook.com&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;Our Copyright&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_startup</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_shutdown</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_activate</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_deactivate</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="n">ZEND_DLEXPORT</span><span class="w"> </span><span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;pib-zend-extension&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;1.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;PHPInternalsBook Authors&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;http://www.phpinternalsbook.com&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;Our Copyright&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pib_zend_extension_startup</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pib_zend_extension_shutdown</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pib_zend_extension_activate</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pib_zend_extension_deactivate</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
 
-<span class="w">    </span><span class="n">STANDARD_ZEND_EXTENSION_PROPERTIES</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="n">STANDARD_ZEND_EXTENSION_PROPERTIES</span>
+<span class="p">};</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension new request starting up&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension new request starting up&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_deactivate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension current request is shutting down&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_deactivate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension current request is shutting down&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">pib_zend_extension_startup</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is starting up&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">pib_zend_extension_startup</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is starting up&quot;</span><span class="p">);</span>
 
 <span class="w">    </span><span class="cm">/* When the Zend extension part will startup(), make it register</span>
-<span class="cm">       a PHP extension by calling ourselves zend_startup_module() */</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">zend_startup_module</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pib_module_entry</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="cm">       a PHP extension by calling ourselves zend_startup_module() */</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">zend_startup_module</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pib_module_entry</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_shutdown</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is shutting down&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_shutdown</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is shutting down&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is starting up&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is starting up&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is shutting down&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is shutting down&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension new request starting up&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension new request starting up&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">PHP_RSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension current request is shutting down&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">PHP_RSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension current request is shutting down&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>We are done. Starting PHP with such a Zend extension activated will print the following on stderr:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span><span class="w"></span>
-<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span><span class="w"></span>
-<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span><span class="w"></span>
-<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span><span class="w"></span>
-<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span><span class="w"></span>
-<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span><span class="w"></span>
-<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span><span class="w"></span>
-<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span>
+<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span>
+<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span>
+<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span>
+<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span>
+<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span>
+<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span>
+<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span>
 </pre></div>
 </div>
 <p>Like you can see, the hooks are honored in the right order, except the first two ones. Theoretically, PHP extensions
@@ -641,18 +638,18 @@ hook by hand, by callling for <code class="docutils literal notranslate"><span c
 loop and not to make the engine crazy about what you will concretely do in such hooks.</p>
 <p>It is perfectly both easy and logical.</p>
 <p>From now, we are both a PHP extension and a Zend extension. Look at that:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="w"> </span><span class="n">php</span><span class="w"> </span><span class="o">-</span><span class="n">dzend_extension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span><span class="w"> </span><span class="o">-</span><span class="n">m</span><span class="w"></span>
-<span class="p">[</span><span class="n">PHP</span><span class="w"> </span><span class="n">modules</span><span class="p">]</span><span class="w"></span>
-<span class="n">Core</span><span class="w"></span>
-<span class="n">date</span><span class="w"></span>
-<span class="p">(...)</span><span class="w"></span>
-<span class="n">pib</span><span class="w"></span>
-<span class="n">posix</span><span class="w"></span>
-<span class="n">Reflection</span><span class="w"></span>
-<span class="p">(...)</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span><span class="w"> </span><span class="n">php</span><span class="w"> </span><span class="o">-</span><span class="n">dzend_extension</span><span class="o">=</span><span class="n">pib</span><span class="p">.</span><span class="n">so</span><span class="w"> </span><span class="o">-</span><span class="n">m</span>
+<span class="p">[</span><span class="n">PHP</span><span class="w"> </span><span class="n">modules</span><span class="p">]</span>
+<span class="n">Core</span>
+<span class="n">date</span>
+<span class="p">(...)</span>
+<span class="n">pib</span>
+<span class="n">posix</span>
+<span class="n">Reflection</span>
+<span class="p">(...)</span>
 
-<span class="p">[</span><span class="n">Zend</span><span class="w"> </span><span class="n">Modules</span><span class="p">]</span><span class="w"></span>
-<span class="n">pib</span><span class="o">-</span><span class="n">zend</span><span class="o">-</span><span class="n">extension</span><span class="w"></span>
+<span class="p">[</span><span class="n">Zend</span><span class="w"> </span><span class="n">Modules</span><span class="p">]</span>
+<span class="n">pib</span><span class="o">-</span><span class="n">zend</span><span class="o">-</span><span class="n">extension</span>
 </pre></div>
 </div>
 <p>Our PHP extension is effectively called “pib” and shows up, and our Zend extension is effectively called
@@ -672,108 +669,108 @@ Zend extension, but still want to be hybrid.</p>
 impossible to load us as a Zend extension : the engine will deny that. But obviously this time, we’ll declare a
 <code class="docutils literal notranslate"><span class="pre">get_module</span></code> symbol to be able to get loaded as a PHP extension. And, in our <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code>, we’ll register ourselves as
 a Zend extension</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_extensions.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php_pib.h&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_smart_str.h&quot;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_extensions.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;php_pib.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Zend/zend_smart_str.h&quot;</span>
 
 <span class="cp">#define PRINT(what) fprintf(stderr, what &quot;\n&quot;);</span>
 
-<span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Function entries */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_MINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Module init */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_MSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Module shutdown */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_RINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request init */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_RSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request shutdown */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module information */</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Replace with version number for your extension */</span><span class="w"></span>
-<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Function entries */</span>
+<span class="w">    </span><span class="n">PHP_MINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Module init */</span>
+<span class="w">    </span><span class="n">PHP_MSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Module shutdown */</span>
+<span class="w">    </span><span class="n">PHP_RINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request init */</span>
+<span class="w">    </span><span class="n">PHP_RSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request shutdown */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module information */</span>
+<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Replace with version number for your extension */</span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES</span>
+<span class="p">};</span>
 
-<span class="n">ZEND_GET_MODULE</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_GET_MODULE</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
 <span class="cm">/* Should be kept commented</span>
 <span class="cm"> * zend_extension_version_info extension_version_info = {</span>
 <span class="cm"> *   ZEND_EXTENSION_API_NO,</span>
 <span class="cm"> *    ZEND_EXTENSION_BUILD_ID</span>
 <span class="cm"> * };</span>
-<span class="cm"> */</span><span class="w"></span>
+<span class="cm"> */</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;pib-zend-extension&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;1.0&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;PHPInternalsBook Authors&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;http://www.phpinternalsbook.com&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;Our Copyright&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_startup</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_shutdown</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_activate</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_zend_extension_deactivate</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">zend_extension</span><span class="w"> </span><span class="n">zend_extension_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;pib-zend-extension&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;1.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;PHPInternalsBook Authors&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;http://www.phpinternalsbook.com&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;Our Copyright&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pib_zend_extension_startup</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pib_zend_extension_shutdown</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pib_zend_extension_activate</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pib_zend_extension_deactivate</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
 
-<span class="w">    </span><span class="n">STANDARD_ZEND_EXTENSION_PROPERTIES</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="n">STANDARD_ZEND_EXTENSION_PROPERTIES</span>
+<span class="p">};</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension new request starting up&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_activate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension new request starting up&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_deactivate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension current request is shutting down&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_zend_extension_deactivate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension current request is shutting down&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">pib_zend_extension_startup</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is starting up&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">pib_zend_extension_startup</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is starting up&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is starting up&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is starting up&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Register our zend_extension part now */</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_register_extension</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zend_extension_entry</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Register our zend_extension part now */</span>
+<span class="w">    </span><span class="n">zend_register_extension</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zend_extension_entry</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">pib_zend_extension_shutdown</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is shutting down&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">pib_zend_extension_shutdown</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is shutting down&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is shutting down&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is shutting down&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension new request starting up&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension new request starting up&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">PHP_RSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension current request is shutting down&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">PHP_RSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension current request is shutting down&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>And that crashes badly just at the end (sad !), at <code class="docutils literal notranslate"><span class="pre">pib_zend_extension_shutdown()</span></code>. Firing a debugger, it is easy to
@@ -792,31 +789,31 @@ Also, if another extension between us plays with that, that will smell for us.</
 <p>The second solution is provided by a trick with the unloading mechanism. If you transfer the libdl handle from the PHP
 extension structure to the Zend one, you’ll be alright with the engine unloading.</p>
 <p>Code patched:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">Dl_info</span><span class="w"> </span><span class="n">infos</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">Dl_info</span><span class="w"> </span><span class="n">infos</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is starting up&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is starting up&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Register our zend_extension part, and give it our own PHP extension handle */</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_register_extension</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zend_extension_entry</span><span class="p">,</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="p">.</span><span class="n">handle</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Register our zend_extension part, and give it our own PHP extension handle */</span>
+<span class="w">    </span><span class="n">zend_register_extension</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zend_extension_entry</span><span class="p">,</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="p">.</span><span class="n">handle</span><span class="p">);</span>
 
-<span class="w">    </span><span class="cm">/* Prevent the engine from unloading our PHP extension */</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_module_entry</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="cm">/* Prevent the engine from unloading our PHP extension */</span>
+<span class="w">    </span><span class="n">pib_module_entry</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>If you launch it now, you’ll get the expected result:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span><span class="w"></span>
-<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span><span class="w"></span>
-<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span><span class="w"></span>
-<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span><span class="w"></span>
-<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span><span class="w"></span>
-<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span><span class="w"></span>
-<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span><span class="w"></span>
-<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span>
+<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span>
+<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span>
+<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">starting</span><span class="w"> </span><span class="n">up</span>
+<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span>
+<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span>
+<span class="n">PHP</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span>
+<span class="n">Zend</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">shutting</span><span class="w"> </span><span class="n">down</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -831,35 +828,35 @@ patch about module unload.</p>
 <p>What you have to do, is remember how you’ve been loaded, using a global for example, so that you can take care of both
 modes.</p>
 <p>Let’s write just the diff parts:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">pib_zend_extension_startup</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">started</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">zend_startup_module</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pib_module_entry</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">pib_zend_extension_startup</span><span class="p">(</span><span class="n">zend_extension</span><span class="w"> </span><span class="o">*</span><span class="n">ext</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">started</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">zend_startup_module</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pib_module_entry</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is starting up&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Zend extension is starting up&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">started</span><span class="p">)</span><span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="n">Dl_info</span><span class="w"> </span><span class="n">infos</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="n">zend_register_extension</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zend_extension_entry</span><span class="p">,</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="p">.</span><span class="n">handle</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">started</span><span class="p">)</span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Dl_info</span><span class="w"> </span><span class="n">infos</span><span class="p">;</span>
+<span class="w">        </span><span class="n">zend_register_extension</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zend_extension_entry</span><span class="p">,</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="p">.</span><span class="n">handle</span><span class="p">);</span>
 
-<span class="w">        </span><span class="n">dladdr</span><span class="p">(</span><span class="n">ZEND_MODULE_STARTUP_N</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">infos</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">dlopen</span><span class="p">(</span><span class="n">infos</span><span class="p">.</span><span class="n">dli_fname</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="n">dladdr</span><span class="p">(</span><span class="n">ZEND_MODULE_STARTUP_N</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">infos</span><span class="p">);</span>
+<span class="w">        </span><span class="n">dlopen</span><span class="p">(</span><span class="n">infos</span><span class="p">.</span><span class="n">dli_fname</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is starting up&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;PHP extension is starting up&quot;</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Obviously every symbol must be public. With the code above, you can get loaded as PHP extension (extension=pib.so) or

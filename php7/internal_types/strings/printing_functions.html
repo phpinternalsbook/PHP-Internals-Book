@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -84,14 +81,14 @@ happens. However, <code class="docutils literal notranslate"><span class="pre">s
 returns the number of characters that have effectively been used, thus enabling to detect too-small buffers and string
 truncation. This, is not counting the final <em>‘\0’</em>.</p>
 <p>Here is an example so that you fully understand:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="w"> </span><span class="n">foo</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span><span class="w"> </span><span class="cm">/* 8-char large buffer */</span><span class="w"></span>
-<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">str</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello world&quot;</span><span class="p">;</span><span class="w"> </span><span class="cm">/* 12 chars including \0 in count */</span><span class="w"></span>
-<span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="w"> </span><span class="n">foo</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span><span class="w"> </span><span class="cm">/* 8-char large buffer */</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">str</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello world&quot;</span><span class="p">;</span><span class="w"> </span><span class="cm">/* 12 chars including \0 in count */</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
 
-<span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">snprintf</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* r = 11 here even if only 7 printable chars were written in foo */</span><span class="w"></span>
+<span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">snprintf</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span>
+<span class="cm">/* r = 11 here even if only 7 printable chars were written in foo */</span>
 
-<span class="cm">/* foo value is now &#39;H&#39; &#39;e&#39; &#39;l&#39; &#39;l&#39; &#39;o&#39; &#39; &#39; &#39;w&#39; &#39;\0&#39; */</span><span class="w"></span>
+<span class="cm">/* foo value is now &#39;H&#39; &#39;e&#39; &#39;l&#39; &#39;l&#39; &#39;o&#39; &#39; &#39; &#39;w&#39; &#39;\0&#39; */</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">snprintf()</span></code> is not a good function to use, as it does not allows to detect an eventual string truncation.
@@ -99,21 +96,21 @@ As you can see from the example above, “Hello world\0” doesn’t fit in an e
 <code class="docutils literal notranslate"><span class="pre">snprintf()</span></code> still returns you 11, which is <code class="docutils literal notranslate"><span class="pre">strlen(&quot;Hello</span> <span class="pre">world\0&quot;)</span></code>. You have no way to detect that the string’s
 got truncated.</p>
 <p>Here is <code class="docutils literal notranslate"><span class="pre">slprintf()</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="w"> </span><span class="n">foo</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span><span class="w"> </span><span class="cm">/* 8-char large buffer */</span><span class="w"></span>
-<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">str</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello world&quot;</span><span class="p">;</span><span class="w"> </span><span class="cm">/* 12 chars including \0 in count */</span><span class="w"></span>
-<span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="w"> </span><span class="n">foo</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span><span class="w"> </span><span class="cm">/* 8-char large buffer */</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">str</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello world&quot;</span><span class="p">;</span><span class="w"> </span><span class="cm">/* 12 chars including \0 in count */</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
 
-<span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">slprintf</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span><span class="w"></span>
-<span class="cm">/* r = 7 here , because 7 printable chars were written in foo */</span><span class="w"></span>
+<span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">slprintf</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">);</span>
+<span class="cm">/* r = 7 here , because 7 printable chars were written in foo */</span>
 
-<span class="cm">/* foo value is now &#39;H&#39; &#39;e&#39; &#39;l&#39; &#39;l&#39; &#39;o&#39; &#39; &#39; &#39;w&#39; &#39;\0&#39; */</span><span class="w"></span>
+<span class="cm">/* foo value is now &#39;H&#39; &#39;e&#39; &#39;l&#39; &#39;l&#39; &#39;o&#39; &#39; &#39; &#39;w&#39; &#39;\0&#39; */</span>
 </pre></div>
 </div>
 <p>With <code class="docutils literal notranslate"><span class="pre">slprintf()</span></code>, the result buffer <code class="docutils literal notranslate"><span class="pre">foo</span></code> contains the exact same string, but the returned value is now 7. 7 is
 less than the 11 chars from the <em>“Hello world”</em> string, thus you can detect that it got truncated:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">slprintf</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="cm">/* A string truncation occurred */</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">slprintf</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* A string truncation occurred */</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Remember:</p>
@@ -129,18 +126,18 @@ less than the 11 chars from the <em>“Hello world”</em> string, thus you can 
 <p>Now if you don’t know your result buffer size, you need a dynamically allocated one, and then you’ll use <code class="docutils literal notranslate"><span class="pre">spprintf()</span></code>.
 Remember that <strong>you’ll have to free</strong> the buffer by yourself !</p>
 <p>Here is an example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span>
 
-<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">;</span><span class="w"></span>
-<span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">;</span><span class="w"></span>
+<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
 
-<span class="kt">time_t</span><span class="w"> </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="kt">time_t</span><span class="w"> </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
 
-<span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spprintf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Here is the date: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">asctime</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timestamp</span><span class="p">)));</span><span class="w"></span>
+<span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spprintf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Here is the date: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">asctime</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timestamp</span><span class="p">)));</span>
 
-<span class="cm">/* now use result that contains something like &quot;Here is the date: Thu Jun 15 19:12:51 2017\n&quot; */</span><span class="w"></span>
+<span class="cm">/* now use result that contains something like &quot;Here is the date: Thu Jun 15 19:12:51 2017\n&quot; */</span>
 
-<span class="n">efree</span><span class="p">(</span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+<span class="n">efree</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">spprintf()</span></code> returns the number of characters that’ve been printed into the result buffer, not counting the final
@@ -154,19 +151,19 @@ how dynamic memory is allocated through PHP.</p>
 </div>
 <p>If you want to limit the buffer size, you pass that limit as the second argument, if you pass <em>0</em>, that means
 unlimited:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span>
 
-<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">;</span><span class="w"></span>
-<span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">;</span><span class="w"></span>
+<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
 
-<span class="kt">time_t</span><span class="w"> </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="kt">time_t</span><span class="w"> </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
 
-<span class="cm">/* Do not print more than 10 bytes || allocate more than 11 bytes */</span><span class="w"></span>
-<span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spprintf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Here is the date: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">asctime</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timestamp</span><span class="p">)));</span><span class="w"></span>
+<span class="cm">/* Do not print more than 10 bytes || allocate more than 11 bytes */</span>
+<span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spprintf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Here is the date: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">asctime</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timestamp</span><span class="p">)));</span>
 
-<span class="cm">/* r == 10 here, and 11 bytes were allocated into result */</span><span class="w"></span>
+<span class="cm">/* r == 10 here, and 11 bytes were allocated into result */</span>
 
-<span class="n">efree</span><span class="p">(</span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+<span class="n">efree</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -210,13 +207,13 @@ first parameter (pass 0 to mean infinite); and you must remember that the <code 
 Zend Memory Manager, and thus bound to the current request.</p>
 <p>Obviously, the format API is shared with the one seen above.</p>
 <p>Here is a quick example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">;</span>
 
-<span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strpprintf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;You are using PHP %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_VERSION</span><span class="p">);</span><span class="w"></span>
+<span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strpprintf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;You are using PHP %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PHP_VERSION</span><span class="p">);</span>
 
-<span class="cm">/* Do something with result */</span><span class="w"></span>
+<span class="cm">/* Do something with result */</span>
 
-<span class="n">zend_string_release</span><span class="p">(</span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string_release</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>

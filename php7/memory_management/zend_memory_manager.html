@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -107,21 +104,21 @@ be allocated once.</p>
 allocated using the Zend Memory Manager. Most of them got a “persistent” API call, which when used, lead to
 traditional libc allocation.</p>
 <p>Here is a request-bound allocated <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string</span></a>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>And here is the persistent allocated one:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Same for <a class="reference internal" href="../internal_types/hashtables.html"><span class="doc">HashTable</span></a>. Request-bound allocated one:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_array</span><span class="w"> </span><span class="n">ar</span><span class="p">;</span><span class="w"></span>
-<span class="n">zend_hash_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_array</span><span class="w"> </span><span class="n">ar</span><span class="p">;</span>
+<span class="n">zend_hash_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Persistent allocated one:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_array</span><span class="w"> </span><span class="n">ar</span><span class="p">;</span><span class="w"></span>
-<span class="n">zend_hash_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_array</span><span class="w"> </span><span class="n">ar</span><span class="p">;</span>
+<span class="n">zend_hash_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>It is always the same in all the different Zend APIs. Usually, it is whether a <em>“0”</em> to pass as last parameter to mean
@@ -129,8 +126,8 @@ traditional libc allocation.</p>
 allocated bypassing ZendMM and using a traditional libc’s <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> call”.</p>
 <p>Obviously, those structures provide an API that remembers how it did allocate the structure, to use the right
 deallocation function when destroyed. Hence in such a code:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span><span class="w"></span>
-<span class="n">zend_hash_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span>
+<span class="n">zend_hash_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ar</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The API knows whether those structures were allocated using request-bound allocation, or permanent one, and in the
@@ -214,10 +211,10 @@ in the following conditions:</p>
 <li><p>You have <em>report_memleaks=On</em> in php.ini (default)</p></li>
 </ul>
 <p>Here is an example of a simple leak into an extension:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">example</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emalloc</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>When launching PHP with that extension activated, on a debug build, that generates on stderr:</p>

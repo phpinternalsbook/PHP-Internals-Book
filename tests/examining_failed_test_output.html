@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../_static/style.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -61,18 +58,18 @@ the same runtime conditions as the test run. With all this information at hand, 
 test output on your screen, inline with the failed test. The <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code> script accepts flags to enable such
 behavior <code class="docutils literal notranslate"><span class="pre">--show-[all|php|exp|diff|out]</span></code>. For example if you want to see the diffs inline:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php --show-diff
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php<span class="w"> </span>--show-diff
 ...
-TEST <span class="m">613</span>/14433 <span class="o">[</span>tests/lang/operators/nan-comparison-false.phpt<span class="o">]</span>
+TEST<span class="w"> </span><span class="m">613</span>/14433<span class="w"> </span><span class="o">[</span>tests/lang/operators/nan-comparison-false.phpt<span class="o">]</span>
 <span class="o">========</span><span class="nv">DIFF</span><span class="o">========</span>
-<span class="m">002</span>+ bool<span class="o">(</span><span class="nb">true</span><span class="o">)</span>
-<span class="m">003</span>+ bool<span class="o">(</span><span class="nb">true</span><span class="o">)</span>
-<span class="m">004</span>+ bool<span class="o">(</span><span class="nb">true</span><span class="o">)</span>
-<span class="m">005</span>+ bool<span class="o">(</span><span class="nb">true</span><span class="o">)</span>
-<span class="m">002</span>- bool<span class="o">(</span><span class="nb">false</span><span class="o">)</span>
-<span class="m">003</span>- bool<span class="o">(</span><span class="nb">false</span><span class="o">)</span>
-<span class="m">004</span>- bool<span class="o">(</span><span class="nb">false</span><span class="o">)</span>
-<span class="m">005</span>- bool<span class="o">(</span><span class="nb">false</span><span class="o">)</span>
+<span class="m">002</span>+<span class="w"> </span>bool<span class="o">(</span><span class="nb">true</span><span class="o">)</span>
+<span class="m">003</span>+<span class="w"> </span>bool<span class="o">(</span><span class="nb">true</span><span class="o">)</span>
+<span class="m">004</span>+<span class="w"> </span>bool<span class="o">(</span><span class="nb">true</span><span class="o">)</span>
+<span class="m">005</span>+<span class="w"> </span>bool<span class="o">(</span><span class="nb">true</span><span class="o">)</span>
+<span class="m">002</span>-<span class="w"> </span>bool<span class="o">(</span><span class="nb">false</span><span class="o">)</span>
+<span class="m">003</span>-<span class="w"> </span>bool<span class="o">(</span><span class="nb">false</span><span class="o">)</span>
+<span class="m">004</span>-<span class="w"> </span>bool<span class="o">(</span><span class="nb">false</span><span class="o">)</span>
+<span class="m">005</span>-<span class="w"> </span>bool<span class="o">(</span><span class="nb">false</span><span class="o">)</span>
 <span class="o">========</span><span class="nv">DONE</span><span class="o">========</span>
 ...
 </pre></div>
@@ -81,17 +78,17 @@ TEST <span class="m">613</span>/14433 <span class="o">[</span>tests/lang/operato
 <p>In case of diff they are only printed if there is an actual difference. There are also flags to print the skip
 criteria or the clean scripts <code class="docutils literal notranslate"><span class="pre">--show-[skip|clean]</span></code>. For example:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php --show-clean
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php<span class="w"> </span>--show-clean
 ...
-PASS Test <span class="k">for</span> buffering <span class="k">in</span> core functions with implicit flush on <span class="o">[</span>tests/func/009.phpt<span class="o">]</span>
-TEST <span class="m">399</span>/14433 <span class="o">[</span>tests/func/010.phpt<span class="o">]</span>
+PASS<span class="w"> </span>Test<span class="w"> </span><span class="k">for</span><span class="w"> </span>buffering<span class="w"> </span><span class="k">in</span><span class="w"> </span>core<span class="w"> </span>functions<span class="w"> </span>with<span class="w"> </span>implicit<span class="w"> </span>flush<span class="w"> </span>on<span class="w"> </span><span class="o">[</span>tests/func/009.phpt<span class="o">]</span>
+TEST<span class="w"> </span><span class="m">399</span>/14433<span class="w"> </span><span class="o">[</span>tests/func/010.phpt<span class="o">]</span>
 <span class="o">========</span><span class="nv">CLEAN</span><span class="o">========</span>
 &lt;?php
 @unlink<span class="o">(</span>dirname<span class="o">(</span>__FILE__<span class="o">)</span>.<span class="s1">&#39;/010-file.php&#39;</span><span class="o">)</span><span class="p">;</span>
 ?&gt;
 <span class="o">========</span><span class="nv">DONE</span><span class="o">========</span>
-PASS <span class="k">function</span> with many parameters <span class="o">[</span>tests/func/010.phpt<span class="o">]</span>
-PASS Test bitwise AND, OR, XOR, NOT and logical NOT <span class="k">in</span> INI via error_reporting <span class="o">[</span>tests/func/011.phpt<span class="o">]</span>
+PASS<span class="w"> </span><span class="k">function</span><span class="w"> </span>with<span class="w"> </span>many<span class="w"> </span>parameters<span class="w"> </span><span class="o">[</span>tests/func/010.phpt<span class="o">]</span>
+PASS<span class="w"> </span>Test<span class="w"> </span>bitwise<span class="w"> </span>AND,<span class="w"> </span>OR,<span class="w"> </span>XOR,<span class="w"> </span>NOT<span class="w"> </span>and<span class="w"> </span>logical<span class="w"> </span>NOT<span class="w"> </span><span class="k">in</span><span class="w"> </span>INI<span class="w"> </span>via<span class="w"> </span>error_reporting<span class="w"> </span><span class="o">[</span>tests/func/011.phpt<span class="o">]</span>
 ...
 </pre></div>
 </div>
@@ -100,11 +97,11 @@ PASS Test bitwise AND, OR, XOR, NOT and logical NOT <span class="k">in</span> IN
 run, the tests that ran slower are reported. Say you want to inspect tests in <code class="docutils literal notranslate"><span class="pre">ext/standard/tests/file</span></code> that run
 more than 10 seconds:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php --show-slow <span class="m">10000</span> ext/standard/tests/file
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run-tests.php<span class="w"> </span>--show-slow<span class="w"> </span><span class="m">10000</span><span class="w"> </span>ext/standard/tests/file
 <span class="o">=====================================================================</span>
-SLOW TEST SUMMARY
+SLOW<span class="w"> </span>TEST<span class="w"> </span>SUMMARY
 ---------------------------------------------------------------------
-<span class="o">(</span><span class="m">28</span>.043 s<span class="o">)</span> Test fileatime<span class="o">()</span>, filemtime<span class="o">()</span>, filectime<span class="o">()</span> <span class="p">&amp;</span> touch<span class="o">()</span> functions : usage variation <span class="o">[</span>ext/standard/tests/file/005_variation.phpt<span class="o">]</span>
+<span class="o">(</span><span class="m">28</span>.043<span class="w"> </span>s<span class="o">)</span><span class="w"> </span>Test<span class="w"> </span>fileatime<span class="o">()</span>,<span class="w"> </span>filemtime<span class="o">()</span>,<span class="w"> </span>filectime<span class="o">()</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span>touch<span class="o">()</span><span class="w"> </span>functions<span class="w"> </span>:<span class="w"> </span>usage<span class="w"> </span>variation<span class="w"> </span><span class="o">[</span>ext/standard/tests/file/005_variation.phpt<span class="o">]</span>
 <span class="o">=====================================================================</span>
 </pre></div>
 </div>
@@ -112,7 +109,7 @@ SLOW TEST SUMMARY
 <p>Unfortunately the make script does not have environment variables to activate these flags. But you can use them anyway
 by abusing the <code class="docutils literal notranslate"><span class="pre">TESTS</span></code> variable instead:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>--show-all
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="nv">TESTS</span><span class="o">=</span>--show-all
 </pre></div>
 </div>
 </div></blockquote>

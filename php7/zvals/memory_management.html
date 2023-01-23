@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -47,12 +44,12 @@ complex values like strings, for which the zval only stores a pointer to a separ
 <section id="reference-counted-values">
 <span id="refcounting"></span><h2>Reference-counted values<a class="headerlink" href="#reference-counted-values" title="Permalink to this heading">¶</a></h2>
 <p>All complex values share a common header with the following structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_refcounted_h</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">refcount</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">type_info</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">u</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zend_refcounted_h</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_refcounted_h</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">refcount</span><span class="p">;</span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">type_info</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">u</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_refcounted_h</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>This header stores a reference count, which tracks in how many places this structure is used. If the structure is used
@@ -136,17 +133,17 @@ correctly handled automatically. However, if you use lower-level APIs, you need 
 </table>
 <p>Immutable structures set the <code class="docutils literal notranslate"><span class="pre">GC_IMMUTABLE</span></code> flag (which has a number of aliases like <code class="docutils literal notranslate"><span class="pre">IS_STR_INTERNED</span></code> and
 <code class="docutils literal notranslate"><span class="pre">IS_ARRAY_IMMUTABLE</span></code>), which can be used to determine whether incrementing the refcount is safe:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span>
 
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">GC_FLAGS</span><span class="p">(</span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">GC_IMMUTABLE</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">GC_ADDREF</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">GC_FLAGS</span><span class="p">(</span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">GC_IMMUTABLE</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">GC_ADDREF</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+<span class="p">}</span>
 
 <span class="c1">// Same as:</span>
-<span class="n">GC_TRY_ADDREF</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
+<span class="n">GC_TRY_ADDREF</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
 
 <span class="c1">// Same as (high-level API):</span>
-<span class="n">zend_string_addref</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
+<span class="n">zend_string_addref</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Macros that have <code class="docutils literal notranslate"><span class="pre">TRY</span></code> in the name generally indicate that an operation should only be performed for mutable
@@ -184,7 +181,7 @@ structures can be used independently, but storing them inside zvals is certainly
 <p>Zvals themselves are never individually heap-allocated. They are either allocated temporarily on the stack, or
 embedded as part of a larger heap-allocated structure.</p>
 <p>This basic example shows the initialization of a stack-allocated zval, and its subsequent destruction:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">str_val</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">str_val</span><span class="p">;</span>
 <span class="n">ZVAL_STRING</span><span class="p">(</span><span class="o">&amp;</span><span class="n">str_val</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Creates zend_string (refcount=1).</span>
 <span class="c1">// ... Do something with str_val.</span>
 <span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">str_val</span><span class="p">);</span><span class="w"> </span><span class="c1">// Decrements to refcount=0, and destroys the string.</span>
@@ -196,16 +193,16 @@ macros and destructors in a moment.</p>
 a <code class="docutils literal notranslate"><span class="pre">zval</span></code>, you will find that PHP <em>never</em> passes or returns zvals by value. Instead zvals are always passed by
 pointer. In order to return a zval, an out-parameter needs to be passed to the function:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// retval is an output parameter.</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">init_zval</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">init_zval</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ZVAL_STRING</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;foo&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="kt">void</span><span class="w"> </span><span class="nf">some_other_function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">some_other_function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 <span class="w">    </span><span class="c1">// ... Do something with val.</span>
-<span class="w">    </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>While zvals themselves are generally not shared, it’s possible to share the structures they point to using the
@@ -213,22 +210,22 @@ refcounting mechanism. The <code class="docutils literal notranslate"><span clas
 corresponding <code class="docutils literal notranslate"><span class="pre">GC_*</span></code> macros, but operate on zvals. Importantly, these macros can only be used if the zval does
 point to a refcounted structure, and the structure is not immutable. The <code class="docutils literal notranslate"><span class="pre">IS_TYPE_REFCOUNTED</span></code> type flag
 determines whether this is the case, and can be accessed through <code class="docutils literal notranslate"><span class="pre">Z_REFCOUNTED</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">fill_array</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">array</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">fill_array</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">array</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// Manually check REFCOUNTED:</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_REFCOUNTED</span><span class="p">(</span><span class="n">val</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">Z_ADDREF</span><span class="p">(</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="n">add_index_zval</span><span class="p">(</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_REFCOUNTED</span><span class="p">(</span><span class="n">val</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Z_ADDREF</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">add_index_zval</span><span class="p">(</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// Or use the TRY macro:</span>
-<span class="w">    </span><span class="n">Z_TRY_ADDREF</span><span class="p">(</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">add_index_zval</span><span class="p">(</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">Z_TRY_ADDREF</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+<span class="w">    </span><span class="n">add_index_zval</span><span class="p">(</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 
-<span class="w">    </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This example adds the same value to an array twice, which means the refcount has to be incremented twice. While it’s
@@ -242,11 +239,11 @@ APIs will take care of it themselves.</p>
 <h3>Copying zvals<a class="headerlink" href="#copying-zvals" title="Permalink to this heading">¶</a></h3>
 <p>It is common that zvals need to be copied from one location to another. For this purpose, a number of copying macros
 are provided. The first is <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE()</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">init_zval_indirect</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">init_zval_indirect</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">retval</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This (rather silly) example initializes a stack zval and then moves the value over into the <code class="docutils literal notranslate"><span class="pre">retval</span></code> out parameter.
@@ -258,33 +255,33 @@ refcounted.</p>
 value and type, but not its <code class="docutils literal notranslate"><span class="pre">u2</span></code> member. As such, it is safe to <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> into a zval whose <code class="docutils literal notranslate"><span class="pre">u2</span></code> member is
 in use, as it will not be overwritten.</p>
 <p>The second macro is <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY</span></code>, which is an optimized combination of <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE</span></code> and <code class="docutils literal notranslate"><span class="pre">Z_TRY_ADDREF</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
 <span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// refcount=1</span>
 
 <span class="w">    </span><span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">retval1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// refcount=2</span>
 <span class="w">    </span><span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">retval2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// refcount=3</span>
 
 <span class="w">    </span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// refcount=2</span>
-<span class="p">}</span><span class="w"></span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This example copies the value twice, incrementing the refcount (if it has one) twice. A different, and slightly more
 efficient way to write this function would be:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
 <span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// refcount=1</span>
 <span class="w">    </span><span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">retval1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// refcount=2</span>
 <span class="w">    </span><span class="n">ZVAL_COPY_VALUE</span><span class="p">(</span><span class="n">retval2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// refcount=2</span>
-<span class="p">}</span><span class="w"></span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This copies the value once into <code class="docutils literal notranslate"><span class="pre">retval1</span></code>, and then performs a move into <code class="docutils literal notranslate"><span class="pre">retval2</span></code>, saving a redundant refcount
 increment and decrement. Finally, the way we would probably write this code in practice is this:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">init_pair</span><span class="p">(</span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval1</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">init_zval</span><span class="p">(</span><span class="n">retval1</span><span class="p">);</span><span class="w"> </span><span class="c1">// refcount=1</span>
 <span class="w">    </span><span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">retval2</span><span class="p">,</span><span class="w"> </span><span class="n">retval1</span><span class="p">);</span><span class="w"> </span><span class="c1">// refcount=2</span>
-<span class="p">}</span><span class="w"></span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Here, the value is directly initialized into <code class="docutils literal notranslate"><span class="pre">retval1</span></code> and then copied into <code class="docutils literal notranslate"><span class="pre">retval2</span></code>. This version is both the
@@ -315,79 +312,79 @@ have both inlined and outlined variants.</p>
 <p>Until now, we have been using an abstract <code class="docutils literal notranslate"><span class="pre">init_zval()</span></code> function that <em>somehow</em> initializes a zval. It will not
 come as a surprise that PHP handles zval initialization using a plethora of macros. The initialization of simple
 types is especially straightforward:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_UNDEF</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_UNDEF</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_NULL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_NULL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_FALSE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_FALSE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_TRUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_TRUE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_BOOL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zero_or_one</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_BOOL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zero_or_one</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_LONG</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="mf">3.141</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_DOUBLE</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="mf">3.141</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>For strings, there are quite a few initialization options. The most fundamental is the <code class="docutils literal notranslate"><span class="pre">ZVAL_STR()</span></code> macro, which
 takes an already constructed <code class="docutils literal notranslate"><span class="pre">zend_string*</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>As creating a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> from a string literal or an existing string is so common, there are two convenience
 wrappers:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_STRINGL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
 <span class="n">ZVAL_STRING</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Uses strlen() for length.</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">ZVAL_STR</span></code> macro will set the <code class="docutils literal notranslate"><span class="pre">IS_TYPE_REFCOUNTED</span></code> flag based on whether the string is immutable or not.
 There are two optimized variants that can be known if it is known in advance whether the string is interned:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// This string is definitely not interned/immutable.</span>
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_NEW_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_NEW_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
 
 <span class="c1">// This string is definitely interned.</span>
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_INTERNED_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_CHAR</span><span class="p">(</span><span class="sc">&#39;a&#39;</span><span class="p">));</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_INTERNED_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">ZSTR_CHAR</span><span class="p">(</span><span class="sc">&#39;a&#39;</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>Empty strings have a separate helper:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_EMPTY_STRING</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_EMPTY_STRING</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">ZVAL_STRINGL_FAST</span></code> macro can be used to avoid a <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> allocation if the string is empty or has a
 single character, as such strings always have interned variants that can be fetched quickly:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_STRINGL_FAST</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_STRINGL_FAST</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Finally, the <code class="docutils literal notranslate"><span class="pre">ZVAL_STR_COPY</span></code> macro is a combination of <code class="docutils literal notranslate"><span class="pre">ZVAL_STR</span></code> and <code class="docutils literal notranslate"><span class="pre">zend_string_copy</span></code>, where the latter
 increments the refcount of the string:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
 <span class="n">ZVAL_STR_COPY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zstr</span><span class="p">);</span><span class="w"> </span><span class="c1">// Refcount will be incremented.</span>
 <span class="c1">// More efficient/compact version of:</span>
-<span class="n">ZVAL_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string_copy</span><span class="p">(</span><span class="n">zstr</span><span class="p">));</span><span class="w"></span>
+<span class="n">ZVAL_STR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string_copy</span><span class="p">(</span><span class="n">zstr</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>For arrays, we thankfully only have to consider two initialization macros:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_ARR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_new_array</span><span class="p">(</span><span class="cm">/* size_hint */</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_ARR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_new_array</span><span class="p">(</span><span class="cm">/* size_hint */</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_EMPTY_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_EMPTY_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The first one initializes an array zval to an existing <code class="docutils literal notranslate"><span class="pre">zend_array*</span></code> structure, while the latter initializes an
@@ -395,18 +392,18 @@ empty array in particular. Note that while both of the above examples initialize
 same. <code class="docutils literal notranslate"><span class="pre">ZVAL_EMPTY_ARRAY()</span></code> uses an immutable shared empty array, while <code class="docutils literal notranslate"><span class="pre">zend_new_array()</span></code> creates a new one. If
 you plan to modify the array directly afterwards, you should be using the <code class="docutils literal notranslate"><span class="pre">zend_new_array()</span></code> variant.</p>
 <p>Object zvals are initialized using <code class="docutils literal notranslate"><span class="pre">ZVAL_OBJ</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_OBJ</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">obj_ptr</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_OBJ</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">obj_ptr</span><span class="p">);</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
 <span class="n">ZVAL_OBJ_COPY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">obj_ptr</span><span class="p">);</span><span class="w"> </span><span class="c1">// Increments refcount</span>
 </pre></div>
 </div>
 <p>While these are somewhat common when dealing with already existing objects, <code class="docutils literal notranslate"><span class="pre">object_init_ex()</span></code> is the typical way
 to create an object from scratch. This will covered in a later chapter on objects.</p>
 <p>Finally, resources are initialized using <code class="docutils literal notranslate"><span class="pre">ZVAL_RES</span></code>:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_RES</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_register_resource</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">le_resource_type</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="n">ZVAL_RES</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">zend_register_resource</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">le_resource_type</span><span class="p">));</span>
 </pre></div>
 </div>
 </section>
@@ -414,8 +411,8 @@ to create an object from scratch. This will covered in a later chapter on object
 <h3>Separating zvals<a class="headerlink" href="#separating-zvals" title="Permalink to this heading">¶</a></h3>
 <p>In PHP, all values follow by-value semantics by default. This means that if you write <code class="docutils literal notranslate"><span class="pre">$a</span> <span class="pre">=</span> <span class="pre">$b</span></code>, then modification
 of <code class="docutils literal notranslate"><span class="pre">$a</span></code> will have no effect on <code class="docutils literal notranslate"><span class="pre">$b</span></code> and vice versa. At the same time, <code class="docutils literal notranslate"><span class="pre">$a</span> <span class="pre">=</span> <span class="pre">$b</span></code> is essentially implemented as:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w"></span>
-<span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval_ptr_dtor</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+<span class="n">ZVAL_COPY</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>That is, <code class="docutils literal notranslate"><span class="pre">$a</span></code> and <code class="docutils literal notranslate"><span class="pre">$b</span></code> will both point to the same structure with an incremented refcount. This means that a
@@ -426,16 +423,16 @@ be <em>separated</em> first. Separation is just a fancy word for duplicating the
 <p>In practice “structure” can be replaced with “array”. While in theory the concept also applies to strings, strings
 are almost never mutated after construction in PHP. As such <code class="docutils literal notranslate"><span class="pre">SEPARATE_ARRAY()</span></code> is the main separation macro, which
 can only be applied to <code class="docutils literal notranslate"><span class="pre">IS_ARRAY</span></code> zvals:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZVAL_ARR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">zend_new_array</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span><span class="w"></span>
-<span class="n">ZVAL_COPY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="n">ZVAL_ARR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">zend_new_array</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="n">ZVAL_COPY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
 
 <span class="n">SEPARATE_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">);</span><span class="w"> </span><span class="c1">// b now holds a separate copy of the array.</span>
 <span class="c1">// Modification of b will no longer affect a.</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">SEPARATE_ARRAY()</span></code> macro takes care not only of shared arrays, but also of immutable ones:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
 <span class="n">ZVAL_EMPTY_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// Immutable empty array.</span>
 <span class="n">SEPARATE_ARRAY</span><span class="p">(</span><span class="o">&amp;</span><span class="n">val</span><span class="p">);</span><span class="w"> </span><span class="c1">// Mutable copy of empty array.</span>
 </pre></div>

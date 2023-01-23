@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -55,19 +52,19 @@ or method from within an extension.</p>
 <p>The implementation of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code> is widely different prior to PHP 7.1.0.</p>
 </div>
 <p>As of PHP 8.0.0, <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code> has the following structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_fcall_info</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">function_name</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">param_count</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_fcall_info</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">function_name</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">param_count</span><span class="p">;</span>
 <span class="w">    </span><span class="cm">/* This hashtable can also contain positional arguments (with integer keys),</span>
 <span class="cm">     * which will be appended to the normal params[]. This makes it easier to</span>
 <span class="cm">     * integrate APIs like call_user_func_array(). The usual restriction that</span>
-<span class="cm">     * there may not be position arguments after named arguments applies. */</span><span class="w"></span>
-<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">named_params</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zend_fcall_info</span><span class="p">;</span><span class="w"></span>
+<span class="cm">     * there may not be position arguments after named arguments applies. */</span>
+<span class="w">    </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">named_params</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_fcall_info</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>Let detail the various FCI fields:</p>
@@ -100,12 +97,12 @@ field existed which specified if array arguments should be separated or not.</p>
 <section id="structure-of-zend-fcall-info-cache">
 <h2>Structure of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code><a class="headerlink" href="#structure-of-zend-fcall-info-cache" title="Permalink to this heading">¶</a></h2>
 <p>A <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code> has the following structure:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_fcall_info_cache</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">function_handler</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">calling_scope</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">called_scope</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="n">zend_fcall_info_cache</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_fcall_info_cache</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">function_handler</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">calling_scope</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">called_scope</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">zend_fcall_info_cache</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>Let detail the various FCC fields:</p>
@@ -159,18 +156,18 @@ functions:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Call the provided zend_function with the given params.</span>
 <span class="cm"> * If retval_ptr is NULL, the return value is discarded.</span>
 <span class="cm"> * If object is NULL, this must be a free function or static call.</span>
-<span class="cm"> * called_scope must be provided for instance and static method calls. */</span><span class="w"></span>
-<span class="n">ZEND_API</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zend_call_known_function</span><span class="p">(</span><span class="w"></span>
-<span class="w">            </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">called_scope</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval_ptr</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">param_count</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">named_params</span><span class="p">);</span><span class="w"></span>
+<span class="cm"> * called_scope must be provided for instance and static method calls. */</span>
+<span class="n">ZEND_API</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zend_call_known_function</span><span class="p">(</span>
+<span class="w">            </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">called_scope</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval_ptr</span><span class="p">,</span>
+<span class="w">            </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">param_count</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">named_params</span><span class="p">);</span>
 
-<span class="cm">/* Call the provided zend_function instance method on an object. */</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="n">zend_always_inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zend_call_known_instance_method</span><span class="p">(</span><span class="w"></span>
-<span class="w">            </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval_ptr</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">param_count</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">zend_call_known_function</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">ce</span><span class="p">,</span><span class="w"> </span><span class="n">retval_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">param_count</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="cm">/* Call the provided zend_function instance method on an object. */</span>
+<span class="k">static</span><span class="w"> </span><span class="n">zend_always_inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zend_call_known_instance_method</span><span class="p">(</span>
+<span class="w">            </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">zend_object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">retval_ptr</span><span class="p">,</span>
+<span class="w">            </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">param_count</span><span class="p">,</span><span class="w"> </span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">params</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="n">zend_call_known_function</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="o">-&gt;</span><span class="n">ce</span><span class="p">,</span><span class="w"> </span><span class="n">retval_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">param_count</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>And specific parameter number variations for the latter.</p>

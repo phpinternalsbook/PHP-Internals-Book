@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -58,12 +55,12 @@ about it</p>
 </pre></div>
 </div>
 <p>Internally, a resource is bound to the <code class="docutils literal notranslate"><span class="pre">zend_resource</span></code> structure type:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_resource</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">zend_refcounted_h</span><span class="w"> </span><span class="n">gc</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="kt">int</span><span class="w">               </span><span class="n">handle</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="kt">int</span><span class="w">               </span><span class="n">type</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="kt">void</span><span class="w">             </span><span class="o">*</span><span class="n">ptr</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_resource</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">zend_refcounted_h</span><span class="w"> </span><span class="n">gc</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">int</span><span class="w">               </span><span class="n">handle</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">int</span><span class="w">               </span><span class="n">type</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">void</span><span class="w">             </span><span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>We find the traditional <code class="docutils literal notranslate"><span class="pre">zend_refcounted_h</span></code> header, meaning that resources are reference countable.</p>
@@ -111,24 +108,24 @@ You may find some inconsistencies into it, like talking about “lists” for �
 register. You must remember that integer because you will need it later-on to fetch back your resource from the user.</p>
 <p>After that, you can register a new resource using <code class="docutils literal notranslate"><span class="pre">zend_register_resource()</span></code>. That one will return you a
 <code class="docutils literal notranslate"><span class="pre">zend_resource</span></code>. Let’s see together a simple use-case example:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
 
-<span class="kt">int</span><span class="w"> </span><span class="n">res_num</span><span class="p">;</span><span class="w"></span>
-<span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="p">;</span><span class="w"></span>
-<span class="n">zend_resource</span><span class="w"> </span><span class="o">*</span><span class="n">my_res</span><span class="p">;</span><span class="w"></span>
-<span class="n">zval</span><span class="w"> </span><span class="n">my_val</span><span class="p">;</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">res_num</span><span class="p">;</span>
+<span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+<span class="n">zend_resource</span><span class="w"> </span><span class="o">*</span><span class="n">my_res</span><span class="p">;</span>
+<span class="n">zval</span><span class="w"> </span><span class="n">my_val</span><span class="p">;</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">my_res_dtor</span><span class="p">(</span><span class="n">zend_resource</span><span class="w"> </span><span class="o">*</span><span class="n">rsrc</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">fclose</span><span class="p">((</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">rsrc</span><span class="o">-&gt;</span><span class="n">ptr</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">my_res_dtor</span><span class="p">(</span><span class="n">zend_resource</span><span class="w"> </span><span class="o">*</span><span class="n">rsrc</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">((</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">rsrc</span><span class="o">-&gt;</span><span class="n">ptr</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="cm">/* module_number should be your PHP extension number here */</span><span class="w"></span>
-<span class="n">res_num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_list_destructors_ex</span><span class="p">(</span><span class="n">my_res_dtor</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;my_res&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">module_number</span><span class="p">);</span><span class="w"></span>
-<span class="n">fp</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;/proc/cpuinfo&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">my_res</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_resource</span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">fp</span><span class="p">,</span><span class="w"> </span><span class="n">res_num</span><span class="p">);</span><span class="w"></span>
+<span class="cm">/* module_number should be your PHP extension number here */</span>
+<span class="n">res_num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_list_destructors_ex</span><span class="p">(</span><span class="n">my_res_dtor</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;my_res&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">module_number</span><span class="p">);</span>
+<span class="n">fp</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;/proc/cpuinfo&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span>
+<span class="n">my_res</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">zend_register_resource</span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">fp</span><span class="p">,</span><span class="w"> </span><span class="n">res_num</span><span class="p">);</span>
 
-<span class="n">ZVAL_RES</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_val</span><span class="p">,</span><span class="w"> </span><span class="n">my_res</span><span class="p">);</span><span class="w"></span>
+<span class="n">ZVAL_RES</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_val</span><span class="p">,</span><span class="w"> </span><span class="n">my_res</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>What we do in the code above, is that we open a file using libc’s <code class="docutils literal notranslate"><span class="pre">fopen()</span></code>, and store the returned pointer into a
@@ -149,13 +146,13 @@ engine does not really care about type name, but type identifier, the integer re
 resource from the userland. Remember, the resource is stored into the <code class="docutils literal notranslate"><span class="pre">zval</span></code>. Into the resource is stored the resource
 type number (on the <code class="docutils literal notranslate"><span class="pre">type</span></code> field). Thus, to be given back our resource from the user, we must extract the
 <code class="docutils literal notranslate"><span class="pre">zend_resource</span></code> from the <code class="docutils literal notranslate"><span class="pre">zval</span></code>, and call <code class="docutils literal notranslate"><span class="pre">zend_fetch_resource()</span></code> to get back our <code class="docutils literal notranslate"><span class="pre">FILE</span> <span class="pre">*</span></code> pointer:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* ... later on ... */</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* ... later on ... */</span>
 
-<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">user_zval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* fetch zval from userland, assume type IS_RESOURCE */</span><span class="w"></span>
+<span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">user_zval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* fetch zval from userland, assume type IS_RESOURCE */</span>
 
-<span class="n">ZEND_ASSERT</span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">user_zval</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_RESOURCE</span><span class="p">);</span><span class="w"> </span><span class="cm">/* just a check to be sure */</span><span class="w"></span>
+<span class="n">ZEND_ASSERT</span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">user_zval</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IS_RESOURCE</span><span class="p">);</span><span class="w"> </span><span class="cm">/* just a check to be sure */</span>
 
-<span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">zend_fetch_resource</span><span class="p">(</span><span class="n">Z_RESVAL_P</span><span class="p">(</span><span class="n">user_zval</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;my_res&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">res_num</span><span class="p">);</span><span class="w"></span>
+<span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">zend_fetch_resource</span><span class="p">(</span><span class="n">Z_RESVAL_P</span><span class="p">(</span><span class="n">user_zval</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;my_res&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">res_num</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Like we said : get back a zval from the user (of type <code class="docutils literal notranslate"><span class="pre">IS_RESOURCE</span></code>), and fetch the resource pointer back from it by
@@ -196,8 +193,8 @@ bring).</p>
 the same resource should really be thoughtful before going this way.</p>
 <p>To register a persistent resource, use a persistent destructor instead of a classical one. This is done in the call
 to <code class="docutils literal notranslate"><span class="pre">zend_register_list_destructors_ex()</span></code>, which API is like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_register_list_destructors_ex</span><span class="p">(</span><span class="n">rsrc_dtor_func_t</span><span class="w"> </span><span class="n">destructor</span><span class="p">,</span><span class="w"> </span><span class="n">rsrc_dtor_func_t</span><span class="w"> </span><span class="n">persistent_destructor</span><span class="p">,</span><span class="w"></span>
-<span class="w">                                  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">type_name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">module_number</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_register_list_destructors_ex</span><span class="p">(</span><span class="n">rsrc_dtor_func_t</span><span class="w"> </span><span class="n">destructor</span><span class="p">,</span><span class="w"> </span><span class="n">rsrc_dtor_func_t</span><span class="w"> </span><span class="n">persistent_destructor</span><span class="p">,</span>
+<span class="w">                                  </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">type_name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">module_number</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>

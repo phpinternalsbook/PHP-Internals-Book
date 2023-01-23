@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -58,51 +55,51 @@ Such cases should however never happen in PHP extensions programming.</p>
 <section id="managing-request-globals">
 <h2>Managing request globals<a class="headerlink" href="#managing-request-globals" title="Permalink to this heading">¶</a></h2>
 <p>Here is a simple example of a simple extension using a request global:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* true C global */</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="n">zend_long</span><span class="w"> </span><span class="n">rnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* true C global */</span>
+<span class="k">static</span><span class="w"> </span><span class="n">zend_long</span><span class="w"> </span><span class="n">rnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="cm">/* Pick a number to guess between 0 and 100 */</span><span class="w"></span>
-<span class="w">    </span><span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rnd</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Pick a number to guess between 0 and 100 */</span>
+<span class="w">    </span><span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rnd</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_rnd_init</span><span class="p">();</span><span class="w"></span>
+<span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">pib_rnd_init</span><span class="p">();</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">r</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rnd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="cm">/* Reset the number to guess */</span><span class="w"></span>
-<span class="w">        </span><span class="n">pib_rnd_init</span><span class="p">();</span><span class="w"></span>
-<span class="w">        </span><span class="n">RETURN_TRUE</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rnd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/* Reset the number to guess */</span>
+<span class="w">        </span><span class="n">pib_rnd_init</span><span class="p">();</span>
+<span class="w">        </span><span class="n">RETURN_TRUE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">rnd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">rnd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_reset</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_reset</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">pib_rnd_init</span><span class="p">();</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">pib_rnd_init</span><span class="p">();</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Like you can see, this extension picks a random integer when a request starts, and then the user - through
@@ -129,22 +126,22 @@ request-bound global (read and write access).</p>
 multi-processing model uses processes. Like we saw, the above code is perfectly valid if no threads are used. So, when
 processes will be used, the macros we’ll see in a minute will expand to something similar.</p>
 <p>What you need to do first is to declare a structure that will be the root of all your globals:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">rnd</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">rnd</span><span class="p">;</span>
+<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
 <span class="cm">/* Resolved as :</span>
 <span class="cm">*</span>
 <span class="cm">* typedef struct _zend_pib_globals {</span>
 <span class="cm">*    zend_long rnd;</span>
 <span class="cm">* } zend_pib_globals;</span>
-<span class="cm">*/</span><span class="w"></span>
+<span class="cm">*/</span>
 </pre></div>
 </div>
 <p>Then, you create a true global variable of such a type:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
-<span class="cm">/* Resolved as zend_pib_globals pib_globals; */</span><span class="w"></span>
+<span class="cm">/* Resolved as zend_pib_globals pib_globals; */</span>
 </pre></div>
 </div>
 <p>Now, you may access your data using global macro accessor. This later macro has been created by the
@@ -159,30 +156,30 @@ processes will be used, the macros we’ll see in a minute will expand to someth
 <p>Like you can see, if ZTS mode is not enabled, that is if you
 <a class="reference internal" href="../build_system/building_php.html"><span class="doc">compiled PHP and the extension with no Thread safety</span></a> (we call that mode <em>NTS</em> :
 Non-Thread-Safe), the macro simply resolves to the data declared into your structure. Hence the following changes:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">r</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">pib_rnd_init</span><span class="p">();</span><span class="w"></span>
-<span class="w">        </span><span class="n">RETURN_TRUE</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">pib_rnd_init</span><span class="p">();</span>
+<span class="w">        </span><span class="n">RETURN_TRUE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -210,30 +207,30 @@ system helped by the engine provides a hook to give your globals default values,
 <p>For a full view of PHP hooks, refer to the <a class="reference internal" href="php_lifecycle.html"><span class="doc">PHP lifecycle chapter</span></a>.</p>
 </div>
 <p>Let’s zero our random value:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_GSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_GSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span><span class="w"> </span><span class="p">}</span>
 
-<span class="n">PHP_GINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_globals</span><span class="o">-&gt;</span><span class="n">rnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="n">PHP_GINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">pib_globals</span><span class="o">-&gt;</span><span class="n">rnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_GINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_GSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* PRSHUTDOWN() */</span><span class="w"></span>
-<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES_EX</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PHP_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+<span class="w">    </span><span class="n">PHP_GINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+<span class="w">    </span><span class="n">PHP_GSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* PRSHUTDOWN() */</span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES_EX</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>We chose to show only the relevant part of <code class="docutils literal notranslate"><span class="pre">zend_module_entry</span></code> (and <code class="docutils literal notranslate"><span class="pre">NULL</span></code> others). Like you can see, globals
@@ -267,110 +264,110 @@ you need to do that by hand, like we did in the example shown throughout the cha
 <p>Here is a more advanced full example. If the player wins, its score (numbers of tries) is added to a score array that
 can be fetched from userland. Nothing really hard, the score array is initialized at request startup, then used
 anytime the player wins, and cleared at the end of the current request:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">rnd</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_ulong</span><span class="w"> </span><span class="n">cur_score</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">scores</span><span class="p">;</span><span class="w"></span>
-<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">rnd</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zend_ulong</span><span class="w"> </span><span class="n">cur_score</span><span class="p">;</span>
+<span class="w">    </span><span class="n">zval</span><span class="w"> </span><span class="n">scores</span><span class="p">;</span>
+<span class="n">ZEND_END_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
-<span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
+<span class="n">ZEND_DECLARE_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="cm">/* reset current score as well */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/* reset current score as well */</span>
+<span class="w">    </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_GINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="cm">/* ZEND_SECURE_ZERO is a memset(0). Could resolve to bzero() as well */</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZEND_SECURE_ZERO</span><span class="p">(</span><span class="n">pib_globals</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">pib_globals</span><span class="p">));</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="n">PHP_GINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/* ZEND_SECURE_ZERO is a memset(0). Could resolve to bzero() as well */</span>
+<span class="w">    </span><span class="n">ZEND_SECURE_ZERO</span><span class="p">(</span><span class="n">pib_globals</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">pib_globals</span><span class="p">));</span>
+<span class="p">}</span>
 
-<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_guess</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">num</span><span class="p">)</span><span class="w"></span>
-<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span><span class="w"></span>
+<span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_guess</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="n">ZEND_ARG_INFO</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">num</span><span class="p">)</span>
+<span class="n">ZEND_END_ARG_INFO</span><span class="p">()</span>
 
-<span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">array_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="n">pib_rnd_init</span><span class="p">();</span><span class="w"></span>
+<span class="n">PHP_RINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">array_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">));</span>
+<span class="w">    </span><span class="n">pib_rnd_init</span><span class="p">();</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_RSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">));</span><span class="w"></span>
+<span class="n">PHP_RSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zval_dtor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">));</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">r</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">add_next_index_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">));</span><span class="w"></span>
-<span class="w">        </span><span class="n">pib_rnd_init</span><span class="p">();</span><span class="w"></span>
-<span class="w">        </span><span class="n">RETURN_TRUE</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">add_next_index_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">));</span>
+<span class="w">        </span><span class="n">pib_rnd_init</span><span class="p">();</span>
+<span class="w">        </span><span class="n">RETURN_TRUE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="o">++</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">RETURN_STRING</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_get_scores</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_get_scores</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">RETVAL_ZVAL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">RETVAL_ZVAL</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_reset</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_reset</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters_none</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">pib_rnd_init</span><span class="p">();</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">pib_rnd_init</span><span class="p">();</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">func</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">pib_reset</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">pib_get_scores</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_guess</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_FE_END</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">zend_function_entry</span><span class="w"> </span><span class="n">func</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">pib_reset</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">pib_get_scores</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span>
+<span class="w">    </span><span class="n">PHP_FE</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">,</span><span class="w"> </span><span class="n">arginfo_guess</span><span class="p">)</span>
+<span class="w">    </span><span class="n">PHP_FE_END</span>
+<span class="p">};</span>
 
-<span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Function entries */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module init */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module shutdown */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_RINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request init */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_RSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request shutdown */</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module information */</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Replace with version number for your extension */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"></span>
-<span class="w">    </span><span class="n">PHP_GINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES_EX</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="n">zend_module_entry</span><span class="w"> </span><span class="n">pib_module_entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_HEADER</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;pib&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Function entries */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module init */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module shutdown */</span>
+<span class="w">    </span><span class="n">PHP_RINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request init */</span>
+<span class="w">    </span><span class="n">PHP_RSHUTDOWN</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span><span class="w"> </span><span class="cm">/* Request shutdown */</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Module information */</span>
+<span class="w">    </span><span class="s">&quot;0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="cm">/* Replace with version number for your extension */</span>
+<span class="w">    </span><span class="n">PHP_MODULE_GLOBALS</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+<span class="w">    </span><span class="n">PHP_GINIT</span><span class="p">(</span><span class="n">pib</span><span class="p">),</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STANDARD_MODULE_PROPERTIES_EX</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>What must be noted here, is that PHP provides no facility if you would have wanted to persist the scores across
@@ -396,70 +393,70 @@ lifecycle. But you can’t write to them while treating a request (but reading f
 initialize persistent <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string</span></a> to make use of them later as you’ll
 treat some requests.</p>
 <p>Here is the patched example introducing true globals, we just show the diff about preceding code and not the full code:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">more</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">less</span><span class="p">;</span><span class="w"></span>
-<span class="k">static</span><span class="w"> </span><span class="n">zend_ulong</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">zend_string</span><span class="w"> </span><span class="o">*</span><span class="n">more</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">less</span><span class="p">;</span>
+<span class="k">static</span><span class="w"> </span><span class="n">zend_ulong</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">register_persistent_string</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string</span><span class="w"> </span><span class="o">**</span><span class="n">result</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="o">*</span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_string_hash_val</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">register_persistent_string</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">zend_string</span><span class="w"> </span><span class="o">**</span><span class="n">result</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="o">*</span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zend_string_init</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">zend_string_hash_val</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">);</span>
 
-<span class="w">    </span><span class="n">GC_ADD_FLAGS</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">IS_STR_INTERNED</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">GC_ADD_FLAGS</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">IS_STR_INTERNED</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="cm">/* reset current score as well */</span><span class="w"></span>
-<span class="w">    </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">pib_rnd_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/* reset current score as well */</span>
+<span class="w">    </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">php_random_int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">pib_max</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_MINIT_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">pib_max</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">register_persistent_string</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">more</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">register_persistent_string</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">less</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">register_persistent_string</span><span class="p">(</span><span class="s">&quot;more&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">more</span><span class="p">);</span>
+<span class="w">    </span><span class="n">register_persistent_string</span><span class="p">(</span><span class="s">&quot;less&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">less</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pib_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;PIB_RAND_MAX&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">strchr</span><span class="p">(</span><span class="n">pib_max</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;-&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZEND_STRTOUL</span><span class="p">(</span><span class="n">pib_max</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pib_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;PIB_RAND_MAX&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">strchr</span><span class="p">(</span><span class="n">pib_max</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;-&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ZEND_STRTOUL</span><span class="p">(</span><span class="n">pib_max</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">more</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">less</span><span class="p">);</span><span class="w"></span>
+<span class="n">PHP_MSHUTDOWN_FUNCTION</span><span class="p">(</span><span class="n">pib</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">more</span><span class="p">);</span>
+<span class="w">    </span><span class="n">zend_string_release</span><span class="p">(</span><span class="n">less</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">r</span><span class="p">;</span><span class="w"></span>
+<span class="n">PHP_FUNCTION</span><span class="p">(</span><span class="n">pib_guess</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">zend_long</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">zend_parse_parameters</span><span class="p">(</span><span class="n">ZEND_NUM_ARGS</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FAILURE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">add_next_index_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">));</span><span class="w"></span>
-<span class="w">        </span><span class="n">pib_rnd_init</span><span class="p">();</span><span class="w"></span>
-<span class="w">        </span><span class="n">RETURN_TRUE</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">add_next_index_long</span><span class="p">(</span><span class="o">&amp;</span><span class="n">PIB_G</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">));</span>
+<span class="w">        </span><span class="n">pib_rnd_init</span><span class="p">();</span>
+<span class="w">        </span><span class="n">RETURN_TRUE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="o">++</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">cur_score</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">RETURN_STR</span><span class="p">(</span><span class="n">more</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PIB_G</span><span class="p">(</span><span class="n">rnd</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">RETURN_STR</span><span class="p">(</span><span class="n">more</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="n">RETURN_STR</span><span class="p">(</span><span class="n">less</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">RETURN_STR</span><span class="p">(</span><span class="n">less</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>What happened here is that we created two <a class="reference internal" href="../internal_types/strings/zend_strings.html"><span class="doc">zend_string</span></a> variables <code class="docutils literal notranslate"><span class="pre">more</span></code>

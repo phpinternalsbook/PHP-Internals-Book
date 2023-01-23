@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
     <link rel="stylesheet" type="text/css" href="../_static/style.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -50,33 +47,33 @@ at <code class="docutils literal notranslate"><span class="pre">sapi/cli/php</sp
 <p>You can run the test suite directly with run-tests.php. At minimum you’ll need to specify the php executable that you
 wish to test against which you can do with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag. Note that in order to run all tests correctly this should be
 an absolute path to the PHP executable.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -p <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sapi/cli/php
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>sapi/cli/php<span class="w"> </span>run-tests.php<span class="w"> </span>-p<span class="w"> </span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/sapi/cli/php
 </pre></div>
 </div>
 <p>A shortcut flag you can use to tell run-tests to test against the PHP executable that is currently invoked is by using
 the <code class="docutils literal notranslate"><span class="pre">-P</span></code> flag.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -P
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>sapi/cli/php<span class="w"> </span>run-tests.php<span class="w"> </span>-P
 </pre></div>
 </div>
 <p>If you don’t want to have to set the <code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">-P</span></code> flag every time, you could specify the php executable with the
 <code class="docutils literal notranslate"><span class="pre">TEST_PHP_EXECUTABLE</span></code> environment variable which can be set with <code class="docutils literal notranslate"><span class="pre">export</span></code> on Linux machines.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; <span class="nb">export</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
-~/php-src&gt; sapi/cli/php run-tests.php
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
+~/php-src&gt;<span class="w"> </span>sapi/cli/php<span class="w"> </span>run-tests.php
 </pre></div>
 </div>
 <p>On Windows you can set the environment variable using <code class="docutils literal notranslate"><span class="pre">set</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>C:<span class="se">\p</span>hp-src&gt; <span class="nb">set</span> <span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
-C:<span class="se">\p</span>hp-src&gt; sapi/cli/php run-tests.php
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>C:<span class="se">\p</span>hp-src&gt;<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="nv">TEST_PHP_EXECUTABLE</span><span class="o">=</span>sapi/cli/php
+C:<span class="se">\p</span>hp-src&gt;<span class="w"> </span>sapi/cli/php<span class="w"> </span>run-tests.php
 </pre></div>
 </div>
 <p>By default <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code> will start running all 15,000+ tests in the test suite which would take forever-ever. You
 can specify a target folder of tests to run or even a single test. The following example will run all the tests
 associated with <a class="reference external" href="http://php.net/csprng">PHP 7’s CSPRNG</a>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -P ext/standard/tests/random
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>sapi/cli/php<span class="w"> </span>run-tests.php<span class="w"> </span>-P<span class="w"> </span>ext/standard/tests/random
 </pre></div>
 </div>
 <p>You can also specify multiple target folders or files to run.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php -P Zend/ ext/reflection/ ext/standard/tests/array/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>sapi/cli/php<span class="w"> </span>run-tests.php<span class="w"> </span>-P<span class="w"> </span>Zend/<span class="w"> </span>ext/reflection/<span class="w"> </span>ext/standard/tests/array/
 </pre></div>
 </div>
 <p>If you run the full test suite, and there are failing tests, the script will ask if you want to send a report to the
@@ -89,16 +86,16 @@ setting environment variable <code class="docutils literal notranslate"><span cl
 <code class="docutils literal notranslate"><span class="pre">test</span></code> target does all the hard work of specifying the PHP executable for you (the one you compiled), setting up some
 default INI settings and specifying the best run-tests flags for you. You needn’t worry about setting environment
 variables or setting additional flags so the command is very simple.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>make<span class="w"> </span><span class="nb">test</span>
 </pre></div>
 </div>
 <p>As before, <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code> will start running the entire test suite. To specify a folder or single test to execute you
 can pass <code class="docutils literal notranslate"><span class="pre">make</span></code> a <code class="docutils literal notranslate"><span class="pre">TESTS</span></code> variable. The following example will test that PHP can handle binary literals properly.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span>Zend/tests/binary.phpt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>make<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="nv">TESTS</span><span class="o">=</span>Zend/tests/binary.phpt
 </pre></div>
 </div>
 <p>You can specify multiple target folders or files to run by separating each path with a space in the <code class="docutils literal notranslate"><span class="pre">TESTS</span></code> variable.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;Zend/ ext/reflection/ ext/standard/tests/array/&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>make<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;Zend/ ext/reflection/ ext/standard/tests/array/&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -106,11 +103,11 @@ can pass <code class="docutils literal notranslate"><span class="pre">make</span
 <h2>Executing tests in parallel<a class="headerlink" href="#executing-tests-in-parallel" title="Permalink to this heading">¶</a></h2>
 <p>Since PHP 7.4 you are able to run tests in parallel by passing a <code class="docutils literal notranslate"><span class="pre">-j&lt;workers&gt;</span></code> flag to <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;workers&gt;</span></code> is the number of parallel processes you want. For example, <code class="docutils literal notranslate"><span class="pre">-j4</span></code> would run 4 tests at once.</p>
 <p>Example for running tests through run-tests.php:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>run-tests.php -j8
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>run-tests.php<span class="w"> </span>-j8
 </pre></div>
 </div>
 <p>Example for running tests through make:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nb">test</span> <span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;-j8&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="nv">TESTS</span><span class="o">=</span><span class="s2">&quot;-j8&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -119,11 +116,11 @@ can pass <code class="docutils literal notranslate"><span class="pre">make</span
 <p>Tests that passed are usually not that interesting. You can filter what tests to show with the <code class="docutils literal notranslate"><span class="pre">-g</span></code> flag. Possible
 values are <code class="docutils literal notranslate"><span class="pre">PASS</span></code>, <code class="docutils literal notranslate"><span class="pre">FAIL</span></code>, <code class="docutils literal notranslate"><span class="pre">XFAIL</span></code>, <code class="docutils literal notranslate"><span class="pre">SKIP</span></code>, <code class="docutils literal notranslate"><span class="pre">BORK</span></code>, <code class="docutils literal notranslate"><span class="pre">WARN</span></code>, <code class="docutils literal notranslate"><span class="pre">LEAK</span></code>, <code class="docutils literal notranslate"><span class="pre">REDIRECT</span></code> For example to only
 show failing tests:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; run-tests.php -g FAIL
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>run-tests.php<span class="w"> </span>-g<span class="w"> </span>FAIL
 </pre></div>
 </div>
 <p>For a full list of supported options that run-tests supports, just run it with <code class="docutils literal notranslate"><span class="pre">--help</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt; sapi/cli/php run-tests.php --help
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/php-src&gt;<span class="w"> </span>sapi/cli/php<span class="w"> </span>run-tests.php<span class="w"> </span>--help
 </pre></div>
 </div>
 <p>For example <code class="docutils literal notranslate"><span class="pre">-x</span></code> to skip slow tests, <code class="docutils literal notranslate"><span class="pre">--offline</span></code> to skip online tests or <code class="docutils literal notranslate"><span class="pre">-m</span></code> for testing memory leaks with

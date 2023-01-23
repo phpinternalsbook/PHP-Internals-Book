@@ -76,7 +76,7 @@ limited precision and commonly doesn't store the exact value you want.
 The remaining four types will only be mentioned here quickly and discussed in greater detail in their own chapters:
 
 Strings (``IS_STRING``) are stored in a ``zend_string`` structure, which combines the string length and the string
-constants in a single allocation. You will find more information about the ``zend_string`` structure and its
+contents in a single allocation. You will find more information about the ``zend_string`` structure and its
 dedicated API in the :doc:`string <../internal_types/strings>` chapter.
 
 Arrays use the ``IS_ARRAY`` type tag and are stored in the ``zend_array *arr`` member. How the ``HashTable`` structure
