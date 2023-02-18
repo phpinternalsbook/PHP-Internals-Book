@@ -83,7 +83,7 @@ Arrays use the ``IS_ARRAY`` type tag and are stored in the ``zend_array *arr`` m
 works will be discussed in the :doc:`Hashtables <../internal_types/hashtables>` chapter.
 
 Objects (``IS_OBJECT``) use the ``zend_object *obj`` member. PHP's class and object system will be described in the
-:doc:`objects <../internal_types/objects>` chapter.
+:doc:`objects <../classes_objects>` chapter.
 
 Resources (``IS_RESOURCE``) are use the ``zend_resource *res`` member. Resources are covered in the
 :doc:`Resources <../internal_types/zend_resources>` chapter.
