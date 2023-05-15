@@ -220,10 +220,137 @@ Beware however:
 What you must remember is that ZendMM leak tracking is a nice bonus tool to have, but it does not replace a
 :doc:`true C memory debugger <./memory_debugging>`.
 
+Lifecycle
+*********
+
+PHP will call the ``start_memory_manager()`` function during it's startup phase, specifically when the PHP process is
+started (for instance, when the PHP-FPM service is started, or when a PHP CLI script is run). This will allocate the
+heap and the first chunk.
+
+During a request the ZendMM will allocate chunks as needed.
+
+On every request shutdown (during the ``RSHUTDOWN`` phase), the ZendEngine will call the ``shutdown_memory_manager()``
+function (which calls the ``zend_mm_shutdown()`` function) with the boolean argument ``full`` set to ``false``. This
+will cleanup for the next request, but not do a full shutdown of the memory manager. For example it will not free the
+heap and keep the average amount of chunks used during the current request alive in the ``cached_chunks`` pointer on the
+heap to be reused in the next request.
+
+In the module shutdown phase (``MSHUTDOWN``) the ZendEngine will call the ``shutdown_memory_manager()`` function (which
+calls the ``zend_mm_shutdown()`` function) with the boolean argument ``full`` set to ``true``, which will trigger a full
+shutdown and free all cached chunks as well as the heap itself.
+
 ZendMM internal design
 **********************
 
-.. todo:: todo
+The root of the ZendMM is the ``_zend_mm_heap`` struct (as defined in `Zend/zend_alloc.c
+<https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_alloc.c#L239>`__) which will be
+created for every request during request init and stored in the ``alloc_globals->mm_heap``. This heap also comes with
+the first chunk that is allocated with it. Chunks are then subdivided into pages. Smaller allocations are stored in bins
+which may fit into one page but some also span multiple pages.
+
+Interal memory organisation
+---------------------------
+
+Heap
+++++
+
+The heap, as defined in the struct ``_zend_mm_heap``, holds links to chunks (``main_chunk`` and ``cached_chunks``, for
+small and large allocations), ``huge_list`` for huge allocations (>= 2MB) and to bins (for small allocations) in
+``free_slots[BIN]``. After initialisation only the ``main_chunk`` exists and none or some ``cached_chunks``.
+
+Chunks
+++++++
+
+Each chunk is 2 MB in size and consists of 512 pages. The first page of every chunk is reserved for the chunk header as
+defined in the struct ``_zend_mm_chunk`` (as defined in `Zend/zend_alloc.c
+<https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_alloc.c#L286>`__). Chunks are
+organised in a linked list with ``prev`` and ``next`` pointers.
+
+Each chunk holds a bit mask in ``free_map`` (512 bits) where a single bit indicates if a page is in use or free.
+Information on what is in a page is stored in ``map`` which is an array of 512 32 bit integers. Each of those integers
+is used as a bitmap and holds the meta information about that page.
+
+Pages
++++++
+
+A page is 4096 bytes in size and can either hold a bin (for small allocations) or be part of a large allocation. What is
+in it can be found in the map of the chunk the page belongs to.
+
+Bins
+++++
+
+Small allocations are grouped together in bins. Bin sizes are predefined and come in 30 different sizes (8, 16, 24, 32,
+... 3072). A bin holds same sized values and is linked from the heap directly.
+
+A bin can consist of multiple pages. Example: There is a bin that holds elements the sizes 257 bytes to 320 bytes which
+occupies 5 pages and therefore has room for 64 elements of that size.
+
+Allocation categories
+---------------------
+
+Small allocations
++++++++++++++++++
+
+Allocations smaller than or up to 3072 bytes are organised in bins.
+
+If a bin is already initialised, the ``free_slot`` pointer on the ``zend_mm_heap`` struct is the address to be used
+(this address will be returned by the call to ``emalloc()`` and will be incremented to point to the next free slot, see
+implementation in ``zend_mm_alloc_small``).
+
+If the bin for this specific size is not initialised already, it will be created in the ``zend_mm_alloc_small_slow``
+function and a pointer to the first element of the bin is returned.
+
+Large allocations
++++++++++++++++++
+
+Allocations bigger than 3072 bytes, but small enough to fit in a chunk (2 MB chunk size - 4096 bytes chunk header (first
+page) makes 2093056 bytes) are directly stored in the pages. The first page will be marked ``LRUN`` in the map of the
+chunk and also hold the number of allocated pages.
+
+Huge allocations
+++++++++++++++++
+
+If an allocation is larger than the chunk size minus one page (2 MB chunk size - 4096 bytes chunk header (first page)
+makes 2093056 bytes) the memory is allocated using ``mmap()`` and put on the ``huge_list`` linked list on the heap.
+
+Hooking into the ZendMM
+***********************
+
+You can call the ``zend_mm_set_custom_handlers()`` function and give it pointers to your ``malloc``, ``free`` and
+``realloc`` handlers as well as your custom heap. You may as well use the existing heap you can fetch via
+``zend_mm_get_heap()``.
+
+.. code-block:: c
+
+    void* my_malloc(size_t len) {
+        return malloc(len);
+    }
+
+    void my_free(void* ptr) {
+        free(ptr);
+    }
+
+    void* my_realloc(void* ptr, size_t len) {
+        return realloc(ptr, len);
+    }
+
+    PHP_MINIT_FUNCTION(my_extension) {
+        zend_mm_set_custom_handlers(
+            zend_mm_get_heap(),
+            my_malloc,
+            my_free,
+            my_realloc
+        );
+        return SUCCESS;
+    }
+
+While this is the only possible way to extend the ZendMM, this also alters the behaviour in two ways. As soon as a
+custom memory manager is installed:
+
+* ZendMM will not cleanup chunks anymore during ``zend_mm_shutdown()`` (which is called during PHP request shutdown),
+  leaving you with a memory leak if your custom handlers just forward calls to the ZendMM internal functions
+* ZendMM's garbage collector implemented in ``zend_mm_gc()`` will not be doing anything in case a custom memory handler
+  is installed
 
 Common errors and mistakes
 **************************
