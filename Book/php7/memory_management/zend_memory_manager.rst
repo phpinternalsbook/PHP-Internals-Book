@@ -291,7 +291,7 @@ Allocation categories
 Small allocations
 +++++++++++++++++
 
-Allocations smaller than or up to 3072 bytes are organised in bins.
+Allocations less or equal than 3072 bytes are organised in bins.
 
 If a bin is already initialised, the ``free_slot`` pointer on the ``zend_mm_heap`` struct is the address to be used
 (this address will be returned by the call to ``emalloc()`` and will be incremented to point to the next free slot, see
