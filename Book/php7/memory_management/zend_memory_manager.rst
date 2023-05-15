@@ -280,9 +280,10 @@ Bins
 ++++
 
 Small allocations are grouped together in bins. Bin sizes are predefined and come in 30 different sizes (8, 16, 24, 32,
-... 3072). A bin holds same sized values and is linked from the heap directly.
+... 3072 bytes). A bin holds same sized values and is linked from the heap directly.
 
-A bin can consist of multiple pages. Example: There exists a bin that holds elements ranging from 257 bytes to 320 bytes which occupies 5 pages, and therefore has room for 64 (derived from 4096*5/320) elements of that size.
+A bin can consist of multiple pages. Example: There exists a bin that holds elements ranging from 257 bytes to 320 bytes
+which occupies 5 pages, and therefore has room for 64 (derived from 4096*5/320) elements of that size.
 
 Allocation categories
 ---------------------
