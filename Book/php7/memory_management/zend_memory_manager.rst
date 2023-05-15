@@ -235,7 +235,7 @@ will cleanup for the next request, but not do a full shutdown of the memory mana
 heap and keep the average amount of chunks used during the current request alive in the ``cached_chunks`` pointer on the
 heap to be reused in the next request.
 
-In the module shutdown phase (``MSHUTDOWN``) the ZendEngine will call the ``shutdown_memory_manager()`` function (which
+In the module shutdown phase (``MSHUTDOWN``) the Zend Engine will call the ``shutdown_memory_manager()`` function (which
 calls the ``zend_mm_shutdown()`` function) with the boolean argument ``full`` set to ``true``, which will trigger a full
 shutdown and free all cached chunks as well as the heap itself.
 
