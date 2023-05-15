@@ -229,7 +229,7 @@ heap and the first chunk.
 
 During a request the ZendMM will allocate chunks as needed.
 
-On every request shutdown (during the ``RSHUTDOWN`` phase), the ZendEngine will call the ``shutdown_memory_manager()``
+On every request shutdown (during the ``RSHUTDOWN`` phase), the Zend Engine will call the ``shutdown_memory_manager()``
 function (which calls the ``zend_mm_shutdown()`` function) with the boolean argument ``full`` set to ``false``. This
 will cleanup for the next request, but not do a full shutdown of the memory manager. For example it will not free the
 heap and keep the average amount of chunks used during the current request alive in the ``cached_chunks`` pointer on the
