@@ -223,7 +223,7 @@ What you must remember is that ZendMM leak tracking is a nice bonus tool to have
 Lifecycle
 *********
 
-PHP will call the ``start_memory_manager()`` function during it's startup phase, specifically when the PHP process is
+PHP will call the ``start_memory_manager()`` function during its startup phase, specifically when the PHP process is
 started (for instance, when the PHP-FPM service is started, or when a PHP CLI script is run). This will allocate the
 heap and the first chunk.
 
