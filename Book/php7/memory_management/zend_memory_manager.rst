@@ -248,7 +248,7 @@ created for every request during request init and stored in the ``alloc_globals-
 the first chunk that is allocated with it. Chunks are then subdivided into pages. Smaller allocations are stored in bins
 which may fit into one page but some also span multiple pages.
 
-Interal memory organisation
+Internal memory organisation
 ---------------------------
 
 Heap
