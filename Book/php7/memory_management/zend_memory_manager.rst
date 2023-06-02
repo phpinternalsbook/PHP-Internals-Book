@@ -317,8 +317,7 @@ Hooking into the ZendMM
 ***********************
 
 You can call the ``zend_mm_set_custom_handlers()`` function and give it pointers to your ``malloc``, ``free`` and
-``realloc`` handlers as well as your custom heap. You may as well use the existing heap you can fetch via
-``zend_mm_get_heap()``.
+``realloc`` handlers as well as your custom heap or the current heap that you may fetch via ``zend_mm_get_heap()``.
 
 .. code-block:: c
 
@@ -344,13 +343,16 @@ You can call the ``zend_mm_set_custom_handlers()`` function and give it pointers
         return SUCCESS;
     }
 
-While this is the only possible way to extend the ZendMM, this also alters the behaviour in two ways. As soon as a
-custom memory manager is installed:
+You may also bring your own heap and inject it via ``zend_mm_set_heap()`` which returns a pointer to the current (or
+old) heap. Beware that on a heap with custom handlers, ZendMM's behaviour will be different:
 
-* ZendMM will not cleanup chunks anymore during ``zend_mm_shutdown()`` (which is called during PHP request shutdown),
-  leaving you with a memory leak if your custom handlers just forward calls to the ZendMM internal functions
-* ZendMM's garbage collector implemented in ``zend_mm_gc()`` will not be doing anything in case a custom memory handler
-  is installed
+* ZendMM will not run cleanup during ``zend_mm_shutdown()`` (which is called during PHP request shutdown phase), leaving
+  you with a memory leak if your custom handlers just forward calls to the ZendMM internal functions.
+* ZendMM's garbage collector implemented in ``zend_mm_gc()`` will not be doing anything. This also means it will not try
+  to free chunks in case you reach the memory limit during an allocation in one of the ZendMM internal functions.
+* The only way to detect that a full shutdown is in progress in your heap with custom handlers is that your ``free``
+  function will be called with the address of your heap.
+* There is no chance of knowing when ``zend_mm_shutdown()`` will perform a request shutdown.
 
 Common errors and mistakes
 **************************
