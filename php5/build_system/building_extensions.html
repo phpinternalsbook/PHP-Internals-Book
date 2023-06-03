@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Building PHP extensions &#8212; PHP Internals Book</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
@@ -80,7 +79,7 @@ likely don’t have need for this, because you already know which extensions you
 everything else. The reason is simply that building external extensions as shared objects is easier (or at least less
 intrusive), as you will see in a moment. Another benefit is that you can update the extension without rebuilding PHP.</p>
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id2" role="note">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>We’ll explain the difference between a “normal” extension and a Zend extension later in the book. For now it
 suffices to know that Zend extensions are more “low level” (e.g. opcache or Xdebug) and hook into the workings of
