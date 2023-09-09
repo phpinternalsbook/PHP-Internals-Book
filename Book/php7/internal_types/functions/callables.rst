@@ -86,16 +86,19 @@ Let detail the various FCC fields:
 .. warning:: Prior to PHP 7.3.0 there existed an ``initialized`` field. Now an FCC is considered initialized when
   ``function_handler`` is set to a non-null pointer.
 
+.. note:: As of PHP 8.3.0, the FCC holds a ``closure`` field and a dedicated API to handle storing userland callables.
+    This new API is described below.
+
 The *only* case where an FCC will be uninitialized is if the function is a trampoline, i.e. when the method
 of a class does not exist but is handled by the magic methods ``__call()``/``__callStatic()``.
 This is because a trampoline is freed by ZPP as it is a newly allocated ``zend_function`` struct with the
 op array copied, and is freed when called. To retrieve it manually use ``zend_is_callable_ex()``.
 
 .. warning:: It is not sufficient to just store the FCC to be able to call a user function at a later stage.
-   If the callable zval from the FCI is an object (because it has an ``__invoke`` method, is a ``Closure``,
-   or a trampoline) then a reference to the ``zend_object`` must also be stored, the refcount incremented,
-   and released as needed. Moreover, if the callable is a trampoline the ``function_handler`` must be copied
-   to be persisted between calls (see how SPL implements the storage of autoloading functions).
+    If the callable zval from the FCI is an object (because it has an ``__invoke`` method, is a ``Closure``,
+    or a trampoline) then a reference to the ``zend_object`` must also be stored, the refcount incremented,
+    and released as needed. Moreover, if the callable is a trampoline the ``function_handler`` must be copied
+    to be persisted between calls (see how SPL implements the storage of autoloading functions).
 
 .. note:: To determine that two user functions are equal comparing the ``function_handler``, ``object``,
     ``called_scope``, ``calling_scope``, and the pointer to the ``zend_object`` for closures is generally sufficient.
@@ -108,10 +111,6 @@ op array copied, and is freed when called. To retrieve it manually use ``zend_is
   Moreover, if a reference to the closure is kept, this must be called *prior* to freeing the closure,
   as the trampoline will partially refer to a ``zend_function *`` entry in the closure CE.
 
-..
-    This API is still being worked on and won't be usable for a year
-    note:: As of PHP 8.3.0, the FCC holds a ``closure`` field and a dedicated API to handle storing userland callables.
-
 Zend Engine API for callables
 -----------------------------
 
@@ -120,22 +119,17 @@ We will describe the various APIs needed to deal with callables in PHP.
 
 First of all, to check if an FCI is initialized use the ``ZEND_FCI_INITIALIZED(fci)`` macro.
 
-.. And, as of PHP 8.3.0, the ``ZEND_FCC_INITIALIZED(fcc)`` macro to check if an FCC is initialized.
-
 If you have a correctly initialized and set up FCI/FCC pair for a callable you can call it directly by using the
 ``zend_call_function(zend_fcall_info *fci, zend_fcall_info_cache *fci_cache)`` function.
 
 .. warning:: The ``zend_fcall_info_arg*()`` and ``zend_fcall_info_call()`` APIs should not be used.
     The ``zval *args`` parameter does *not* set the ``params`` field of the FCI directly.
-    Instead it expect it to be a PHP array (IS_ARRAY zval) containing positional arguments, which will be reallocated
-    into a new C array. As the ``named_params`` field accepts positional arguments, it is generally better to simply
-    assign the HashTable pointer of this argument to this field.
+    Instead it expect it to be a PHP array (``IS_ARRAY`` zval) containing positional arguments,
+    which will be reallocated into a new C array.
+    As the ``named_params`` field accepts positional arguments, it is generally better to simply
+    assign the ``HashTable`` pointer of this argument to this field.
     Moreover, as arguments to a userland call are predetermined and stack allocated it is better to assign the
     ``params`` and ``param_count`` fields directly.
-
-..
-    note:: As of PHP 8.3.0, the ``zend_call_function_with_return_value(*fci, *fcc, zval *retval)`` function has
-    been added to replace the usage of ``zend_fcall_info_call(fci, fcc, retval, NULL)``.
 
 In the more likely case where you just have a callable zval, you have the choice of a couple different options
 depending on the use case.
@@ -176,3 +170,30 @@ functions::
 And specific parameter number variations for the latter.
 
 .. note:: If you want to call a method on an object if it exists use the ``zend_call_method_if_exists()`` function.
+
+New FCI/FCC API in PHP 8.3.0
+----------------------------
+
+PHP 8.3.0 added some new APIs to improve the handling and storage of FCCs and userland callables.
+This was achieved by adding the ``closure`` field to the FCC.
+
+First of all a new ``ZEND_FCC_INITIALIZED(fcc)`` macro to check if an FCC is initialized was added,
+this is helper similar to the ``ZEND_FCI_INITIALIZED(fci)`` macro.
+
+The ``zend_fcc_addref()`` and ``zend_fcc_dup()`` functions will do all the necessary reference increments
+to safely store an FCC in an internal object.
+The ``zend_fcc_equals()`` function, can be used if two FCCs are equal or not, which also supports trampolines.
+The ``zend_fcc_dtor()`` function must be used when releasing an FCC that was copied for internal storage.
+
+If an internal object stores an FCC the ``get_gc`` object handler must be defined,
+and add it to the GC buffer via ``zend_get_gc_buffer_add_fcc()``.
+
+The ``zend_get_callable_zval_from_fcc()`` function will create a callable zval that can be returned to userland.
+
+When calling a stored FCC the
+``void zend_call_known_fcc(zend_fcall_info_cache *fcc, zval *retval_ptr, uint32_t param_count, zval *params, HashTable *named_params)``
+should be used, as it will duplicate the op array of a trampoline.
+The remaining parameters will be used to construct the FCI.
+
+.. note:: The ``zend_call_function_with_return_value(*fci, *fcc, zval *retval)`` function was also added in PHP 8.3.0
+    to replace the usage of ``zend_fcall_info_call(fci, fcc, retval, NULL)``.
