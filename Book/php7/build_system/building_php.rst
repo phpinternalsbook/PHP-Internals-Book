@@ -142,7 +142,7 @@ The ``./buildconf`` script
 If you are building from the git repository, the first thing you'll have to do is run the ``./buildconf`` script. This
 script does little more than invoking ``autoconf``.
 
-The main job of this script is to run ``autoconf`` to generate the ``./configure`` script and ``autoheader`` to
+The main job of ``autoconf`` is to generate the ``./configure`` script and ``autoheader`` to
 generate the ``main/php_config.h.in`` template. The latter file will be used by configure to generate the final
 configuration header file ``main/php_config.h``.
 
