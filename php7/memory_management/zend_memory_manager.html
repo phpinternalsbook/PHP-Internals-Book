@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Zend Memory Manager &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Debugging memory" href="memory_debugging.html" />
@@ -36,14 +36,14 @@
         
         
   <section id="zend-memory-manager">
-<span id="zend-mm"></span><h1>Zend Memory Manager<a class="headerlink" href="#zend-memory-manager" title="Permalink to this heading">¶</a></h1>
+<span id="zend-mm"></span><h1>Zend Memory Manager<a class="headerlink" href="#zend-memory-manager" title="Link to this heading">¶</a></h1>
 <p>Zend Memory Manager, often abbreviated as <em>ZendMM</em> or <em>ZMM</em>, is a C layer that aims to provide abilities to allocate
 and release dynamic <strong>request-bound</strong> memory.</p>
 <p>Note the “request-bound” in the above sentence.</p>
 <p>ZendMM is not just a classical layer over libc’s dynamic memory allocator, mainly represented by the couple API calls
 <code class="docutils literal notranslate"><span class="pre">malloc()/free()</span></code>. ZendMM is about request-bound memory that PHP must allocate while treating a request.</p>
 <section id="the-two-main-kind-of-dynamic-memory-pools-in-php">
-<h2>The two main kind of dynamic memory pools in PHP<a class="headerlink" href="#the-two-main-kind-of-dynamic-memory-pools-in-php" title="Permalink to this heading">¶</a></h2>
+<h2>The two main kind of dynamic memory pools in PHP<a class="headerlink" href="#the-two-main-kind-of-dynamic-memory-pools-in-php" title="Link to this heading">¶</a></h2>
 <p>PHP is a share-nothing architecture. Well, not at 100%. Let us explain.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -133,7 +133,7 @@ deallocation function when destroyed. Hence in such a code:</p>
 first case will use <code class="docutils literal notranslate"><span class="pre">efree()</span></code> to release it, and in the second case libc’s <code class="docutils literal notranslate"><span class="pre">free()</span></code>.</p>
 </section>
 <section id="zend-memory-manager-api">
-<h2>Zend Memory Manager API<a class="headerlink" href="#zend-memory-manager-api" title="Permalink to this heading">¶</a></h2>
+<h2>Zend Memory Manager API<a class="headerlink" href="#zend-memory-manager-api" title="Link to this heading">¶</a></h2>
 <p>The API is located into
 <a class="reference external" href="https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_alloc.h">Zend/zend_alloc.h</a></p>
 <p>The API calls are mainly C macros and not functions, so get prepared if you debug them and want to look at how they
@@ -163,7 +163,7 @@ alloc. Hence a <code class="docutils literal notranslate"><span class="pre">pema
 </div>
 </section>
 <section id="zend-memory-manager-debugging-shields">
-<h2>Zend Memory Manager debugging shields<a class="headerlink" href="#zend-memory-manager-debugging-shields" title="Permalink to this heading">¶</a></h2>
+<h2>Zend Memory Manager debugging shields<a class="headerlink" href="#zend-memory-manager-debugging-shields" title="Link to this heading">¶</a></h2>
 <p>ZendMM provides the following abilities:</p>
 <ul class="simple">
 <li><p>Memory consumption management.</p></li>
@@ -171,7 +171,7 @@ alloc. Hence a <code class="docutils literal notranslate"><span class="pre">pema
 <li><p>Speed up in allocations by pre-allocating well-known-sized buffers and keeping a warm cache on free</p></li>
 </ul>
 <section id="memory-consumption-management">
-<h3>Memory consumption management<a class="headerlink" href="#memory-consumption-management" title="Permalink to this heading">¶</a></h3>
+<h3>Memory consumption management<a class="headerlink" href="#memory-consumption-management" title="Link to this heading">¶</a></h3>
 <p>ZendMM is the layer behind the PHP userland “memory_limit” feature. Every single byte allocated using the ZendMM layer
 is counted and added. When the INI’s <em>memory_limit</em> is reached, you know what happens.
 That also mean that any allocation you perform via ZendMM is reflected in the <code class="docutils literal notranslate"><span class="pre">memory_get_usage()</span></code> call from PHP
@@ -195,7 +195,7 @@ This is especially useful when <a class="reference internal" href="memory_debugg
 </div>
 </section>
 <section id="memory-leak-tracking">
-<h3>Memory leak tracking<a class="headerlink" href="#memory-leak-tracking" title="Permalink to this heading">¶</a></h3>
+<h3>Memory leak tracking<a class="headerlink" href="#memory-leak-tracking" title="Link to this heading">¶</a></h3>
 <p>Remember the main ZendMM rules: it starts when a request starts, it then expects you call its API when in need of
 dynamic memory as you are treating a request. When the current request ends, ZendMM shuts down.</p>
 <p>By shutting down, it will browse every of its active pointer, and if using
@@ -241,7 +241,7 @@ request-bound buffer that’s not been explicitly freed by the programmer</p></l
 </section>
 </section>
 <section id="lifecycle">
-<h2>Lifecycle<a class="headerlink" href="#lifecycle" title="Permalink to this heading">¶</a></h2>
+<h2>Lifecycle<a class="headerlink" href="#lifecycle" title="Link to this heading">¶</a></h2>
 <p>PHP will call the <code class="docutils literal notranslate"><span class="pre">start_memory_manager()</span></code> function during its startup phase, specifically when the PHP process is
 started (for instance, when the PHP-FPM service is started, or when a PHP CLI script is run). This will allocate the
 heap and the first chunk.</p>
@@ -256,21 +256,21 @@ calls the <code class="docutils literal notranslate"><span class="pre">zend_mm_s
 shutdown and free all cached chunks as well as the heap itself.</p>
 </section>
 <section id="zendmm-internal-design">
-<h2>ZendMM internal design<a class="headerlink" href="#zendmm-internal-design" title="Permalink to this heading">¶</a></h2>
+<h2>ZendMM internal design<a class="headerlink" href="#zendmm-internal-design" title="Link to this heading">¶</a></h2>
 <p>The root of the ZendMM is the <code class="docutils literal notranslate"><span class="pre">_zend_mm_heap</span></code> struct (as defined in <a class="reference external" href="https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_alloc.c#L239">Zend/zend_alloc.c</a>) which will be
 created for every request during request init and stored in the <code class="docutils literal notranslate"><span class="pre">alloc_globals-&gt;mm_heap</span></code>. This heap also comes with
 the first chunk that is allocated with it. Chunks are then subdivided into pages. Smaller allocations are stored in bins
 which may fit into one page but some also span multiple pages.</p>
 <section id="internal-memory-organisation">
-<h3>Internal memory organisation<a class="headerlink" href="#internal-memory-organisation" title="Permalink to this heading">¶</a></h3>
+<h3>Internal memory organisation<a class="headerlink" href="#internal-memory-organisation" title="Link to this heading">¶</a></h3>
 <section id="heap">
-<h4>Heap<a class="headerlink" href="#heap" title="Permalink to this heading">¶</a></h4>
+<h4>Heap<a class="headerlink" href="#heap" title="Link to this heading">¶</a></h4>
 <p>The heap, as defined in the struct <code class="docutils literal notranslate"><span class="pre">_zend_mm_heap</span></code>, holds links to chunks (<code class="docutils literal notranslate"><span class="pre">main_chunk</span></code> and <code class="docutils literal notranslate"><span class="pre">cached_chunks</span></code>, for
 small and large allocations), <code class="docutils literal notranslate"><span class="pre">huge_list</span></code> for huge allocations (&gt;= 2MB) and to bins (for small allocations) in
 <code class="docutils literal notranslate"><span class="pre">free_slots[BIN]</span></code>. After initialisation only the <code class="docutils literal notranslate"><span class="pre">main_chunk</span></code> exists and none or some <code class="docutils literal notranslate"><span class="pre">cached_chunks</span></code>.</p>
 </section>
 <section id="chunks">
-<h4>Chunks<a class="headerlink" href="#chunks" title="Permalink to this heading">¶</a></h4>
+<h4>Chunks<a class="headerlink" href="#chunks" title="Link to this heading">¶</a></h4>
 <p>Each chunk is 2 MB in size and consists of 512 pages. The first page of every chunk is reserved for the chunk header as
 defined in the struct <code class="docutils literal notranslate"><span class="pre">_zend_mm_chunk</span></code> (as defined in <a class="reference external" href="https://github.com/php/php-src/blob/c3b910370c5c92007c3e3579024490345cb7f9a7/Zend/zend_alloc.c#L286">Zend/zend_alloc.c</a>). Chunks are
 organised in a linked list with <code class="docutils literal notranslate"><span class="pre">prev</span></code> and <code class="docutils literal notranslate"><span class="pre">next</span></code> pointers.</p>
@@ -279,12 +279,12 @@ Information on what is in a page is stored in <code class="docutils literal notr
 is used as a bitmap and holds the meta information about that page.</p>
 </section>
 <section id="pages">
-<h4>Pages<a class="headerlink" href="#pages" title="Permalink to this heading">¶</a></h4>
+<h4>Pages<a class="headerlink" href="#pages" title="Link to this heading">¶</a></h4>
 <p>A page is 4096 bytes in size and can either hold a bin (for small allocations) or be part of a large allocation. What is
 in it can be found in the map of the chunk the page belongs to.</p>
 </section>
 <section id="bins">
-<h4>Bins<a class="headerlink" href="#bins" title="Permalink to this heading">¶</a></h4>
+<h4>Bins<a class="headerlink" href="#bins" title="Link to this heading">¶</a></h4>
 <p>Small allocations are grouped together in bins. Bin sizes are predefined and come in 30 different sizes (8, 16, 24, 32,
 … 3072 bytes). A bin holds same sized values and is linked from the heap directly.</p>
 <p>A bin can consist of multiple pages. Example: There exists a bin that holds elements ranging from 257 bytes to 320 bytes
@@ -292,9 +292,9 @@ which occupies 5 pages, and therefore has room for 64 (derived from 4096*5/320) 
 </section>
 </section>
 <section id="allocation-categories">
-<h3>Allocation categories<a class="headerlink" href="#allocation-categories" title="Permalink to this heading">¶</a></h3>
+<h3>Allocation categories<a class="headerlink" href="#allocation-categories" title="Link to this heading">¶</a></h3>
 <section id="small-allocations">
-<h4>Small allocations<a class="headerlink" href="#small-allocations" title="Permalink to this heading">¶</a></h4>
+<h4>Small allocations<a class="headerlink" href="#small-allocations" title="Link to this heading">¶</a></h4>
 <p>Allocations less or equal than 3072 bytes are organised in bins.</p>
 <p>If a bin is already initialised, the <code class="docutils literal notranslate"><span class="pre">free_slot</span></code> pointer on the <code class="docutils literal notranslate"><span class="pre">zend_mm_heap</span></code> struct is the address to be used
 (this address will be returned by the call to <code class="docutils literal notranslate"><span class="pre">emalloc()</span></code> and will be incremented to point to the next free slot, see
@@ -303,20 +303,20 @@ implementation in <code class="docutils literal notranslate"><span class="pre">z
 function and a pointer to the first element of the bin is returned.</p>
 </section>
 <section id="large-allocations">
-<h4>Large allocations<a class="headerlink" href="#large-allocations" title="Permalink to this heading">¶</a></h4>
+<h4>Large allocations<a class="headerlink" href="#large-allocations" title="Link to this heading">¶</a></h4>
 <p>Allocations bigger than 3072 bytes, but small enough to fit in a chunk (2 MB chunk size - 4096 bytes chunk header (first
 page) makes 2093056 bytes) are directly stored in the pages. The first page will be marked <code class="docutils literal notranslate"><span class="pre">LRUN</span></code> in the map of the
 chunk and also hold the number of allocated pages.</p>
 </section>
 <section id="huge-allocations">
-<h4>Huge allocations<a class="headerlink" href="#huge-allocations" title="Permalink to this heading">¶</a></h4>
+<h4>Huge allocations<a class="headerlink" href="#huge-allocations" title="Link to this heading">¶</a></h4>
 <p>If an allocation is larger than the chunk size minus one page (2 MB chunk size - 4096 bytes chunk header (first page)
 makes 2093056 bytes) the memory is allocated using <code class="docutils literal notranslate"><span class="pre">mmap()</span></code> and put on the <code class="docutils literal notranslate"><span class="pre">huge_list</span></code> linked list on the heap.</p>
 </section>
 </section>
 </section>
 <section id="hooking-into-the-zendmm">
-<h2>Hooking into the ZendMM<a class="headerlink" href="#hooking-into-the-zendmm" title="Permalink to this heading">¶</a></h2>
+<h2>Hooking into the ZendMM<a class="headerlink" href="#hooking-into-the-zendmm" title="Link to this heading">¶</a></h2>
 <p>You can call the <code class="docutils literal notranslate"><span class="pre">zend_mm_set_custom_handlers()</span></code> function and give it pointers to your <code class="docutils literal notranslate"><span class="pre">malloc</span></code>, <code class="docutils literal notranslate"><span class="pre">free</span></code> and
 <code class="docutils literal notranslate"><span class="pre">realloc</span></code> handlers as well as your custom heap or the current heap that you may fetch via <code class="docutils literal notranslate"><span class="pre">zend_mm_get_heap()</span></code>.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="nf">my_malloc</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -355,7 +355,7 @@ function will be called with the address of your heap.</p></li>
 </ul>
 </section>
 <section id="common-errors-and-mistakes">
-<h2>Common errors and mistakes<a class="headerlink" href="#common-errors-and-mistakes" title="Permalink to this heading">¶</a></h2>
+<h2>Common errors and mistakes<a class="headerlink" href="#common-errors-and-mistakes" title="Link to this heading">¶</a></h2>
 <p>Here are the most common errors while using ZendMM, and what you should do about them.</p>
 <ol class="arabic simple">
 <li><p>Usage of ZendMM as you are not treating a request.</p></li>

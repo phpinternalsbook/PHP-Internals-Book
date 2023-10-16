@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>PHP Callables &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/style.css?v=38da9290" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Classes and objects" href="../../classes_objects.html" />
@@ -36,7 +36,7 @@
         
         
   <section id="php-callables">
-<h1>PHP Callables<a class="headerlink" href="#php-callables" title="Permalink to this heading">¶</a></h1>
+<h1>PHP Callables<a class="headerlink" href="#php-callables" title="Link to this heading">¶</a></h1>
 <p>Dealing with PHP functions in C requires the knowledge of the following two structures
 <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code>/<code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code>. The first one necessarily contains the information for calling
 the function, such as arguments and the return value, but may also include the actual callable.
@@ -45,7 +45,7 @@ The latter <em>only</em> contains the callable. We will use the commonly used ab
 You will most likely encounter those when using the ZPP <code class="docutils literal notranslate"><span class="pre">f</span></code> argument flag, or when you need to call a PHP function
 or method from within an extension.</p>
 <section id="structure-of-zend-fcall-info">
-<h2>Structure of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code><a class="headerlink" href="#structure-of-zend-fcall-info" title="Permalink to this heading">¶</a></h2>
+<h2>Structure of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code><a class="headerlink" href="#structure-of-zend-fcall-info" title="Link to this heading">¶</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The implementation of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info</span></code> is widely different prior to PHP 7.1.0.</p>
@@ -94,7 +94,7 @@ field existed which specified if array arguments should be separated or not.</p>
 </div>
 </section>
 <section id="structure-of-zend-fcall-info-cache">
-<h2>Structure of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code><a class="headerlink" href="#structure-of-zend-fcall-info-cache" title="Permalink to this heading">¶</a></h2>
+<h2>Structure of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code><a class="headerlink" href="#structure-of-zend-fcall-info-cache" title="Link to this heading">¶</a></h2>
 <p>A <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_cache</span></code> has the following structure:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_fcall_info_cache</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">zend_function</span><span class="w"> </span><span class="o">*</span><span class="n">function_handler</span><span class="p">;</span>
@@ -150,7 +150,7 @@ as the trampoline will partially refer to a <code class="docutils literal notran
 </div>
 </section>
 <section id="zend-engine-api-for-callables">
-<h2>Zend Engine API for callables<a class="headerlink" href="#zend-engine-api-for-callables" title="Permalink to this heading">¶</a></h2>
+<h2>Zend Engine API for callables<a class="headerlink" href="#zend-engine-api-for-callables" title="Link to this heading">¶</a></h2>
 <p>The API is located at various locations in the <code class="docutils literal notranslate"><span class="pre">Zend_API.h</span></code> header file.
 We will describe the various APIs needed to deal with callables in PHP.</p>
 <p>First of all, to check if an FCI is initialized use the <code class="docutils literal notranslate"><span class="pre">ZEND_FCI_INITIALIZED(fci)</span></code> macro.</p>

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Symtable and array API &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Hash algorithm and collisions" href="hash_algorithm.html" />
@@ -36,13 +36,13 @@
         
         
   <section id="symtable-and-array-api">
-<h1>Symtable and array API<a class="headerlink" href="#symtable-and-array-api" title="Permalink to this heading">¶</a></h1>
+<h1>Symtable and array API<a class="headerlink" href="#symtable-and-array-api" title="Link to this heading">¶</a></h1>
 <p>The hashtable API allows you to work with values of any type, but in the vast majority of cases the values will be
 zvals. Using the <code class="docutils literal notranslate"><span class="pre">zend_hash</span></code> API with zvals can often be somewhat cumbersome, as you need to handle zval allocation
 and initialization yourself. This is why PHP provides a second set of APIs specifically aimed at this use case. Before
 introducing these simplified APIs we will have a look at a special kind of hashtable that PHP arrays make use of.</p>
 <section id="symtables">
-<h2>Symtables<a class="headerlink" href="#symtables" title="Permalink to this heading">¶</a></h2>
+<h2>Symtables<a class="headerlink" href="#symtables" title="Link to this heading">¶</a></h2>
 <p>One of the core concepts behind the design of PHP is that integers and strings containing integers should be
 interchangeable. This also applies to arrays where the keys <code class="docutils literal notranslate"><span class="pre">42</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;42&quot;</span></code> should be considered the same. This is
 not the case though with ordinary hashtables: They strictly distinguish the key types and it’s okay to have both the
@@ -122,7 +122,7 @@ Value at key &quot;42&quot; is zv2
 also found the same element.</p>
 </section>
 <section id="array-api">
-<h2>Array API<a class="headerlink" href="#array-api" title="Permalink to this heading">¶</a></h2>
+<h2>Array API<a class="headerlink" href="#array-api" title="Link to this heading">¶</a></h2>
 <p>Now we have all the prerequisites to look at the array API. This API no longer works directly on hashtables, but rather
 accepts zvals from which the hashtable is extracted using <code class="docutils literal notranslate"><span class="pre">Z_ARRVAL_P()</span></code>.</p>
 <p>The first two functions from this API are <code class="docutils literal notranslate"><span class="pre">array_init()</span></code> and <code class="docutils literal notranslate"><span class="pre">array_init_size()</span></code>, which initialize a hashtable

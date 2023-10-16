@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Implementing typed arrays &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Object handlers" href="object_handlers.html" />
@@ -36,7 +36,7 @@
         
         
   <section id="implementing-typed-arrays">
-<h1>Implementing typed arrays<a class="headerlink" href="#implementing-typed-arrays" title="Permalink to this heading">¶</a></h1>
+<h1>Implementing typed arrays<a class="headerlink" href="#implementing-typed-arrays" title="Link to this heading">¶</a></h1>
 <p>The previous two sections have been talking about the class system rather abstractly. In this section on the other hand
 I’d like to guide you through the implementation of a “real” class: A typed array. I use this as an example for two
 reasons: Firstly, typed arrays are something where it really makes sense to implement them internally. They are rather
@@ -44,7 +44,7 @@ hard to implement in userland PHP and an internal implementation can use both le
 typed arrays are good to show off some of PHP’s object and class handlers. For example they need offset access, element
 counting, iteration, serialization and debug information.</p>
 <section id="array-buffers-and-views">
-<h2>Array buffers and views<a class="headerlink" href="#array-buffers-and-views" title="Permalink to this heading">¶</a></h2>
+<h2>Array buffers and views<a class="headerlink" href="#array-buffers-and-views" title="Link to this heading">¶</a></h2>
 <p>What we’ll implement in this section is a reduced version of JavaScript’s ArrayBuffer system. An <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> is just
 a chunk of memory with a fixed size. The <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> by itself cannot be read or written to, it is just an object
 representing the memory.</p>
@@ -80,7 +80,7 @@ important considerations for a “real” implementation, but for our purposes i
 with the behaviors that you get “by default” (i.e. with least code).</p>
 </section>
 <section id="the-arraybuffer">
-<h2>The <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code><a class="headerlink" href="#the-arraybuffer" title="Permalink to this heading">¶</a></h2>
+<h2>The <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code><a class="headerlink" href="#the-arraybuffer" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ArrayBuffer</span></code> is a very simple object, that only needs to allocate and store a buffer and its length. Thus the
 internal structure could look like this:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_buffer_object</span><span class="w"> </span><span class="p">{</span>
@@ -227,7 +227,7 @@ allocated buffer:</p>
 </div>
 </section>
 <section id="the-buffer-views">
-<h2>The buffer views<a class="headerlink" href="#the-buffer-views" title="Permalink to this heading">¶</a></h2>
+<h2>The buffer views<a class="headerlink" href="#the-buffer-views" title="Link to this heading">¶</a></h2>
 <p>The buffer views will be a good bit more work. We’ll implement 8 different view classes which all share one
 implementation, namely <code class="docutils literal notranslate"><span class="pre">Int8Array</span></code>, <code class="docutils literal notranslate"><span class="pre">UInt8Array</span></code>, <code class="docutils literal notranslate"><span class="pre">Int16Array</span></code>, <code class="docutils literal notranslate"><span class="pre">UInt16Array</span></code>, <code class="docutils literal notranslate"><span class="pre">Int32Array</span></code>, <code class="docutils literal notranslate"><span class="pre">UInt32Array</span></code>,
 <code class="docutils literal notranslate"><span class="pre">FloatArray</span></code> and <code class="docutils literal notranslate"><span class="pre">DoubleArray</span></code>. The class registration code looks as follows:</p>

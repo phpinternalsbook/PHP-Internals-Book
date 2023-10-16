@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Basic structure &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Hashtable API" href="hashtable_api.html" />
@@ -36,9 +36,9 @@
         
         
   <section id="basic-structure">
-<h1>Basic structure<a class="headerlink" href="#basic-structure" title="Permalink to this heading">¶</a></h1>
+<h1>Basic structure<a class="headerlink" href="#basic-structure" title="Link to this heading">¶</a></h1>
 <section id="basic-concepts">
-<h2>Basic concepts<a class="headerlink" href="#basic-concepts" title="Permalink to this heading">¶</a></h2>
+<h2>Basic concepts<a class="headerlink" href="#basic-concepts" title="Link to this heading">¶</a></h2>
 <p>Arrays in C are just regions of memory that can be accessed by offset. This implies that keys have to be integers and
 need to be continuous. For example, if you have the keys 0, 1 and 2, then the next key has to be 3 and can’t be
 214678462. PHP arrays are very different: They support both string keys and non-continuous integer keys and even allow
@@ -74,7 +74,7 @@ example of how this linked list could look like for the elements <code class="do
 <a class="reference internal image-reference" href="../../_images/ordered_hashtable.svg"><img alt="../../_images/ordered_hashtable.svg" class="align-center" height="250" src="../../_images/ordered_hashtable.svg" /></a>
 </section>
 <section id="the-hashtable-and-bucket-structures">
-<h2>The HashTable and Bucket structures<a class="headerlink" href="#the-hashtable-and-bucket-structures" title="Permalink to this heading">¶</a></h2>
+<h2>The HashTable and Bucket structures<a class="headerlink" href="#the-hashtable-and-bucket-structures" title="Link to this heading">¶</a></h2>
 <p>To implement hashtables PHP uses two structures, which can be found in the <code class="docutils literal notranslate"><span class="pre">zend_hash.h</span></code> file. We’ll first have a look
 at the <code class="docutils literal notranslate"><span class="pre">Bucket</span></code> struct:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">bucket</span><span class="w"> </span><span class="p">{</span>

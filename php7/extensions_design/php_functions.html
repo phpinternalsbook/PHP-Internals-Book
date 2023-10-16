@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Registering and using PHP functions &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Managing global state" href="globals_management.html" />
@@ -36,7 +36,7 @@
         
         
   <section id="registering-and-using-php-functions">
-<h1>Registering and using PHP functions<a class="headerlink" href="#registering-and-using-php-functions" title="Permalink to this heading">¶</a></h1>
+<h1>Registering and using PHP functions<a class="headerlink" href="#registering-and-using-php-functions" title="Link to this heading">¶</a></h1>
 <p>The main goal of a PHP extension is to register new PHP functions for userland. PHP functions are complex to fully
 understand their mechanics that hook very deep into the Zend Engine, but fortunately we don’t need this knowledge
 for our chapter, as the PHP extension mechanism provides many ways to abstract a lot such a complexity.</p>
@@ -46,7 +46,7 @@ then.</p>
 <p>Obviously, you’ll need to master <a class="reference internal" href="../internal_types.html"><span class="doc">types</span></a>, especially <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">zvals</span></a> and
 <a class="reference internal" href="../memory_management.html"><span class="doc">memory management</span></a> here. Also, know your <a class="reference internal" href="php_lifecycle.html"><span class="doc">hooks</span></a>.</p>
 <section id="zend-function-entry-structure">
-<h2>zend_function_entry structure<a class="headerlink" href="#zend-function-entry-structure" title="Permalink to this heading">¶</a></h2>
+<h2>zend_function_entry structure<a class="headerlink" href="#zend-function-entry-structure" title="Link to this heading">¶</a></h2>
 <p>Not to be confused with <a class="reference internal" href="../internal_types/functions.html"><span class="doc">the zend_function structure</span></a>, <code class="docutils literal notranslate"><span class="pre">zend_function_entry</span></code> is
 used to register functions against the engine while in an extension.
 Here it is:</p>
@@ -79,7 +79,7 @@ here for the function to work, but it is highly recommended. We’ll get back to
 dedicated <a class="reference internal" href="../internal_types/functions.html"><span class="doc">zend_function</span></a> chapter.</p>
 </section>
 <section id="registering-php-functions">
-<h2>Registering PHP functions<a class="headerlink" href="#registering-php-functions" title="Permalink to this heading">¶</a></h2>
+<h2>Registering PHP functions<a class="headerlink" href="#registering-php-functions" title="Link to this heading">¶</a></h2>
 <p>PHP functions are registered into the engine when the extension gets loaded. An extension may declare a function vector
 into the extension structure. Functions declared by extensions are called “internal” functions, and at the opposite of
 “user” functions (functions declared and used using PHP userland) they don’t get unregistered at the end of the
@@ -161,7 +161,7 @@ of PHP and its modules. Thus, our <code class="docutils literal notranslate"><sp
 read the PHP <code class="docutils literal notranslate"><span class="pre">var_dump()</span></code> source code function, etc…</p>
 </section>
 <section id="declaring-function-arguments">
-<h2>Declaring function arguments<a class="headerlink" href="#declaring-function-arguments" title="Permalink to this heading">¶</a></h2>
+<h2>Declaring function arguments<a class="headerlink" href="#declaring-function-arguments" title="Link to this heading">¶</a></h2>
 <p>So far so good, if <a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">you compile</span></a> the extension and load it into PHP, you can
 see with reflection that the function is present:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&gt; ~/php/bin/php -dextension=pib.so --re pib
@@ -249,7 +249,7 @@ the source code located in
 </div>
 </section>
 <section id="the-php-function-structure-and-api-in-c">
-<h2>The PHP function structure and API, in C<a class="headerlink" href="#the-php-function-structure-and-api-in-c" title="Permalink to this heading">¶</a></h2>
+<h2>The PHP function structure and API, in C<a class="headerlink" href="#the-php-function-structure-and-api-in-c" title="Link to this heading">¶</a></h2>
 <p>Ok. Here is a PHP function like you use it and declare it with the PHP language (userland):</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">fahrenheit_to_celsius</span><span class="p">(</span><span class="nv">$fahrenheit</span><span class="p">)</span>
 <span class="p">{</span>
@@ -296,7 +296,7 @@ the stack, to know until when you should end reading them.</p></li>
 <li><p>Everything goes by the <code class="docutils literal notranslate"><span class="pre">zend_execute_data</span> <span class="pre">*execute_data</span></code> you received as argument. But we can’t detail that now.</p></li>
 </ul>
 <section id="parsing-parameters-zend-parse-parameters">
-<h3>Parsing parameters : zend_parse_parameters()<a class="headerlink" href="#parsing-parameters-zend-parse-parameters" title="Permalink to this heading">¶</a></h3>
+<h3>Parsing parameters : zend_parse_parameters()<a class="headerlink" href="#parsing-parameters-zend-parse-parameters" title="Link to this heading">¶</a></h3>
 <p>To read arguments, welcome <code class="docutils literal notranslate"><span class="pre">zend_parse_parameters()</span></code> API (called ‘zpp’).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -415,7 +415,7 @@ messed with the python style specifiers.</p>
 </section>
 </section>
 <section id="adding-tests">
-<h2>Adding tests<a class="headerlink" href="#adding-tests" title="Permalink to this heading">¶</a></h2>
+<h2>Adding tests<a class="headerlink" href="#adding-tests" title="Link to this heading">¶</a></h2>
 <p>If you have read the chapter about tests (see <a class="reference internal" href="../../tests/introduction.html#tests-introduction"><span class="std std-ref">Testing with .phpt files</span></a>), you should now write a simple test:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">TEST</span><span class="o">--</span>
 <span class="n">Test</span><span class="w"> </span><span class="n">fahrenheit_to_celsius</span>
@@ -432,7 +432,7 @@ messed with the python style specifiers.</p>
 <p>... and launch <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test</span></code></p>
 </section>
 <section id="playing-with-constants">
-<h2>Playing with constants<a class="headerlink" href="#playing-with-constants" title="Permalink to this heading">¶</a></h2>
+<h2>Playing with constants<a class="headerlink" href="#playing-with-constants" title="Link to this heading">¶</a></h2>
 <p>Let’s go with an advanced example.
 Let’s add the opposite function: <code class="docutils literal notranslate"><span class="pre">celsius_to_fahrenheit($celsius)</span></code>:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_BEGIN_ARG_INFO_EX</span><span class="p">(</span><span class="n">arginfo_celsius_to_fahrenheit</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
@@ -580,7 +580,7 @@ the <code class="docutils literal notranslate"><span class="pre">return_value</s
 </div>
 </section>
 <section id="a-go-with-hashtables-php-arrays">
-<h2>A go with Hashtables (PHP arrays)<a class="headerlink" href="#a-go-with-hashtables-php-arrays" title="Permalink to this heading">¶</a></h2>
+<h2>A go with Hashtables (PHP arrays)<a class="headerlink" href="#a-go-with-hashtables-php-arrays" title="Link to this heading">¶</a></h2>
 <p>Let’s go now for a play with <em>PHP arrays</em> and design:</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">multiple_fahrenheit_to_celsius</span><span class="p">(</span><span class="k">array</span> <span class="nv">$temperatures</span><span class="p">)</span>
 <span class="p">{</span>
@@ -639,7 +639,7 @@ instructions to run. It’s not about that little demo function needs so much lo
 remember one reason why we sometimes use the C language over PHP.</p>
 </section>
 <section id="managing-references">
-<h2>Managing references<a class="headerlink" href="#managing-references" title="Permalink to this heading">¶</a></h2>
+<h2>Managing references<a class="headerlink" href="#managing-references" title="Link to this heading">¶</a></h2>
 <p>Now let’s go to play with PHP references. You’ve learnt from <a class="reference internal" href="../zvals.html#zvals"><span class="std std-ref">the zval chapter</span></a> that
 references are a special trick used into the engine. As a reminder, a reference (by that we mean a <code class="docutils literal notranslate"><span class="pre">&amp;$php_reference</span></code>)
 is a heap allocated <code class="docutils literal notranslate"><span class="pre">zval</span></code> stored into a <code class="docutils literal notranslate"><span class="pre">zval</span></code> container. Haha.</p>

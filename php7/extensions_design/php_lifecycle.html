@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Learning the PHP lifecycle &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="A look into a PHP extension and extension skeleton" href="extension_skeleton.html" />
@@ -36,7 +36,7 @@
         
         
   <section id="learning-the-php-lifecycle">
-<span id="php-lifecycle"></span><h1>Learning the PHP lifecycle<a class="headerlink" href="#learning-the-php-lifecycle" title="Permalink to this heading">¶</a></h1>
+<span id="php-lifecycle"></span><h1>Learning the PHP lifecycle<a class="headerlink" href="#learning-the-php-lifecycle" title="Link to this heading">¶</a></h1>
 <p>PHP is a complex piece of machinery whose lifecycle really should be understood by anyone who wants to understand how PHP operates. The main sequence is as follows:</p>
 <p>PHP starts up. If running CLI or FPM, it’s C <code class="docutils literal notranslate"><span class="pre">main()</span></code> is run. If running as a module into a webserver, like using the
 apxs2 SAPI (Apache 2), PHP is started up just a little bit after Apache itself starts up and comes to run the startup
@@ -56,7 +56,7 @@ Shutting down the PHP process is called <strong>the module shutdown step</strong
 <p>If we would have drawn those steps, that could give something like this:</p>
 <img alt="../../_images/php_classic_lifetime.png" class="align-center" src="../../_images/php_classic_lifetime.png" />
 <section id="the-parallelism-models">
-<h2>The parallelism models<a class="headerlink" href="#the-parallelism-models" title="Permalink to this heading">¶</a></h2>
+<h2>The parallelism models<a class="headerlink" href="#the-parallelism-models" title="Link to this heading">¶</a></h2>
 <p>In a CLI environment, everything is easy : one PHP process will handle one request : it will launch one solo PHP script,
 then die.
 The CLI environment is a specialization of the Web environment, which is more complex.</p>
@@ -83,7 +83,7 @@ Windows platforms, and you’ll have to program against it.</p>
 </div>
 </section>
 <section id="the-php-extensions-hooks">
-<h2>The PHP extensions hooks<a class="headerlink" href="#the-php-extensions-hooks" title="Permalink to this heading">¶</a></h2>
+<h2>The PHP extensions hooks<a class="headerlink" href="#the-php-extensions-hooks" title="Link to this heading">¶</a></h2>
 <p>As you could have guessed, the PHP engine will trigger your extension at several lifetime points. We call those <em>hook
 functions</em>. Your extension may declare interest into specific lifetime points by declaring function hooks while it
 registers against the engine.</p>
@@ -122,7 +122,7 @@ registers against the engine.</p>
 </div>
 <p>Let’s now have a look at what kind of code you should write in any of those hooks.</p>
 <section id="module-initialization-minit">
-<h3>Module initialization: MINIT()<a class="headerlink" href="#module-initialization-minit" title="Permalink to this heading">¶</a></h3>
+<h3>Module initialization: MINIT()<a class="headerlink" href="#module-initialization-minit" title="Link to this heading">¶</a></h3>
 <p>This is PHP process startup step. In your extension’s <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code>, you’ll load and allocate any persistent object or
 piece of information you’ll need for every future request.
 For the big part of them, those allocations will target read-only objects.</p>
@@ -148,7 +148,7 @@ chapter.</p>
 function.</p>
 </section>
 <section id="module-termination-mshutdown">
-<h3>Module termination: MSHUTDOWN()<a class="headerlink" href="#module-termination-mshutdown" title="Permalink to this heading">¶</a></h3>
+<h3>Module termination: MSHUTDOWN()<a class="headerlink" href="#module-termination-mshutdown" title="Link to this heading">¶</a></h3>
 <p>This is PHP process shutdown step. Easy enough, you basically perform here the exact opposite of what you used in
 <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code>. You free your resources, you unregister your INI settings, etc..</p>
 <p>Take care again here: the execution engine is shut down, so you should not access any of its variable (but you should
@@ -161,7 +161,7 @@ allocations, aka <code class="docutils literal notranslate"><span class="pre">pe
 function.</p>
 </section>
 <section id="request-initialization-rinit">
-<h3>Request initialization: RINIT()<a class="headerlink" href="#request-initialization-rinit" title="Permalink to this heading">¶</a></h3>
+<h3>Request initialization: RINIT()<a class="headerlink" href="#request-initialization-rinit" title="Link to this heading">¶</a></h3>
 <p>A request just showed in, and PHP is about to handle it here. In <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code>, you bootstrap the resources you need to
 handle that precise request. PHP is a share-nothing architecture, and as-is, it provides
 <a class="reference internal" href="../memory_management.html"><span class="doc">memory management</span></a> facilities.</p>
@@ -185,7 +185,7 @@ If you need globals, you’ll need to protect them.</p>
 function.</p>
 </section>
 <section id="request-termination-rshutdown">
-<h3>Request termination: RSHUTDOWN()<a class="headerlink" href="#request-termination-rshutdown" title="Permalink to this heading">¶</a></h3>
+<h3>Request termination: RSHUTDOWN()<a class="headerlink" href="#request-termination-rshutdown" title="Link to this heading">¶</a></h3>
 <p>This is PHP request shutdown step. PHP just finished handling its request, and now it cleans up part of its memory as
 the share-nothing architecture. Further request to come should not remember anything from the current request.
 Easy enough, you basically perform here the exact opposite of what you used in <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code>. You free your request-bound
@@ -205,7 +205,7 @@ pointers you are leaking, and it will free them for you.</p>
 function.</p>
 </section>
 <section id="request-post-termination-prshutdown">
-<h3>Request Post termination: PRSHUTDOWN()<a class="headerlink" href="#request-post-termination-prshutdown" title="Permalink to this heading">¶</a></h3>
+<h3>Request Post termination: PRSHUTDOWN()<a class="headerlink" href="#request-post-termination-prshutdown" title="Link to this heading">¶</a></h3>
 <p>This hook is rarely used. It is called after <code class="docutils literal notranslate"><span class="pre">RSHUTDOWN()</span></code>, but some additional engine code runs in-between.</p>
 <p>Especially, in Post-RSHUTDOWN:</p>
 <ul class="simple">
@@ -218,7 +218,7 @@ function.</p>
 function.</p>
 </section>
 <section id="globals-initialization-ginit">
-<h3>Globals initialization: GINIT()<a class="headerlink" href="#globals-initialization-ginit" title="Permalink to this heading">¶</a></h3>
+<h3>Globals initialization: GINIT()<a class="headerlink" href="#globals-initialization-ginit" title="Link to this heading">¶</a></h3>
 <p>This hook is called every time a thread is popped by the Threading library. If you use processes as multi-processing
 facility, this function is called only once, while PHP is starting up, just before <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> gets triggered.</p>
 <p>Not providing too many details here, you simply should initialize your globals here, usually to the value zero.
@@ -231,7 +231,7 @@ then you need to put such a procedure into <code class="docutils literal notrans
 </div>
 </section>
 <section id="globals-termination-gshutdown">
-<h3>Globals termination: GSHUTDOWN()<a class="headerlink" href="#globals-termination-gshutdown" title="Permalink to this heading">¶</a></h3>
+<h3>Globals termination: GSHUTDOWN()<a class="headerlink" href="#globals-termination-gshutdown" title="Link to this heading">¶</a></h3>
 <p>This hook is called every time a thread dies from the Threading library. If you use processes as multi-processing
 facility, this function is called only once, as part of PHP shutdown (during <code class="docutils literal notranslate"><span class="pre">MSHUTDOWN()</span></code>).</p>
 <p>Not providing too many details here, you simply should de-initialize your globals here, usually you have nothing to do,
@@ -244,7 +244,7 @@ but if you allocated resources while constructing globals (<code class="docutils
 </div>
 </section>
 <section id="information-gathering-minfo">
-<h3>Information gathering: MINFO()<a class="headerlink" href="#information-gathering-minfo" title="Permalink to this heading">¶</a></h3>
+<h3>Information gathering: MINFO()<a class="headerlink" href="#information-gathering-minfo" title="Link to this heading">¶</a></h3>
 <p>That hook is special as it is never triggered automatically by the engine, but only when you ask it information about
 an extension. The typical use case is a call to <code class="docutils literal notranslate"><span class="pre">phpinfo()</span></code>. This function is then run, and it is expected to print
 into a stream special information about the current extension.</p>
@@ -255,7 +255,7 @@ userland with a call to <code class="docutils literal notranslate"><span class="
 settings are not displayed as this happens as part of MINFO()).</p>
 </section>
 <section id="thoughts-on-php-lifecycle">
-<h3>Thoughts on PHP lifecycle<a class="headerlink" href="#thoughts-on-php-lifecycle" title="Permalink to this heading">¶</a></h3>
+<h3>Thoughts on PHP lifecycle<a class="headerlink" href="#thoughts-on-php-lifecycle" title="Link to this heading">¶</a></h3>
 <img alt="../../_images/php_extensions_lifecycle.png" class="align-center" src="../../_images/php_extensions_lifecycle.png" />
 <p>As you may have spotted, <code class="docutils literal notranslate"><span class="pre">RINIT()</span></code> and <code class="docutils literal notranslate"><span class="pre">RSHUTDOWN()</span></code> are especially crucial as they could get triggered thousands
 of times on your extension. If the PHP setup is about Web (not CLI), and has been configured so that it can handle an
@@ -276,7 +276,7 @@ lead to a program crash and termination.</p>
 </section>
 </section>
 <section id="hooking-by-overwriting-function-pointers">
-<h2>Hooking by overwriting function pointers<a class="headerlink" href="#hooking-by-overwriting-function-pointers" title="Permalink to this heading">¶</a></h2>
+<h2>Hooking by overwriting function pointers<a class="headerlink" href="#hooking-by-overwriting-function-pointers" title="Link to this heading">¶</a></h2>
 <p>Now you know when the engine will trigger your code, there exists also noticeable function pointers you may replace to
 hook into the engine.
 As those pointers are global variables, you may replace them into <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> step, and put them back into

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Basic structure &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Memory management" href="memory_management.html" />
@@ -36,11 +36,11 @@
         
         
   <section id="basic-structure">
-<h1>Basic structure<a class="headerlink" href="#basic-structure" title="Permalink to this heading">¶</a></h1>
+<h1>Basic structure<a class="headerlink" href="#basic-structure" title="Link to this heading">¶</a></h1>
 <p>A zval (short for “Zend value”) represents an arbitrary PHP value. As such it is likely the most important structure in
 all of PHP and you’ll be working with it a lot. This section describes the basic concepts behind zvals and their use.</p>
 <section id="types-and-values">
-<h2>Types and values<a class="headerlink" href="#types-and-values" title="Permalink to this heading">¶</a></h2>
+<h2>Types and values<a class="headerlink" href="#types-and-values" title="Link to this heading">¶</a></h2>
 <p>Among other things, every zval stores some value and the type this value has. This is necessary because PHP is a
 dynamically typed language and as such variable types are only known at run-time and not at compile-time. Furthermore
 the type can change during the life of a zval, so if the zval previously stored an integer it may contain a string at a
@@ -145,7 +145,7 @@ doesn’t exist yet).</p>
 </table>
 </section>
 <section id="access-macros">
-<h2>Access macros<a class="headerlink" href="#access-macros" title="Permalink to this heading">¶</a></h2>
+<h2>Access macros<a class="headerlink" href="#access-macros" title="Link to this heading">¶</a></h2>
 <p>Lets now have a look at how the <code class="docutils literal notranslate"><span class="pre">zval</span></code> struct actually looks like:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zval_struct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">zvalue_value</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
@@ -266,7 +266,7 @@ accessed the <code class="docutils literal notranslate"><span class="pre">lval</
 protection against changes to the internal zval representation in future PHP versions.</p>
 </section>
 <section id="setting-the-value">
-<h2>Setting the value<a class="headerlink" href="#setting-the-value" title="Permalink to this heading">¶</a></h2>
+<h2>Setting the value<a class="headerlink" href="#setting-the-value" title="Link to this heading">¶</a></h2>
 <p>Most of the macros introduced above just access some member of the zval structure and as such you can use them both to
 read and to write the respective values. As an example consider the following function, which simply returns the string
 “hello world!”:</p>

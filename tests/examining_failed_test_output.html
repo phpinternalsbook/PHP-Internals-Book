@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Examining failed test output &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/style.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../_static/style.css?v=38da9290" />
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="The .phpt file structure" href="phpt_file_structure.html" /> 
@@ -33,11 +33,11 @@
         
         
   <section id="examining-failed-test-output">
-<span id="id1"></span><h1>Examining failed test output<a class="headerlink" href="#examining-failed-test-output" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>Examining failed test output<a class="headerlink" href="#examining-failed-test-output" title="Link to this heading">¶</a></h1>
 <p>We’ve learned how to create and run tests and have had great success with passing tests, but what happens when things go
 wrong? We’ll examine how to help ourselves debug failed tests using the failed-test output files.</p>
 <section id="failed-test-output-files">
-<h2>Failed test output files<a class="headerlink" href="#failed-test-output-files" title="Permalink to this heading">¶</a></h2>
+<h2>Failed test output files<a class="headerlink" href="#failed-test-output-files" title="Link to this heading">¶</a></h2>
 <p>If a test would fail, the test results will be dumped in the directory where the test file resides. This happens for
 each failed test. For example for a failed test <code class="docutils literal notranslate"><span class="pre">001.phpt</span></code> you will get this output:</p>
 <ul class="simple">
@@ -52,7 +52,7 @@ each failed test. For example for a failed test <code class="docutils literal no
 the same runtime conditions as the test run. With all this information at hand, you can start debugging your code.</p>
 </section>
 <section id="examine-failed-test-output-inline">
-<h2>Examine failed test output inline<a class="headerlink" href="#examine-failed-test-output-inline" title="Permalink to this heading">¶</a></h2>
+<h2>Examine failed test output inline<a class="headerlink" href="#examine-failed-test-output-inline" title="Link to this heading">¶</a></h2>
 <p>Having all these files on your filesystem is not always convenient. Sometimes you might just want to see the failed
 test output on your screen, inline with the failed test. The <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code> script accepts flags to enable such
 behavior <code class="docutils literal notranslate"><span class="pre">--show-[all|php|exp|diff|out]</span></code>. For example if you want to see the diffs inline:</p>

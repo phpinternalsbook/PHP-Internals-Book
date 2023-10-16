@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Hashtable API &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Symtable and array API" href="array_api.html" />
@@ -36,12 +36,12 @@
         
         
   <section id="hashtable-api">
-<h1>Hashtable API<a class="headerlink" href="#hashtable-api" title="Permalink to this heading">¶</a></h1>
+<h1>Hashtable API<a class="headerlink" href="#hashtable-api" title="Link to this heading">¶</a></h1>
 <p>There are two sets of APIs working with hashtables: The first is the lower-level <code class="docutils literal notranslate"><span class="pre">zend_hash</span></code> API, which will be
 discussed in this section. The second one is the array API, which provides some higher-level functions for common
 operations and is covered in the next section.</p>
 <section id="creating-and-destroying-hashtables">
-<h2>Creating and destroying hashtables<a class="headerlink" href="#creating-and-destroying-hashtables" title="Permalink to this heading">¶</a></h2>
+<h2>Creating and destroying hashtables<a class="headerlink" href="#creating-and-destroying-hashtables" title="Link to this heading">¶</a></h2>
 <p>Hashtables are allocated using <code class="docutils literal notranslate"><span class="pre">ALLOC_HASHTABLE()</span></code> and initialized with <code class="docutils literal notranslate"><span class="pre">zend_hash_init()</span></code>:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">myht</span><span class="p">;</span>
 
@@ -89,7 +89,7 @@ insertion, the latter in reverse order.</p>
 function.</p>
 </section>
 <section id="integer-keys">
-<h2>Integer keys<a class="headerlink" href="#integer-keys" title="Permalink to this heading">¶</a></h2>
+<h2>Integer keys<a class="headerlink" href="#integer-keys" title="Link to this heading">¶</a></h2>
 <p>Before looking at the functions used to insert, retrieve and delete integer keys in a hashtable, lets first clarify
 what kind of arguments they expect:</p>
 <p>Remember that the <code class="docutils literal notranslate"><span class="pre">pData</span></code> member of a bucket stores <em>a pointer</em> to the actual data. E.g. if you store <code class="docutils literal notranslate"><span class="pre">zval</span> <span class="pre">*</span></code>
@@ -194,7 +194,7 @@ fetching the value and <code class="docutils literal notranslate"><span class="p
 <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code> if the value existed and <code class="docutils literal notranslate"><span class="pre">FAILURE</span></code> otherwise.</p>
 </section>
 <section id="string-keys">
-<h2>String keys<a class="headerlink" href="#string-keys" title="Permalink to this heading">¶</a></h2>
+<h2>String keys<a class="headerlink" href="#string-keys" title="Link to this heading">¶</a></h2>
 <p>String keys are handled very similarly to integer keys. The main difference is that the word <code class="docutils literal notranslate"><span class="pre">index</span></code> is removed from
 all function names. Of course these functions take a string and its length as parameters rather than an index.</p>
 <p>The only caveat is what “string length” means in this context: In the hashtable API the string length
@@ -338,7 +338,7 @@ functions are mostly used in the engine where precomputed hash values are availa
 optimizations.</p>
 </section>
 <section id="apply-functions">
-<h2>Apply functions<a class="headerlink" href="#apply-functions" title="Permalink to this heading">¶</a></h2>
+<h2>Apply functions<a class="headerlink" href="#apply-functions" title="Link to this heading">¶</a></h2>
 <p>Often you don’t want to work on any specific key, but want to do an operation on <em>all</em> values in the hashtable. PHP
 offers two mechanisms for this, the first being the <code class="docutils literal notranslate"><span class="pre">zend_hash_apply_*()</span></code> family of functions, which calls a function
 for every element in the hashtable. It is available in three variants:</p>
@@ -466,7 +466,7 @@ array(2) {
 you’ll find that the same method is used to implement it.</p>
 </section>
 <section id="iteration">
-<h2>Iteration<a class="headerlink" href="#iteration" title="Permalink to this heading">¶</a></h2>
+<h2>Iteration<a class="headerlink" href="#iteration" title="Link to this heading">¶</a></h2>
 <p>The second way to perform an operation on all values of the hashtable is to iterate over it. Hashtable iteration in C
 works very similarly to manual array iteration in PHP:</p>
 <div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span><span class="nb">reset</span><span class="p">(</span><span class="nv">$array</span><span class="p">);</span>
@@ -563,7 +563,7 @@ case of writing the key into a zval:</p>
 </div>
 </section>
 <section id="copying-and-merging">
-<h2>Copying and merging<a class="headerlink" href="#copying-and-merging" title="Permalink to this heading">¶</a></h2>
+<h2>Copying and merging<a class="headerlink" href="#copying-and-merging" title="Link to this heading">¶</a></h2>
 <p>Another very common operation is copying a hashtable: Often you will not have to do this yourself, but PHP has to copy
 hashtables whenever a copy-on-write of an array occurs. Copies are performed using the <code class="docutils literal notranslate"><span class="pre">zend_hash_copy()</span></code> function:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">HashTable</span><span class="w"> </span><span class="o">*</span><span class="n">ht_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_ht_from_somewhere</span><span class="p">();</span>
@@ -654,7 +654,7 @@ array(3) {
 </div>
 </section>
 <section id="comparison-sorting-and-extrema">
-<h2>Comparison, sorting and extrema<a class="headerlink" href="#comparison-sorting-and-extrema" title="Permalink to this heading">¶</a></h2>
+<h2>Comparison, sorting and extrema<a class="headerlink" href="#comparison-sorting-and-extrema" title="Link to this heading">¶</a></h2>
 <p>The last three functions of the hashtable API all involve the comparison of hashtable elements in one way or another.
 Such comparison are defined by a <em>comparison function</em>:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">compare_func_t</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">right</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">);</span>

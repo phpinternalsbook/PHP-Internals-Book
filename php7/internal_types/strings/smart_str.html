@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>smart_str API &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/style.css" />
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/style.css?v=38da9290" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="PHP’s custom printf functions" href="printing_functions.html" />
@@ -36,7 +36,7 @@
         
         
   <section id="smart-str-api">
-<h1>smart_str API<a class="headerlink" href="#smart-str-api" title="Permalink to this heading">¶</a></h1>
+<h1>smart_str API<a class="headerlink" href="#smart-str-api" title="Link to this heading">¶</a></h1>
 <p>That may seem strange, but the C language offers nearly nothing to play with strings (build, concatenate, shrink,
 expand, transform, etc…). C is a low level general purpose language one can use to build APIs to deal with more
 specific tasks, such as string constructions.</p>
@@ -48,7 +48,7 @@ specific tasks, such as string constructions.</p>
 This API seats next to <a class="reference internal" href="printing_functions.html"><span class="doc">PHP’s special printf() APIs</span></a> and <a class="reference internal" href="zend_strings.html"><span class="doc">zend_string</span></a> to
 help with strings management.</p>
 <section id="smart-str-vs-smart-string">
-<h2>smart_str VS smart_string<a class="headerlink" href="#smart-str-vs-smart-string" title="Permalink to this heading">¶</a></h2>
+<h2>smart_str VS smart_string<a class="headerlink" href="#smart-str-vs-smart-string" title="Link to this heading">¶</a></h2>
 <p>Here are the two structures:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="p">;</span>
@@ -75,7 +75,7 @@ file).</p>
 </div>
 </section>
 <section id="basic-api-usage">
-<h2>Basic API usage<a class="headerlink" href="#basic-api-usage" title="Permalink to this heading">¶</a></h2>
+<h2>Basic API usage<a class="headerlink" href="#basic-api-usage" title="Link to this heading">¶</a></h2>
 <p>So far so good, that API is really easy to manage. You basically stack-allocate a <code class="docutils literal notranslate"><span class="pre">smart_str</span></code>, and pass its pointer to
 <code class="docutils literal notranslate"><span class="pre">smart_str_***()</span></code> API functions that manage the embedded <code class="docutils literal notranslate"><span class="pre">zend_string</span></code> for you. You build your string, use it, and
 then you free it. Nothing very strong in there right ?</p>
@@ -132,7 +132,7 @@ your <code class="docutils literal notranslate"><span class="pre">smart_str</spa
 <code class="docutils literal notranslate"><span class="pre">smart_str_append_smart_str(smart_str</span> <span class="pre">*dst,</span> <span class="pre">const</span> <span class="pre">smart_str</span> <span class="pre">*src)</span></code> to combine them together.</p>
 </section>
 <section id="smart-str-specific-tricks">
-<h2>smart_str specific tricks<a class="headerlink" href="#smart-str-specific-tricks" title="Permalink to this heading">¶</a></h2>
+<h2>smart_str specific tricks<a class="headerlink" href="#smart-str-specific-tricks" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Never forget to finish your string with a call to <code class="docutils literal notranslate"><span class="pre">smart_str_0()</span></code>. That puts a <em>NUL</em> char at the end of the embed
 string and make it compatible with libc string functions.</p></li>

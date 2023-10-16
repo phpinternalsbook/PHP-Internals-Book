@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Simple classes &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Custom object storage" href="custom_object_storage.html" />
@@ -36,9 +36,9 @@
         
         
   <section id="simple-classes">
-<h1>Simple classes<a class="headerlink" href="#simple-classes" title="Permalink to this heading">¶</a></h1>
+<h1>Simple classes<a class="headerlink" href="#simple-classes" title="Link to this heading">¶</a></h1>
 <section id="basic-concepts">
-<h2>Basic concepts<a class="headerlink" href="#basic-concepts" title="Permalink to this heading">¶</a></h2>
+<h2>Basic concepts<a class="headerlink" href="#basic-concepts" title="Link to this heading">¶</a></h2>
 <p>Zvals store objects using the <code class="docutils literal notranslate"><span class="pre">IS_OBJECT</span></code> type tag and the <code class="docutils literal notranslate"><span class="pre">zend_object_value</span></code> structure in the union, which is
 defined as follows:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object_value</span><span class="w"> </span><span class="p">{</span>
@@ -60,7 +60,7 @@ amount of information, including the class methods and static properties as well
 handler for creating objects from the class.</p>
 </section>
 <section id="class-registration">
-<h2>Class registration<a class="headerlink" href="#class-registration" title="Permalink to this heading">¶</a></h2>
+<h2>Class registration<a class="headerlink" href="#class-registration" title="Link to this heading">¶</a></h2>
 <p>Just like functions classes are registered in the extension’s <code class="docutils literal notranslate"><span class="pre">MINIT</span></code> handler. Here is a snippet for declaring an
 empty <code class="docutils literal notranslate"><span class="pre">Test</span></code> class:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zend_class_entry</span><span class="w"> </span><span class="o">*</span><span class="n">test_ce</span><span class="p">;</span>
@@ -106,7 +106,7 @@ following lines:</p>
 <p>As expected what you get is a totally empty class.</p>
 </section>
 <section id="method-definition-and-declaration">
-<h2>Method definition and declaration<a class="headerlink" href="#method-definition-and-declaration" title="Permalink to this heading">¶</a></h2>
+<h2>Method definition and declaration<a class="headerlink" href="#method-definition-and-declaration" title="Link to this heading">¶</a></h2>
 <p>To bring it to life let’s add a method:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">helloWorld</span><span class="p">)</span><span class="w"> </span><span class="cm">/* {{{ */</span>
 <span class="p">{</span>
@@ -184,7 +184,7 @@ which is incremented with every new object. (This isn’t exactly true because o
 associated objects are destroyed.)</p>
 </section>
 <section id="properties-and-constants">
-<h2>Properties and constants<a class="headerlink" href="#properties-and-constants" title="Permalink to this heading">¶</a></h2>
+<h2>Properties and constants<a class="headerlink" href="#properties-and-constants" title="Link to this heading">¶</a></h2>
 <p>To do something more useful, let’s create two methods for reading from and writing to a property:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PHP_METHOD</span><span class="p">(</span><span class="n">Test</span><span class="p">,</span><span class="w"> </span><span class="n">getFoo</span><span class="p">)</span>
 <span class="p">{</span>
@@ -299,7 +299,7 @@ signatures as <code class="docutils literal notranslate"><span class="pre">zend_
 </div>
 </section>
 <section id="inheritance-and-interfaces">
-<h2>Inheritance and interfaces<a class="headerlink" href="#inheritance-and-interfaces" title="Permalink to this heading">¶</a></h2>
+<h2>Inheritance and interfaces<a class="headerlink" href="#inheritance-and-interfaces" title="Link to this heading">¶</a></h2>
 <p>Just like their userland equivalents internal classes can also inherit from other classes and/or implement interfaces.</p>
 <p>A very simple (and quite common) example of inheritance in the PHP tree is creating some custom subtype of
 <code class="docutils literal notranslate"><span class="pre">Exception</span></code>:</p>

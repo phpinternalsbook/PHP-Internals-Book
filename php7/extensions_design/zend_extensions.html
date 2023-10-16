@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Zend Extensions &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Memory management" href="../memory_management.html" />
@@ -36,7 +36,7 @@
         
         
   <section id="zend-extensions">
-<h1>Zend Extensions<a class="headerlink" href="#zend-extensions" title="Permalink to this heading">¶</a></h1>
+<h1>Zend Extensions<a class="headerlink" href="#zend-extensions" title="Link to this heading">¶</a></h1>
 <p>PHP knows two kinds of extensions :</p>
 <ul class="simple">
 <li><p>The PHP extensions, the most commonly used</p></li>
@@ -46,7 +46,7 @@
 one instead of the other, and how to build hybrid extensions, aka extensions being both PHP and Zend at the same time
 (and why do that).</p>
 <section id="on-differences-between-php-and-zend-extensions">
-<h2>On differences between PHP and Zend extensions<a class="headerlink" href="#on-differences-between-php-and-zend-extensions" title="Permalink to this heading">¶</a></h2>
+<h2>On differences between PHP and Zend extensions<a class="headerlink" href="#on-differences-between-php-and-zend-extensions" title="Link to this heading">¶</a></h2>
 <p>Just to say. Into PHP’s source code, PHP extensions are named as <strong>“PHP modules”</strong>, whereas Zend extensions are called
 <strong>“Zend extensions”</strong>.</p>
 <p>So into PHP’s heart, if you read the “extension” keyword, you should first think about a Zend extension. And if you
@@ -61,7 +61,7 @@ read the “module” keyword, you may think about a PHP extension.</p>
 <p>But that’s a different story from internal point of view.</p>
 </section>
 <section id="what-is-a-zend-extension">
-<h2>What is a Zend extension ?<a class="headerlink" href="#what-is-a-zend-extension" title="Permalink to this heading">¶</a></h2>
+<h2>What is a Zend extension ?<a class="headerlink" href="#what-is-a-zend-extension" title="Link to this heading">¶</a></h2>
 <p>First of all, Zend extensions are compiled and loaded the same way as PHP extensions. Thus, if you haven’t yet read the
 <a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">building PHP extensions</span></a> chapter, you should have a look as it is valid
 also for Zend extensions.</p>
@@ -129,7 +129,7 @@ closer to the <a class="reference internal" href="../zend_engine.html"><span cla
 source code).</p>
 </section>
 <section id="why-need-a-zend-extension">
-<h2>Why need a Zend extension ?<a class="headerlink" href="#why-need-a-zend-extension" title="Permalink to this heading">¶</a></h2>
+<h2>Why need a Zend extension ?<a class="headerlink" href="#why-need-a-zend-extension" title="Link to this heading">¶</a></h2>
 <p>Let us warn you : until you have <strong>very advanced</strong> knowledge on PHP internal’s Vritual Machine, and until you need to
 hook deep into it, you shouldn’t need a Zend extension, but a PHP extension will be enough.</p>
 <p>Today’s most commonly known Zend extensions into PHP’s world are opcache, Xdebug, phpdbg and Blackfire. But you know
@@ -161,7 +161,7 @@ capabilities brought by Zend extensions against PHP extensions.</p>
 perfectly valid and allows you to program in both “worlds” at the same time).</p>
 </section>
 <section id="api-versions-and-conflicts-management">
-<h2>API versions and conflicts management<a class="headerlink" href="#api-versions-and-conflicts-management" title="Permalink to this heading">¶</a></h2>
+<h2>API versions and conflicts management<a class="headerlink" href="#api-versions-and-conflicts-management" title="Link to this heading">¶</a></h2>
 <p>You know that PHP extensions check against several rules before loading, to know if they are compatible with the PHP
 version you try to load them on. This has been detailed into
 <a class="reference internal" href="../build_system/building_extensions.html"><span class="doc">the chapter about building PHP extensions</span></a>.</p>
@@ -204,7 +204,7 @@ may then detect which one it is, and abort if you think you’ll conflict with i
 practice as well.</p>
 </section>
 <section id="zend-extensions-lifetime-hooks">
-<h2>Zend extensions lifetime hooks<a class="headerlink" href="#zend-extensions-lifetime-hooks" title="Permalink to this heading">¶</a></h2>
+<h2>Zend extensions lifetime hooks<a class="headerlink" href="#zend-extensions-lifetime-hooks" title="Link to this heading">¶</a></h2>
 <p>If you remember about <a class="reference internal" href="php_lifecycle.html"><span class="doc">the PHP lifecycle</span></a> (you should read the dedicated chapter), well, Zend
 extensions plug into that lifecycle this way:</p>
 <img alt="../../_images/php_extensions_lifecycle_full.png" class="align-center" src="../../_images/php_extensions_lifecycle_full.png" />
@@ -240,7 +240,7 @@ trick so that it can perform its complex tasks before any extension had a chance
 </ul>
 </section>
 <section id="practice-my-first-example-zend-extension">
-<h2>Practice : my first example Zend extension<a class="headerlink" href="#practice-my-first-example-zend-extension" title="Permalink to this heading">¶</a></h2>
+<h2>Practice : my first example Zend extension<a class="headerlink" href="#practice-my-first-example-zend-extension" title="Link to this heading">¶</a></h2>
 <p>Here we’ll detail in practice some hooks Zend extensions can use, and what to do with them, in some very simple scenario.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -482,7 +482,7 @@ every fcall/include/eval.</p>
 </div>
 </section>
 <section id="hybrid-extensions">
-<h2>Hybrid extensions<a class="headerlink" href="#hybrid-extensions" title="Permalink to this heading">¶</a></h2>
+<h2>Hybrid extensions<a class="headerlink" href="#hybrid-extensions" title="Link to this heading">¶</a></h2>
 <p>What we call hybrid extensions, are extensions that are <strong>both</strong> Zend extensions, and PHP extensions.</p>
 <p>How is that possible ? And what for ?.</p>
 <p>Well there are several answers to such a question :</p>
@@ -508,7 +508,7 @@ into your brain :</p>
 <p>Remember however, whatever schema you choose to go with, you’ll have to register the slave part and trigger it by hand,
 as the engine obviously won’t do it. The engine triggers automatically the master part.</p>
 <section id="hybrid-zend-extension-master-php-extension-slave">
-<h3>Hybrid Zend extension master, PHP extension slave<a class="headerlink" href="#hybrid-zend-extension-master-php-extension-slave" title="Permalink to this heading">¶</a></h3>
+<h3>Hybrid Zend extension master, PHP extension slave<a class="headerlink" href="#hybrid-zend-extension-master-php-extension-slave" title="Link to this heading">¶</a></h3>
 <p>Ok that is easy. We don’t want to be loaded as a PHP extension, but exclusively as a Zend extension. To force things,
 we won’t publish the mandatory symbol <code class="docutils literal notranslate"><span class="pre">get_module</span></code> that the engine looks for when it tried to register a PHP
 extension from reading the INI file.</p>
@@ -661,7 +661,7 @@ functions and thus they are also PHP extensions to do so.</p>
 </div>
 </section>
 <section id="hybrid-php-extension-master-zend-extension-slave">
-<h3>Hybrid PHP extension master, Zend extension slave<a class="headerlink" href="#hybrid-php-extension-master-zend-extension-slave" title="Permalink to this heading">¶</a></h3>
+<h3>Hybrid PHP extension master, Zend extension slave<a class="headerlink" href="#hybrid-php-extension-master-zend-extension-slave" title="Link to this heading">¶</a></h3>
 <p>Now let’s go for the other way around : we want to be registered by the engine as a PHP extension, and not as a
 Zend extension, but still want to be hybrid.</p>
 <p>Well, we’ll do the opposite : we won’t publish our <code class="docutils literal notranslate"><span class="pre">zend_extension_version_info</span></code> symbol, this way it will be
@@ -822,7 +822,7 @@ patch about module unload.</p>
 </div>
 </section>
 <section id="hybrid-hybrid">
-<h3>Hybrid hybrid<a class="headerlink" href="#hybrid-hybrid" title="Permalink to this heading">¶</a></h3>
+<h3>Hybrid hybrid<a class="headerlink" href="#hybrid-hybrid" title="Link to this heading">¶</a></h3>
 <p>Hybrid hybrid is simply a model where you allow the user to load you whether as Zend extension or PHP extension.</p>
 <p>What you have to do, is remember how you’ve been loaded, using a global for example, so that you can take care of both
 modes.</p>

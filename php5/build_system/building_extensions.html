@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Building PHP extensions &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Zvals" href="../zvals.html" />
@@ -36,11 +36,11 @@
         
         
   <section id="building-php-extensions">
-<h1>Building PHP extensions<a class="headerlink" href="#building-php-extensions" title="Permalink to this heading">¶</a></h1>
+<h1>Building PHP extensions<a class="headerlink" href="#building-php-extensions" title="Link to this heading">¶</a></h1>
 <p>Now that you know how to compile PHP itself, we’ll move on to compiling additional extensions. We’ll discuss how the
 build process works and what different options are available.</p>
 <section id="loading-shared-extensions">
-<h2>Loading shared extensions<a class="headerlink" href="#loading-shared-extensions" title="Permalink to this heading">¶</a></h2>
+<h2>Loading shared extensions<a class="headerlink" href="#loading-shared-extensions" title="Link to this heading">¶</a></h2>
 <p>As you already know from the previous section, PHP extensions can be either built statically into the PHP binary, or
 compiled into a shared object (<code class="docutils literal notranslate"><span class="pre">.so</span></code>). Static linkage is the default for most of the bundled extensions, whereas
 shared objects can be created by explicitly passing <code class="docutils literal notranslate"><span class="pre">--enable-EXTNAME=shared</span></code> or <code class="docutils literal notranslate"><span class="pre">--with-EXTNAME=shared</span></code> to
@@ -88,7 +88,7 @@ the Zend Engine itself.</p>
 </aside>
 </section>
 <section id="installing-extensions-from-pecl">
-<h2>Installing extensions from PECL<a class="headerlink" href="#installing-extensions-from-pecl" title="Permalink to this heading">¶</a></h2>
+<h2>Installing extensions from PECL<a class="headerlink" href="#installing-extensions-from-pecl" title="Link to this heading">¶</a></h2>
 <p><a class="reference external" href="http://pecl.php.net">PECL</a>, the <em>PHP Extension Community Library</em>, offers a large number of extensions for PHP. When extensions are removed
 from the main PHP distribution, they usually continue to exist in PECL. Similarly many extensions that are now bundled
 with PHP were previously PECL extensions.</p>
@@ -105,7 +105,7 @@ following, we’ll describe two ways to manually build extensions: Either by imp
 (this allows static linkage) or by doing an external build (only shared).</p>
 </section>
 <section id="adding-extensions-to-the-php-source-tree">
-<h2>Adding extensions to the PHP source tree<a class="headerlink" href="#adding-extensions-to-the-php-source-tree" title="Permalink to this heading">¶</a></h2>
+<h2>Adding extensions to the PHP source tree<a class="headerlink" href="#adding-extensions-to-the-php-source-tree" title="Link to this heading">¶</a></h2>
 <p>There is no fundamental difference between a third-party extension and an extension bundled with PHP. As such you can
 build an external extension simply by copying it into the PHP source tree and then using the usual build procedure.
 We’ll demonstrate this using APCu as an example.</p>
@@ -139,7 +139,7 @@ statically linked into the PHP binary, i.e. no additional actions are needed to 
 use <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> to install the resulting binaries.</p>
 </section>
 <section id="building-extensions-using-phpize">
-<h2>Building extensions using <code class="docutils literal notranslate"><span class="pre">phpize</span></code><a class="headerlink" href="#building-extensions-using-phpize" title="Permalink to this heading">¶</a></h2>
+<h2>Building extensions using <code class="docutils literal notranslate"><span class="pre">phpize</span></code><a class="headerlink" href="#building-extensions-using-phpize" title="Link to this heading">¶</a></h2>
 <p>It is also possible to build extensions separately from PHP by making use of the <code class="docutils literal notranslate"><span class="pre">phpize</span></code> script that was already
 mentioned in the <a class="reference internal" href="building_php.html#building-php-5"><span class="std std-ref">Building PHP</span></a> section.</p>
 <p><code class="docutils literal notranslate"><span class="pre">phpize</span></code> plays a similar role as the <code class="docutils literal notranslate"><span class="pre">./buildconf</span></code> script used for PHP builds: First it will import the PHP build
@@ -171,7 +171,7 @@ the extension, should the incremental build fail after a change. Additionally ph
 <code class="docutils literal notranslate"><span class="pre">/configure</span></code> script.</p>
 </section>
 <section id="displaying-information-about-extensions">
-<h2>Displaying information about extensions<a class="headerlink" href="#displaying-information-about-extensions" title="Permalink to this heading">¶</a></h2>
+<h2>Displaying information about extensions<a class="headerlink" href="#displaying-information-about-extensions" title="Link to this heading">¶</a></h2>
 <p>The PHP CLI binary provides several options to display information about extensions. You already know <code class="docutils literal notranslate"><span class="pre">-m</span></code>, which will
 list all loaded extensions. You can use it to verify that an extension was loaded correctly:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/myphp/bin&gt;<span class="w"> </span>./php<span class="w"> </span>-dextension<span class="o">=</span>apcu.so<span class="w"> </span>-m<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>apcu

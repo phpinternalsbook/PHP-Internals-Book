@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Hash algorithm and collisions &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Classes and objects" href="../classes_objects.html" />
@@ -36,12 +36,12 @@
         
         
   <section id="hash-algorithm-and-collisions">
-<h1>Hash algorithm and collisions<a class="headerlink" href="#hash-algorithm-and-collisions" title="Permalink to this heading">¶</a></h1>
+<h1>Hash algorithm and collisions<a class="headerlink" href="#hash-algorithm-and-collisions" title="Link to this heading">¶</a></h1>
 <p>In this final section on hashtables, we’ll have a closer look at worst-case collision scenarios and some properties of
 the hashing function that PHP employs. While this knowledge is not necessary for the usage of the hashtable APIs it
 should give you a better understanding of the hashtable structure and its limitations.</p>
 <section id="analyzing-collisions">
-<h2>Analyzing collisions<a class="headerlink" href="#analyzing-collisions" title="Permalink to this heading">¶</a></h2>
+<h2>Analyzing collisions<a class="headerlink" href="#analyzing-collisions" title="Link to this heading">¶</a></h2>
 <p>In order to simplify collision analysis, let’s first write a helper function <code class="docutils literal notranslate"><span class="pre">array_collision_info()</span></code> which will
 take an array and tell us which keys collide into which index. In order to do so we’ll go through the <code class="docutils literal notranslate"><span class="pre">arBuckets</span></code> and
 for every index create an array that contains some information about all buckets at that index:</p>
@@ -145,7 +145,7 @@ to implement it.)</p></li>
 </ul>
 </section>
 <section id="index-collisions">
-<h2>Index collisions<a class="headerlink" href="#index-collisions" title="Permalink to this heading">¶</a></h2>
+<h2>Index collisions<a class="headerlink" href="#index-collisions" title="Link to this heading">¶</a></h2>
 <p>The goal now is to create a worst-case collision scenario where <em>all</em> hash keys collide. There are two ways to
 accomplish this and we’ll start with the easier one: Rather than creating collisions in the hash function, we’ll
 create the collisions in the index (which is the hash modulo the table size).</p>
@@ -185,7 +185,7 @@ this is not a problem as the collision list contains only one or two buckets. In
 2^16 operations about 2^32 will have to be done.</p>
 </section>
 <section id="hash-collisions">
-<h2>Hash collisions<a class="headerlink" href="#hash-collisions" title="Permalink to this heading">¶</a></h2>
+<h2>Hash collisions<a class="headerlink" href="#hash-collisions" title="Link to this heading">¶</a></h2>
 <p>Now that we successfully created a worst-case scenario using index collisions, let’s do the same using actual hash
 collisions. As this is not possible using integer keys, we’ll have to take a look at PHP’s string hashing function,
 which is defined as follows:</p>

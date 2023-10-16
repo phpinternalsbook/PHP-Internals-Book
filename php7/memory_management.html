@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Memory management &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/style.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../_static/style.css?v=38da9290" />
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Zend Memory Manager" href="memory_management/zend_memory_manager.html" />
@@ -36,7 +36,7 @@
         
         
   <section id="memory-management">
-<h1>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this heading">¶</a></h1>
+<h1>Memory management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h1>
 <p>C programmers usually have to deal with memory by hand. With dynamic memory, the programmer allocates memory when
 needing and frees it when finished. Failing to free dynamic memory leads to a “memory leak”, which may or may not be a
 bad thing. In the case of PHP, as the process could live for a virtually infinite amount of time, creating a memory leak

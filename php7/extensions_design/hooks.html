@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Hooks provided by PHP &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Declaring and using INI settings" href="ini_settings.html" />
@@ -36,7 +36,7 @@
         
         
   <section id="hooks-provided-by-php">
-<h1>Hooks provided by PHP<a class="headerlink" href="#hooks-provided-by-php" title="Permalink to this heading">¶</a></h1>
+<h1>Hooks provided by PHP<a class="headerlink" href="#hooks-provided-by-php" title="Link to this heading">¶</a></h1>
 <p>PHP and the Zend Engine provide many different hooks for extensions that allow
 extension developers to control the PHP runtime in ways that are not available
 from PHP userland.</p>
@@ -48,7 +48,7 @@ function then often performs their own work and calls the original PHP core
 function. Using this pattern different extensions can overwrite the same hook
 without causing conflicts.</p>
 <section id="hooking-into-the-execution-of-functions">
-<h2>Hooking into the execution of functions<a class="headerlink" href="#hooking-into-the-execution-of-functions" title="Permalink to this heading">¶</a></h2>
+<h2>Hooking into the execution of functions<a class="headerlink" href="#hooking-into-the-execution-of-functions" title="Link to this heading">¶</a></h2>
 <p>The execution of userland and internal functions are handled by two functions
 within the Zend engine that you can replace with your own implementations.
 The primary use-case for extensions to overwrite this hook is generic
@@ -98,7 +98,7 @@ opcodes.</p>
 that wraps the original functions.</p>
 </section>
 <section id="overwriting-an-internal-function">
-<h2>Overwriting an Internal Function<a class="headerlink" href="#overwriting-an-internal-function" title="Permalink to this heading">¶</a></h2>
+<h2>Overwriting an Internal Function<a class="headerlink" href="#overwriting-an-internal-function" title="Link to this heading">¶</a></h2>
 <p>While overwriting the execute hooks an extension can record <strong>every</strong> function
 call, you can also overwrite individual function pointers of userland, core and
 extension functions (and methods). This has much better performance
@@ -149,7 +149,7 @@ calls.:</p>
 </div>
 </section>
 <section id="modifying-the-abstract-syntax-tree-ast">
-<h2>Modifying the Abstract Syntax Tree (AST)<a class="headerlink" href="#modifying-the-abstract-syntax-tree-ast" title="Permalink to this heading">¶</a></h2>
+<h2>Modifying the Abstract Syntax Tree (AST)<a class="headerlink" href="#modifying-the-abstract-syntax-tree-ast" title="Link to this heading">¶</a></h2>
 <p>When PHP 7 compiles PHP code it converts it into an abstract syntax tree (AST)
 before finally generating opcodes that are persisted in opcache. The
 <code class="docutils literal notranslate"><span class="pre">zend_ast_process</span> <span class="pre">hook</span></code> is called for every compiled script and allows you to
@@ -164,7 +164,7 @@ weird behavior or crashes.</p>
 </ul>
 </section>
 <section id="hooking-into-script-file-compilation">
-<h2>Hooking into Script/File Compilation<a class="headerlink" href="#hooking-into-script-file-compilation" title="Permalink to this heading">¶</a></h2>
+<h2>Hooking into Script/File Compilation<a class="headerlink" href="#hooking-into-script-file-compilation" title="Link to this heading">¶</a></h2>
 <p>Whenever a user script calls <code class="docutils literal notranslate"><span class="pre">include</span></code>/<code class="docutils literal notranslate"><span class="pre">require</span></code> or their counterparts
 <code class="docutils literal notranslate"><span class="pre">include_once</span></code>/<code class="docutils literal notranslate"><span class="pre">require_once</span></code> PHP core calls the function at the pointer
 <code class="docutils literal notranslate"><span class="pre">zend_compile_file</span></code> to handle this request. The argument is a file handle
@@ -200,7 +200,7 @@ hook, which runs after the minit phase for extensions, so by default your hook
 will not be called anymore when the script gets cached.</p>
 </section>
 <section id="notification-when-error-handler-is-called">
-<h2>Notification when Error Handler is called<a class="headerlink" href="#notification-when-error-handler-is-called" title="Permalink to this heading">¶</a></h2>
+<h2>Notification when Error Handler is called<a class="headerlink" href="#notification-when-error-handler-is-called" title="Link to this heading">¶</a></h2>
 <p>Similar to the PHP userland <code class="docutils literal notranslate"><span class="pre">set_error_handler()</span></code> function, an extension can
 register itself as error handler by implementing the <code class="docutils literal notranslate"><span class="pre">zend_error_cb</span></code> hook.:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ZEND_API</span><span class="w"> </span><span class="nf">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">zend_error_cb</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">error_filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">error_lineno</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="kt">va_list</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
@@ -251,7 +251,7 @@ unless you want to completely replace it:</p>
 Tracking or Application Performance Management software.</p>
 </section>
 <section id="notification-when-exception-is-thrown">
-<h2>Notification when Exception is thrown<a class="headerlink" href="#notification-when-exception-is-thrown" title="Permalink to this heading">¶</a></h2>
+<h2>Notification when Exception is thrown<a class="headerlink" href="#notification-when-exception-is-thrown" title="Link to this heading">¶</a></h2>
 <p>Whenever PHP Core or userland code throws an exception the
 <code class="docutils literal notranslate"><span class="pre">zend_throw_exception_hook</span></code> is called with the exception as argument.</p>
 <p>This hooks’ signature is fairly simple:</p>
@@ -286,7 +286,7 @@ to halt.</p>
 tracking.</p>
 </section>
 <section id="hooking-into-eval">
-<h2>Hooking into eval()<a class="headerlink" href="#hooking-into-eval" title="Permalink to this heading">¶</a></h2>
+<h2>Hooking into eval()<a class="headerlink" href="#hooking-into-eval" title="Link to this heading">¶</a></h2>
 <p>PHPs <code class="docutils literal notranslate"><span class="pre">eval</span></code> is not an internal function but a special language construct. As
 such you cannot hook into it through <code class="docutils literal notranslate"><span class="pre">zend_execute_internal</span></code> or by
 overwriting its function pointer.</p>
@@ -298,7 +298,7 @@ may need eval. One example is Xdebug that uses it to execute breakpoint conditio
 </div>
 </section>
 <section id="hooking-into-the-garbage-collector">
-<h2>Hooking into the Garbage Collector<a class="headerlink" href="#hooking-into-the-garbage-collector" title="Permalink to this heading">¶</a></h2>
+<h2>Hooking into the Garbage Collector<a class="headerlink" href="#hooking-into-the-garbage-collector" title="Link to this heading">¶</a></h2>
 <p>PHPs Garbage Collector can be triggered explicitly when <code class="docutils literal notranslate"><span class="pre">gc_collect_cycles()</span></code>
 is called or implicitly by the engine itself when the number of collectable
 objects reaches a certain threshold.</p>
@@ -325,7 +325,7 @@ be necessary this probably is not really feasible.</p>
 </div>
 </section>
 <section id="overwrite-interrupt-handler">
-<h2>Overwrite Interrupt Handler<a class="headerlink" href="#overwrite-interrupt-handler" title="Permalink to this heading">¶</a></h2>
+<h2>Overwrite Interrupt Handler<a class="headerlink" href="#overwrite-interrupt-handler" title="Link to this heading">¶</a></h2>
 <p>The interrupt handler is called once when the executor global
 <code class="docutils literal notranslate"><span class="pre">EG(vm_interrupt)</span></code> is set to 1. This is checked at regular checkpoints during
 the execution of userland code. The engine uses this hook to implement the PHP
@@ -356,7 +356,7 @@ overwrite of <code class="docutils literal notranslate"><span class="pre">zend_i
 </div>
 </section>
 <section id="replacing-opcode-handlers">
-<h2>Replacing Opcode Handlers<a class="headerlink" href="#replacing-opcode-handlers" title="Permalink to this heading">¶</a></h2>
+<h2>Replacing Opcode Handlers<a class="headerlink" href="#replacing-opcode-handlers" title="Link to this heading">¶</a></h2>
 <p>It is possible to override the Zend engine’s individual handlers for opcodes. This might be useful
 to ignore the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> operator or count how often each opcode gets executed. The API in the engine
 is only geared up for having <em>one</em> extension defined handler per opcode, which makes it important

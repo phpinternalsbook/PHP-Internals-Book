@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Iterators &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Serialization" href="serialization.html" />
@@ -36,12 +36,12 @@
         
         
   <section id="iterators">
-<h1>Iterators<a class="headerlink" href="#iterators" title="Permalink to this heading">¶</a></h1>
+<h1>Iterators<a class="headerlink" href="#iterators" title="Link to this heading">¶</a></h1>
 <p>In the last section we implemented a few object handlers to improve integration of typed arrays into the language. One
 aspect is still missing though: Iteration. In this section we’ll look at how iterators are implemented internally and
 how we can make use of them. Once again typed arrays will serve as the example.</p>
 <section id="the-get-iterator-handler">
-<h2>The <code class="docutils literal notranslate"><span class="pre">get_iterator</span></code> handler<a class="headerlink" href="#the-get-iterator-handler" title="Permalink to this heading">¶</a></h2>
+<h2>The <code class="docutils literal notranslate"><span class="pre">get_iterator</span></code> handler<a class="headerlink" href="#the-get-iterator-handler" title="Link to this heading">¶</a></h2>
 <p>Internally iteration works very similar to the userland <code class="docutils literal notranslate"><span class="pre">IteratorAggregate</span></code> interface. The class has a
 <code class="docutils literal notranslate"><span class="pre">get_iterator</span></code> handler that returns a <code class="docutils literal notranslate"><span class="pre">zend_object_iterator*</span></code>, which looks as follows:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">_zend_object_iterator</span><span class="w"> </span><span class="p">{</span>
@@ -150,7 +150,7 @@ set the respective members:</p>
 of the <code class="docutils literal notranslate"><span class="pre">Traversable</span></code> interface.</p>
 </section>
 <section id="iterator-functions">
-<h2>Iterator functions<a class="headerlink" href="#iterator-functions" title="Permalink to this heading">¶</a></h2>
+<h2>Iterator functions<a class="headerlink" href="#iterator-functions" title="Link to this heading">¶</a></h2>
 <p>Now let’s actually implement the <code class="docutils literal notranslate"><span class="pre">buffer_view_iterator_funcs</span></code> that we specified above:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">buffer_view_iterator_dtor</span><span class="p">(</span><span class="n">zend_object_iterator</span><span class="w"> </span><span class="o">*</span><span class="n">intern</span><span class="w"> </span><span class="n">TSRMLS_DC</span><span class="p">)</span>
 <span class="p">{</span>
@@ -235,7 +235,7 @@ any of them. For <code class="docutils literal notranslate"><span class="pre">HA
 in the <code class="docutils literal notranslate"><span class="pre">zend_hash</span></code> APIs).</p>
 </section>
 <section id="honoring-inheritance">
-<h2>Honoring inheritance<a class="headerlink" href="#honoring-inheritance" title="Permalink to this heading">¶</a></h2>
+<h2>Honoring inheritance<a class="headerlink" href="#honoring-inheritance" title="Link to this heading">¶</a></h2>
 <p>Once again we need to consider what happens when the user extends the class and wants to change the iteration behavior.
 Right now he would have to reimplement the iteration mechanism manually, because the individual iteration handlers are
 not exposed to userland (only through foreach).</p>

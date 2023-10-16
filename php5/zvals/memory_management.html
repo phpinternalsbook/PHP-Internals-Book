@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Memory management &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Casts and operations" href="casts_and_operations.html" />
@@ -36,13 +36,13 @@
         
         
   <section id="memory-management">
-<h1>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this heading">¶</a></h1>
+<h1>Memory management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h1>
 <p>The zval structure has two roles: The first, which was described in the previous section, is to store a value and its
 type. The second, which will be covered in this section, is to efficiently manage those values in memory.</p>
 <p>In the following we’ll have a look at the concepts of reference-counting and copy-on-write and find out how to make use
 of them in extension code.</p>
 <section id="value-and-reference-semantics">
-<h2>Value- and reference-semantics<a class="headerlink" href="#value-and-reference-semantics" title="Permalink to this heading">¶</a></h2>
+<h2>Value- and reference-semantics<a class="headerlink" href="#value-and-reference-semantics" title="Link to this heading">¶</a></h2>
 <p>In PHP all values always have value-semantics, unless you explicitly ask for a reference. This means that whenever
 you pass a value to a function or assign one variable to another you’ll be working on two separate copies of the value.
 Some examples to make sure that this is clear:</p>
@@ -97,7 +97,7 @@ So again the value-semantics prevent you from changing the resource ID or the ty
 prevent you from changing the content of the resource (like advancing the position in a file).</p>
 </section>
 <section id="reference-counting-and-copy-on-write">
-<h2>Reference-counting and copy-on-write<a class="headerlink" href="#reference-counting-and-copy-on-write" title="Permalink to this heading">¶</a></h2>
+<h2>Reference-counting and copy-on-write<a class="headerlink" href="#reference-counting-and-copy-on-write" title="Link to this heading">¶</a></h2>
 <p>If you think about the above for a bit, you’ll come to the conclusion that PHP must be doing an awful lot of copying.
 Every time you pass something to a function the value needs to be copied. This may not be particularly problematic for
 an integer or a double, but imagine passing an array with ten million elements to a function. Copying millions of
@@ -195,7 +195,7 @@ usually slows code down: Nearly all functions in PHP use by-value passing semant
 when an is_ref=1 zval is passed to them.</p>
 </section>
 <section id="allocating-and-initializing-zvals">
-<h2>Allocating and initializing zvals<a class="headerlink" href="#allocating-and-initializing-zvals" title="Permalink to this heading">¶</a></h2>
+<h2>Allocating and initializing zvals<a class="headerlink" href="#allocating-and-initializing-zvals" title="Link to this heading">¶</a></h2>
 <p>Now that you are familiar with the general concepts underlying zval memory management, we can move on to their practical
 implementation. Lets start with zval allocation:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">zv_ptr</span><span class="p">;</span>
@@ -260,7 +260,7 @@ steps:</p>
 <code class="docutils literal notranslate"><span class="pre">INIT_ZVAL()</span></code>.</p>
 </section>
 <section id="managing-the-refcount-and-zval-destruction">
-<h2>Managing the refcount and zval destruction<a class="headerlink" href="#managing-the-refcount-and-zval-destruction" title="Permalink to this heading">¶</a></h2>
+<h2>Managing the refcount and zval destruction<a class="headerlink" href="#managing-the-refcount-and-zval-destruction" title="Link to this heading">¶</a></h2>
 <p>Once you have an allocated and initialized zval you can make use of the reference-counting mechanism introduced earlier.
 To manage the refcount PHP provides several macros:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Z_REFCOUNT_P</span><span class="p">(</span><span class="n">zv_ptr</span><span class="p">)</span><span class="w">      </span><span class="cm">/* Get refcount */</span>
@@ -345,7 +345,7 @@ with temporary, stack-allocated zvals:</p>
 make use of refcounting and can be destroyed indiscriminately using <code class="docutils literal notranslate"><span class="pre">zval_dtor()</span></code>.</p>
 </section>
 <section id="copying-zvals">
-<h2>Copying zvals<a class="headerlink" href="#copying-zvals" title="Permalink to this heading">¶</a></h2>
+<h2>Copying zvals<a class="headerlink" href="#copying-zvals" title="Link to this heading">¶</a></h2>
 <p>While the copy-on-write mechanism can save a lot of zval copies, they do have to happen at some point, e.g. if you
 want to change the value of the zval or transfer it to another storage location.</p>
 <p>PHP provides a large number of copying macros for various use cases, the simplest one being <code class="docutils literal notranslate"><span class="pre">ZVAL_COPY_VALUE()</span></code>,
@@ -438,7 +438,7 @@ be destroyed by the <code class="docutils literal notranslate"><span class="pre"
 used rather rarely and will not be discussed here.</p>
 </section>
 <section id="separating-zvals">
-<h2>Separating zvals<a class="headerlink" href="#separating-zvals" title="Permalink to this heading">¶</a></h2>
+<h2>Separating zvals<a class="headerlink" href="#separating-zvals" title="Link to this heading">¶</a></h2>
 <p>The macros described above are mainly used when you want to copy a zval to another storage location. A typical example
 is copying a value into the <code class="docutils literal notranslate"><span class="pre">return_value</span></code> zval. There is a second set of macros for “zval separation”, which
 are used in the context of copy-on-write. Their functionality is best understood by looking at the source code:</p>

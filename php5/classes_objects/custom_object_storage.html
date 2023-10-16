@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Custom object storage &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Implementing typed arrays" href="implementing_typed_arrays.html" />
@@ -36,13 +36,13 @@
         
         
   <section id="custom-object-storage">
-<h1>Custom object storage<a class="headerlink" href="#custom-object-storage" title="Permalink to this heading">¶</a></h1>
+<h1>Custom object storage<a class="headerlink" href="#custom-object-storage" title="Link to this heading">¶</a></h1>
 <p>The previous section laid the ground for the creation of simple internal classes. Most of the features described there
 should be fairly straightforward because they work the same way as in userland PHP, only expressed more verbosely. This
 section on the other hand will go into realms not available to userland classes: The creation and access of custom
 object storage.</p>
 <section id="how-are-objects-created">
-<h2>How are objects created?<a class="headerlink" href="#how-are-objects-created" title="Permalink to this heading">¶</a></h2>
+<h2>How are objects created?<a class="headerlink" href="#how-are-objects-created" title="Link to this heading">¶</a></h2>
 <p>As a first step let’s look at how object are created in PHP. For this the <code class="docutils literal notranslate"><span class="pre">object_and_properties_init</span></code> macro or one of
 its simpler cousins is used:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create an object of type SomeClass and give it the properties from properties_hashtable</span>
@@ -181,7 +181,7 @@ cycle collector works will be covered in a later chapter).</p>
 default <code class="docutils literal notranslate"><span class="pre">std_object_handlers</span></code>.</p>
 </section>
 <section id="overriding-create-object">
-<h2>Overriding create_object<a class="headerlink" href="#overriding-create-object" title="Permalink to this heading">¶</a></h2>
+<h2>Overriding create_object<a class="headerlink" href="#overriding-create-object" title="Link to this heading">¶</a></h2>
 <p>When you want to use custom object storage, you will basically repeat the above three steps: First you allocate and
 initialize your object, which will contain the standard object as a substructure. Then you put it into the object store
 along with several handlers. And lastly you assign your object handlers structure.</p>
@@ -273,7 +273,7 @@ like (with inline explanations):</p>
 classes.</p>
 </section>
 <section id="object-store-handlers">
-<h2>Object store handlers<a class="headerlink" href="#object-store-handlers" title="Permalink to this heading">¶</a></h2>
+<h2>Object store handlers<a class="headerlink" href="#object-store-handlers" title="Link to this heading">¶</a></h2>
 <p>As already mentioned there are three object storage handlers: One for destruction, one for freeing and one for cloning.</p>
 <p>What is a bit confusing at first is that there is both a dtor handler and a free handler, which sounds like they do
 about the same thing. The reason is that PHP has a two-phase object destruction system, where first the destructor is
@@ -388,7 +388,7 @@ method if it exists.</p>
 </div>
 </section>
 <section id="interacting-with-the-object-store">
-<h2>Interacting with the object store<a class="headerlink" href="#interacting-with-the-object-store" title="Permalink to this heading">¶</a></h2>
+<h2>Interacting with the object store<a class="headerlink" href="#interacting-with-the-object-store" title="Link to this heading">¶</a></h2>
 <p>In the above code samples you have already seen several functions for interacting with the object store. The first one
 was <code class="docutils literal notranslate"><span class="pre">zend_objects_store_put</span></code>, which is used for inserting objects into the store. Also three functions for getting
 objects back from the store were mentioned:</p>

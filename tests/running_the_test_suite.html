@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Running the test suite &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/style.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../_static/style.css?v=38da9290" />
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="The .phpt file structure" href="phpt_file_structure.html" />
@@ -36,13 +36,13 @@
         
         
   <section id="running-the-test-suite">
-<span id="id1"></span><h1>Running the test suite<a class="headerlink" href="#running-the-test-suite" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>Running the test suite<a class="headerlink" href="#running-the-test-suite" title="Link to this heading">¶</a></h1>
 <p>Now that we have an basic understanding of what kind of testing we’re doing, let’s run the test suite. Before we can run
 the tests, make sure you have successfully built php from source (see <a class="reference internal" href="../php7/build_system/building_php.html#building-php"><span class="std std-ref">Building PHP</span></a>) and you have an executable
 at <code class="docutils literal notranslate"><span class="pre">sapi/cli/php</span></code>.</p>
 <p>There are two ways to run the test suite.</p>
 <section id="running-tests-directly-with-run-tests-php">
-<h2>Running tests directly with <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code><a class="headerlink" href="#running-tests-directly-with-run-tests-php" title="Permalink to this heading">¶</a></h2>
+<h2>Running tests directly with <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code><a class="headerlink" href="#running-tests-directly-with-run-tests-php" title="Link to this heading">¶</a></h2>
 <p>You can run the test suite directly with run-tests.php. At minimum you’ll need to specify the php executable that you
 wish to test against which you can do with the <code class="docutils literal notranslate"><span class="pre">-p</span></code> flag. Note that in order to run all tests correctly this should be
 an absolute path to the PHP executable.</p>
@@ -80,7 +80,7 @@ PHP QA team. This can be annoying sometimes. It is possible suppress this questi
 setting environment variable <code class="docutils literal notranslate"><span class="pre">NO_INTERACTION=1</span></code>.</p>
 </section>
 <section id="running-tests-via-the-makefile-recommended">
-<h2>Running tests via the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> (recommended)<a class="headerlink" href="#running-tests-via-the-makefile-recommended" title="Permalink to this heading">¶</a></h2>
+<h2>Running tests via the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> (recommended)<a class="headerlink" href="#running-tests-via-the-makefile-recommended" title="Link to this heading">¶</a></h2>
 <p>The recommended way of running the test suite is via the <code class="docutils literal notranslate"><span class="pre">test</span></code> target which is defined in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>. The
 <code class="docutils literal notranslate"><span class="pre">test</span></code> target does all the hard work of specifying the PHP executable for you (the one you compiled), setting up some
 default INI settings and specifying the best run-tests flags for you. You needn’t worry about setting environment
@@ -99,7 +99,7 @@ can pass <code class="docutils literal notranslate"><span class="pre">make</span
 </div>
 </section>
 <section id="executing-tests-in-parallel">
-<h2>Executing tests in parallel<a class="headerlink" href="#executing-tests-in-parallel" title="Permalink to this heading">¶</a></h2>
+<h2>Executing tests in parallel<a class="headerlink" href="#executing-tests-in-parallel" title="Link to this heading">¶</a></h2>
 <p>Since PHP 7.4 you are able to run tests in parallel by passing a <code class="docutils literal notranslate"><span class="pre">-j&lt;workers&gt;</span></code> flag to <code class="docutils literal notranslate"><span class="pre">run-tests.php</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;workers&gt;</span></code> is the number of parallel processes you want. For example, <code class="docutils literal notranslate"><span class="pre">-j4</span></code> would run 4 tests at once.</p>
 <p>Example for running tests through run-tests.php:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>run-tests.php<span class="w"> </span>-j8
@@ -111,7 +111,7 @@ can pass <code class="docutils literal notranslate"><span class="pre">make</span
 </div>
 </section>
 <section id="more-options">
-<h2>More options<a class="headerlink" href="#more-options" title="Permalink to this heading">¶</a></h2>
+<h2>More options<a class="headerlink" href="#more-options" title="Link to this heading">¶</a></h2>
 <p>Tests that passed are usually not that interesting. You can filter what tests to show with the <code class="docutils literal notranslate"><span class="pre">-g</span></code> flag. Possible
 values are <code class="docutils literal notranslate"><span class="pre">PASS</span></code>, <code class="docutils literal notranslate"><span class="pre">FAIL</span></code>, <code class="docutils literal notranslate"><span class="pre">XFAIL</span></code>, <code class="docutils literal notranslate"><span class="pre">SKIP</span></code>, <code class="docutils literal notranslate"><span class="pre">BORK</span></code>, <code class="docutils literal notranslate"><span class="pre">WARN</span></code>, <code class="docutils literal notranslate"><span class="pre">LEAK</span></code>, <code class="docutils literal notranslate"><span class="pre">REDIRECT</span></code> For example to only
 show failing tests:</p>

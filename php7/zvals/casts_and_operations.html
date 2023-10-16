@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Casts and operations &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/style.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=e491ac2d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Internal types" href="../internal_types.html" />
@@ -36,9 +36,9 @@
         
         
   <section id="casts-and-operations">
-<h1>Casts and operations<a class="headerlink" href="#casts-and-operations" title="Permalink to this heading">¶</a></h1>
+<h1>Casts and operations<a class="headerlink" href="#casts-and-operations" title="Link to this heading">¶</a></h1>
 <section id="casts">
-<h2>Casts<a class="headerlink" href="#casts" title="Permalink to this heading">¶</a></h2>
+<h2>Casts<a class="headerlink" href="#casts" title="Link to this heading">¶</a></h2>
 <p>In many situations, you expect to receive a zval of a specific type. In this case, you could strictly check for the
 desired type:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Z_TYPE_P</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">IS_STRING</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -163,7 +163,7 @@ instead, which will indicate whether an exception has been thrown in their retur
 </div>
 </section>
 <section id="operations">
-<h2>Operations<a class="headerlink" href="#operations" title="Permalink to this heading">¶</a></h2>
+<h2>Operations<a class="headerlink" href="#operations" title="Link to this heading">¶</a></h2>
 <p>Userland operations like <code class="docutils literal notranslate"><span class="pre">$op1</span> <span class="pre">+</span> <span class="pre">$op2</span></code> are implemented through corresponding functions like <code class="docutils literal notranslate"><span class="pre">add_function()</span></code>
 internally, which accept a result out-parameter, followed by the input operands:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">zval</span><span class="w"> </span><span class="o">*</span><span class="n">op1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">op2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">;</span>
