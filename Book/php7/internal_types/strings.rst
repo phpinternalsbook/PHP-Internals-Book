@@ -1,7 +1,7 @@
 Strings
 =======
 
-Rather than using plain a plain ``char *`` pointer, PHP uses a custom ``zend_string`` type to
+Rather than using a plain ``char *`` pointer, PHP uses a custom ``zend_string`` type to
 represent strings. This chapter discusses how to work with this structure, as well as various
 string-related utilities.
 
