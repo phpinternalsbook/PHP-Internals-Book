@@ -125,7 +125,7 @@ If you need to register INI entries for your extension, ``MINIT()`` is the right
 If you need to register read-only :doc:`zend_strings <../internal_types/strings>` for further usage, it is time to do so 
 here (with persistent alloc).
 
-If you need to allocate objects that well be written to while serving a request, then you'll need to duplicate their
+If you need to allocate objects that will be written to while serving a request, then you'll need to duplicate their
 memory allocation to a thread-specific pool for the request. Remember that you can only write safely to global space
 while into ``MINIT()``.
 
