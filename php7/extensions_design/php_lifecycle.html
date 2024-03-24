@@ -135,7 +135,7 @@ special care.</p>
 <p>If you need to register INI entries for your extension, <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code> is the right step to do that.</p>
 <p>If you need to register read-only <a class="reference internal" href="../internal_types/strings.html"><span class="doc">zend_strings</span></a> for further usage, it is time to do so
 here (with persistent alloc).</p>
-<p>If you need to allocate objects that well be written to while serving a request, then you’ll need to duplicate their
+<p>If you need to allocate objects that will be written to while serving a request, then you’ll need to duplicate their
 memory allocation to a thread-specific pool for the request. Remember that you can only write safely to global space
 while into <code class="docutils literal notranslate"><span class="pre">MINIT()</span></code>.</p>
 <div class="admonition note">
