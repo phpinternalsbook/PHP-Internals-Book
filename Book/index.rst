@@ -13,6 +13,7 @@ PHP 7 and PHP 8
     php7/internal_types.rst
     php7/classes_objects.rst
     php7/extensions_design.rst
+    php7/pdo.rst
     php7/memory_management.rst
     php7/zend_engine.rst
     php7/debugging.rst
