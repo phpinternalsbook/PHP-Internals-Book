@@ -155,7 +155,7 @@ we'll no doubt encounter.
 
 ``--INI--``
     Sometimes tests rely on having very specific INI settings set. In this case you can define any INI settings with the
-    `--INI-- section`_. Each INI setting is place on a new line within the section.
+    `--INI-- section`_. Each INI setting is placed on a new line within the section.
     
     .. code-block:: php
     
