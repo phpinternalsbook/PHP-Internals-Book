@@ -148,7 +148,7 @@ This also brings us to the next topic: refcount management. Rather than using ra
     return zend_string_copy(str);
 
 Unlike ``GC_ADDREF()``, the ``zend_string_addref()`` function will handle immutable strings properly. However, the
-function that is used most often by far is ``zend_string_copy()``. This function also only increments the refcount,
+function that is used most often by far is ``zend_string_copy()``. This function not only increments the refcount,
 but also returns the original string. This makes code more readable in practice.
 
 While a ``zend_string_dup()`` function that performs an actual copy of the string (rather than only a refcount
