@@ -170,7 +170,7 @@ strings. If the strings is shared, the refcount is decremented, but the string i
 </pre></div>
 </div>
 <p>Unlike <code class="docutils literal notranslate"><span class="pre">GC_ADDREF()</span></code>, the <code class="docutils literal notranslate"><span class="pre">zend_string_addref()</span></code> function will handle immutable strings properly. However, the
-function that is used most often by far is <code class="docutils literal notranslate"><span class="pre">zend_string_copy()</span></code>. This function also only increments the refcount,
+function that is used most often by far is <code class="docutils literal notranslate"><span class="pre">zend_string_copy()</span></code>. This function not only increments the refcount,
 but also returns the original string. This makes code more readable in practice.</p>
 <p>While a <code class="docutils literal notranslate"><span class="pre">zend_string_dup()</span></code> function that performs an actual copy of the string (rather than only a refcount
 increment) also exists, the behavior is often considered confusing, because it only copies non-immutable strings.
