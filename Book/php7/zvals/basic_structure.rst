@@ -65,7 +65,7 @@ Secondly, ``zend_long`` is **not** the same as ``long``, because it abstracts aw
 is always 4 bytes large on 32-bit platorms and 8 bytes large on 64-bit platforms, even if the ``long`` type may have
 a different size.
 
-For this reason, is is important to use macros written specifically for use with ``zend_long``, such as
+For this reason, it is important to use macros written specifically for use with ``zend_long``, such as
 ``SIZEOF_ZEND_LONG`` or ``ZEND_LONG_MAX``. You can find more relevant macros in
 `Zend/zend_long.h <https://github.com/php/php-src/blob/1a0fa12753931dba9908161df0f63feb6d0ba025/Zend/zend_long.h>`_.
 
