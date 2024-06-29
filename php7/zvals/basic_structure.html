@@ -91,7 +91,7 @@ i.e. it can store both positive and negative integers, but is commonly not well 
 Secondly, <code class="docutils literal notranslate"><span class="pre">zend_long</span></code> is <strong>not</strong> the same as <code class="docutils literal notranslate"><span class="pre">long</span></code>, because it abstracts away platform differences. <code class="docutils literal notranslate"><span class="pre">zend_long</span></code>
 is always 4 bytes large on 32-bit platorms and 8 bytes large on 64-bit platforms, even if the <code class="docutils literal notranslate"><span class="pre">long</span></code> type may have
 a different size.</p>
-<p>For this reason, is is important to use macros written specifically for use with <code class="docutils literal notranslate"><span class="pre">zend_long</span></code>, such as
+<p>For this reason, it is important to use macros written specifically for use with <code class="docutils literal notranslate"><span class="pre">zend_long</span></code>, such as
 <code class="docutils literal notranslate"><span class="pre">SIZEOF_ZEND_LONG</span></code> or <code class="docutils literal notranslate"><span class="pre">ZEND_LONG_MAX</span></code>. You can find more relevant macros in
 <a class="reference external" href="https://github.com/php/php-src/blob/1a0fa12753931dba9908161df0f63feb6d0ba025/Zend/zend_long.h">Zend/zend_long.h</a>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">double</span></code> type used to store floating point numbers is an 8-byte value following the IEEE-754 specification.
