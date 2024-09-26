@@ -236,6 +236,36 @@ you may define any others functions and change the concrete body as you want.
 
 .. note:: Remember that the new ext_skel is no longer support proto files.
 
+
+A go with extSkel
+*****************
+
+Another alternative to generate a PHP extension skeleton is by using the third-party
+`extSkel <https://github.com/7snovic/extSkel>`_ package
+
+it's retrieve the concept of the proto files but this time the proto file will be
+written in PHP and the package will do the rest of job.
+
+the available options are:
+
+.. code-block:: shell
+
+    php extSkel --proto="path/to/file" [--extension=extname] [--dest-dir=path]
+                [--credits="author name"] [--dump-header] [--fast-zpp]
+
+      --proto=file              File contains prototypes of functions to create
+      --extension=extname       Module is the name of your extension
+      --dest-dir=path           Path to the extension directory
+      --credits=author          Credits string to be added to headers
+      --help                    This message
+      --dump-header             Append header string to your extension
+      --fast-zpp                Use FastZPP API instead of zpp functions
+
+you can find out more about the package and the the basic usage at
+`github <https://github.com/7snovic/extSkel>`_.
+
+
+
 Publishing API
 **************
 
