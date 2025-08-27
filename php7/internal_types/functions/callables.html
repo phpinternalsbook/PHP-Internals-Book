@@ -121,6 +121,11 @@ or a class function table (<code class="docutils literal notranslate"><span clas
 <p>Prior to PHP 7.3.0 there existed an <code class="docutils literal notranslate"><span class="pre">initialized</span></code> field. Now an FCC is considered initialized when
 <code class="docutils literal notranslate"><span class="pre">function_handler</span></code> is set to a non-null pointer.</p>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As of PHP 8.3.0, the FCC holds a <code class="docutils literal notranslate"><span class="pre">closure</span></code> field and a dedicated API to handle storing userland callables.
+This new API is described below.</p>
+</div>
 <p>The <em>only</em> case where an FCC will be uninitialized is if the function is a trampoline, i.e. when the method
 of a class does not exist but is handled by the magic methods <code class="docutils literal notranslate"><span class="pre">__call()</span></code>/<code class="docutils literal notranslate"><span class="pre">__callStatic()</span></code>.
 This is because a trampoline is freed by ZPP as it is a newly allocated <code class="docutils literal notranslate"><span class="pre">zend_function</span></code> struct with the
@@ -160,9 +165,10 @@ We will describe the various APIs needed to deal with callables in PHP.</p>
 <p class="admonition-title">Warning</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_arg*()</span></code> and <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_call()</span></code> APIs should not be used.
 The <code class="docutils literal notranslate"><span class="pre">zval</span> <span class="pre">*args</span></code> parameter does <em>not</em> set the <code class="docutils literal notranslate"><span class="pre">params</span></code> field of the FCI directly.
-Instead it expect it to be a PHP array (IS_ARRAY zval) containing positional arguments, which will be reallocated
-into a new C array. As the <code class="docutils literal notranslate"><span class="pre">named_params</span></code> field accepts positional arguments, it is generally better to simply
-assign the HashTable pointer of this argument to this field.
+Instead it expect it to be a PHP array (<code class="docutils literal notranslate"><span class="pre">IS_ARRAY</span></code> zval) containing positional arguments,
+which will be reallocated into a new C array.
+As the <code class="docutils literal notranslate"><span class="pre">named_params</span></code> field accepts positional arguments, it is generally better to simply
+assign the <code class="docutils literal notranslate"><span class="pre">HashTable</span></code> pointer of this argument to this field.
 Moreover, as arguments to a userland call are predetermined and stack allocated it is better to assign the
 <code class="docutils literal notranslate"><span class="pre">params</span></code> and <code class="docutils literal notranslate"><span class="pre">param_count</span></code> fields directly.</p>
 </div>
@@ -205,6 +211,29 @@ functions:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you want to call a method on an object if it exists use the <code class="docutils literal notranslate"><span class="pre">zend_call_method_if_exists()</span></code> function.</p>
+</div>
+</section>
+<section id="new-fci-fcc-api-in-php-8-3-0">
+<h2>New FCI/FCC API in PHP 8.3.0<a class="headerlink" href="#new-fci-fcc-api-in-php-8-3-0" title="Link to this heading">¶</a></h2>
+<p>PHP 8.3.0 added some new APIs to improve the handling and storage of FCCs and userland callables.
+This was achieved by adding the <code class="docutils literal notranslate"><span class="pre">closure</span></code> field to the FCC.</p>
+<p>First of all a new <code class="docutils literal notranslate"><span class="pre">ZEND_FCC_INITIALIZED(fcc)</span></code> macro to check if an FCC is initialized was added,
+this is helper similar to the <code class="docutils literal notranslate"><span class="pre">ZEND_FCI_INITIALIZED(fci)</span></code> macro.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">zend_fcc_addref()</span></code> and <code class="docutils literal notranslate"><span class="pre">zend_fcc_dup()</span></code> functions will do all the necessary reference increments
+to safely store an FCC in an internal object.
+The <code class="docutils literal notranslate"><span class="pre">zend_fcc_equals()</span></code> function, can be used if two FCCs are equal or not, which also supports trampolines.
+The <code class="docutils literal notranslate"><span class="pre">zend_fcc_dtor()</span></code> function must be used when releasing an FCC that was copied for internal storage.</p>
+<p>If an internal object stores an FCC the <code class="docutils literal notranslate"><span class="pre">get_gc</span></code> object handler must be defined,
+and add it to the GC buffer via <code class="docutils literal notranslate"><span class="pre">zend_get_gc_buffer_add_fcc()</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">zend_get_callable_zval_from_fcc()</span></code> function will create a callable zval that can be returned to userland.</p>
+<p>When calling a stored FCC the
+<code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">zend_call_known_fcc(zend_fcall_info_cache</span> <span class="pre">*fcc,</span> <span class="pre">zval</span> <span class="pre">*retval_ptr,</span> <span class="pre">uint32_t</span> <span class="pre">param_count,</span> <span class="pre">zval</span> <span class="pre">*params,</span> <span class="pre">HashTable</span> <span class="pre">*named_params)</span></code>
+should be used, as it will duplicate the op array of a trampoline.
+The remaining parameters will be used to construct the FCI.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">zend_call_function_with_return_value(*fci,</span> <span class="pre">*fcc,</span> <span class="pre">zval</span> <span class="pre">*retval)</span></code> function was also added in PHP 8.3.0
+to replace the usage of <code class="docutils literal notranslate"><span class="pre">zend_fcall_info_call(fci,</span> <span class="pre">fcc,</span> <span class="pre">retval,</span> <span class="pre">NULL)</span></code>.</p>
 </div>
 </section>
 </section>
