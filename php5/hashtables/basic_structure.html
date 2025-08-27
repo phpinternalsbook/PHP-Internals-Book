@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Basic structure &#8212; PHP Internals Book</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=dfa0e015" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
     <link rel="stylesheet" type="text/css" href="../../_static/style.css?v=38da9290" />
     <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -21,7 +21,7 @@
           <span>PHP Internals Book</span></a></h1>
         <h2 class="heading"><span>Basic structure</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="../hashtables.html">Hashtables</a>
@@ -56,7 +56,8 @@ first being <em>open addressing</em> (which is not covered here). The second one
 method simply stores all elements having the same hash in a linked list. When a key is looked up PHP will calculate the
 hash and then go through the linked list of “possible” values until it finds the matching entry. Here is an
 illustration of chaining collision resolution:</p>
-<a class="reference internal image-reference" href="../../_images/basic_hashtable.svg"><img alt="../../_images/basic_hashtable.svg" class="align-center" height="265" src="../../_images/basic_hashtable.svg" /></a>
+<a class="reference internal image-reference" href="../../_images/basic_hashtable.svg"><img alt="../../_images/basic_hashtable.svg" class="align-center" src="../../_images/basic_hashtable.svg" style="height: 265px;" />
+</a>
 <p>The elements of the linked list are called <code class="docutils literal notranslate"><span class="pre">Bucket</span></code>s and the C array containing the heads of the linked lists is
 called <code class="docutils literal notranslate"><span class="pre">arBuckets</span></code>.</p>
 <p>Consider how you would delete an element from such a structure: Say you have a pointer to the bucket of <code class="docutils literal notranslate"><span class="pre">&quot;c&quot;</span></code> and want
@@ -64,14 +65,16 @@ to remove it. To do this you’d have to set the pointer coming from <code class
 bucket of <code class="docutils literal notranslate"><span class="pre">&quot;a&quot;</span></code> which you can do either by traversing the linked list for the hash value or by additionally storing
 pointers in the reverse direction. The latter is what PHP does: Every bucket contains both a pointer to the next bucket
 (<code class="docutils literal notranslate"><span class="pre">pNext</span></code>) and the previous bucket (<code class="docutils literal notranslate"><span class="pre">pLast</span></code>). This is illustrated in the following graphic:</p>
-<a class="reference internal image-reference" href="../../_images/doubly_linked_hashtable.svg"><img alt="../../_images/doubly_linked_hashtable.svg" class="align-center" height="250" src="../../_images/doubly_linked_hashtable.svg" /></a>
+<a class="reference internal image-reference" href="../../_images/doubly_linked_hashtable.svg"><img alt="../../_images/doubly_linked_hashtable.svg" class="align-center" src="../../_images/doubly_linked_hashtable.svg" style="height: 250px;" />
+</a>
 <p>Furthermore PHP hashtables are <em>ordered</em>: If you traverse an array you’ll get the elements in same order in which you
 inserted them. To support this the buckets have to be part of another linked list which specifies the order. This is
 once again a doubly linked list, for the same reasons as outlined above (and to support traversation in reverse order).
 The forward pointers are stored in <code class="docutils literal notranslate"><span class="pre">pListNext</span></code>, the backward pointers in <code class="docutils literal notranslate"><span class="pre">pListLast</span></code>. Additionally the hashtable
 structure has a pointer to the start of the list (<code class="docutils literal notranslate"><span class="pre">pListHead</span></code>) and the end of the list (<code class="docutils literal notranslate"><span class="pre">pListLast</span></code>). Here is an
 example of how this linked list could look like for the elements <code class="docutils literal notranslate"><span class="pre">&quot;a&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;b&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;c&quot;</span></code> (in that order):</p>
-<a class="reference internal image-reference" href="../../_images/ordered_hashtable.svg"><img alt="../../_images/ordered_hashtable.svg" class="align-center" height="250" src="../../_images/ordered_hashtable.svg" /></a>
+<a class="reference internal image-reference" href="../../_images/ordered_hashtable.svg"><img alt="../../_images/ordered_hashtable.svg" class="align-center" src="../../_images/ordered_hashtable.svg" style="height: 250px;" />
+</a>
 </section>
 <section id="the-hashtable-and-bucket-structures">
 <h2>The HashTable and Bucket structures<a class="headerlink" href="#the-hashtable-and-bucket-structures" title="Link to this heading">¶</a></h2>
@@ -160,7 +163,7 @@ is in the process of being destroyed.</p>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="../hashtables.html">Hashtables</a>
