@@ -204,7 +204,7 @@ The ``zend_string`` API supports a few additional operations. The most common on
     // Case-sensitive comparison with a string literal.
     bool result = zend_string_equals_literal(foo, "FOO"); // false
     // Case-insensitive comparison with a string literal.
-    bool result = zend_string_equals_literal_ci(foo, "FOO"); // false
+    bool result = zend_string_equals_literal_ci(foo, "FOO"); // true
 
     zend_string_release(foo);
     zend_string_release(FOO);
