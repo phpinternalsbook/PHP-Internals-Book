@@ -100,7 +100,7 @@ source code).
 Why need a Zend extension ?
 ***************************
 
-Let us warn you : until you have **very advanced** knowledge on PHP internal's Vritual Machine, and until you need to
+Let us warn you : until you have **very advanced** knowledge on PHP internal's Virtual Machine, and until you need to
 hook deep into it, you shouldn't need a Zend extension, but a PHP extension will be enough.
 
 Today's most commonly known Zend extensions into PHP's world are opcache, Xdebug, phpdbg and Blackfire. But you know
