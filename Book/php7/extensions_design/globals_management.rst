@@ -441,3 +441,30 @@ to destroy such strings in ``MSHUTDOWN()``.
 Then in ``MINIT()`` we probe for a ``PIB_RAND_MAX`` environment and use it as the maximum range value for our random
 number pick. As we use an unsigned integer and we know ``strtoull()`` won't complain about negative numbers (and thus
 wrap around integer bounds as sign mismatch), we just avoid using negative (classic libc workarounds).
+
+
+------------------------------
+
+Compiler, Engine and PHP Globals
+********************************
+
+When dealing with globals some times you will need to deal with some of the PHP core globals,
+PHP provides a various macros to access those globals.::
+
+    CG(GLOBAL); /*refers to Compiler Globals*/
+    EG(GLOBAL); /*refers to Engine and Executor Globals*/
+    PG(GLOBAL); /*refers to PHP Globals*/
+
+a quick live example from the standard extension, especially the constant function from
+`basic_functions.c <https://github.com/php/php-src/blob/PHP-7.2/ext/standard/basic_functions.c#L3889>`_ file,
+when we are trying to get an undefined constant ::
+
+    if (!EG(exception)) {
+        php_error_docref(NULL, E_WARNING, "Couldn't find constant %s", ZSTR_VAL(const_name));
+    }
+
+PHP will throw an E_WARNING traditional warning if the exception global -*which refers to the exception class*-
+is not defined.
+
+You can find out more about the available globals for each macro at
+`zend_globals.h <https://github.com/php/php-src/blob/master/Zend/zend_globals.h>`_ file.
