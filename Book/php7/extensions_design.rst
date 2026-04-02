@@ -19,4 +19,8 @@ Contents:
     extensions_design/hooks.rst
     extensions_design/ini_settings.rst
     extensions_design/zend_extensions.rst
+    extensions_design/stub_files.rst
+    extensions_design/named_arguments.rst
+    extensions_design/attributes.rst
+    extensions_design/observer_api.rst
 

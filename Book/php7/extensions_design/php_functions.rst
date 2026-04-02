@@ -162,6 +162,19 @@ function could have worked if we would have written its body now. Even with no d
           information about the function. Arguments are also used by the engine, especially when we talk about
           arguments passed by reference, or functions returning references.
 
+.. versionchanged:: PHP 8.0
+
+   As of PHP 8.0, declaring arginfo is **mandatory** for all internal functions. Extensions that
+   omit it produce a startup warning. Use the :doc:`stub file system <stub_files>` to generate
+   arginfo automatically from a plain PHP signature file.
+
+   The ``zend_internal_arg_info`` structure was also significantly changed in PHP 8: the
+   ``class_name`` and ``type_hint`` fields were replaced by a single ``zend_type type`` field
+   that can represent union types, intersection types, and named class types. The old macros
+   still exist, but new code should use the stub file system to generate correct arginfo rather
+   than writing it by hand. See :doc:`stub_files` and :doc:`../internal_types/type_system` for
+   the full details.
+
 To declare arguments, we need to familiarize with the ``zend_internal_arg_info`` structure::
 
     typedef struct _zend_internal_arg_info {

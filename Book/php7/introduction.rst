@@ -43,3 +43,32 @@ The repository for this book is available on GitHub_. Please report issues and p
 
 .. _GitHub: https://github.com/phpinternalsbook/PHP-Internals-Book
 .. _issue tracker: https://github.com/phpinternalsbook/PHP-Internals-Book/issues
+
+PHP 8 and the 8.x series
+-------------------------
+
+.. versionadded:: PHP 8.0
+
+This section of the book also covers PHP 8 and the subsequent 8.x releases. PHP 8 is built
+directly on the PHP 7 foundation. The core data structures -- zvals, hashtables, ``zend_string``,
+and the Zend memory manager -- are unchanged. Most chapters apply equally to both versions.
+
+Where behaviour or APIs changed in PHP 8, the differences are explicitly noted inline with a
+coloured callout box stating the PHP version in which the change was introduced. Sections that
+cover concepts that exist only in PHP 8 (fibers, enums, the JIT compiler, attributes, the
+observer API) carry such a notice at the very top of the section.
+
+The PHP 8.x release timeline:
+
+* **PHP 8.0** (November 2020) -- JIT compiler, union types, named arguments, attributes,
+  match expressions, constructor property promotion. Object handlers API cleaned up (now
+  accept ``zend_object*`` instead of ``zval*``). TSRM compatibility macros removed. All
+  internal functions now required to declare arginfo.
+* **PHP 8.1** (November 2021) -- Fibers (coroutines), enums, readonly properties,
+  intersection types, first-class callable syntax, ``never`` return type.
+* **PHP 8.2** (December 2022) -- Readonly classes, disjunctive normal form (DNF) types,
+  standalone ``null``/``true``/``false`` types.
+* **PHP 8.3** (November 2023) -- Typed class constants, ``#[\Override]`` attribute. C99
+  compiler formalised as a hard requirement.
+* **PHP 8.4** (November 2024) -- Property hooks, asymmetric visibility,
+  ``#[\Deprecated]`` attribute, frameless function calls for faster internal dispatch.

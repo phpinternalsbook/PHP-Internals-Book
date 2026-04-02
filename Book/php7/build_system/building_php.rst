@@ -526,3 +526,44 @@ use of the ``./config.nice`` script (which contains your last ``./configure`` ca
 One last cleaning script that PHP provides is ``./vcsclean``. This will only work if you checked out the source code
 from git. It effectively boils down to a call to ``git clean -X -f -d``, which will remove all untracked files and
 directories that are ignored by git. You should use this with care.
+
+PHP 8 build system changes
+--------------------------
+
+.. versionchanged:: PHP 8.0
+
+   * ``--enable-maintainer-zts`` was renamed to ``--enable-zts``. The old flag is no longer
+     accepted. Note that the description of ``--enable-zts`` earlier in this chapter already
+     uses the new name.
+   * ``--disable-inline-optimization`` was removed. Use ``CFLAGS="-O0"`` instead.
+   * ``HAVE_HASH_EXT`` and ``HAVE_PCRE`` compile-time macros were removed because ext/hash and
+     ext/pcre have been non-optional since PHP 7.4. Remove any code guarded by these macros.
+   * The ``PHP_BUILD_SYSTEM`` and ``PHP_BUILD_PROVIDER`` environment variables can be set at
+     configure time to embed build metadata in ``phpinfo()`` output::
+
+         PHP_BUILD_SYSTEM="Ubuntu 22.04" ./configure ...
+
+.. versionchanged:: PHP 8.3
+
+   PHP 8.3 formalised the C99 requirement. The configure-time feature checks that previously
+   set ``HAVE_STDINT_H``, ``HAVE_INTTYPES_H``, and similar macros were removed. Do not test
+   for these macros -- include ``<stdint.h>`` and ``<inttypes.h>`` directly.
+
+   Additionally, many Zend headers that previously included standard library headers
+   transitively had those inclusions cleaned up. Extensions that relied on implicit includes
+   may need to add explicit ``#include`` directives.
+
+   A custom version suffix can now be embedded at configure time::
+
+       ./configure PHP_EXTRA_VERSION="-acme"
+
+.. versionchanged:: PHP 8.4
+
+   Several extensions and their configure options were removed: ``--with-imap``,
+   ``--with-pdo-oci``, ``--with-pspell``, ``--with-zlib-dir``, ``--with-kerberos``,
+   ``--with-openssl-dir``.
+
+   Two new ``php-config`` options were added::
+
+       php-config --lib-dir      # library directory for the embed SAPI
+       php-config --lib-embed    # full path to the embed SAPI static library

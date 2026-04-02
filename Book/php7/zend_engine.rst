@@ -15,4 +15,5 @@ Contents:
     zend_engine/zend_compiler.rst
     zend_engine/zend_executor.rst
     zend_engine/zend_opcache.rst
+    zend_engine/jit.rst
 
