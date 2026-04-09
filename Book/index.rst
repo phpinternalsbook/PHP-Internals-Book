@@ -16,6 +16,8 @@ PHP 7 and PHP 8
     php7/memory_management.rst
     php7/zend_engine.rst
     php7/debugging.rst
+    php7/fibers.rst
+    php7/enums.rst
 
 ..
     php7/hashtables.rst

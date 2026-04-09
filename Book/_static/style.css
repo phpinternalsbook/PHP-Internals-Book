@@ -6,3 +6,34 @@ body {
     min-width: 45em;
     max-width: 60em;
 }
+
+/* Version callout boxes */
+div.versionadded,
+div.versionchanged {
+    border-left: 4px solid;
+    border-radius: 3px;
+    padding: 0.5em 0.75em;
+    margin: 1em 0;
+    font-style: normal;
+}
+
+div.versionadded {
+    background-color: #e8f5e9;
+    border-color: #43a047;
+}
+
+div.versionchanged {
+    background-color: #fff8e1;
+    border-color: #f9a825;
+}
+
+div.versionadded p,
+div.versionchanged p {
+    margin: 0;
+}
+
+div.versionadded span.versionmodified,
+div.versionchanged span.versionmodified {
+    font-weight: bold;
+    font-style: normal;
+}

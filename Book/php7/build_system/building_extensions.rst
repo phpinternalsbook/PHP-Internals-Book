@@ -227,3 +227,46 @@ As you can see, this doesn't display any useful information. The reason is that 
 extension and a Zend extension, where the former contains all ini settings, constants and functions. So in this
 particular case you still need to use ``--re``. Other Zend extensions make their information available via ``--rz``
 though.
+
+Stub files and arginfo generation (PHP 8)
+-----------------------------------------
+
+.. versionadded:: PHP 8.0
+
+   PHP 8 introduced **stub files** (``.stub.php``) as the preferred way to declare function,
+   class, and constant signatures for internal extensions. A code generator,
+   ``build/gen_stub.php``, reads these files and produces a ``*_arginfo.h`` C header that is
+   then included in your extension source.
+
+   The ``ext_skel.php`` skeleton generator in PHP 8 creates both a stub file
+   (``myext.stub.php``) and the generated arginfo header (``myext_arginfo.h``) alongside the
+   main extension skeleton.
+
+   To regenerate the arginfo header after editing the stub::
+
+       php /path/to/php-src/build/gen_stub.php ext/myext/myext.stub.php
+
+   The generated header is committed to your repository alongside the stub. Both files should
+   be kept in sync -- ``gen_stub.php`` embeds a hash of the stub file in the header so
+   out-of-date copies are easy to detect.
+
+   As of PHP 8.0, all internal functions are **required** to declare arginfo. Extensions that
+   omit it produce a startup warning. See the dedicated
+   :doc:`Stub files chapter <../extensions_design/stub_files>` for the full details.
+
+C99 and include requirements (PHP 8)
+-------------------------------------
+
+.. versionchanged:: PHP 8.0
+
+   PHP 8 requires a C99 compiler. PHP 8.3 formalised this by removing configure-time feature
+   checks and their ``HAVE_*`` macros.
+
+   PHP 8.4 removed ``main/php_stdint.h``. Replace any inclusion of it with direct includes of
+   the standard headers::
+
+       #include <stdint.h>     /* uint8_t, uint32_t, etc. */
+       #include <inttypes.h>   /* PRId64 and similar format macros */
+
+   Also replace the ``u_char`` typedef (provided by the removed header) with the standard
+   C99 ``uint8_t``.

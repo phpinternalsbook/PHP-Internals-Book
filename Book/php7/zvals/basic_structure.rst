@@ -356,3 +356,33 @@ The following table summarizes the most commonly used accessor macros, though th
 When you want to access the contents of a zval, you should always go through these macros, rather than directly
 accessing its members. This maintains a level of abstraction and will, to some degree, insulate you from changes in
 the implementation.
+
+PHP 8 type additions
+--------------------
+
+The ``zval`` structure itself is unchanged in PHP 8. The following additions affect type declarations
+and the type system only -- they never appear as the type of a runtime zval.
+
+.. versionadded:: PHP 8.1
+
+   ``IS_NEVER`` was added to represent the ``never`` return type, which declares that a function
+   never returns normally (it always throws or calls ``exit()``). This type exists only in arginfo
+   and property type declarations.
+
+.. versionadded:: PHP 8.0
+
+   ``false`` can be used as a standalone return type for internal functions. In the ``MAY_BE_*``
+   bitmask world, it maps to the existing ``MAY_BE_FALSE`` bit.
+
+.. versionadded:: PHP 8.2
+
+   ``null`` and ``true`` became standalone types alongside the already-available ``false``.
+   All three map to existing ``MAY_BE_*`` bits (``MAY_BE_NULL``, ``MAY_BE_TRUE``,
+   ``MAY_BE_FALSE``) and can appear anywhere a type hint is accepted.
+
+.. versionchanged:: PHP 8.0
+
+   The ``GC_COLLECTABLE`` flag on reference-counted values was inverted to
+   ``GC_NOT_COLLECTABLE``. Extension code that previously set ``GC_COLLECTABLE`` must be
+   updated: values that participate in circular garbage collection (the default) should
+   **not** have ``GC_NOT_COLLECTABLE`` set.
