@@ -63,6 +63,30 @@ debugging times:
              confident in every strong C program, not to debug memory. Memory bugs lead to harmful security issues and
              program crashes, often randomly, depending on many parameters.
 
+Runtime ZendMM debugging
+************************
+
+Starting with PHP 8.5, ZendMM also has runtime-enabled heap debugging helpers. They are useful when a memory corruption
+only reproduces in an environment where a debug build, ASAN/MSAN, or valgrind is too slow or otherwise not practical.
+They do not replace those tools. They make ZendMM heap corruption crash earlier and with a more useful backtrace.
+
+Enable them with the ``ZEND_MM_DEBUG`` environment variable. It takes a comma-separated list of ``key=value`` options::
+
+    ZEND_MM_DEBUG=poison_free=0xbe,poison_alloc=0xeb,padding=16,check_freelists_on_shutdown=1 php ...
+
+Supported options are:
+
+* ``poison_free=byte``: overwrite freed ZendMM blocks with the given byte value.
+* ``poison_alloc=byte``: overwrite newly allocated ZendMM blocks with the given byte value.
+* ``padding=bytes``: add unused bytes before and after each ZendMM allocation. The value must be aligned to
+  ``ZEND_MM_ALIGNMENT``. ``16`` is a good starting point on common 64-bit builds.
+* ``check_freelists_on_shutdown=0|1``: walk ZendMM freelists during shutdown to catch freelist corruption.
+
+When ``ZEND_MM_DEBUG`` is enabled, its realloc handler always allocates a new block and frees the old one. This can
+expose code that keeps using the old pointer after reallocating. If ``ZEND_MM_DEBUG`` is unset, there is no overhead.
+If ``USE_ZEND_ALLOC=0`` is set, ZendMM is disabled before ``ZEND_MM_DEBUG`` is checked, so these ZendMM-specific helpers
+are not installed.
+
 Memory leak detection example
 *****************************
 
