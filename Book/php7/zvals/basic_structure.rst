@@ -85,7 +85,7 @@ works will be discussed in the :doc:`Hashtables <../internal_types/hashtables>` 
 Objects (``IS_OBJECT``) use the ``zend_object *obj`` member. PHP's class and object system will be described in the
 :doc:`objects <../classes_objects>` chapter.
 
-Resources (``IS_RESOURCE``) are use the ``zend_resource *res`` member. Resources are covered in the
+Resources (``IS_RESOURCE``) use the ``zend_resource *res`` member. Resources are covered in the
 :doc:`Resources <../internal_types/zend_resources>` chapter.
 
 To summarize, here's a table with all the available "normal" type tags and the corresponding storage location for
