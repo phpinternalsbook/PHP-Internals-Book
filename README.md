@@ -32,6 +32,8 @@ These domains have been bought by Anthony to publish info about the book:
 
 Only the first domain is currently in use.
 
+A Japanese translation is already published and lives at [http://phpinternalsbook-ja.com/](http://phpinternalsbook-ja.com/).
+
 Authors
 -------
 
