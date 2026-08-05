@@ -184,6 +184,11 @@ Writing a simple test
 
 Let's write our first test just to get familiar with the process.
 
+If you ever encounter a bug in PHP or an extension, the first thing you should do is write a specific test for it. Put
+the ID of the bug from bugs.php.net in the filename, eg: bug12345.phpt. This makes it easy for the developers to
+reproduce the bug and all future versions of PHP will keep testing for this specific bug, making sure it will never
+reoccur in the future.
+
 Typically tests are stored in a ``tests/`` directory that lives near the code we want to test. For example, the `PDO
 extension`_ is found at ``ext/pdo`` in the PHP source code. If you open that directory, you'll see a `tests/ directory`_
 with lots of ``.phpt`` files in it. All the other extensions are set up the same way. There are also tests for the Zend
